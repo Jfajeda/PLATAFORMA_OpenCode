@@ -416,6 +416,7 @@
         <li><a href="#cap15"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg> 15. Referencia Rapida</a></li>
         <li><a href="#cap16"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> 16. Copias de Seguridad</a></li>
         <li><a href="#cap17"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> 17. Analisis de Codigo</a></li>
+        <li><a href="#cap18"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg> 18. Centralizacion de Proyectos</a></li>
       </ul>
     </nav>
   </aside>
@@ -2110,6 +2111,228 @@ git push</code></pre>
       </div>
     </div>
 
+    <hr>
+
+    <!-- ============================================================
+         CAPITULO 18: CENTRALIZACION Y MANTENIMIENTO DE PROYECTOS
+         ============================================================ -->
+    <div class="section" id="cap18">
+      <h1>18. Centralizacion y Mantenimiento de Proyectos <span class="badge badge-new">Nuevo</span></h1>
+      <p class="chapter-intro">
+        Registro completo del proceso de centralizacion de los 8 proyectos OpenCode de CODANOR,
+        incluyendo la migracion de directorios, inicializacion de Git, limpieza de archivos y
+        configuracion del backup unificado. Guia reproducible para futuros proyectos.
+      </p>
+
+      <h2>Por que centralizar</h2>
+      <p>Antes de la centralizacion, los proyectos estaban dispersos en <code>~/Desktop/</code> y <code>~/Documents/</code>,
+        ambas carpetas sincronizadas con iCloud. Esto causaba:</p>
+      <table>
+        <thead>
+          <tr><th>Problema</th><th>Impacto</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>iCloud sincroniza cada cambio de Git</td><td>Lentitud, conflictos, archivos <code>.icloud</code> fantasma</td></tr>
+          <tr><td>iCloud puede mover archivos a la nube</td><td>Git se corrompe si faltan archivos locales</td></tr>
+          <tr><td>OpenCode no encontraba proyectos</td><td>Rutas largas con espacios y caracteres especiales</td></tr>
+          <tr><td>Proyectos sin Git</td><td>Sin historial, sin <code>/undo</code>, sin backup versionado</td></tr>
+          <tr><td>Sin <code>.gitignore</code></td><td>190 archivos <code>.DS_Store</code> y 11 <code>.pyc</code> innecesarios</td></tr>
+          <tr><td>Backup fragmentado</td><td>Imposible hacer backup de todos los proyectos a la vez</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Estado anterior (antes de centralizar)</h2>
+      <table>
+        <thead>
+          <tr><th>Proyecto</th><th>Ubicacion</th><th>Git</th><th>.gitignore</th><th>AGENTS.md</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>PLATAFORMA_OpenCode</td><td><code>~/Documents/</code></td><td>SI</td><td>SI</td><td>SI</td></tr>
+          <tr><td>ANALISIS LOGs PreSIEM</td><td><code>~/Desktop/</code></td><td>NO</td><td>NO</td><td>NO</td></tr>
+          <tr><td>Seguimiento licitaciones</td><td><code>~/Desktop/</code></td><td>NO</td><td>SI</td><td>NO</td></tr>
+          <tr><td>Gestion Riesgos ISO27001</td><td><code>~/Desktop/</code></td><td>NO</td><td>NO</td><td>NO</td></tr>
+          <tr><td>legislacion_monitor</td><td><code>~/Desktop/</code></td><td>NO</td><td>SI</td><td>NO</td></tr>
+          <tr><td>Gestion Riesgos ENS</td><td><code>~/Desktop/</code></td><td>NO</td><td>NO</td><td>NO</td></tr>
+          <tr><td>Plantillas ENS e ISO</td><td><code>~/Desktop/</code></td><td>NO</td><td>NO</td><td>SI</td></tr>
+          <tr><td>Plataforma Seguimiento Proyectos</td><td><code>~/Desktop/</code></td><td>NO</td><td>NO</td><td>NO</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Proceso realizado (12 Abril 2026)</h2>
+
+      <h3>Paso 1: Crear directorio centralizado</h3>
+      <pre><code>mkdir -p ~/Proyectos</code></pre>
+      <p>Ubicacion: <code>/Users/jaimefajeda/Proyectos/</code> &mdash; fuera de iCloud, en el disco local.</p>
+
+      <h3>Paso 2: Copiar proyectos (sin mover, para seguridad)</h3>
+      <pre><code>cp -R ~/Desktop/"ANALISIS LOGs PreSIEM" ~/Proyectos/ANALISIS_LOGs_PreSIEM
+cp -R ~/Desktop/"Seguimiento licitaciones" ~/Proyectos/Seguimiento_licitaciones
+cp -R ~/Desktop/"Herramienta de Gestion de Riesgos- OPENCODE ISO27001" ~/Proyectos/Gestion_Riesgos_ISO27001
+cp -R ~/Desktop/legislacion_monitor ~/Proyectos/legislacion_monitor
+cp -R ~/Desktop/"Herramienta de Gestion de Riesgos- OPENCODE ENS" ~/Proyectos/Gestion_Riesgos_ENS
+cp -R ~/Desktop/"TRABAJAR CON PLANTILLAS EN ENS Y ISO" ~/Proyectos/Plantillas_ENS_ISO
+cp -R ~/Desktop/"PALATAFORMA DE SEGUIMIENTO DE PROYECTOS" ~/Proyectos/Plataforma_Seguimiento_Proyectos</code></pre>
+      <div class="alert alert-info">
+        <div class="alert-title">Nombres normalizados</div>
+        Se eliminaron espacios, acentos y caracteres especiales de los nombres de carpeta para evitar
+        problemas con Git, la Terminal y OpenCode. El contenido es identico al original.
+      </div>
+
+      <h3>Paso 3: Verificar integridad de las copias</h3>
+      <pre><code>for d in ~/Proyectos/*/; do
+  SIZE=$(du -sh "$d" | cut -f1)
+  FILES=$(find "$d" -type f | wc -l)
+  echo "$(basename $d): $SIZE, $FILES archivos"
+done</code></pre>
+
+      <h3>Paso 4: Eliminar originales del Desktop</h3>
+      <p>Solo despues de verificar que cada copia era identica al original:</p>
+      <pre><code>rm -rf ~/Desktop/"ANALISIS LOGs PreSIEM"
+rm -rf ~/Desktop/"Seguimiento licitaciones"
+# ... (7 comandos rm -rf en total)</code></pre>
+
+      <h3>Paso 5: Limpiar archivos basura</h3>
+      <pre><code># Eliminar 190 archivos .DS_Store (basura de macOS)
+find ~/Proyectos -name ".DS_Store" -delete
+
+# Eliminar 11 archivos .pyc (compilados de Python regenerables)
+find ~/Proyectos -name "*.pyc" -delete
+
+# Eliminar carpetas __pycache__ vacias
+find ~/Proyectos -name "__pycache__" -type d -delete</code></pre>
+
+      <h3>Paso 6: Crear .gitignore en cada proyecto</h3>
+      <p>Se creo un <code>.gitignore</code> estandar en cada proyecto:</p>
+      <pre><code>.DS_Store
+Thumbs.db
+*.pyc
+__pycache__/
+node_modules/
+.env
+.env.*
+*.log
+.scannerwork/
+~$*</code></pre>
+
+      <h3>Paso 7: Inicializar Git en cada proyecto</h3>
+      <pre><code># Para cada proyecto:
+cd ~/Proyectos/nombre_proyecto
+git init
+git branch -M main
+git config user.email "info@codanor.com"
+git config user.name "Jaime Fajeda"
+git add .
+git commit -m "Initial commit: Nombre del Proyecto"</code></pre>
+
+      <h2>Estado actual (despues de centralizar)</h2>
+      <table>
+        <thead>
+          <tr><th>Proyecto</th><th>Ubicacion</th><th>Tamano</th><th>Archivos</th><th>Git</th><th>.gitignore</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>PLATAFORMA_OpenCode</strong></td><td><code>~/Proyectos/</code></td><td>7 MB</td><td>843</td><td>SI (4 commits)</td><td>SI</td></tr>
+          <tr><td><strong>ANALISIS_LOGs_PreSIEM</strong></td><td><code>~/Proyectos/</code></td><td>23 MB</td><td>90</td><td>SI (1 commit)</td><td>SI</td></tr>
+          <tr><td><strong>Seguimiento_licitaciones</strong></td><td><code>~/Proyectos/</code></td><td>548 KB</td><td>16</td><td>SI (1 commit)</td><td>SI</td></tr>
+          <tr><td><strong>Gestion_Riesgos_ISO27001</strong></td><td><code>~/Proyectos/</code></td><td>20 MB</td><td>59</td><td>SI (1 commit)</td><td>SI</td></tr>
+          <tr><td><strong>legislacion_monitor</strong></td><td><code>~/Proyectos/</code></td><td>584 KB</td><td>49</td><td>SI (1 commit)</td><td>SI</td></tr>
+          <tr><td><strong>Gestion_Riesgos_ENS</strong></td><td><code>~/Proyectos/</code></td><td>9.3 MB</td><td>73</td><td>SI (1 commit)</td><td>SI</td></tr>
+          <tr><td><strong>Plantillas_ENS_ISO</strong></td><td><code>~/Proyectos/</code></td><td>1.3 GB</td><td>1,486</td><td>SI (1 commit)</td><td>SI</td></tr>
+          <tr><td><strong>Plataforma_Seguimiento_Proyectos</strong></td><td><code>~/Proyectos/</code></td><td>33 MB</td><td>847</td><td>SI (1 commit)</td><td>SI</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Backup unificado de todos los proyectos</h2>
+      <p>El script <code>backup-opencode.sh</code> fue actualizado con la opcion <code>--proyectos</code>:</p>
+      <pre><code># Backup de TODOS los proyectos de una vez
+~/Proyectos/PLATAFORMA_OpenCode/backup-opencode.sh --proyectos
+
+# Resultado: ~/Documents/opencode-backups/proyectos_YYYYMMDD_HHMMSS.tar.gz
+# Incluye los 8 proyectos completos con su historial Git</code></pre>
+
+      <h2>Como abrir cada proyecto en OpenCode</h2>
+      <pre><code>opencode ~/Proyectos/PLATAFORMA_OpenCode
+opencode ~/Proyectos/ANALISIS_LOGs_PreSIEM
+opencode ~/Proyectos/Seguimiento_licitaciones
+opencode ~/Proyectos/Gestion_Riesgos_ISO27001
+opencode ~/Proyectos/legislacion_monitor
+opencode ~/Proyectos/Gestion_Riesgos_ENS
+opencode ~/Proyectos/Plantillas_ENS_ISO
+opencode ~/Proyectos/Plataforma_Seguimiento_Proyectos</code></pre>
+
+      <h2>Anadir un nuevo proyecto al ecosistema</h2>
+      <p>Para anadir un nuevo proyecto al directorio centralizado:</p>
+      <ol class="step-list">
+        <li><strong>Crear carpeta</strong> en <code>~/Proyectos/</code> (sin espacios ni acentos):
+          <pre><code>mkdir ~/Proyectos/Mi_Nuevo_Proyecto</code></pre>
+        </li>
+        <li><strong>Crear <code>.gitignore</code></strong>:
+          <pre><code>cat &gt; ~/Proyectos/Mi_Nuevo_Proyecto/.gitignore &lt;&lt; 'EOF'
+.DS_Store
+Thumbs.db
+*.pyc
+__pycache__/
+node_modules/
+.env
+*.log
+.scannerwork/
+~$*
+EOF</code></pre>
+        </li>
+        <li><strong>Inicializar Git</strong>:
+          <pre><code>cd ~/Proyectos/Mi_Nuevo_Proyecto
+git init &amp;&amp; git branch -M main
+git config user.email "info@codanor.com"
+git config user.name "Jaime Fajeda"
+git add . &amp;&amp; git commit -m "Initial commit"</code></pre>
+        </li>
+        <li><strong>Abrir en OpenCode</strong> y ejecutar <code>/init</code> para crear AGENTS.md:
+          <pre><code>opencode ~/Proyectos/Mi_Nuevo_Proyecto
+# Dentro de OpenCode: /init</code></pre>
+        </li>
+        <li><strong>Opcional: Subir a GitHub</strong> y conectar SonarCloud (ver Capitulo 17)</li>
+      </ol>
+
+      <h2>Proximos pasos pendientes</h2>
+      <table>
+        <thead>
+          <tr><th>Accion</th><th>Proyectos</th><th>Prioridad</th><th>Como hacerlo</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Ejecutar <code>/init</code> en cada proyecto</td><td>7 proyectos (sin AGENTS.md)</td><td>Alta</td><td>Abrir cada proyecto en OpenCode y ejecutar <code>/init</code></td></tr>
+          <tr><td>Subir a GitHub</td><td>Los que se desee publicar</td><td>Media</td><td>Ver Capitulo 17, Fase 2</td></tr>
+          <tr><td>Conectar SonarCloud</td><td>4 proyectos con codigo Python/JS</td><td>Media</td><td>Ver Capitulo 17, Fase 3</td></tr>
+          <tr><td>Revisar carpeta "BORRADOR para ELIMINAR"</td><td>Plantillas_ENS_ISO</td><td>Baja</td><td>Revisar si se puede eliminar la carpeta duplicada del cliente Santasusana</td></tr>
+          <tr><td>Automatizar backup con cron</td><td>Todos</td><td>Baja</td><td>Ver Capitulo 16</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Convenciones de nombres para proyectos</h2>
+      <table>
+        <thead>
+          <tr><th>Regla</th><th>Ejemplo correcto</th><th>Ejemplo incorrecto</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Sin espacios (usar guion bajo)</td><td><code>Gestion_Riesgos_ENS</code></td><td><code>Gestion Riesgos ENS</code></td></tr>
+          <tr><td>Sin acentos ni caracteres especiales</td><td><code>Gestion_Riesgos</code></td><td><code>Gestion de Riesgos-</code></td></tr>
+          <tr><td>Sin signos de puntuacion</td><td><code>Plantillas_ENS_ISO</code></td><td><code>TRABAJAR CON PLANTILLAS EN ENS Y ISO</code></td></tr>
+          <tr><td>Descriptivo pero conciso</td><td><code>legislacion_monitor</code></td><td><code>PALATAFORMA DE SEGUIMIENTO</code></td></tr>
+        </tbody>
+      </table>
+
+      <div class="alert alert-success">
+        <div class="alert-title">Resumen del impacto</div>
+        <ul>
+          <li><strong>8 proyectos</strong> centralizados en <code>~/Proyectos/</code></li>
+          <li><strong>190 archivos basura</strong> eliminados (.DS_Store)</li>
+          <li><strong>11 archivos compilados</strong> eliminados (.pyc)</li>
+          <li><strong>8 repositorios Git</strong> inicializados con .gitignore</li>
+          <li><strong>Backup unificado</strong> con <code>--proyectos</code> cubre todo en un comando</li>
+          <li><strong>Fuera de iCloud</strong> &mdash; sin conflictos de sincronizacion</li>
+          <li><strong>/undo y /redo</strong> ahora funcionan en todos los proyectos</li>
+        </ul>
+      </div>
+    </div>
+
     <!-- FOOTER -->
     <div class="manual-footer">
       <img src="https://codanor.com/assets/img/logo_web-50.png" alt="CODANOR">
@@ -2119,7 +2342,7 @@ git push</code></pre>
         Barcelona, Catalunya &bull; info@codanor.com &bull; +34 616 947 274
       </p>
       <p style="margin-top: 1rem; color: #aaa;">
-        Manual generado el 10 de Abril de 2026 &bull; Version 2.2 (17 capitulos)
+        Manual generado el 12 de Abril de 2026 &bull; Version 2.3 (18 capitulos)
       </p>
     </div>
 
