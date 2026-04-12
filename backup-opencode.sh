@@ -6,7 +6,8 @@
 # =============================================================================
 #
 # USO:
-#   ./backup-opencode.sh              # Backup completo
+#   ./backup-opencode.sh              # Backup completo (OpenCode)
+#   ./backup-opencode.sh --proyectos  # Backup de TODOS los proyectos (~/Proyectos/)
 #   ./backup-opencode.sh --sessions   # Solo sesiones
 #   ./backup-opencode.sh --config     # Solo configuracion
 #   ./backup-opencode.sh --export     # Exportar sesiones a JSON individual
@@ -22,6 +23,7 @@ set -euo pipefail
 
 # --- CONFIGURACION ---
 BACKUP_DIR="${OPENCODE_BACKUP_DIR:-$HOME/Documents/opencode-backups}"
+PROYECTOS_DIR="${OPENCODE_PROYECTOS_DIR:-$HOME/Proyectos}"
 DATA_DIR="$HOME/.local/share/opencode"
 CONFIG_DIR="$HOME/.config/opencode"
 CACHE_DIR="$HOME/.cache/opencode"
@@ -45,7 +47,8 @@ show_help() {
   echo "  CODANOR - Jafa, S.L."
   echo ""
   echo "  Uso:"
-  echo "    ./backup-opencode.sh              Backup completo (sesiones + config + cache)"
+  echo "    ./backup-opencode.sh              Backup completo de OpenCode (sesiones + config + cache)"
+  echo "    ./backup-opencode.sh --proyectos  Backup de TODOS los proyectos en ~/Proyectos/"
   echo "    ./backup-opencode.sh --sessions   Solo sesiones y mensajes"
   echo "    ./backup-opencode.sh --config     Solo archivos de configuracion"
   echo "    ./backup-opencode.sh --export     Exportar cada sesion a JSON individual"
@@ -282,6 +285,35 @@ clean_backups() {
   ok "Limpieza completada."
 }
 
+# --- BACKUP PROYECTOS ---
+backup_proyectos() {
+  info "Iniciando backup de TODOS los proyectos en $PROYECTOS_DIR..."
+  ensure_backup_dir
+
+  if [ ! -d "$PROYECTOS_DIR" ]; then
+    error "No se encontro directorio de proyectos: $PROYECTOS_DIR"
+  fi
+
+  local BACKUP_FILE="$BACKUP_DIR/proyectos_$TIMESTAMP.tar.gz"
+  local PROJECT_COUNT=$(ls -d "$PROYECTOS_DIR"/*/ 2>/dev/null | wc -l | tr -d ' ')
+
+  info "Proyectos encontrados: $PROJECT_COUNT"
+  for d in "$PROYECTOS_DIR"/*/; do
+    local NAME=$(basename "$d")
+    local SIZE=$(du -sh "$d" 2>/dev/null | cut -f1)
+    info "  - $NAME ($SIZE)"
+  done
+
+  info "Creando archivo de backup..."
+  tar -czf "$BACKUP_FILE" -C "$HOME" Proyectos/ 2>/dev/null || true
+
+  local SIZE=$(get_size "$BACKUP_FILE")
+  ok "Backup de proyectos creado: $BACKUP_FILE ($SIZE)"
+  info "Proyectos incluidos: $PROJECT_COUNT"
+
+  cleanup_old_backups "proyectos_"
+}
+
 # --- RESUMEN ---
 show_summary() {
   echo ""
@@ -319,6 +351,7 @@ show_summary() {
 
 # --- MAIN ---
 case "${1:-}" in
+  --proyectos)  backup_proyectos ;;
   --sessions)   backup_sessions ;;
   --config)     backup_config ;;
   --export)     export_sessions ;;
