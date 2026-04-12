@@ -1762,106 +1762,352 @@ git commit -m "Add OpenCode project configuration"</code></pre>
          CAPITULO 17: ANALISIS DE CODIGO CON SONARQUBE
          ============================================================ -->
     <div class="section" id="cap17">
-      <h1>17. Analisis de Codigo con SonarQube <span class="badge badge-new">Nuevo</span></h1>
+      <h1>17. Analisis de Codigo con SonarQube <span class="badge badge-updated">Actualizado</span></h1>
       <p class="chapter-intro">
-        Integracion de SonarQube Cloud para verificar la calidad y seguridad del codigo, incluyendo la conexion con OpenCode via MCP.
+        Guia completa y reproducible para configurar el analisis de calidad y seguridad del codigo con SonarQube Cloud,
+        incluyendo la integracion con OpenCode y el panel de seguimiento local.
       </p>
 
-      <h2>Que es SonarQube</h2>
+      <h2>Que es SonarQube y por que usarlo</h2>
       <p>
-        <strong>SonarQube</strong> (de SonarSource) es la herramienta lider en analisis estatico de codigo.
-        Detecta bugs, vulnerabilidades de seguridad, code smells y deuda tecnica en mas de 30 lenguajes,
-        incluyendo HTML, JavaScript y CSS. Es especialmente relevante para validar codigo generado por IA.
+        <strong>SonarQube Cloud</strong> (de <a href="https://www.sonarsource.com" target="_blank">SonarSource</a>)
+        es la herramienta lider en analisis estatico de codigo. Detecta automaticamente:
       </p>
+      <table>
+        <thead>
+          <tr><th>Tipo</th><th>Que detecta</th><th>Ejemplo</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Vulnerabilidades</strong></td><td>Problemas de seguridad explotables</td><td>XSS, inyeccion SQL, CSRF</td></tr>
+          <tr><td><strong>Bugs</strong></td><td>Errores que provocan comportamiento incorrecto</td><td>Null dereference, logica incorrecta</td></tr>
+          <tr><td><strong>Code Smells</strong></td><td>Problemas de mantenibilidad</td><td>Funciones largas, codigo duplicado</td></tr>
+          <tr><td><strong>Security Hotspots</strong></td><td>Codigo que requiere revision manual</td><td>Uso de crypto, manejo de datos sensibles</td></tr>
+          <tr><td><strong>Secretos</strong></td><td>Credenciales hardcodeadas</td><td>API keys, passwords, tokens</td></tr>
+        </tbody>
+      </table>
+      <p>Soporta <strong>30+ lenguajes</strong> incluyendo HTML, JavaScript, CSS, TypeScript, Python, Java, etc. Es especialmente relevante para validar codigo generado por IA.</p>
 
-      <h2>Configuracion paso a paso</h2>
+      <div class="alert alert-info">
+        <div class="alert-title">Herramientas involucradas</div>
+        <ul>
+          <li><strong>SonarCloud</strong> (<a href="https://sonarcloud.io" target="_blank">sonarcloud.io</a>) &mdash; Servicio en la nube que analiza el codigo. Gratis hasta 200K lineas.</li>
+          <li><strong>GitHub</strong> (<a href="https://github.com" target="_blank">github.com</a>) &mdash; Donde se aloja el codigo fuente. SonarCloud se conecta a el.</li>
+          <li><strong>analisis-codigo.html</strong> &mdash; Panel local que muestra los badges y metricas de SonarCloud. Exportable a otros proyectos.</li>
+          <li><strong>OpenCode + MCP</strong> &mdash; Integracion opcional para que el agente IA verifique codigo automaticamente.</li>
+        </ul>
+      </div>
 
-      <h3>1. Crear cuenta en SonarCloud</h3>
+      <hr>
+
+      <h2>Procedimiento completo paso a paso</h2>
+
+      <h3>FASE 1: Prerequisitos</h3>
+      <div class="alert alert-warning">
+        <div class="alert-title">Necesitas antes de empezar</div>
+        <ul>
+          <li>Una cuenta en <strong>GitHub</strong> (<a href="https://github.com" target="_blank">github.com</a>)</li>
+          <li><strong>Git</strong> instalado en tu Mac (viene preinstalado en macOS)</li>
+          <li>Un <strong>proyecto con codigo</strong> que quieras analizar</li>
+        </ul>
+      </div>
+
+      <h3>FASE 2: Subir el proyecto a GitHub (si no lo esta)</h3>
+      <p>SonarCloud necesita que el codigo este en un repositorio de GitHub. Si tu proyecto aun no esta en GitHub:</p>
       <ol class="step-list">
-        <li>Ve a <a href="https://sonarcloud.io" target="_blank">sonarcloud.io</a> e inicia sesion con GitHub</li>
-        <li>Crea una organizacion (ej: <code>jfajeda</code>)</li>
-        <li>Importa tu repositorio como proyecto nuevo</li>
-        <li>Genera un token: <em>My Account &gt; Security &gt; Generate Token</em></li>
-        <li>Guarda el token: <code>export SONAR_TOKEN="tu-token"</code></li>
+        <li><strong>Abre la Terminal</strong> de macOS (Aplicaciones &gt; Utilidades &gt; Terminal)</li>
+        <li><strong>Navega al proyecto:</strong>
+          <pre><code>cd /ruta/a/tu/proyecto</code></pre>
+        </li>
+        <li><strong>Inicializa Git:</strong>
+          <pre><code>git init
+git branch -M main
+git config user.email "tu-email@ejemplo.com"
+git config user.name "Tu Nombre"</code></pre>
+        </li>
+        <li><strong>Crea un <code>.gitignore</code></strong> (opcional pero recomendado):
+          <pre><code># Crear archivo .gitignore con exclusiones comunes
+echo ".DS_Store
+node_modules/
+*.log
+.env
+.scannerwork/" &gt; .gitignore</code></pre>
+        </li>
+        <li><strong>Haz el primer commit:</strong>
+          <pre><code>git add .
+git commit -m "Initial commit"</code></pre>
+        </li>
+        <li><strong>Crea el repositorio en GitHub:</strong>
+          <ul>
+            <li>Ve a <a href="https://github.com/new" target="_blank">github.com/new</a></li>
+            <li>Nombre: el nombre de tu proyecto</li>
+            <li>Visibilidad: <strong>Public</strong> (necesario para SonarCloud gratis)</li>
+            <li><strong>NO</strong> marques "Add README" ni ".gitignore"</li>
+            <li>Clic en <strong>"Create repository"</strong></li>
+          </ul>
+        </li>
+        <li><strong>Conecta y sube:</strong>
+          <pre><code>git remote add origin https://github.com/TU-USUARIO/TU-REPO.git
+git push -u origin main</code></pre>
+          <p>Cuando pida credenciales:</p>
+          <ul>
+            <li><strong>Username</strong>: tu usuario de GitHub</li>
+            <li><strong>Password</strong>: un <em>Personal Access Token</em> de GitHub (NO tu password). Generalo en: <a href="https://github.com/settings/tokens/new?scopes=repo" target="_blank">github.com/settings/tokens/new</a></li>
+          </ul>
+        </li>
       </ol>
 
-      <h3>2. sonar-project.properties</h3>
-      <pre><code>sonar.projectKey=jfajeda_plataforma-opencode
-sonar.organization=jfajeda
-sonar.projectName=Plataforma OpenCode
+      <h3>FASE 3: Crear proyecto en SonarCloud</h3>
+      <ol class="step-list">
+        <li>Ve a <a href="https://sonarcloud.io" target="_blank"><strong>sonarcloud.io</strong></a> (no confundir con otros sitios como qt.io o sonarsource.com)</li>
+        <li>Clic en <strong>"Log in"</strong> (esquina superior derecha) &gt; elige <strong>"GitHub"</strong></li>
+        <li>Autoriza SonarCloud a acceder a tu GitHub (popup)</li>
+        <li>En el dashboard, clic en <strong>"+"</strong> (esquina superior derecha) &gt; <strong>"Analyze new project"</strong></li>
+        <li>Selecciona tu cuenta de GitHub y busca tu repositorio en la lista</li>
+        <li>Clic en <strong>"Set Up"</strong> junto al nombre del repo</li>
+        <li>Elige el plan <strong>"Free"</strong></li>
+        <li>SonarCloud comenzara a analizar automaticamente. Veras el mensaje:
+          <em>"We are analyzing your project. You should see this page refresh in a few moments."</em></li>
+        <li>Espera 2-5 minutos. La pagina se refrescara con los resultados.</li>
+      </ol>
+
+      <div class="alert alert-success">
+        <div class="alert-title">Analisis automatico</div>
+        Una vez configurado, SonarCloud analiza automaticamente tu codigo cada vez que haces <code>git push</code> a GitHub. No necesitas ejecutar ningun comando manualmente.
+      </div>
+
+      <h3>FASE 4: Generar token de SonarCloud</h3>
+      <p>El token es necesario para el panel local y para la integracion con OpenCode.</p>
+      <ol class="step-list">
+        <li>En SonarCloud, clic en tu <strong>avatar</strong> (esquina superior derecha) &gt; <strong>"My Account"</strong></li>
+        <li>Ve a la pestana <strong>"Security"</strong></li>
+        <li>En "Generate Token", escribe un nombre (ej: <code>opencode-scanner</code>)</li>
+        <li>Clic en <strong>"Generate"</strong></li>
+        <li><strong>Copia el token inmediatamente</strong> (solo se muestra una vez, empieza por un hash largo)</li>
+        <li>Guardalo en un lugar seguro. En la terminal puedes configurarlo como variable de entorno:
+          <pre><code># Temporal (solo esta sesion de terminal)
+export SONAR_TOKEN="tu-token-aqui"
+
+# Permanente (anade al final de ~/.zshrc o ~/.bashrc)
+echo 'export SONAR_TOKEN="tu-token-aqui"' &gt;&gt; ~/.zshrc</code></pre>
+        </li>
+      </ol>
+
+      <h3>FASE 5: Verificar resultados</h3>
+      <p>Despues del analisis, en SonarCloud veras un dashboard con:</p>
+      <table>
+        <thead>
+          <tr><th>Metrica</th><th>Significado</th><th>Rating ideal</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Security</strong></td><td>Vulnerabilidades encontradas</td><td><strong>A</strong> (0 vulnerabilidades)</td></tr>
+          <tr><td><strong>Reliability</strong></td><td>Bugs encontrados</td><td><strong>A</strong> (0 bugs)</td></tr>
+          <tr><td><strong>Maintainability</strong></td><td>Code smells (problemas de limpieza)</td><td><strong>A</strong></td></tr>
+          <tr><td><strong>Coverage</strong></td><td>Porcentaje de codigo cubierto por tests</td><td>&gt; 80%</td></tr>
+          <tr><td><strong>Duplications</strong></td><td>Porcentaje de codigo duplicado</td><td>&lt; 3%</td></tr>
+          <tr><td><strong>Security Hotspots</strong></td><td>Codigo que requiere revision manual</td><td>0</td></tr>
+        </tbody>
+      </table>
+      <p>Los ratings van de <strong>A</strong> (mejor) a <strong>E</strong> (peor). El <strong>Quality Gate</strong> es PASSED o FAILED segun se cumplan los umbrales configurados.</p>
+
+      <div class="alert alert-info">
+        <div class="alert-title">URL del dashboard</div>
+        Tu dashboard esta siempre disponible en:
+        <pre><code>https://sonarcloud.io/dashboard?id=TU-ORG_TU-PROYECTO</code></pre>
+        Ejemplo real: <a href="https://sonarcloud.io/dashboard?id=Jfajeda_PLATAFORMA_OpenCode" target="_blank">sonarcloud.io/dashboard?id=Jfajeda_PLATAFORMA_OpenCode</a>
+      </div>
+
+      <hr>
+
+      <h2>Panel local de Analisis (analisis-codigo.html)</h2>
+      <p>
+        El archivo <code>analisis-codigo.html</code> es un panel independiente que muestra los badges y metricas de SonarCloud
+        directamente en tu navegador, sin necesidad de ir a sonarcloud.io. Tiene 5 pestanas:
+      </p>
+      <table>
+        <thead>
+          <tr><th>Pestana</th><th>Contenido</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Resumen</strong></td><td>Quality Gate, badges con metricas principales, ratings</td></tr>
+          <tr><td><strong>Seguridad</strong></td><td>Detalle de vulnerabilidades y security hotspots</td></tr>
+          <tr><td><strong>Calidad</strong></td><td>Bugs, code smells, cobertura, duplicaciones</td></tr>
+          <tr><td><strong>Historial</strong></td><td>Registro manual de analisis con graficos de tendencia (localStorage)</td></tr>
+          <tr><td><strong>Configuracion</strong></td><td>Guia paso a paso para configurar SonarCloud y OpenCode</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Abrir el panel local</h3>
+      <pre><code># Opcion 1: Desde la Terminal
+open analisis-codigo.html
+
+# Opcion 2: Doble clic en el archivo desde Finder
+
+# Opcion 3: Desde la Plataforma de Seguimiento
+# Sidebar &gt; Herramientas &gt; "Analisis de Codigo"</code></pre>
+
+      <h3>Los badges muestran datos reales automaticamente</h3>
+      <p>
+        El panel obtiene badges SVG directamente de SonarCloud. Si el proyecto es <strong>publico</strong>,
+        los badges se actualizan automaticamente despues de cada analisis.
+        Los datos que ves en los badges (bugs, vulnerabilities, code smells, ratings) son los mismos que en sonarcloud.io.
+      </p>
+
+      <hr>
+
+      <h2>Exportar el panel a otro proyecto</h2>
+      <p>El panel <code>analisis-codigo.html</code> esta disenado para ser reutilizable. Para usarlo en otro proyecto:</p>
+      <ol class="step-list">
+        <li><strong>Copia</strong> el archivo <code>analisis-codigo.html</code> al directorio de tu otro proyecto</li>
+        <li><strong>Abre el archivo</strong> con un editor de texto</li>
+        <li><strong>Busca el bloque <code>SONAR_CONFIG</code></strong> al inicio del <code>&lt;script&gt;</code> (aproximadamente linea 635)</li>
+        <li><strong>Modifica estos valores:</strong>
+          <pre><code>const SONAR_CONFIG = {
+  organization: 'TU-ORG-SONARCLOUD',
+  sonarUrl: 'https://sonarcloud.io',
+  token: '',  // Dejar vacio para badges publicos
+  projects: [
+    {
+      key: 'TU-ORG_NOMBRE-REPO',
+      name: 'Nombre visible del proyecto',
+    }
+  ],
+  brand: {
+    name: 'TU EMPRESA',
+    subtitle: 'Tu descripcion',
+    logo: 'https://tu-dominio.com/logo.png',
+    primary: '#178DC2',  // Color primario
+    accent: '#12A79D',   // Color acento
+  }
+};</code></pre>
+        </li>
+        <li><strong>Guarda y abre</strong> en el navegador. Los badges se actualizaran automaticamente.</li>
+      </ol>
+
+      <div class="alert alert-warning">
+        <div class="alert-title">Donde obtener el project key</div>
+        El project key tiene el formato <code>ORGANIZACION_NOMBRE-REPO</code>. Lo encuentras en:
+        <ul>
+          <li>SonarCloud &gt; Tu proyecto &gt; <strong>Project Information</strong> (sidebar izquierda)</li>
+          <li>O en la URL del dashboard: <code>sonarcloud.io/dashboard?id=<strong>ESTE-ES-EL-KEY</strong></code></li>
+        </ul>
+      </div>
+
+      <hr>
+
+      <h2>Integracion con OpenCode (MCP)</h2>
+      <p>Para que OpenCode pueda consultar los resultados de SonarCloud y verificar codigo automaticamente:</p>
+
+      <h3>1. Crear opencode.json en la raiz del proyecto</h3>
+      <pre><code>{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "sonarqube": {
+      "type": "local",
+      "command": ["npx", "-y", "sonarqube-mcp-server@latest"],
+      "enabled": true,
+      "environment": {
+        "SONARQUBE_URL": "https://sonarcloud.io",
+        "SONARQUBE_TOKEN": "{env:SONAR_TOKEN}",
+        "SONARQUBE_ORGANIZATION": "TU-ORG"
+      }
+    }
+  }
+}</code></pre>
+
+      <h3>2. Crear comandos personalizados (opcional)</h3>
+      <p>Crea la carpeta <code>.opencode/commands/</code> en tu proyecto y anade:</p>
+      <p><strong>.opencode/commands/sonar.md</strong></p>
+      <pre><code>---
+description: Ejecutar analisis SonarQube del proyecto
+agent: build
+---
+Ejecuta un analisis de codigo con SonarQube Cloud.
+1. Verifica que sonar-project.properties existe
+2. Ejecuta: npx @sonar/scan
+3. Muestra resumen de issues encontrados</code></pre>
+
+      <p><strong>.opencode/commands/sonar-report.md</strong></p>
+      <pre><code>---
+description: Ver reporte de issues de SonarQube
+agent: plan
+---
+Consulta el estado del proyecto en SonarCloud.
+1. Obtiene metricas del MCP server
+2. Muestra Quality Gate y issues abiertos
+3. Sugiere plan de accion por prioridad</code></pre>
+
+      <p>Despues puedes ejecutar <code>/sonar</code> o <code>/sonar-report</code> directamente en OpenCode.</p>
+
+      <hr>
+
+      <h2>Crear sonar-project.properties (analisis manual)</h2>
+      <p>Solo necesario si deseas ejecutar analisis manualmente (sin el automatico de SonarCloud). Crea este archivo en la raiz del proyecto:</p>
+      <pre><code># sonar-project.properties
+sonar.projectKey=TU-ORG_TU-REPO
+sonar.organization=TU-ORG
+sonar.projectName=Nombre del Proyecto
 sonar.sources=.
 sonar.sourceEncoding=UTF-8
 sonar.exclusions=**/node_modules/**,**/dist/**,**/.git/**
 sonar.qualitygate.wait=true</code></pre>
 
-      <h3>3. Ejecutar analisis</h3>
-      <pre><code># Con npx (sin instalacion)
-export SONAR_TOKEN="tu-token"
-npx @sonar/scan
+      <p>Y ejecuta:</p>
+      <pre><code>export SONAR_TOKEN="tu-token"
+npx @sonar/scan</code></pre>
 
-# O instalar globalmente
-npm install -g @sonar/scan
-sonar</code></pre>
-
-      <h2>Integracion MCP con OpenCode</h2>
-      <p>Anade el servidor MCP de SonarQube a tu <code>opencode.json</code>:</p>
-      <pre><code>{
-  "mcp": {
-    "sonarqube": {
-      "type": "local",
-      "command": ["npx", "-y", "sonarqube-mcp-server@latest"],
-      "environment": {
-        "SONARQUBE_URL": "https://sonarcloud.io",
-        "SONARQUBE_TOKEN": "{env:SONAR_TOKEN}",
-        "SONARQUBE_ORGANIZATION": "jfajeda"
-      }
-    }
-  }
-}</code></pre>
-      <p>Con esto, OpenCode puede verificar automaticamente la calidad del codigo que genera.</p>
-
-      <h2>Comandos personalizados</h2>
-      <table>
-        <thead>
-          <tr><th>Comando</th><th>Funcion</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>/sonar</code></td><td>Ejecuta analisis completo del proyecto</td></tr>
-          <tr><td><code>/sonar-report</code></td><td>Consulta issues abiertos y genera reporte</td></tr>
-        </tbody>
-      </table>
-
-      <h2>Panel de Analisis</h2>
-      <p>
-        El archivo <code>analisis-codigo.html</code> es un panel independiente y exportable que muestra:
-      </p>
-      <ul>
-        <li>Estado del Quality Gate (PASSED/FAILED)</li>
-        <li>Metricas de seguridad: vulnerabilidades, ratings</li>
-        <li>Metricas de calidad: bugs, code smells, cobertura, duplicaciones</li>
-        <li>Historial de analisis con graficos de tendencia</li>
-        <li>Guia de configuracion integrada</li>
-      </ul>
-
-      <div class="alert alert-success">
-        <div class="alert-title">Panel exportable</div>
-        Para usar el panel en otro proyecto: copia <code>analisis-codigo.html</code>, edita el bloque
-        <code>SONAR_CONFIG</code> al inicio del archivo (organization, project key, branding) y listo.
+      <div class="alert alert-info">
+        <div class="alert-title">Requisito: Node.js</div>
+        El comando <code>npx @sonar/scan</code> requiere <strong>Node.js 18+</strong>. Si no lo tienes instalado,
+        puedes descargar el scanner binario desde <a href="https://docs.sonarsource.com/sonarqube-cloud/advanced-setup/ci-based-analysis/sonarscanner-cli/" target="_blank">docs.sonarsource.com</a>.
+        Sin embargo, con el analisis automatico de SonarCloud <strong>no necesitas instalar nada</strong>.
       </div>
 
-      <h2>Que detecta SonarQube</h2>
+      <hr>
+
+      <h2>Flujo de trabajo diario</h2>
+      <p>Una vez todo esta configurado, el flujo es muy sencillo:</p>
+      <ol class="step-list">
+        <li><strong>Trabajas en tu codigo</strong> normalmente (con OpenCode o tu editor)</li>
+        <li><strong>Haces commit y push</strong>:
+          <pre><code>git add .
+git commit -m "Descripcion del cambio"
+git push</code></pre>
+        </li>
+        <li><strong>SonarCloud analiza automaticamente</strong> (2-5 minutos)</li>
+        <li><strong>Revisa los resultados</strong> en cualquiera de estas opciones:
+          <ul>
+            <li><a href="https://sonarcloud.io" target="_blank">sonarcloud.io</a> &mdash; Dashboard completo con detalle de cada issue</li>
+            <li><code>analisis-codigo.html</code> &mdash; Panel local con badges y metricas</li>
+            <li><code>/sonar-report</code> en OpenCode &mdash; Reporte desde el agente IA</li>
+          </ul>
+        </li>
+        <li><strong>Corrige los issues</strong> prioritarios y repite el ciclo</li>
+      </ol>
+
+      <h2>Resumen de archivos necesarios por proyecto</h2>
       <table>
         <thead>
-          <tr><th>Tipo</th><th>Descripcion</th><th>Ejemplo</th></tr>
+          <tr><th>Archivo</th><th>Obligatorio</th><th>Funcion</th></tr>
         </thead>
         <tbody>
-          <tr><td>Vulnerabilidades</td><td>Problemas de seguridad explotables</td><td>XSS, inyeccion SQL, CSRF</td></tr>
-          <tr><td>Bugs</td><td>Errores que provocan comportamiento incorrecto</td><td>Null dereference, logica incorrecta</td></tr>
-          <tr><td>Code Smells</td><td>Problemas de mantenibilidad</td><td>Funciones demasiado largas, codigo duplicado</td></tr>
-          <tr><td>Security Hotspots</td><td>Codigo que requiere revision manual de seguridad</td><td>Uso de crypto, manejo de datos sensibles</td></tr>
-          <tr><td>Secretos</td><td>Credenciales hardcodeadas en el codigo</td><td>API keys, passwords, tokens</td></tr>
+          <tr><td><code>analisis-codigo.html</code></td><td>Opcional</td><td>Panel local con badges y metricas. Exportable.</td></tr>
+          <tr><td><code>sonar-project.properties</code></td><td>Solo para analisis manual</td><td>Config del scanner. No necesario si usas analisis automatico.</td></tr>
+          <tr><td><code>opencode.json</code></td><td>Solo si usas OpenCode</td><td>Config del MCP server de SonarQube.</td></tr>
+          <tr><td><code>.opencode/commands/sonar.md</code></td><td>Opcional</td><td>Comando <code>/sonar</code> en OpenCode.</td></tr>
+          <tr><td><code>.opencode/commands/sonar-report.md</code></td><td>Opcional</td><td>Comando <code>/sonar-report</code> en OpenCode.</td></tr>
         </tbody>
       </table>
+
+      <div class="alert alert-success">
+        <div class="alert-title">Checklist rapido para un nuevo proyecto</div>
+        <ol>
+          <li>Subir proyecto a GitHub (public)</li>
+          <li>En sonarcloud.io: "+" &gt; "Analyze new project" &gt; seleccionar repo &gt; "Set Up" &gt; "Free"</li>
+          <li>Esperar 2-5 min al primer analisis</li>
+          <li>Copiar <code>analisis-codigo.html</code> al proyecto y editar <code>SONAR_CONFIG</code></li>
+          <li>Listo. Cada <code>git push</code> lanzara nuevo analisis.</li>
+        </ol>
+      </div>
     </div>
 
     <!-- FOOTER -->
