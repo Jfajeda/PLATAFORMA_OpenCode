@@ -417,6 +417,7 @@
         <li><a href="#cap16"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> 16. Copias de Seguridad</a></li>
         <li><a href="#cap17"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> 17. Analisis de Codigo</a></li>
         <li><a href="#cap18"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg> 18. Centralizacion de Proyectos</a></li>
+        <li><a href="#cap19"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg> 19. Mapa de Infraestructura</a></li>
       </ul>
     </nav>
   </aside>
@@ -2333,6 +2334,291 @@ git add . &amp;&amp; git commit -m "Initial commit"</code></pre>
       </div>
     </div>
 
+    <hr>
+
+    <!-- ============================================================
+         CAPITULO 19: MAPA DE INFRAESTRUCTURA
+         ============================================================ -->
+    <div class="section" id="cap19">
+      <h1>19. Mapa de Infraestructura y Estado de los Proyectos <span class="badge badge-new">Nuevo</span></h1>
+      <p class="chapter-intro">
+        Registro centralizado del estado de todos los proyectos de CODANOR en OpenCode:
+        donde estan, que tienen configurado, que falta y como acceder a cada servicio.
+        Este capitulo debe actualizarse cada vez que se anade un proyecto o cambia su estado.
+      </p>
+
+      <div class="alert alert-warning">
+        <div class="alert-title">Mantener actualizado</div>
+        Este capitulo es un <strong>registro vivo</strong>. Actualizalo cada vez que:
+        <ul>
+          <li>Se anade un nuevo proyecto</li>
+          <li>Se sube un proyecto a GitHub</li>
+          <li>Se conecta un proyecto a SonarCloud</li>
+          <li>Cambia la configuracion de algun proyecto</li>
+        </ul>
+        <strong>Ultima actualizacion: 12 Abril 2026</strong>
+      </div>
+
+      <h2>Donde esta cada cosa</h2>
+      <p>Los proyectos existen en tres niveles. No todos los proyectos estan en todos los niveles:</p>
+      <table>
+        <thead>
+          <tr><th>Nivel</th><th>Que es</th><th>URL / Ruta</th><th>Para que sirve</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>1. Mac local</strong></td>
+            <td>Tu ordenador</td>
+            <td><code>~/Proyectos/</code></td>
+            <td>Donde trabajas dia a dia con OpenCode. Los archivos reales.</td>
+          </tr>
+          <tr>
+            <td><strong>2. GitHub</strong></td>
+            <td>Repositorio en la nube</td>
+            <td><a href="https://github.com/Jfajeda" target="_blank">github.com/Jfajeda</a></td>
+            <td>Copia de seguridad en la nube. Necesario para SonarCloud. Permite colaborar.</td>
+          </tr>
+          <tr>
+            <td><strong>3. SonarCloud</strong></td>
+            <td>Analisis de calidad</td>
+            <td><a href="https://sonarcloud.io/organizations/Jfajeda" target="_blank">sonarcloud.io</a></td>
+            <td>Analiza el codigo de GitHub automaticamente. Detecta bugs y vulnerabilidades.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Flujo de datos</h3>
+      <pre><code>Tu Mac (~/Proyectos/)
+    |
+    | git push (subes cambios)
+    v
+GitHub (github.com/Jfajeda)
+    |
+    | automatico (cada push)
+    v
+SonarCloud (analisis de calidad)</code></pre>
+
+      <h2>Estado de cada proyecto</h2>
+
+      <h3>Vista general</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Proyecto</th>
+            <th>Mac local</th>
+            <th>GitHub</th>
+            <th>SonarCloud</th>
+            <th>AGENTS.md</th>
+            <th>opencode.json</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>PLATAFORMA_OpenCode</strong></td>
+            <td style="color:var(--success);">SI</td>
+            <td style="color:var(--success);">SI</td>
+            <td style="color:var(--success);">SI</td>
+            <td style="color:var(--success);">SI</td>
+            <td style="color:var(--success);">SI</td>
+          </tr>
+          <tr>
+            <td>ANALISIS_LOGs_PreSIEM</td>
+            <td style="color:var(--success);">SI</td>
+            <td style="color:var(--danger);">NO</td>
+            <td style="color:var(--danger);">NO</td>
+            <td style="color:var(--danger);">NO</td>
+            <td style="color:var(--danger);">NO</td>
+          </tr>
+          <tr>
+            <td>Seguimiento_licitaciones</td>
+            <td style="color:var(--success);">SI</td>
+            <td style="color:var(--danger);">NO</td>
+            <td style="color:var(--danger);">NO</td>
+            <td style="color:var(--danger);">NO</td>
+            <td style="color:var(--danger);">NO</td>
+          </tr>
+          <tr>
+            <td>Gestion_Riesgos_ISO27001</td>
+            <td style="color:var(--success);">SI</td>
+            <td style="color:var(--danger);">NO</td>
+            <td style="color:var(--danger);">NO</td>
+            <td style="color:var(--danger);">NO</td>
+            <td style="color:var(--danger);">NO</td>
+          </tr>
+          <tr>
+            <td>legislacion_monitor</td>
+            <td style="color:var(--success);">SI</td>
+            <td style="color:var(--danger);">NO</td>
+            <td style="color:var(--danger);">NO</td>
+            <td style="color:var(--danger);">NO</td>
+            <td style="color:var(--danger);">NO</td>
+          </tr>
+          <tr>
+            <td>Gestion_Riesgos_ENS</td>
+            <td style="color:var(--success);">SI</td>
+            <td style="color:var(--danger);">NO</td>
+            <td style="color:var(--danger);">NO</td>
+            <td style="color:var(--danger);">NO</td>
+            <td style="color:var(--danger);">NO</td>
+          </tr>
+          <tr>
+            <td>Plantillas_ENS_ISO</td>
+            <td style="color:var(--success);">SI</td>
+            <td style="color:var(--danger);">NO</td>
+            <td style="color:var(--danger);">NO</td>
+            <td style="color:var(--danger);">NO</td>
+            <td style="color:var(--danger);">NO</td>
+          </tr>
+          <tr>
+            <td>Plataforma_Seguimiento_Proyectos</td>
+            <td style="color:var(--success);">SI</td>
+            <td style="color:var(--danger);">NO</td>
+            <td style="color:var(--danger);">NO</td>
+            <td style="color:var(--danger);">NO</td>
+            <td style="color:var(--danger);">NO</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Detalle tecnico por proyecto</h3>
+      <table>
+        <thead>
+          <tr><th>Proyecto</th><th>Tamano</th><th>Archivos</th><th>Commits</th><th>Lenguajes</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>PLATAFORMA_OpenCode</strong></td><td>7 MB</td><td>795</td><td>5</td><td>HTML, JavaScript, TypeScript</td></tr>
+          <tr><td>ANALISIS_LOGs_PreSIEM</td><td>42 MB</td><td>88</td><td>1</td><td>Python, HTML, Docs (docx, xlsx, pdf)</td></tr>
+          <tr><td>Seguimiento_licitaciones</td><td>792 KB</td><td>14</td><td>1</td><td>Python, HTML, Docs</td></tr>
+          <tr><td>Gestion_Riesgos_ISO27001</td><td>36 MB</td><td>58</td><td>1</td><td>Python, HTML, Docs</td></tr>
+          <tr><td>legislacion_monitor</td><td>968 KB</td><td>39</td><td>1</td><td>Python, HTML, Docs</td></tr>
+          <tr><td>Gestion_Riesgos_ENS</td><td>17 MB</td><td>72</td><td>1</td><td>Python, HTML, Docs</td></tr>
+          <tr><td>Plantillas_ENS_ISO</td><td>2.4 GB</td><td>1,309</td><td>1</td><td>Python, HTML, Docs</td></tr>
+          <tr><td>Plataforma_Seguimiento_Proyectos</td><td>57 MB</td><td>845</td><td>1</td><td>HTML, JavaScript, TypeScript, Docs</td></tr>
+        </tbody>
+      </table>
+
+      <h2>URLs y accesos directos</h2>
+
+      <h3>GitHub</h3>
+      <table>
+        <thead>
+          <tr><th>Recurso</th><th>URL</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Perfil GitHub</td><td><a href="https://github.com/Jfajeda" target="_blank">github.com/Jfajeda</a></td></tr>
+          <tr><td>PLATAFORMA_OpenCode (repo)</td><td><a href="https://github.com/Jfajeda/PLATAFORMA_OpenCode" target="_blank">github.com/Jfajeda/PLATAFORMA_OpenCode</a></td></tr>
+          <tr><td>Generar token de acceso</td><td><a href="https://github.com/settings/tokens/new?scopes=repo" target="_blank">github.com/settings/tokens/new</a></td></tr>
+        </tbody>
+      </table>
+
+      <h3>SonarCloud</h3>
+      <table>
+        <thead>
+          <tr><th>Recurso</th><th>URL</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Dashboard PLATAFORMA_OpenCode</td><td><a href="https://sonarcloud.io/dashboard?id=Jfajeda_PLATAFORMA_OpenCode" target="_blank">sonarcloud.io/dashboard?id=Jfajeda_PLATAFORMA_OpenCode</a></td></tr>
+          <tr><td>Organizacion</td><td><a href="https://sonarcloud.io/organizations/Jfajeda/projects" target="_blank">sonarcloud.io/organizations/Jfajeda</a></td></tr>
+          <tr><td>Generar token</td><td>SonarCloud &gt; Avatar &gt; My Account &gt; Security</td></tr>
+          <tr><td>Crear nuevo proyecto</td><td>SonarCloud &gt; "+" &gt; Analyze new project</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Archivos locales importantes</h3>
+      <table>
+        <thead>
+          <tr><th>Archivo / Carpeta</th><th>Ubicacion</th><th>Funcion</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Todos los proyectos</td><td><code>~/Proyectos/</code></td><td>Directorio centralizado de desarrollo</td></tr>
+          <tr><td>Backups de OpenCode</td><td><code>~/Documents/opencode-backups/</code></td><td>Copias de seguridad (sesiones + proyectos)</td></tr>
+          <tr><td>Sesiones de OpenCode</td><td><code>~/.local/share/opencode/</code></td><td>Historial de conversaciones</td></tr>
+          <tr><td>Config global OpenCode</td><td><code>~/.config/opencode/</code></td><td>Configuracion, agentes y comandos globales</td></tr>
+          <tr><td>Cache OpenCode</td><td><code>~/.cache/opencode/</code></td><td>Cache de proveedores (se puede borrar sin riesgo)</td></tr>
+          <tr><td>Manual OpenCode</td><td><code>~/Proyectos/PLATAFORMA_OpenCode/Manual_OpenCode_Codanor.html</code></td><td>Este documento</td></tr>
+          <tr><td>Plataforma de seguimiento</td><td><code>~/Proyectos/PLATAFORMA_OpenCode/plataforma-seguimiento.html</code></td><td>Dashboard de incidencias y seguimiento</td></tr>
+          <tr><td>Panel de analisis</td><td><code>~/Proyectos/PLATAFORMA_OpenCode/analisis-codigo.html</code></td><td>Badges y metricas de SonarCloud</td></tr>
+          <tr><td>Script de backup</td><td><code>~/Proyectos/PLATAFORMA_OpenCode/backup-opencode.sh</code></td><td>Copias de seguridad automatizables</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Como abrir cada proyecto</h2>
+      <table>
+        <thead>
+          <tr><th>Proyecto</th><th>Comando</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>PLATAFORMA_OpenCode</td><td><code>opencode ~/Proyectos/PLATAFORMA_OpenCode</code></td></tr>
+          <tr><td>ANALISIS_LOGs_PreSIEM</td><td><code>opencode ~/Proyectos/ANALISIS_LOGs_PreSIEM</code></td></tr>
+          <tr><td>Seguimiento_licitaciones</td><td><code>opencode ~/Proyectos/Seguimiento_licitaciones</code></td></tr>
+          <tr><td>Gestion_Riesgos_ISO27001</td><td><code>opencode ~/Proyectos/Gestion_Riesgos_ISO27001</code></td></tr>
+          <tr><td>legislacion_monitor</td><td><code>opencode ~/Proyectos/legislacion_monitor</code></td></tr>
+          <tr><td>Gestion_Riesgos_ENS</td><td><code>opencode ~/Proyectos/Gestion_Riesgos_ENS</code></td></tr>
+          <tr><td>Plantillas_ENS_ISO</td><td><code>opencode ~/Proyectos/Plantillas_ENS_ISO</code></td></tr>
+          <tr><td>Plataforma_Seguimiento_Proyectos</td><td><code>opencode ~/Proyectos/Plataforma_Seguimiento_Proyectos</code></td></tr>
+        </tbody>
+      </table>
+
+      <h2>Que hacer cuando creas un nuevo proyecto</h2>
+      <p>Cada vez que inicies un nuevo proyecto en OpenCode, actualiza esta lista siguiendo estos pasos:</p>
+      <ol class="step-list">
+        <li><strong>Crear carpeta</strong> en <code>~/Proyectos/Nombre_Proyecto</code> (sin espacios ni acentos)</li>
+        <li><strong>Inicializar Git</strong> con <code>.gitignore</code> (ver Capitulo 18)</li>
+        <li><strong>Abrir en OpenCode</strong> y ejecutar <code>/init</code> para crear AGENTS.md</li>
+        <li><strong>Subir a GitHub</strong> si quieres backup en la nube (ver Capitulo 17)</li>
+        <li><strong>Conectar SonarCloud</strong> si el proyecto tiene codigo analizable (ver Capitulo 17)</li>
+        <li><strong>Actualizar este capitulo</strong> anadiendo el nuevo proyecto a las tablas</li>
+      </ol>
+
+      <h2>Que hacer para subir un proyecto existente a GitHub</h2>
+      <p>Para los 7 proyectos que todavia no estan en GitHub:</p>
+      <ol class="step-list">
+        <li>Ve a <a href="https://github.com/new" target="_blank"><strong>github.com/new</strong></a></li>
+        <li>Nombre del repositorio: el mismo nombre de la carpeta (ej: <code>legislacion_monitor</code>)</li>
+        <li>Visibilidad: <strong>Public</strong> (gratis con SonarCloud) o <strong>Private</strong></li>
+        <li><strong>NO</strong> marcar "Add README" ni ".gitignore" (ya los tenemos)</li>
+        <li>Clic en <strong>"Create repository"</strong></li>
+        <li>En la Terminal:
+          <pre><code>cd ~/Proyectos/nombre_proyecto
+git remote add origin https://github.com/Jfajeda/nombre_proyecto.git
+git push -u origin main</code></pre>
+          <p>Username: <code>Jfajeda</code> &mdash; Password: token de GitHub (ver <a href="https://github.com/settings/tokens/new?scopes=repo" target="_blank">generar token</a>)</p>
+        </li>
+        <li><strong>Actualizar este capitulo</strong>: cambiar "NO" a "SI" en la tabla de estado</li>
+      </ol>
+
+      <h2>Comandos utiles de referencia</h2>
+      <table>
+        <thead>
+          <tr><th>Accion</th><th>Comando</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Ver todos los proyectos</td><td><code>ls ~/Proyectos/</code></td></tr>
+          <tr><td>Ver estado Git de un proyecto</td><td><code>git -C ~/Proyectos/nombre status</code></td></tr>
+          <tr><td>Ver si un proyecto esta en GitHub</td><td><code>git -C ~/Proyectos/nombre remote -v</code></td></tr>
+          <tr><td>Backup de todos los proyectos</td><td><code>~/Proyectos/PLATAFORMA_OpenCode/backup-opencode.sh --proyectos</code></td></tr>
+          <tr><td>Backup de sesiones OpenCode</td><td><code>~/Proyectos/PLATAFORMA_OpenCode/backup-opencode.sh --sessions</code></td></tr>
+          <tr><td>Ver backups existentes</td><td><code>~/Proyectos/PLATAFORMA_OpenCode/backup-opencode.sh --list</code></td></tr>
+          <tr><td>Abrir manual</td><td><code>open ~/Proyectos/PLATAFORMA_OpenCode/Manual_OpenCode_Codanor.html</code></td></tr>
+          <tr><td>Abrir plataforma de seguimiento</td><td><code>open ~/Proyectos/PLATAFORMA_OpenCode/plataforma-seguimiento.html</code></td></tr>
+          <tr><td>Abrir panel de analisis</td><td><code>open ~/Proyectos/PLATAFORMA_OpenCode/analisis-codigo.html</code></td></tr>
+          <tr><td>Ver dashboard SonarCloud</td><td><code>open https://sonarcloud.io/dashboard?id=Jfajeda_PLATAFORMA_OpenCode</code></td></tr>
+        </tbody>
+      </table>
+
+      <div class="alert alert-success">
+        <div class="alert-title">Resumen del ecosistema CODANOR</div>
+        <ul>
+          <li><strong>8 proyectos</strong> centralizados en <code>~/Proyectos/</code></li>
+          <li><strong>1 proyecto</strong> subido a GitHub y conectado a SonarCloud (PLATAFORMA_OpenCode)</li>
+          <li><strong>7 proyectos</strong> pendientes de subir a GitHub</li>
+          <li><strong>3 herramientas web</strong>: Manual (este documento), Plataforma de seguimiento, Panel de analisis</li>
+          <li><strong>1 script de backup</strong> con backup de proyectos y sesiones</li>
+          <li><strong>2 comandos OpenCode</strong> personalizados: <code>/sonar</code> y <code>/sonar-report</code></li>
+        </ul>
+      </div>
+    </div>
+
     <!-- FOOTER -->
     <div class="manual-footer">
       <img src="https://codanor.com/assets/img/logo_web-50.png" alt="CODANOR">
@@ -2342,7 +2628,7 @@ git add . &amp;&amp; git commit -m "Initial commit"</code></pre>
         Barcelona, Catalunya &bull; info@codanor.com &bull; +34 616 947 274
       </p>
       <p style="margin-top: 1rem; color: #aaa;">
-        Manual generado el 12 de Abril de 2026 &bull; Version 2.3 (18 capitulos)
+        Manual generado el 12 de Abril de 2026 &bull; Version 2.4 (19 capitulos)
       </p>
     </div>
 
