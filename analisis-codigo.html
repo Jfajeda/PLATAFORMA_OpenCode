@@ -1,0 +1,1330 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analisis de Codigo - SonarQube</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Nunito+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* =============================================================
+       MODULO EXPORTABLE: Analisis de Codigo con SonarQube
+       Cambia BRAND_CONFIG en el <script> para adaptar a tu proyecto
+       ============================================================= */
+    :root {
+      --primary: #178DC2;
+      --primary-dark: #1275A3;
+      --primary-light: #e8f4fa;
+      --accent: #12A79D;
+      --accent-light: #e6f7f6;
+      --dark: #1a1a2e;
+      --gray-900: #2d2d44;
+      --gray-700: #4a4a5a;
+      --gray-500: #7a7a8a;
+      --gray-400: #9a9aaa;
+      --gray-300: #c4c4d0;
+      --gray-200: #dddde5;
+      --gray-100: #f0f0f5;
+      --white: #ffffff;
+      --danger: #e74c3c;
+      --danger-light: #fdedec;
+      --warning: #f39c12;
+      --warning-light: #fef9e7;
+      --success: #27ae60;
+      --success-light: #eafaf1;
+      --rating-a: #00c853;
+      --rating-b: #8bc34a;
+      --rating-c: #ffeb3b;
+      --rating-d: #ff9800;
+      --rating-e: #e74c3c;
+      --radius: 10px;
+      --shadow: 0 2px 8px rgba(0,0,0,0.06);
+      --shadow-lg: 0 8px 24px rgba(0,0,0,0.1);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Nunito Sans', sans-serif;
+      background: var(--gray-100);
+      color: var(--gray-700);
+      line-height: 1.6;
+    }
+
+    /* ===== HEADER ===== */
+    .app-header {
+      background: var(--dark);
+      color: var(--white);
+      padding: 0 2rem;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .app-header-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .app-header-logo { height: 28px; filter: brightness(0) invert(1); }
+
+    .app-header-title {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .app-header-divider {
+      width: 1px;
+      height: 28px;
+      background: rgba(255,255,255,0.15);
+    }
+
+    .app-header-subtitle {
+      font-size: 0.85rem;
+      color: var(--gray-400);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .app-header-subtitle svg { width: 16px; height: 16px; }
+
+    .project-select {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: var(--white);
+      padding: 0.4rem 0.8rem;
+      border-radius: 8px;
+      font-family: 'Nunito Sans', sans-serif;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+
+    .project-select option { background: var(--dark); color: var(--white); }
+
+    .header-actions { display: flex; align-items: center; gap: 0.75rem; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.45rem 1rem;
+      border-radius: 8px;
+      font-family: 'Nunito Sans', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s;
+    }
+
+    .btn svg { width: 15px; height: 15px; }
+    .btn-primary { background: var(--primary); color: var(--white); }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-accent { background: var(--accent); color: var(--white); }
+    .btn-accent:hover { background: #0e8a82; }
+    .btn-outline {
+      background: transparent;
+      color: var(--white);
+      border: 1px solid rgba(255,255,255,0.25);
+    }
+    .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+    .btn-sm { padding: 0.35rem 0.7rem; font-size: 0.78rem; }
+    .btn-danger { background: var(--danger); color: var(--white); }
+    .btn-ghost { background: transparent; border: none; color: var(--gray-400); cursor: pointer; padding: 0.3rem; }
+    .btn-ghost:hover { color: var(--primary); }
+
+    /* ===== TABS ===== */
+    .tabs {
+      background: var(--white);
+      border-bottom: 1px solid var(--gray-200);
+      display: flex;
+      padding: 0 2rem;
+      gap: 0;
+    }
+
+    .tab {
+      padding: 0.85rem 1.5rem;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--gray-500);
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: all 0.15s;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .tab:hover { color: var(--gray-700); }
+    .tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+    .tab svg { width: 16px; height: 16px; }
+
+    /* ===== CONTENT ===== */
+    .content { padding: 2rem; max-width: 1200px; margin: 0 auto; }
+
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* ===== QUALITY GATE ===== */
+    .qg-banner {
+      border-radius: var(--radius);
+      padding: 2rem;
+      text-align: center;
+      margin-bottom: 2rem;
+      box-shadow: var(--shadow);
+    }
+
+    .qg-banner.passed { background: linear-gradient(135deg, #eafaf1 0%, #d5f5e3 100%); border: 2px solid var(--success); }
+    .qg-banner.failed { background: linear-gradient(135deg, #fdedec 0%, #fadbd8 100%); border: 2px solid var(--danger); }
+    .qg-banner.unknown { background: var(--white); border: 2px solid var(--gray-300); }
+
+    .qg-status {
+      font-family: 'Poppins', sans-serif;
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .qg-banner.passed .qg-status { color: var(--success); }
+    .qg-banner.failed .qg-status { color: var(--danger); }
+    .qg-banner.unknown .qg-status { color: var(--gray-400); }
+
+    .qg-subtitle { font-size: 0.9rem; color: var(--gray-500); }
+
+    .qg-badges {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-top: 1.5rem;
+    }
+
+    .qg-badges img { height: 20px; }
+
+    .qg-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      margin-top: 1rem;
+      font-size: 0.85rem;
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .qg-link:hover { text-decoration: underline; }
+    .qg-link svg { width: 14px; height: 14px; }
+
+    /* ===== METRIC CARDS ===== */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+
+    .metric-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      box-shadow: var(--shadow);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .metric-card::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+    }
+
+    .metric-card.security::after { background: var(--danger); }
+    .metric-card.reliability::after { background: var(--warning); }
+    .metric-card.maintainability::after { background: var(--primary); }
+    .metric-card.coverage::after { background: var(--accent); }
+    .metric-card.duplications::after { background: var(--gray-400); }
+
+    .metric-value {
+      font-family: 'Poppins', sans-serif;
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--dark);
+      line-height: 1.2;
+    }
+
+    .metric-label {
+      font-size: 0.8rem;
+      color: var(--gray-500);
+      margin-top: 0.25rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 600;
+    }
+
+    .metric-rating {
+      display: inline-block;
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      line-height: 32px;
+      color: var(--white);
+      margin-top: 0.5rem;
+    }
+
+    .rating-A { background: var(--rating-a); }
+    .rating-B { background: var(--rating-b); }
+    .rating-C { background: var(--rating-c); color: var(--dark); }
+    .rating-D { background: var(--rating-d); }
+    .rating-E { background: var(--rating-e); }
+
+    /* ===== PANEL ===== */
+    .panel {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 1.5rem;
+    }
+
+    .panel-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--gray-100);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .panel-title {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--dark);
+    }
+
+    .panel-body { padding: 1.5rem; }
+
+    /* ===== TABLE ===== */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+
+    thead { background: var(--gray-100); }
+
+    th {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 0.75rem 1rem;
+      text-align: left;
+      color: var(--gray-500);
+    }
+
+    td {
+      padding: 0.7rem 1rem;
+      border-bottom: 1px solid var(--gray-100);
+    }
+
+    tbody tr:hover { background: var(--primary-light); }
+
+    /* ===== PROGRESS BAR ===== */
+    .bar-container { margin: 0.75rem 0; }
+    .bar-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.82rem;
+      margin-bottom: 0.3rem;
+    }
+    .bar-label span:first-child { font-weight: 600; color: var(--dark); }
+    .bar-label span:last-child { color: var(--gray-500); }
+
+    .bar-track {
+      height: 8px;
+      background: var(--gray-100);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.6s ease;
+    }
+
+    /* ===== STEPS ===== */
+    .step-list { counter-reset: step; list-style: none; padding: 0; }
+    .step-list li {
+      counter-increment: step;
+      padding: 1rem 1rem 1rem 3.5rem;
+      position: relative;
+      margin-bottom: 0.75rem;
+      background: var(--gray-100);
+      border-radius: 8px;
+    }
+    .step-list li::before {
+      content: counter(step);
+      position: absolute;
+      left: 1rem; top: 1rem;
+      width: 26px; height: 26px;
+      background: var(--primary);
+      color: var(--white);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      font-size: 0.75rem;
+    }
+
+    .step-list li strong { color: var(--dark); }
+
+    /* ===== CODE ===== */
+    code {
+      font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+      font-size: 0.82rem;
+      background: var(--gray-100);
+      color: var(--primary-dark);
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+    }
+
+    pre {
+      background: var(--dark);
+      color: #e0e0e0;
+      padding: 1.25rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 1rem 0;
+      font-size: 0.82rem;
+      line-height: 1.6;
+      border-left: 4px solid var(--accent);
+    }
+
+    pre code { background: none; color: inherit; padding: 0; }
+
+    /* ===== ALERT ===== */
+    .alert {
+      padding: 1rem 1.25rem;
+      border-radius: 8px;
+      margin: 1rem 0;
+      font-size: 0.88rem;
+      border-left: 4px solid;
+    }
+
+    .alert-info { background: var(--primary-light); border-color: var(--primary); color: var(--primary-dark); }
+    .alert-warning { background: var(--warning-light); border-color: var(--warning); color: #7d6608; }
+    .alert-success { background: var(--success-light); border-color: var(--success); color: #1a7a42; }
+    .alert-danger { background: var(--danger-light); border-color: var(--danger); color: #922b21; }
+    .alert strong { display: block; margin-bottom: 0.2rem; }
+
+    /* ===== HISTORY CHART (CSS only) ===== */
+    .chart-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 4px;
+      height: 120px;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--gray-200);
+    }
+
+    .chart-bar-group {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      height: 100%;
+      justify-content: flex-end;
+    }
+
+    .chart-bar {
+      width: 100%;
+      max-width: 24px;
+      border-radius: 3px 3px 0 0;
+      transition: height 0.4s ease;
+      min-height: 2px;
+    }
+
+    .chart-bar.bugs { background: var(--warning); }
+    .chart-bar.vulns { background: var(--danger); }
+    .chart-bar.smells { background: var(--primary); }
+
+    .chart-date {
+      font-size: 0.6rem;
+      color: var(--gray-400);
+      margin-top: 0.35rem;
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      max-height: 50px;
+      overflow: hidden;
+    }
+
+    .chart-legend {
+      display: flex;
+      gap: 1.5rem;
+      justify-content: center;
+      margin-top: 0.75rem;
+      font-size: 0.75rem;
+      color: var(--gray-500);
+    }
+
+    .chart-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+    }
+
+    /* ===== MODAL ===== */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(26,26,46,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 500;
+      backdrop-filter: blur(2px);
+    }
+
+    .modal-overlay.show { display: flex; }
+
+    .modal {
+      background: var(--white);
+      border-radius: var(--radius);
+      width: 480px;
+      max-width: 90vw;
+      max-height: 85vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .modal-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--gray-100);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-title {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--dark);
+    }
+
+    .modal-body { padding: 1.5rem; }
+    .modal-footer {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--gray-100);
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+    }
+
+    .form-group { margin-bottom: 1rem; }
+    .form-label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--gray-700);
+      margin-bottom: 0.3rem;
+    }
+
+    .form-input, .form-select {
+      width: 100%;
+      padding: 0.55rem 0.9rem;
+      border: 1px solid var(--gray-300);
+      border-radius: 8px;
+      font-family: 'Nunito Sans', sans-serif;
+      font-size: 0.88rem;
+      color: var(--gray-700);
+    }
+
+    .form-input:focus, .form-select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(23,141,194,0.1);
+    }
+
+    /* ===== TOAST ===== */
+    .toast-container {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      z-index: 600;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .toast {
+      background: var(--dark);
+      color: var(--white);
+      padding: 0.7rem 1.2rem;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      box-shadow: var(--shadow-lg);
+      animation: slideIn 0.3s ease;
+    }
+
+    .toast.success { border-left: 4px solid var(--success); }
+    .toast.error { border-left: 4px solid var(--danger); }
+    .toast.info { border-left: 4px solid var(--primary); }
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    /* ===== FOOTER ===== */
+    .app-footer {
+      text-align: center;
+      padding: 2rem;
+      color: var(--gray-400);
+      font-size: 0.8rem;
+      border-top: 1px solid var(--gray-200);
+      margin-top: 2rem;
+    }
+
+    .app-footer img { height: 24px; margin-bottom: 0.5rem; }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+      .content { padding: 1rem; }
+      .app-header { padding: 0 1rem; }
+      .tabs { padding: 0 1rem; overflow-x: auto; }
+      .tab { padding: 0.75rem 1rem; font-size: 0.8rem; white-space: nowrap; }
+      .metrics-grid { grid-template-columns: 1fr 1fr; }
+      .qg-badges img { height: 16px; }
+    }
+
+    @media print {
+      .app-header, .tabs, .btn, .toast-container { display: none !important; }
+      .content { padding: 1rem; max-width: 100%; }
+      .page { display: block !important; break-inside: avoid; }
+      .panel { box-shadow: none; border: 1px solid var(--gray-200); }
+    }
+  </style>
+</head>
+<body>
+
+<script>
+  // =============================================================
+  // CONFIGURACION DEL MODULO (EDITAR PARA CADA PROYECTO)
+  // =============================================================
+  const SONAR_CONFIG = {
+    // --- SonarCloud ---
+    organization: 'jfajeda',
+    sonarUrl: 'https://sonarcloud.io',
+    // Token: dejar vacio para modo badges publicos.
+    // Para API privada, establecer el token aqui o usar un proxy.
+    // AVISO: NO exponer tokens en codigo publico.
+    token: '',
+
+    // --- Proyectos (anadir tantos como necesites) ---
+    projects: [
+      {
+        key: 'jfajeda_plataforma-opencode',
+        name: 'Plataforma OpenCode',
+      },
+      // Ejemplo: anadir mas proyectos descomentando:
+      // { key: 'jfajeda_otro-proyecto', name: 'Otro Proyecto' },
+    ],
+
+    // --- Branding (configurable para exportar) ---
+    brand: {
+      name: 'CODANOR',
+      subtitle: 'Jafa, S.L. - Barcelona, Catalunya',
+      logo: 'https://codanor.com/assets/img/logo_web-50.png',
+      primary: '#178DC2',
+      accent: '#12A79D',
+    }
+  };
+</script>
+
+<!-- ===== HEADER ===== -->
+<header class="app-header" id="appHeader">
+  <div class="app-header-left">
+    <img id="brandLogo" src="" alt="" class="app-header-logo">
+    <div class="app-header-divider"></div>
+    <span class="app-header-title">Analisis de Codigo</span>
+    <span class="app-header-subtitle">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      SonarQube
+    </span>
+  </div>
+  <div class="header-actions">
+    <select class="project-select" id="projectSelect" onchange="switchProject(this.value)"></select>
+    <a class="btn btn-outline" id="dashboardLink" href="#" target="_blank">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+      Abrir en SonarCloud
+    </a>
+    <button class="btn btn-primary" onclick="refreshData()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+      Actualizar
+    </button>
+  </div>
+</header>
+
+<!-- ===== TABS ===== -->
+<div class="tabs">
+  <div class="tab active" data-tab="overview" onclick="showTab('overview')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+    Resumen
+  </div>
+  <div class="tab" data-tab="security" onclick="showTab('security')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    Seguridad
+  </div>
+  <div class="tab" data-tab="quality" onclick="showTab('quality')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+    Calidad
+  </div>
+  <div class="tab" data-tab="history" onclick="showTab('history')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    Historial
+  </div>
+  <div class="tab" data-tab="setup" onclick="showTab('setup')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+    Configuracion
+  </div>
+</div>
+
+<!-- ===== CONTENT ===== -->
+<div class="content">
+
+  <!-- PAGE: OVERVIEW -->
+  <div class="page active" id="page-overview">
+    <!-- Quality Gate -->
+    <div class="qg-banner unknown" id="qgBanner">
+      <div class="qg-status" id="qgStatus">Esperando datos...</div>
+      <div class="qg-subtitle" id="qgSubtitle">Configura tu proyecto en SonarCloud para ver el estado</div>
+      <div class="qg-badges" id="qgBadges"></div>
+      <a class="qg-link" id="qgLink" href="#" target="_blank" style="display:none;">
+        Ver dashboard completo en SonarCloud
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+      </a>
+    </div>
+
+    <!-- Metric cards -->
+    <div class="metrics-grid" id="metricsGrid">
+      <div class="metric-card security">
+        <div class="metric-value" id="mVulns">-</div>
+        <div class="metric-label">Vulnerabilidades</div>
+        <div class="metric-rating rating-A" id="rSecurity">-</div>
+      </div>
+      <div class="metric-card reliability">
+        <div class="metric-value" id="mBugs">-</div>
+        <div class="metric-label">Bugs</div>
+        <div class="metric-rating rating-A" id="rReliability">-</div>
+      </div>
+      <div class="metric-card maintainability">
+        <div class="metric-value" id="mSmells">-</div>
+        <div class="metric-label">Code Smells</div>
+        <div class="metric-rating rating-A" id="rMaintainability">-</div>
+      </div>
+      <div class="metric-card coverage">
+        <div class="metric-value" id="mCoverage">-</div>
+        <div class="metric-label">Cobertura</div>
+      </div>
+      <div class="metric-card duplications">
+        <div class="metric-value" id="mDuplications">-</div>
+        <div class="metric-label">Duplicaciones</div>
+      </div>
+      <div class="metric-card maintainability">
+        <div class="metric-value" id="mLines">-</div>
+        <div class="metric-label">Lineas de Codigo</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE: SECURITY -->
+  <div class="page" id="page-security">
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Metricas de Seguridad</span>
+      </div>
+      <div class="panel-body">
+        <div class="alert alert-info">
+          <strong>Fuente de datos</strong>
+          Las metricas de seguridad se obtienen de SonarCloud. Ejecuta un analisis con <code>npx @sonar/scan</code> para actualizar los datos.
+        </div>
+        <div id="securityBadges" style="display:flex;flex-wrap:wrap;gap:1rem;margin:1.5rem 0;"></div>
+        <div id="securityBars"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE: QUALITY -->
+  <div class="page" id="page-quality">
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Metricas de Calidad</span>
+      </div>
+      <div class="panel-body">
+        <div id="qualityBadges" style="display:flex;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem;"></div>
+        <div id="qualityBars"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE: HISTORY -->
+  <div class="page" id="page-history">
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Historial de Analisis</span>
+        <button class="btn btn-sm btn-primary" onclick="openLogModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Registrar analisis
+        </button>
+      </div>
+      <div class="panel-body">
+        <div id="historyChart"></div>
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Quality Gate</th>
+              <th>Bugs</th>
+              <th>Vulns</th>
+              <th>Smells</th>
+              <th>Lineas</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="historyBody"></tbody>
+        </table>
+        <div id="historyEmpty" style="text-align:center;padding:2rem;color:var(--gray-400);display:none;">
+          <p>Sin analisis registrados. Ejecuta <code>npx @sonar/scan</code> y registra los resultados.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE: SETUP -->
+  <div class="page" id="page-setup">
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title">1. Crear cuenta en SonarCloud</span></div>
+      <div class="panel-body">
+        <ol class="step-list">
+          <li>Ve a <a href="https://sonarcloud.io" target="_blank"><strong>sonarcloud.io</strong></a> e inicia sesion con GitHub</li>
+          <li>Crea una organizacion (o usa la existente: <code id="setupOrg">jfajeda</code>)</li>
+          <li>Importa tu repositorio como proyecto nuevo</li>
+          <li>Genera un <strong>token</strong> en: <em>My Account &gt; Security &gt; Generate Token</em></li>
+          <li>Guarda el token como variable de entorno:
+            <pre><code>export SONAR_TOKEN="tu-token-aqui"</code></pre>
+          </li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title">2. Configurar sonar-project.properties</span></div>
+      <div class="panel-body">
+        <p>Crea este archivo en la raiz de tu proyecto:</p>
+        <pre><code id="setupProperties">sonar.projectKey=jfajeda_plataforma-opencode
+sonar.organization=jfajeda
+sonar.projectName=Plataforma OpenCode
+sonar.sources=.
+sonar.sourceEncoding=UTF-8
+sonar.exclusions=**/node_modules/**,**/dist/**,**/.git/**
+sonar.qualitygate.wait=true</code></pre>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title">3. Ejecutar analisis</span></div>
+      <div class="panel-body">
+        <pre><code># Con npx (sin instalacion previa)
+export SONAR_TOKEN="tu-token"
+npx @sonar/scan
+
+# O instalar globalmente
+npm install -g @sonar/scan
+sonar</code></pre>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title">4. Integrar MCP en OpenCode</span></div>
+      <div class="panel-body">
+        <p>Anade esto a tu <code>opencode.json</code> para que OpenCode verifique codigo automaticamente:</p>
+        <pre><code>{
+  "mcp": {
+    "sonarqube": {
+      "type": "local",
+      "command": ["npx", "-y", "sonarqube-mcp-server@latest"],
+      "environment": {
+        "SONARQUBE_URL": "https://sonarcloud.io",
+        "SONARQUBE_TOKEN": "{env:SONAR_TOKEN}",
+        "SONARQUBE_ORGANIZATION": "jfajeda"
+      }
+    }
+  }
+}</code></pre>
+        <div class="alert alert-success">
+          <strong>Comando custom /sonar</strong>
+          Si has creado el archivo <code>.opencode/commands/sonar.md</code>, puedes ejecutar el analisis directamente desde OpenCode escribiendo <code>/sonar</code>.
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title">5. Exportar este panel a otro proyecto</span></div>
+      <div class="panel-body">
+        <ol class="step-list">
+          <li>Copia el archivo <code>analisis-codigo.html</code> a tu otro proyecto</li>
+          <li>Abre el archivo y edita el bloque <code>SONAR_CONFIG</code> al inicio del <code>&lt;script&gt;</code></li>
+          <li>Cambia <code>organization</code>, <code>projects</code> y <code>brand</code> segun necesites</li>
+          <li>Listo. El panel funciona de forma independiente</li>
+        </ol>
+        <div class="alert alert-warning">
+          <strong>Token de API</strong>
+          Si dejas el token vacio, el panel mostrara badges publicos (solo para proyectos publicos en SonarCloud). Para proyectos privados necesitas el token.
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ===== FOOTER ===== -->
+<div class="app-footer" id="appFooter">
+  <img id="footerLogo" src="" alt="">
+  <p id="footerText"></p>
+</div>
+
+<!-- ===== MODAL: Registrar analisis ===== -->
+<div class="modal-overlay" id="logModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Registrar Analisis</span>
+      <button class="btn-ghost" onclick="closeLogModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Quality Gate</label>
+        <select class="form-select" id="logQG">
+          <option value="PASSED">PASSED</option>
+          <option value="FAILED">FAILED</option>
+        </select>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div class="form-group">
+          <label class="form-label">Bugs</label>
+          <input type="number" class="form-input" id="logBugs" value="0" min="0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Vulnerabilidades</label>
+          <input type="number" class="form-input" id="logVulns" value="0" min="0">
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div class="form-group">
+          <label class="form-label">Code Smells</label>
+          <input type="number" class="form-input" id="logSmells" value="0" min="0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Lineas de codigo</label>
+          <input type="number" class="form-input" id="logLines" value="0" min="0">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeLogModal()" style="color:var(--gray-700);">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveLog()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+  // ============================================================
+  // STATE
+  // ============================================================
+  const STORAGE_PREFIX = 'sonar_analysis_';
+  let currentProject = SONAR_CONFIG.projects[0];
+
+  // ============================================================
+  // INIT
+  // ============================================================
+  function init() {
+    // Branding
+    const b = SONAR_CONFIG.brand;
+    document.getElementById('brandLogo').src = b.logo;
+    document.getElementById('brandLogo').alt = b.name;
+    document.getElementById('footerLogo').src = b.logo;
+    document.getElementById('footerText').innerHTML =
+      `<strong>${b.name}</strong> &mdash; ${b.subtitle}<br>Modulo de Analisis de Codigo con SonarQube`;
+    document.documentElement.style.setProperty('--primary', b.primary);
+    document.documentElement.style.setProperty('--accent', b.accent);
+
+    // Projects dropdown
+    const sel = document.getElementById('projectSelect');
+    sel.innerHTML = SONAR_CONFIG.projects.map((p, i) =>
+      `<option value="${i}">${p.name}</option>`
+    ).join('');
+
+    // Setup section dynamic values
+    document.getElementById('setupOrg').textContent = SONAR_CONFIG.organization;
+
+    switchProject(0);
+  }
+
+  function switchProject(idx) {
+    currentProject = SONAR_CONFIG.projects[idx];
+    const url = `${SONAR_CONFIG.sonarUrl}/dashboard?id=${currentProject.key}`;
+    document.getElementById('dashboardLink').href = url;
+
+    // Update setup properties
+    document.getElementById('setupProperties').textContent =
+      `sonar.projectKey=${currentProject.key}\nsonar.organization=${SONAR_CONFIG.organization}\nsonar.projectName=${currentProject.name}\nsonar.sources=.\nsonar.sourceEncoding=UTF-8\nsonar.exclusions=**/node_modules/**,**/dist/**,**/.git/**\nsonar.qualitygate.wait=true`;
+
+    refreshData();
+    renderHistory();
+  }
+
+  // ============================================================
+  // TABS
+  // ============================================================
+  function showTab(tabId) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('page-' + tabId).classList.add('active');
+    document.querySelector(`.tab[data-tab="${tabId}"]`).classList.add('active');
+  }
+
+  // ============================================================
+  // DATA: Badges (no auth needed for public projects)
+  // ============================================================
+  function refreshData() {
+    const pk = currentProject.key;
+    const base = SONAR_CONFIG.sonarUrl;
+
+    // Quality Gate badges
+    const badges = document.getElementById('qgBadges');
+    const metrics = ['alert_status', 'bugs', 'vulnerabilities', 'code_smells',
+                     'coverage', 'duplicated_lines_density', 'ncloc',
+                     'security_rating', 'reliability_rating', 'sqale_rating'];
+
+    badges.innerHTML = metrics.map(m =>
+      `<img src="${base}/api/project_badges/measure?project=${pk}&metric=${m}" alt="${m}" onerror="this.style.display='none'">`
+    ).join('');
+
+    // Security badges
+    const secBadges = document.getElementById('securityBadges');
+    const secMetrics = ['vulnerabilities', 'security_rating', 'security_hotspots'];
+    secBadges.innerHTML = secMetrics.map(m =>
+      `<img src="${base}/api/project_badges/measure?project=${pk}&metric=${m}" alt="${m}" style="height:20px;" onerror="this.style.display='none'">`
+    ).join('');
+
+    // Quality badges
+    const qualBadges = document.getElementById('qualityBadges');
+    const qualMetrics = ['bugs', 'code_smells', 'sqale_rating', 'reliability_rating', 'coverage', 'duplicated_lines_density'];
+    qualBadges.innerHTML = qualMetrics.map(m =>
+      `<img src="${base}/api/project_badges/measure?project=${pk}&metric=${m}" alt="${m}" style="height:20px;" onerror="this.style.display='none'">`
+    ).join('');
+
+    // Quality Gate large badge
+    const qgImg = new Image();
+    qgImg.src = `${base}/api/project_badges/quality_gate?project=${pk}`;
+    qgImg.onload = function() {
+      // Badge loaded = project exists in SonarCloud
+      const banner = document.getElementById('qgBanner');
+      banner.className = 'qg-banner passed';
+      document.getElementById('qgStatus').textContent = 'Quality Gate';
+      document.getElementById('qgSubtitle').textContent = 'Proyecto conectado a SonarCloud';
+      document.getElementById('qgLink').style.display = 'inline-flex';
+      document.getElementById('qgLink').href = `${base}/dashboard?id=${pk}`;
+    };
+    qgImg.onerror = function() {
+      const banner = document.getElementById('qgBanner');
+      banner.className = 'qg-banner unknown';
+      document.getElementById('qgStatus').textContent = 'Sin datos';
+      document.getElementById('qgSubtitle').textContent = 'Configura tu proyecto en SonarCloud. Ve a la pestana Configuracion.';
+      document.getElementById('qgLink').style.display = 'none';
+    };
+
+    // If token available, try API
+    if (SONAR_CONFIG.token) {
+      fetchAPIMetrics();
+    }
+
+    showToast('Datos actualizados', 'info');
+  }
+
+  // ============================================================
+  // DATA: API (requires token)
+  // ============================================================
+  async function fetchAPIMetrics() {
+    const pk = currentProject.key;
+    const metricsStr = 'bugs,vulnerabilities,code_smells,coverage,ncloc,duplicated_lines_density,security_rating,reliability_rating,sqale_rating,alert_status';
+
+    try {
+      const res = await fetch(
+        `${SONAR_CONFIG.sonarUrl}/api/measures/component?component=${pk}&metricKeys=${metricsStr}`,
+        { headers: { 'Authorization': `Bearer ${SONAR_CONFIG.token}` } }
+      );
+
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      const measures = {};
+      data.component.measures.forEach(m => { measures[m.metric] = m.value; });
+
+      // Update cards
+      document.getElementById('mVulns').textContent = measures.vulnerabilities || '0';
+      document.getElementById('mBugs').textContent = measures.bugs || '0';
+      document.getElementById('mSmells').textContent = measures.code_smells || '0';
+      document.getElementById('mCoverage').textContent = (measures.coverage || '0') + '%';
+      document.getElementById('mDuplications').textContent = (measures.duplicated_lines_density || '0') + '%';
+      document.getElementById('mLines').textContent = formatNumber(measures.ncloc || '0');
+
+      // Ratings
+      setRating('rSecurity', measures.security_rating);
+      setRating('rReliability', measures.reliability_rating);
+      setRating('rMaintainability', measures.sqale_rating);
+
+      // Quality Gate
+      const banner = document.getElementById('qgBanner');
+      if (measures.alert_status === 'OK') {
+        banner.className = 'qg-banner passed';
+        document.getElementById('qgStatus').textContent = 'PASSED';
+        document.getElementById('qgSubtitle').textContent = 'El codigo cumple los estandares de calidad y seguridad';
+      } else if (measures.alert_status === 'ERROR') {
+        banner.className = 'qg-banner failed';
+        document.getElementById('qgStatus').textContent = 'FAILED';
+        document.getElementById('qgSubtitle').textContent = 'El codigo NO cumple los estandares. Revisa los issues.';
+      }
+
+      document.getElementById('qgLink').style.display = 'inline-flex';
+      document.getElementById('qgLink').href = `${SONAR_CONFIG.sonarUrl}/dashboard?id=${pk}`;
+
+      // Security bars
+      renderSecurityBars(measures);
+      renderQualityBars(measures);
+
+    } catch (err) {
+      console.warn('SonarCloud API error:', err.message);
+    }
+  }
+
+  function setRating(elId, value) {
+    const el = document.getElementById(elId);
+    const ratings = { '1.0': 'A', '2.0': 'B', '3.0': 'C', '4.0': 'D', '5.0': 'E' };
+    const letter = ratings[value] || '-';
+    el.textContent = letter;
+    el.className = `metric-rating rating-${letter}`;
+  }
+
+  function formatNumber(n) {
+    const num = parseInt(n);
+    if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+    if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+    return n;
+  }
+
+  function renderSecurityBars(m) {
+    const container = document.getElementById('securityBars');
+    const maxVal = Math.max(parseInt(m.vulnerabilities || 0), 1);
+    container.innerHTML = `
+      <div class="bar-container">
+        <div class="bar-label"><span>Vulnerabilidades</span><span>${m.vulnerabilities || 0}</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:${(parseInt(m.vulnerabilities || 0)/maxVal)*100}%;background:var(--danger);"></div></div>
+      </div>
+    `;
+  }
+
+  function renderQualityBars(m) {
+    const container = document.getElementById('qualityBars');
+    const vals = [
+      { label: 'Bugs', val: parseInt(m.bugs || 0), color: 'var(--warning)' },
+      { label: 'Code Smells', val: parseInt(m.code_smells || 0), color: 'var(--primary)' },
+      { label: 'Cobertura', val: parseFloat(m.coverage || 0), color: 'var(--accent)', pct: true },
+      { label: 'Duplicaciones', val: parseFloat(m.duplicated_lines_density || 0), color: 'var(--gray-400)', pct: true },
+    ];
+    const maxCount = Math.max(...vals.filter(v => !v.pct).map(v => v.val), 1);
+
+    container.innerHTML = vals.map(v => {
+      const w = v.pct ? v.val : (v.val / maxCount) * 100;
+      const display = v.pct ? v.val + '%' : v.val;
+      return `
+        <div class="bar-container">
+          <div class="bar-label"><span>${v.label}</span><span>${display}</span></div>
+          <div class="bar-track"><div class="bar-fill" style="width:${Math.min(w, 100)}%;background:${v.color};"></div></div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // ============================================================
+  // HISTORY (localStorage)
+  // ============================================================
+  function getStorageKey() {
+    return STORAGE_PREFIX + currentProject.key;
+  }
+
+  function loadHistory() {
+    try { return JSON.parse(localStorage.getItem(getStorageKey())) || []; }
+    catch { return []; }
+  }
+
+  function saveHistory(data) {
+    localStorage.setItem(getStorageKey(), JSON.stringify(data));
+  }
+
+  function renderHistory() {
+    const data = loadHistory();
+    const tbody = document.getElementById('historyBody');
+    const empty = document.getElementById('historyEmpty');
+    const chartEl = document.getElementById('historyChart');
+
+    if (data.length === 0) {
+      tbody.innerHTML = '';
+      empty.style.display = 'block';
+      chartEl.innerHTML = '';
+      return;
+    }
+
+    empty.style.display = 'none';
+
+    // Table
+    tbody.innerHTML = data.slice().reverse().map(d => `
+      <tr>
+        <td>${new Date(d.date).toLocaleDateString('es-ES')} ${new Date(d.date).toLocaleTimeString('es-ES', {hour:'2-digit',minute:'2-digit'})}</td>
+        <td><span style="color:${d.qg === 'PASSED' ? 'var(--success)' : 'var(--danger)'};font-weight:700;">${d.qg}</span></td>
+        <td>${d.bugs}</td>
+        <td>${d.vulns}</td>
+        <td>${d.smells}</td>
+        <td>${d.lines}</td>
+        <td><button class="btn-ghost" onclick="deleteLog('${d.date}')" title="Eliminar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button></td>
+      </tr>
+    `).join('');
+
+    // Chart (CSS bars)
+    const maxBugs = Math.max(...data.map(d => d.bugs), 1);
+    const maxVulns = Math.max(...data.map(d => d.vulns), 1);
+    const maxSmells = Math.max(...data.map(d => d.smells), 1);
+    const globalMax = Math.max(maxBugs, maxVulns, maxSmells, 1);
+
+    const last15 = data.slice(-15);
+    chartEl.innerHTML = `
+      <div class="chart-bars">
+        ${last15.map(d => {
+          const hBugs = Math.max((d.bugs / globalMax) * 100, 2);
+          const hVulns = Math.max((d.vulns / globalMax) * 100, 2);
+          const hSmells = Math.max((d.smells / globalMax) * 100, 2);
+          return `
+            <div class="chart-bar-group">
+              <div class="chart-bar smells" style="height:${hSmells}%" title="Smells: ${d.smells}"></div>
+              <div class="chart-bar bugs" style="height:${hBugs}%" title="Bugs: ${d.bugs}"></div>
+              <div class="chart-bar vulns" style="height:${hVulns}%" title="Vulns: ${d.vulns}"></div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:0.25rem 0;font-size:0.65rem;color:var(--gray-400);">
+        <span>${new Date(last15[0].date).toLocaleDateString('es-ES')}</span>
+        <span>${new Date(last15[last15.length-1].date).toLocaleDateString('es-ES')}</span>
+      </div>
+      <div class="chart-legend">
+        <div class="chart-legend-item"><div class="legend-dot" style="background:var(--danger);"></div> Vulnerabilidades</div>
+        <div class="chart-legend-item"><div class="legend-dot" style="background:var(--warning);"></div> Bugs</div>
+        <div class="chart-legend-item"><div class="legend-dot" style="background:var(--primary);"></div> Code Smells</div>
+      </div>
+    `;
+  }
+
+  function openLogModal() {
+    document.getElementById('logModal').classList.add('show');
+  }
+
+  function closeLogModal() {
+    document.getElementById('logModal').classList.remove('show');
+  }
+
+  function saveLog() {
+    const entry = {
+      date: new Date().toISOString(),
+      qg: document.getElementById('logQG').value,
+      bugs: parseInt(document.getElementById('logBugs').value) || 0,
+      vulns: parseInt(document.getElementById('logVulns').value) || 0,
+      smells: parseInt(document.getElementById('logSmells').value) || 0,
+      lines: parseInt(document.getElementById('logLines').value) || 0,
+    };
+
+    const data = loadHistory();
+    data.push(entry);
+    saveHistory(data);
+    closeLogModal();
+    renderHistory();
+    showToast('Analisis registrado', 'success');
+  }
+
+  function deleteLog(date) {
+    if (!confirm('Eliminar este registro?')) return;
+    let data = loadHistory();
+    data = data.filter(d => d.date !== date);
+    saveHistory(data);
+    renderHistory();
+    showToast('Registro eliminado', 'info');
+  }
+
+  // ============================================================
+  // UTILS
+  // ============================================================
+  function showToast(message, type) {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type || 'info'}`;
+    toast.textContent = message;
+    container.appendChild(toast);
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateX(100%)';
+      setTimeout(() => toast.remove(), 300);
+    }, 3000);
+  }
+
+  // Keyboard
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeLogModal();
+  });
+
+  document.getElementById('logModal').addEventListener('click', function(e) {
+    if (e.target === this) closeLogModal();
+  });
+
+  // ============================================================
+  // START
+  // ============================================================
+  init();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1729 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plataforma de Seguimiento OpenCode - CODANOR</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Nunito+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #178DC2;
+      --primary-dark: #1275A3;
+      --primary-light: #e8f4fa;
+      --accent: #12A79D;
+      --accent-light: #e6f7f6;
+      --dark: #1a1a2e;
+      --gray-900: #2d2d44;
+      --gray-700: #4a4a5a;
+      --gray-500: #7a7a8a;
+      --gray-400: #9a9aaa;
+      --gray-300: #c4c4d0;
+      --gray-200: #dddde5;
+      --gray-100: #f0f0f5;
+      --white: #ffffff;
+      --danger: #e74c3c;
+      --danger-light: #fdedec;
+      --warning: #f39c12;
+      --warning-light: #fef9e7;
+      --success: #12A79D;
+      --success-light: #e6f7f6;
+      --info: #178DC2;
+      --info-light: #e8f4fa;
+      --purple: #8e44ad;
+      --purple-light: #f3e8f9;
+      --sidebar-w: 260px;
+      --header-h: 64px;
+      --radius: 10px;
+      --shadow: 0 2px 8px rgba(0,0,0,0.06);
+      --shadow-lg: 0 8px 24px rgba(0,0,0,0.1);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Nunito Sans', sans-serif;
+      background: var(--gray-100);
+      color: var(--gray-700);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ===== LAYOUT ===== */
+    .app { display: flex; min-height: 100vh; }
+
+    /* ===== SIDEBAR ===== */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--dark);
+      color: var(--white);
+      position: fixed;
+      top: 0; left: 0;
+      height: 100vh;
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s;
+    }
+
+    .sidebar-brand {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .sidebar-brand img { height: 32px; filter: brightness(0) invert(1); }
+
+    .sidebar-brand span {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      font-size: 0.95rem;
+      letter-spacing: 0.3px;
+    }
+
+    .sidebar-nav { flex: 1; padding: 1rem 0; overflow-y: auto; }
+
+    .sidebar-nav .nav-label {
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--gray-500);
+      padding: 1rem 1.5rem 0.4rem;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.65rem 1.5rem;
+      color: var(--gray-400);
+      text-decoration: none;
+      font-size: 0.88rem;
+      cursor: pointer;
+      transition: all 0.15s;
+      border-left: 3px solid transparent;
+      user-select: none;
+    }
+
+    .nav-item:hover {
+      background: rgba(255,255,255,0.05);
+      color: var(--white);
+    }
+
+    .nav-item.active {
+      background: rgba(23,141,194,0.15);
+      color: var(--primary);
+      border-left-color: var(--primary);
+      font-weight: 600;
+    }
+
+    .nav-item svg { width: 18px; height: 18px; flex-shrink: 0; opacity: 0.7; }
+    .nav-item.active svg { opacity: 1; }
+
+    .nav-item .badge-count {
+      margin-left: auto;
+      background: var(--danger);
+      color: var(--white);
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 0.1rem 0.45rem;
+      border-radius: 50px;
+      min-width: 20px;
+      text-align: center;
+    }
+
+    .sidebar-footer {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      font-size: 0.75rem;
+      color: var(--gray-500);
+    }
+
+    /* ===== MAIN ===== */
+    .main {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ===== HEADER ===== */
+    .header {
+      height: var(--header-h);
+      background: var(--white);
+      border-bottom: 1px solid var(--gray-200);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-title {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--dark);
+    }
+
+    .header-actions { display: flex; align-items: center; gap: 0.75rem; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-family: 'Nunito Sans', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s;
+    }
+
+    .btn svg { width: 16px; height: 16px; }
+    .btn-primary { background: var(--primary); color: var(--white); }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-accent { background: var(--accent); color: var(--white); }
+    .btn-accent:hover { background: #0e8a82; }
+    .btn-danger { background: var(--danger); color: var(--white); }
+    .btn-danger:hover { background: #c0392b; }
+    .btn-outline {
+      background: transparent;
+      color: var(--gray-700);
+      border: 1px solid var(--gray-300);
+    }
+    .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+    .btn-sm { padding: 0.35rem 0.75rem; font-size: 0.8rem; }
+    .btn-ghost { background: transparent; color: var(--gray-500); padding: 0.4rem; }
+    .btn-ghost:hover { color: var(--primary); background: var(--primary-light); }
+
+    /* ===== CONTENT ===== */
+    .content { padding: 2rem; flex: 1; }
+
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* ===== METRIC CARDS ===== */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+
+    .metric-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      border-left: 4px solid var(--primary);
+    }
+
+    .metric-card.accent { border-left-color: var(--accent); }
+    .metric-card.warning { border-left-color: var(--warning); }
+    .metric-card.danger { border-left-color: var(--danger); }
+    .metric-card.purple { border-left-color: var(--purple); }
+
+    .metric-icon {
+      width: 44px; height: 44px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .metric-icon svg { width: 22px; height: 22px; }
+    .metric-icon.blue { background: var(--info-light); color: var(--primary); }
+    .metric-icon.green { background: var(--success-light); color: var(--accent); }
+    .metric-icon.orange { background: var(--warning-light); color: var(--warning); }
+    .metric-icon.red { background: var(--danger-light); color: var(--danger); }
+    .metric-icon.purple { background: var(--purple-light); color: var(--purple); }
+
+    .metric-info h3 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--dark);
+      line-height: 1.2;
+    }
+    .metric-info p {
+      font-size: 0.82rem;
+      color: var(--gray-500);
+      margin: 0;
+    }
+
+    /* ===== PANELS ===== */
+    .panel {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 1.5rem;
+    }
+
+    .panel-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--gray-100);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .panel-title {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--dark);
+    }
+
+    .panel-body { padding: 1.5rem; }
+
+    /* ===== PROGRESS BAR ===== */
+    .progress-bar {
+      width: 100%;
+      height: 10px;
+      background: var(--gray-100);
+      border-radius: 5px;
+      overflow: hidden;
+      margin: 0.5rem 0;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 5px;
+      transition: width 0.5s ease;
+    }
+
+    .progress-fill.blue { background: linear-gradient(90deg, var(--primary), #4db8e8); }
+    .progress-fill.green { background: linear-gradient(90deg, var(--accent), #2ed8c9); }
+    .progress-fill.orange { background: linear-gradient(90deg, var(--warning), #f5b945); }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: var(--gray-500);
+    }
+
+    /* ===== KANBAN ===== */
+    .kanban {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      min-height: 500px;
+    }
+
+    .kanban-col {
+      background: var(--gray-100);
+      border-radius: var(--radius);
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .kanban-col-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 2px solid var(--gray-200);
+    }
+
+    .kanban-col-title {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .kanban-col-title .dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .dot-backlog { background: var(--gray-400); }
+    .dot-progress { background: var(--primary); }
+    .dot-review { background: var(--warning); }
+    .dot-done { background: var(--accent); }
+
+    .kanban-col-count {
+      background: var(--gray-200);
+      color: var(--gray-700);
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.15rem 0.5rem;
+      border-radius: 50px;
+    }
+
+    .kanban-cards { flex: 1; display: flex; flex-direction: column; gap: 0.75rem; min-height: 100px; }
+
+    .kanban-card {
+      background: var(--white);
+      border-radius: 8px;
+      padding: 1rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+      cursor: grab;
+      transition: all 0.15s;
+      border-left: 3px solid transparent;
+    }
+
+    .kanban-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-1px); }
+    .kanban-card.dragging { opacity: 0.5; }
+
+    .kanban-card.p-high { border-left-color: var(--danger); }
+    .kanban-card.p-medium { border-left-color: var(--warning); }
+    .kanban-card.p-low { border-left-color: var(--accent); }
+
+    .kanban-card-title {
+      font-weight: 600;
+      font-size: 0.88rem;
+      color: var(--dark);
+      margin-bottom: 0.35rem;
+    }
+
+    .kanban-card-desc {
+      font-size: 0.8rem;
+      color: var(--gray-500);
+      margin-bottom: 0.5rem;
+    }
+
+    .kanban-card-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .tag {
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 0.15rem 0.5rem;
+      border-radius: 50px;
+    }
+
+    .tag-bug { background: var(--danger-light); color: var(--danger); }
+    .tag-feature { background: var(--info-light); color: var(--primary); }
+    .tag-docs { background: var(--purple-light); color: var(--purple); }
+    .tag-config { background: var(--warning-light); color: var(--warning); }
+    .tag-perf { background: var(--success-light); color: var(--accent); }
+
+    .kanban-card-date {
+      font-size: 0.7rem;
+      color: var(--gray-400);
+    }
+
+    .kanban-card-actions {
+      display: flex;
+      gap: 0.25rem;
+      margin-top: 0.5rem;
+    }
+
+    .card-action-btn {
+      background: transparent;
+      border: none;
+      color: var(--gray-400);
+      cursor: pointer;
+      padding: 0.2rem;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+    }
+
+    .card-action-btn:hover { color: var(--primary); background: var(--primary-light); }
+    .card-action-btn.delete:hover { color: var(--danger); background: var(--danger-light); }
+    .card-action-btn svg { width: 14px; height: 14px; }
+
+    /* ===== MODAL ===== */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(26,26,46,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 500;
+      backdrop-filter: blur(2px);
+    }
+
+    .modal-overlay.show { display: flex; }
+
+    .modal {
+      background: var(--white);
+      border-radius: var(--radius);
+      width: 500px;
+      max-width: 90vw;
+      max-height: 85vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .modal-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--gray-100);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-title {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--dark);
+    }
+
+    .modal-body { padding: 1.5rem; }
+    .modal-footer {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--gray-100);
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+    }
+
+    .form-group { margin-bottom: 1rem; }
+    .form-label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--gray-700);
+      margin-bottom: 0.35rem;
+    }
+
+    .form-input, .form-select, .form-textarea {
+      width: 100%;
+      padding: 0.6rem 0.9rem;
+      border: 1px solid var(--gray-300);
+      border-radius: 8px;
+      font-family: 'Nunito Sans', sans-serif;
+      font-size: 0.9rem;
+      color: var(--gray-700);
+      transition: border-color 0.15s;
+      background: var(--white);
+    }
+
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(23,141,194,0.1);
+    }
+
+    .form-textarea { resize: vertical; min-height: 80px; }
+
+    /* ===== DOCS HUB ===== */
+    .docs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .doc-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      box-shadow: var(--shadow);
+      transition: all 0.2s;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+      border-top: 4px solid var(--primary);
+    }
+
+    .doc-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-2px); }
+    .doc-card.accent-border { border-top-color: var(--accent); }
+    .doc-card.warning-border { border-top-color: var(--warning); }
+    .doc-card.purple-border { border-top-color: var(--purple); }
+    .doc-card.danger-border { border-top-color: var(--danger); }
+
+    .doc-card-icon {
+      width: 48px; height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+    .doc-card-icon svg { width: 24px; height: 24px; }
+    .doc-card-icon.blue { background: var(--info-light); color: var(--primary); }
+    .doc-card-icon.green { background: var(--success-light); color: var(--accent); }
+    .doc-card-icon.orange { background: var(--warning-light); color: var(--warning); }
+    .doc-card-icon.purple { background: var(--purple-light); color: var(--purple); }
+    .doc-card-icon.red { background: var(--danger-light); color: var(--danger); }
+
+    .doc-card h3 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--dark);
+      margin-bottom: 0.4rem;
+    }
+
+    .doc-card p { font-size: 0.85rem; color: var(--gray-500); margin: 0; }
+
+    /* ===== CHANGELOG ===== */
+    .timeline { position: relative; padding-left: 2rem; }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 8px; top: 0; bottom: 0;
+      width: 2px;
+      background: var(--gray-200);
+    }
+
+    .timeline-item {
+      position: relative;
+      margin-bottom: 2rem;
+      padding-left: 1.5rem;
+    }
+
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -1.55rem; top: 0.35rem;
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      background: var(--primary);
+      border: 3px solid var(--white);
+      box-shadow: 0 0 0 2px var(--primary);
+    }
+
+    .timeline-item.accent::before { background: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+    .timeline-item.warning::before { background: var(--warning); box-shadow: 0 0 0 2px var(--warning); }
+
+    .timeline-date {
+      font-size: 0.75rem;
+      color: var(--gray-500);
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .timeline-title {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--dark);
+      margin-bottom: 0.35rem;
+    }
+
+    .timeline-body { font-size: 0.88rem; color: var(--gray-700); }
+    .timeline-body ul { padding-left: 1.25rem; margin-top: 0.35rem; }
+    .timeline-body li { margin-bottom: 0.2rem; font-size: 0.85rem; }
+
+    /* ===== ACTIVITY LOG ===== */
+    .activity-list { list-style: none; }
+    .activity-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--gray-100);
+    }
+    .activity-item:last-child { border-bottom: none; }
+
+    .activity-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      margin-top: 0.4rem;
+      flex-shrink: 0;
+    }
+    .activity-dot.green { background: var(--accent); }
+    .activity-dot.blue { background: var(--primary); }
+    .activity-dot.orange { background: var(--warning); }
+    .activity-dot.red { background: var(--danger); }
+
+    .activity-text { font-size: 0.85rem; }
+    .activity-text strong { color: var(--dark); }
+    .activity-time { font-size: 0.75rem; color: var(--gray-400); margin-top: 0.15rem; }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 1024px) {
+      .kanban { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-left: 0; }
+      .kanban { grid-template-columns: 1fr; }
+      .content { padding: 1rem; }
+      .header { padding: 0 1rem; }
+      .metrics-grid { grid-template-columns: 1fr 1fr; }
+      .mobile-toggle { display: flex !important; }
+    }
+
+    .mobile-toggle {
+      display: none;
+      background: transparent;
+      border: none;
+      color: var(--gray-700);
+      cursor: pointer;
+      padding: 0.5rem;
+    }
+    .mobile-toggle svg { width: 24px; height: 24px; }
+
+    /* ===== EMPTY STATE ===== */
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--gray-400);
+    }
+    .empty-state svg { width: 48px; height: 48px; margin-bottom: 1rem; opacity: 0.4; }
+    .empty-state p { font-size: 0.9rem; }
+
+    /* ===== TOAST ===== */
+    .toast-container {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      z-index: 600;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .toast {
+      background: var(--dark);
+      color: var(--white);
+      padding: 0.75rem 1.25rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      box-shadow: var(--shadow-lg);
+      animation: slideIn 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .toast.success { border-left: 4px solid var(--accent); }
+    .toast.error { border-left: 4px solid var(--danger); }
+    .toast.info { border-left: 4px solid var(--primary); }
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    /* ===== SEARCH ===== */
+    .search-box {
+      position: relative;
+      max-width: 280px;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 0.5rem 0.9rem 0.5rem 2.2rem;
+      border: 1px solid var(--gray-200);
+      border-radius: 8px;
+      font-size: 0.85rem;
+      background: var(--gray-100);
+      color: var(--gray-700);
+    }
+
+    .search-box input:focus {
+      outline: none;
+      border-color: var(--primary);
+      background: var(--white);
+    }
+
+    .search-box svg {
+      position: absolute;
+      left: 0.7rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 14px; height: 14px;
+      color: var(--gray-400);
+    }
+
+    /* ===== DRAG OVER ===== */
+    .kanban-cards.drag-over {
+      background: var(--primary-light);
+      border-radius: 8px;
+      border: 2px dashed var(--primary);
+    }
+
+    /* ===== PRINT ===== */
+    @media print {
+      .sidebar, .header, .btn, .mobile-toggle, .toast-container { display: none !important; }
+      .main { margin-left: 0; }
+      .content { padding: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app">
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <img src="https://codanor.com/assets/img/logo_web-50.png" alt="CODANOR">
+      <span>OpenCode Tracker</span>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-label">Principal</div>
+      <div class="nav-item active" data-page="dashboard" onclick="showPage('dashboard')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </div>
+      <div class="nav-item" data-page="kanban" onclick="showPage('kanban')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+        Incidencias
+        <span class="badge-count" id="kanbanBadge">0</span>
+      </div>
+
+      <div class="nav-label">Recursos</div>
+      <div class="nav-item" data-page="docs" onclick="showPage('docs')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Documentacion
+      </div>
+      <div class="nav-item" data-page="changelog" onclick="showPage('changelog')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Changelog
+      </div>
+
+      <div class="nav-label">Herramientas</div>
+      <a class="nav-item" href="analisis-codigo.html" target="_blank" style="text-decoration:none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Analisis de Codigo
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      Jafa, S.L. &mdash; CODANOR<br>
+      Barcelona, Catalunya
+    </div>
+  </aside>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <div class="main">
+    <!-- HEADER -->
+    <header class="header">
+      <div style="display:flex;align-items:center;gap:1rem;">
+        <button class="mobile-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <h1 class="header-title" id="pageTitle">Dashboard</h1>
+      </div>
+      <div class="header-actions">
+        <div class="search-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" placeholder="Buscar..." id="globalSearch" oninput="handleSearch(this.value)">
+        </div>
+        <button class="btn btn-primary" onclick="openNewTicketModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Nueva incidencia
+        </button>
+      </div>
+    </header>
+
+    <!-- CONTENT AREA -->
+    <div class="content">
+
+      <!-- ===== PAGE: DASHBOARD ===== -->
+      <div class="page active" id="page-dashboard">
+        <!-- Metricas -->
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-icon blue">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+            </div>
+            <div class="metric-info">
+              <h3 id="metricTotal">0</h3>
+              <p>Total incidencias</p>
+            </div>
+          </div>
+          <div class="metric-card accent">
+            <div class="metric-icon green">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <div class="metric-info">
+              <h3 id="metricDone">0</h3>
+              <p>Completadas</p>
+            </div>
+          </div>
+          <div class="metric-card warning">
+            <div class="metric-icon orange">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div class="metric-info">
+              <h3 id="metricProgress">0</h3>
+              <p>En progreso</p>
+            </div>
+          </div>
+          <div class="metric-card danger">
+            <div class="metric-icon red">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <div class="metric-info">
+              <h3 id="metricHigh">0</h3>
+              <p>Prioridad alta</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Progreso del manual -->
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title">Progreso del Manual v2.1</span>
+            <span style="font-size:0.85rem;color:var(--accent);font-weight:600" id="manualPercent">100%</span>
+          </div>
+          <div class="panel-body">
+            <div class="progress-bar"><div class="progress-fill green" id="manualProgress" style="width:100%"></div></div>
+            <div class="progress-label">
+              <span>16 de 16 capitulos completados</span>
+              <span>v2.1 Abril 2026</span>
+            </div>
+            <div style="margin-top:1rem;display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;font-size:0.82rem;">
+              <div><span style="color:var(--accent);">&#9679;</span> Cap 1. Introduccion (actualizado)</div>
+              <div><span style="color:var(--primary);">&#9679;</span> Cap 2. Agentes (nuevo)</div>
+              <div><span style="color:var(--primary);">&#9679;</span> Cap 3. Permisos (nuevo)</div>
+              <div><span style="color:var(--primary);">&#9679;</span> Cap 4. Configuracion (nuevo)</div>
+              <div><span style="color:var(--primary);">&#9679;</span> Cap 5. Servidores MCP (nuevo)</div>
+              <div><span style="color:var(--primary);">&#9679;</span> Cap 6. Comandos/Skills (nuevo)</div>
+              <div><span style="color:var(--primary);">&#9679;</span> Cap 7. OpenCode Zen (nuevo)</div>
+              <div><span style="color:var(--gray-500);">&#9679;</span> Cap 8. Error Imagen</div>
+              <div><span style="color:var(--accent);">&#9679;</span> Cap 9. Historico (actualizado)</div>
+              <div><span style="color:var(--gray-500);">&#9679;</span> Cap 10. Procesos bloqueados</div>
+              <div><span style="color:var(--accent);">&#9679;</span> Cap 11. Rendimiento (actualizado)</div>
+              <div><span style="color:var(--primary);">&#9679;</span> Cap 12. Tool Aborted (nuevo)</div>
+              <div><span style="color:var(--primary);">&#9679;</span> Cap 13. Troubleshooting (nuevo)</div>
+              <div><span style="color:var(--accent);">&#9679;</span> Cap 14. Buenas Practicas (actualizado)</div>
+              <div><span style="color:var(--accent);">&#9679;</span> Cap 15. Referencia Rapida (actualizado)</div>
+              <div><span style="color:var(--primary);">&#9679;</span> Cap 16. Copias de Seguridad (nuevo)</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actividad reciente + resumen -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+          <div class="panel">
+            <div class="panel-header">
+              <span class="panel-title">Actividad Reciente</span>
+            </div>
+            <div class="panel-body">
+              <ul class="activity-list" id="activityList">
+                <!-- JS populated -->
+              </ul>
+              <div class="empty-state" id="activityEmpty" style="display:none;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                <p>Sin actividad reciente</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <span class="panel-title">Resumen por Tipo</span>
+            </div>
+            <div class="panel-body">
+              <div id="typeSummary">
+                <!-- JS populated -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== PAGE: KANBAN ===== -->
+      <div class="page" id="page-kanban">
+        <div class="kanban">
+          <!-- Backlog -->
+          <div class="kanban-col">
+            <div class="kanban-col-header">
+              <span class="kanban-col-title"><span class="dot dot-backlog"></span> Backlog</span>
+              <span class="kanban-col-count" id="countBacklog">0</span>
+            </div>
+            <div class="kanban-cards" id="col-backlog" data-status="backlog"
+                 ondragover="onDragOver(event)" ondrop="onDrop(event, 'backlog')" ondragleave="onDragLeave(event)">
+            </div>
+          </div>
+          <!-- En progreso -->
+          <div class="kanban-col">
+            <div class="kanban-col-header">
+              <span class="kanban-col-title"><span class="dot dot-progress"></span> En Progreso</span>
+              <span class="kanban-col-count" id="countProgress">0</span>
+            </div>
+            <div class="kanban-cards" id="col-progress" data-status="progress"
+                 ondragover="onDragOver(event)" ondrop="onDrop(event, 'progress')" ondragleave="onDragLeave(event)">
+            </div>
+          </div>
+          <!-- Revision -->
+          <div class="kanban-col">
+            <div class="kanban-col-header">
+              <span class="kanban-col-title"><span class="dot dot-review"></span> Revision</span>
+              <span class="kanban-col-count" id="countReview">0</span>
+            </div>
+            <div class="kanban-cards" id="col-review" data-status="review"
+                 ondragover="onDragOver(event)" ondrop="onDrop(event, 'review')" ondragleave="onDragLeave(event)">
+            </div>
+          </div>
+          <!-- Completado -->
+          <div class="kanban-col">
+            <div class="kanban-col-header">
+              <span class="kanban-col-title"><span class="dot dot-done"></span> Completado</span>
+              <span class="kanban-col-count" id="countDone">0</span>
+            </div>
+            <div class="kanban-cards" id="col-done" data-status="done"
+                 ondragover="onDragOver(event)" ondrop="onDrop(event, 'done')" ondragleave="onDragLeave(event)">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== PAGE: DOCS ===== -->
+      <div class="page" id="page-docs">
+        <div class="docs-grid">
+          <a class="doc-card" href="Manual_OpenCode_Codanor.html" target="_blank">
+            <div class="doc-card-icon blue">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+            </div>
+            <h3>Manual OpenCode v2.1</h3>
+            <p>Guia completa con 16 capitulos: agentes, permisos, configuracion, MCP, troubleshooting, copias de seguridad y mas.</p>
+          </a>
+          <a class="doc-card accent-border" href="https://opencode.ai/docs" target="_blank">
+            <div class="doc-card-icon green">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+            </div>
+            <h3>Documentacion Oficial</h3>
+            <p>Documentacion completa de OpenCode en opencode.ai/docs. Siempre actualizada.</p>
+          </a>
+          <a class="doc-card warning-border" href="https://opencode.ai/docs/troubleshooting/" target="_blank">
+            <div class="doc-card-icon orange">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
+            </div>
+            <h3>Troubleshooting Oficial</h3>
+            <p>Guia de resolucion de problemas comunes directamente desde la documentacion de OpenCode.</p>
+          </a>
+          <a class="doc-card purple-border" href="https://opencode.ai/docs/providers/" target="_blank">
+            <div class="doc-card-icon purple">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+            </div>
+            <h3>Proveedores de IA</h3>
+            <p>Configuracion de Anthropic, OpenAI, Google, Azure, Bedrock y otros proveedores.</p>
+          </a>
+          <a class="doc-card danger-border" href="https://github.com/anomalyco/opencode" target="_blank">
+            <div class="doc-card-icon red">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"/></svg>
+            </div>
+            <h3>Repositorio GitHub</h3>
+            <p>Codigo fuente, issues y releases de OpenCode. 135K+ estrellas.</p>
+          </a>
+          <a class="doc-card" href="https://opencode.ai/discord" target="_blank">
+            <div class="doc-card-icon blue">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+            </div>
+            <h3>Comunidad Discord</h3>
+            <p>Canal de soporte en tiempo real y discusion con otros usuarios de OpenCode.</p>
+          </a>
+          <a class="doc-card accent-border" href="analisis-codigo.html" target="_blank">
+            <div class="doc-card-icon green">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <h3>Analisis de Codigo</h3>
+            <p>Panel de SonarQube: Quality Gate, vulnerabilidades, bugs, code smells. Exportable a otros proyectos.</p>
+          </a>
+        </div>
+      </div>
+
+      <!-- ===== PAGE: CHANGELOG ===== -->
+      <div class="page" id="page-changelog">
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title">Historial de Cambios - CODANOR</span>
+          </div>
+          <div class="panel-body">
+            <div class="timeline">
+              <div class="timeline-item">
+                <div class="timeline-date">10 Abril 2026</div>
+                <div class="timeline-title">Modulo Analisis de Codigo (SonarQube)</div>
+                <div class="timeline-body">
+                  <ul>
+                    <li>Creado <code>analisis-codigo.html</code> — panel exportable con branding configurable</li>
+                    <li>5 pestanas: Resumen, Seguridad, Calidad, Historial, Configuracion</li>
+                    <li>Integracion SonarCloud: badges, API, Quality Gate, metricas</li>
+                    <li>Config MCP SonarQube en <code>opencode.json</code></li>
+                    <li>Comandos custom <code>/sonar</code> y <code>/sonar-report</code></li>
+                    <li>Manual actualizado a v2.2 con capitulo 17</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-date">9 Abril 2026</div>
+                <div class="timeline-title">Manual OpenCode v2.1 + Script de Backup</div>
+                <div class="timeline-body">
+                  <ul>
+                    <li>Nuevo capitulo 16: Copias de Seguridad (ubicaciones, export/import, script, cron, restauracion)</li>
+                    <li>Creado <code>backup-opencode.sh</code> con opciones: --sessions, --config, --export, --restore, --list, --clean</li>
+                    <li>Actualizada plataforma de seguimiento con nuevas metricas</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-date">9 Abril 2026</div>
+                <div class="timeline-title">Plataforma de Seguimiento v1.0</div>
+                <div class="timeline-body">
+                  <ul>
+                    <li>Creada plataforma de seguimiento con dashboard, kanban, docs hub y changelog</li>
+                    <li>Sistema de incidencias con drag-and-drop y persistencia en localStorage</li>
+                    <li>Metricas en tiempo real y registro de actividad</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-date">9 Abril 2026</div>
+                <div class="timeline-title">Manual OpenCode v2.0</div>
+                <div class="timeline-body">
+                  <ul>
+                    <li>Actualizacion completa: de 7 a 15 capitulos (1643 lineas)</li>
+                    <li>Nuevos: Agentes, Permisos, Config, MCP, Comandos/Skills, Zen, Tool Aborted, Troubleshooting</li>
+                    <li>CSS mejorado para exportacion PDF, iconos SVG en sidebar, badges de version</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="timeline-item accent">
+                <div class="timeline-date">1 Abril 2026</div>
+                <div class="timeline-title">Manual OpenCode v1.0</div>
+                <div class="timeline-body">
+                  <ul>
+                    <li>Creacion inicial con 7 capitulos: Introduccion, Error Imagen, Historico, Procesos, Rendimiento, Buenas Practicas, Referencia Rapida</li>
+                    <li>Branding CODANOR: portada, sidebar navegable, CSS responsive</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="timeline-item accent">
+                <div class="timeline-date">1 Abril 2026</div>
+                <div class="timeline-title">AGENTS.md v1.0</div>
+                <div class="timeline-body">
+                  <ul>
+                    <li>Creacion del archivo AGENTS.md para el repositorio</li>
+                    <li>Guias de estilo, convenciones de codigo, instrucciones para agentes IA</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="timeline-item warning">
+                <div class="timeline-date">Marzo 2026</div>
+                <div class="timeline-title">OpenCode v1.3.x (upstream)</div>
+                <div class="timeline-body">
+                  <ul>
+                    <li>Sistema de agentes con Build, Plan, General y Explore</li>
+                    <li>Permisos granulares con wildcards</li>
+                    <li>Agent Skills y comandos personalizados</li>
+                    <li>Soporte MCP con OAuth automatico</li>
+                    <li>OpenCode Zen con modelos verificados</li>
+                    <li>Desktop app, Web UI, IDE extensions</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- ===== MODAL: Nueva Incidencia ===== -->
+<div class="modal-overlay" id="ticketModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modalTitle">Nueva Incidencia</span>
+      <button class="btn-ghost" onclick="closeModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="ticketId">
+      <div class="form-group">
+        <label class="form-label">Titulo *</label>
+        <input type="text" class="form-input" id="ticketTitle" placeholder="Describe el problema o tarea...">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Descripcion</label>
+        <textarea class="form-textarea" id="ticketDesc" placeholder="Detalles adicionales, pasos para reproducir..."></textarea>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div class="form-group">
+          <label class="form-label">Tipo</label>
+          <select class="form-select" id="ticketType">
+            <option value="bug">Bug</option>
+            <option value="feature">Feature</option>
+            <option value="docs">Documentacion</option>
+            <option value="config">Configuracion</option>
+            <option value="perf">Rendimiento</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Prioridad</label>
+          <select class="form-select" id="ticketPriority">
+            <option value="high">Alta</option>
+            <option value="medium" selected>Media</option>
+            <option value="low">Baja</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Estado</label>
+        <select class="form-select" id="ticketStatus">
+          <option value="backlog">Backlog</option>
+          <option value="progress">En Progreso</option>
+          <option value="review">Revision</option>
+          <option value="done">Completado</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveTicket()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+  // ============================================================
+  // DATA LAYER (localStorage)
+  // ============================================================
+  const STORAGE_KEY = 'codanor_opencode_tracker';
+  const ACTIVITY_KEY = 'codanor_opencode_activity';
+
+  function loadTickets() {
+    try {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+    } catch { return []; }
+  }
+
+  function saveTickets(tickets) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(tickets));
+  }
+
+  function loadActivity() {
+    try {
+      return JSON.parse(localStorage.getItem(ACTIVITY_KEY)) || [];
+    } catch { return []; }
+  }
+
+  function saveActivity(activities) {
+    localStorage.setItem(ACTIVITY_KEY, JSON.stringify(activities.slice(0, 50)));
+  }
+
+  function addActivity(text, type) {
+    const activities = loadActivity();
+    activities.unshift({
+      text: text,
+      type: type || 'blue',
+      time: new Date().toISOString()
+    });
+    saveActivity(activities);
+  }
+
+  function generateId() {
+    return 'T-' + Date.now().toString(36).toUpperCase();
+  }
+
+  // ============================================================
+  // NAVIGATION
+  // ============================================================
+  function showPage(pageId) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+    document.getElementById('page-' + pageId).classList.add('active');
+    document.querySelector(`.nav-item[data-page="${pageId}"]`).classList.add('active');
+
+    const titles = {
+      dashboard: 'Dashboard',
+      kanban: 'Gestor de Incidencias',
+      docs: 'Centro de Documentacion',
+      changelog: 'Changelog'
+    };
+    document.getElementById('pageTitle').textContent = titles[pageId] || pageId;
+
+    // Close mobile sidebar
+    document.getElementById('sidebar').classList.remove('open');
+
+    if (pageId === 'kanban') renderKanban();
+    if (pageId === 'dashboard') renderDashboard();
+  }
+
+  // ============================================================
+  // DASHBOARD
+  // ============================================================
+  function renderDashboard() {
+    const tickets = loadTickets();
+
+    const total = tickets.length;
+    const done = tickets.filter(t => t.status === 'done').length;
+    const progress = tickets.filter(t => t.status === 'progress').length;
+    const high = tickets.filter(t => t.priority === 'high' && t.status !== 'done').length;
+
+    document.getElementById('metricTotal').textContent = total;
+    document.getElementById('metricDone').textContent = done;
+    document.getElementById('metricProgress').textContent = progress;
+    document.getElementById('metricHigh').textContent = high;
+
+    // Activity
+    const activities = loadActivity();
+    const list = document.getElementById('activityList');
+    const empty = document.getElementById('activityEmpty');
+
+    if (activities.length === 0) {
+      list.innerHTML = '';
+      empty.style.display = 'block';
+    } else {
+      empty.style.display = 'none';
+      list.innerHTML = activities.slice(0, 10).map(a => `
+        <li class="activity-item">
+          <div class="activity-dot ${a.type}"></div>
+          <div>
+            <div class="activity-text">${a.text}</div>
+            <div class="activity-time">${timeAgo(a.time)}</div>
+          </div>
+        </li>
+      `).join('');
+    }
+
+    // Type summary
+    const types = { bug: 0, feature: 0, docs: 0, config: 0, perf: 0 };
+    const typeLabels = { bug: 'Bugs', feature: 'Features', docs: 'Documentacion', config: 'Configuracion', perf: 'Rendimiento' };
+    const typeColors = { bug: 'var(--danger)', feature: 'var(--primary)', docs: 'var(--purple)', config: 'var(--warning)', perf: 'var(--accent)' };
+
+    tickets.forEach(t => { if (types[t.type] !== undefined) types[t.type]++; });
+
+    const summary = document.getElementById('typeSummary');
+    summary.innerHTML = Object.entries(types).map(([key, count]) => {
+      const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+      return `
+        <div style="margin-bottom:1rem;">
+          <div class="progress-label">
+            <span style="font-weight:600;color:var(--dark);">${typeLabels[key]}</span>
+            <span>${count} (${pct}%)</span>
+          </div>
+          <div class="progress-bar">
+            <div style="height:100%;width:${pct}%;background:${typeColors[key]};border-radius:5px;transition:width 0.5s;"></div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    updateBadge();
+  }
+
+  function timeAgo(isoString) {
+    const now = new Date();
+    const date = new Date(isoString);
+    const diff = Math.floor((now - date) / 1000);
+
+    if (diff < 60) return 'Hace un momento';
+    if (diff < 3600) return `Hace ${Math.floor(diff / 60)} min`;
+    if (diff < 86400) return `Hace ${Math.floor(diff / 3600)}h`;
+    if (diff < 604800) return `Hace ${Math.floor(diff / 86400)}d`;
+    return date.toLocaleDateString('es-ES');
+  }
+
+  // ============================================================
+  // KANBAN
+  // ============================================================
+  function renderKanban() {
+    const tickets = loadTickets();
+    const columns = { backlog: [], progress: [], review: [], done: [] };
+
+    tickets.forEach(t => {
+      if (columns[t.status]) columns[t.status].push(t);
+    });
+
+    Object.entries(columns).forEach(([status, items]) => {
+      const col = document.getElementById('col-' + status);
+      const countEl = document.getElementById('count' + status.charAt(0).toUpperCase() + status.slice(1));
+
+      if (countEl) countEl.textContent = items.length;
+
+      col.innerHTML = items.length === 0
+        ? '<div class="empty-state"><p>Sin incidencias</p></div>'
+        : items.map(t => renderCard(t)).join('');
+    });
+
+    updateBadge();
+  }
+
+  function renderCard(ticket) {
+    const typeLabels = { bug: 'Bug', feature: 'Feature', docs: 'Docs', config: 'Config', perf: 'Perf' };
+    return `
+      <div class="kanban-card p-${ticket.priority}" draggable="true"
+           ondragstart="onDragStart(event, '${ticket.id}')"
+           id="card-${ticket.id}">
+        <div class="kanban-card-title">${escapeHtml(ticket.title)}</div>
+        ${ticket.desc ? `<div class="kanban-card-desc">${escapeHtml(ticket.desc).substring(0, 80)}${ticket.desc.length > 80 ? '...' : ''}</div>` : ''}
+        <div class="kanban-card-meta">
+          <span class="tag tag-${ticket.type}">${typeLabels[ticket.type] || ticket.type}</span>
+          <span class="kanban-card-date">${ticket.id}</span>
+        </div>
+        <div class="kanban-card-actions">
+          <button class="card-action-btn" onclick="editTicket('${ticket.id}')" title="Editar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+          <button class="card-action-btn" onclick="moveTicketForward('${ticket.id}')" title="Avanzar estado">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+          <button class="card-action-btn delete" onclick="deleteTicket('${ticket.id}')" title="Eliminar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  // ============================================================
+  // DRAG AND DROP
+  // ============================================================
+  let draggedTicketId = null;
+
+  function onDragStart(e, id) {
+    draggedTicketId = id;
+    e.dataTransfer.effectAllowed = 'move';
+    setTimeout(() => {
+      const card = document.getElementById('card-' + id);
+      if (card) card.classList.add('dragging');
+    }, 0);
+  }
+
+  function onDragOver(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    e.currentTarget.classList.add('drag-over');
+  }
+
+  function onDragLeave(e) {
+    e.currentTarget.classList.remove('drag-over');
+  }
+
+  function onDrop(e, newStatus) {
+    e.preventDefault();
+    e.currentTarget.classList.remove('drag-over');
+
+    if (!draggedTicketId) return;
+
+    const tickets = loadTickets();
+    const ticket = tickets.find(t => t.id === draggedTicketId);
+    if (!ticket) return;
+
+    const oldStatus = ticket.status;
+    ticket.status = newStatus;
+    ticket.updatedAt = new Date().toISOString();
+    saveTickets(tickets);
+
+    const statusLabels = { backlog: 'Backlog', progress: 'En Progreso', review: 'Revision', done: 'Completado' };
+    addActivity(
+      `<strong>${escapeHtml(ticket.title)}</strong> movida de ${statusLabels[oldStatus]} a ${statusLabels[newStatus]}`,
+      newStatus === 'done' ? 'green' : 'blue'
+    );
+
+    draggedTicketId = null;
+    renderKanban();
+    showToast(`Incidencia movida a ${statusLabels[newStatus]}`, 'success');
+  }
+
+  // ============================================================
+  // TICKET CRUD
+  // ============================================================
+  function openNewTicketModal() {
+    document.getElementById('ticketId').value = '';
+    document.getElementById('ticketTitle').value = '';
+    document.getElementById('ticketDesc').value = '';
+    document.getElementById('ticketType').value = 'bug';
+    document.getElementById('ticketPriority').value = 'medium';
+    document.getElementById('ticketStatus').value = 'backlog';
+    document.getElementById('modalTitle').textContent = 'Nueva Incidencia';
+    document.getElementById('ticketModal').classList.add('show');
+    document.getElementById('ticketTitle').focus();
+  }
+
+  function editTicket(id) {
+    const tickets = loadTickets();
+    const ticket = tickets.find(t => t.id === id);
+    if (!ticket) return;
+
+    document.getElementById('ticketId').value = ticket.id;
+    document.getElementById('ticketTitle').value = ticket.title;
+    document.getElementById('ticketDesc').value = ticket.desc || '';
+    document.getElementById('ticketType').value = ticket.type;
+    document.getElementById('ticketPriority').value = ticket.priority;
+    document.getElementById('ticketStatus').value = ticket.status;
+    document.getElementById('modalTitle').textContent = 'Editar Incidencia';
+    document.getElementById('ticketModal').classList.add('show');
+    document.getElementById('ticketTitle').focus();
+  }
+
+  function saveTicket() {
+    const title = document.getElementById('ticketTitle').value.trim();
+    if (!title) {
+      showToast('El titulo es obligatorio', 'error');
+      return;
+    }
+
+    const tickets = loadTickets();
+    const id = document.getElementById('ticketId').value;
+    const data = {
+      title: title,
+      desc: document.getElementById('ticketDesc').value.trim(),
+      type: document.getElementById('ticketType').value,
+      priority: document.getElementById('ticketPriority').value,
+      status: document.getElementById('ticketStatus').value,
+      updatedAt: new Date().toISOString()
+    };
+
+    if (id) {
+      const idx = tickets.findIndex(t => t.id === id);
+      if (idx >= 0) {
+        tickets[idx] = { ...tickets[idx], ...data };
+        addActivity(`<strong>${escapeHtml(title)}</strong> editada`, 'orange');
+        showToast('Incidencia actualizada', 'success');
+      }
+    } else {
+      data.id = generateId();
+      data.createdAt = new Date().toISOString();
+      tickets.push(data);
+      addActivity(`<strong>${escapeHtml(title)}</strong> creada`, 'blue');
+      showToast('Incidencia creada', 'success');
+    }
+
+    saveTickets(tickets);
+    closeModal();
+    renderKanban();
+    renderDashboard();
+  }
+
+  function deleteTicket(id) {
+    if (!confirm('Eliminar esta incidencia?')) return;
+    let tickets = loadTickets();
+    const ticket = tickets.find(t => t.id === id);
+    tickets = tickets.filter(t => t.id !== id);
+    saveTickets(tickets);
+
+    if (ticket) {
+      addActivity(`<strong>${escapeHtml(ticket.title)}</strong> eliminada`, 'red');
+    }
+
+    renderKanban();
+    renderDashboard();
+    showToast('Incidencia eliminada', 'info');
+  }
+
+  function moveTicketForward(id) {
+    const order = ['backlog', 'progress', 'review', 'done'];
+    const tickets = loadTickets();
+    const ticket = tickets.find(t => t.id === id);
+    if (!ticket) return;
+
+    const idx = order.indexOf(ticket.status);
+    if (idx < order.length - 1) {
+      const oldStatus = ticket.status;
+      ticket.status = order[idx + 1];
+      ticket.updatedAt = new Date().toISOString();
+      saveTickets(tickets);
+
+      const statusLabels = { backlog: 'Backlog', progress: 'En Progreso', review: 'Revision', done: 'Completado' };
+      addActivity(
+        `<strong>${escapeHtml(ticket.title)}</strong> avanzada a ${statusLabels[ticket.status]}`,
+        ticket.status === 'done' ? 'green' : 'blue'
+      );
+
+      renderKanban();
+      renderDashboard();
+      showToast(`Movida a ${statusLabels[ticket.status]}`, 'success');
+    }
+  }
+
+  function closeModal() {
+    document.getElementById('ticketModal').classList.remove('show');
+  }
+
+  // ============================================================
+  // SEARCH
+  // ============================================================
+  function handleSearch(query) {
+    if (!query.trim()) {
+      renderKanban();
+      return;
+    }
+
+    const q = query.toLowerCase();
+    const tickets = loadTickets();
+    const filtered = tickets.filter(t =>
+      t.title.toLowerCase().includes(q) ||
+      (t.desc && t.desc.toLowerCase().includes(q)) ||
+      t.type.toLowerCase().includes(q) ||
+      t.id.toLowerCase().includes(q)
+    );
+
+    // Show kanban page with filtered results
+    showPage('kanban');
+
+    const columns = { backlog: [], progress: [], review: [], done: [] };
+    filtered.forEach(t => { if (columns[t.status]) columns[t.status].push(t); });
+
+    Object.entries(columns).forEach(([status, items]) => {
+      const col = document.getElementById('col-' + status);
+      col.innerHTML = items.length === 0
+        ? '<div class="empty-state"><p>Sin resultados</p></div>'
+        : items.map(t => renderCard(t)).join('');
+    });
+  }
+
+  // ============================================================
+  // UTILS
+  // ============================================================
+  function updateBadge() {
+    const tickets = loadTickets();
+    const active = tickets.filter(t => t.status !== 'done').length;
+    const badge = document.getElementById('kanbanBadge');
+    badge.textContent = active;
+    badge.style.display = active > 0 ? 'inline-block' : 'none';
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function showToast(message, type) {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type || 'info'}`;
+    toast.innerHTML = message;
+    container.appendChild(toast);
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateX(100%)';
+      setTimeout(() => toast.remove(), 300);
+    }, 3000);
+  }
+
+  // ============================================================
+  // KEYBOARD SHORTCUTS
+  // ============================================================
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeModal();
+    if (e.key === 'n' && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      openNewTicketModal();
+    }
+  });
+
+  // Close modal on overlay click
+  document.getElementById('ticketModal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+
+  // ============================================================
+  // SEED DATA (only on first visit)
+  // ============================================================
+  function seedData() {
+    if (localStorage.getItem(STORAGE_KEY)) return;
+
+    const seeds = [
+      {
+        id: generateId(),
+        title: 'Verificar exportacion PDF del manual v2.0',
+        desc: 'Comprobar que el boton Exportar PDF genera un documento correcto con saltos de pagina y sin sidebar.',
+        type: 'docs',
+        priority: 'medium',
+        status: 'backlog',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      },
+      {
+        id: generateId(),
+        title: 'Configurar OpenCode Zen para el equipo',
+        desc: 'Crear cuenta en opencode.ai/auth, configurar billing y distribuir API keys al equipo.',
+        type: 'config',
+        priority: 'high',
+        status: 'backlog',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      },
+      {
+        id: generateId(),
+        title: 'Error "Pensando..." al ejecutar npm start',
+        desc: 'OpenCode se bloquea al lanzar servidores. Solucion documentada en Cap. 10 del manual.',
+        type: 'bug',
+        priority: 'high',
+        status: 'done',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      },
+      {
+        id: generateId(),
+        title: 'Crear comandos personalizados para el proyecto',
+        desc: 'Definir /test, /deploy y /review en .opencode/commands/ con las convenciones del equipo.',
+        type: 'feature',
+        priority: 'medium',
+        status: 'backlog',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      },
+      {
+        id: generateId(),
+        title: 'Error dimension imagen >2000px',
+        desc: 'Resuelto con /compact y redimensionando imagenes. Documentado en Cap. 8.',
+        type: 'bug',
+        priority: 'low',
+        status: 'done',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      },
+      {
+        id: generateId(),
+        title: 'Configurar permisos granulares para el equipo',
+        desc: 'Bloquear rm *, git push force. Configurar bash con wildcards segun Cap. 3.',
+        type: 'config',
+        priority: 'high',
+        status: 'progress',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      },
+      {
+        id: generateId(),
+        title: 'Optimizar rendimiento con compaction auto',
+        desc: 'Activar compaction.auto y compaction.prune en opencode.json del proyecto.',
+        type: 'perf',
+        priority: 'medium',
+        status: 'review',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      }
+    ];
+
+    saveTickets(seeds);
+    addActivity('<strong>Manual OpenCode v2.0</strong> publicado (15 capitulos)', 'green');
+    addActivity('<strong>Plataforma de seguimiento</strong> creada', 'blue');
+    addActivity('<strong>AGENTS.md</strong> actualizado para el repositorio', 'blue');
+  }
+
+  // ============================================================
+  // INIT
+  // ============================================================
+  seedData();
+  renderDashboard();
+  updateBadge();
+</script>
+
+</body>
+</html>

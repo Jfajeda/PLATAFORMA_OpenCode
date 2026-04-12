@@ -1,0 +1,27 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/
+package-lock.json
+
+# Logs
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Sonar
+.scannerwork/
+
+# Backups locales (no subir al repo)
+# Los backups se guardan en ~/Documents/opencode-backups/
+
+# Secretos - NUNCA subir
+.env
+.env.*
+auth.json

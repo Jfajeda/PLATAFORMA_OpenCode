@@ -1,0 +1,1893 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manual OpenCode v2.0 - CODANOR</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Nunito+Sans:wght@300;400;600;700&family=Muli:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #178DC2;
+      --primary-dark: #1275A3;
+      --primary-light: #e8f4fa;
+      --accent: #12A79D;
+      --accent-light: #e6f7f6;
+      --dark: #1a1a2e;
+      --gray-900: #2d2d44;
+      --gray-700: #4a4a5a;
+      --gray-500: #7a7a8a;
+      --gray-300: #c4c4d0;
+      --gray-100: #f0f0f5;
+      --white: #ffffff;
+      --danger: #e74c3c;
+      --warning: #f39c12;
+      --success: #12A79D;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Nunito Sans', 'Muli', sans-serif;
+      color: var(--gray-700);
+      line-height: 1.7;
+      background: var(--gray-100);
+    }
+
+    /* ===== PORTADA ===== */
+    .cover-page {
+      min-height: 100vh;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 40%, var(--dark) 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      color: var(--white);
+      position: relative;
+      overflow: hidden;
+      padding: 2rem;
+    }
+
+    .cover-page::before {
+      content: '';
+      position: absolute;
+      top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background: radial-gradient(ellipse at 30% 50%, rgba(18,167,157,0.15) 0%, transparent 60%),
+                  radial-gradient(ellipse at 70% 20%, rgba(23,141,194,0.1) 0%, transparent 50%);
+      animation: float 20s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0); }
+      50% { transform: translate(-2%, 2%); }
+    }
+
+    .cover-content { position: relative; z-index: 1; max-width: 700px; }
+    .cover-logo { width: 220px; margin-bottom: 2rem; filter: brightness(0) invert(1); }
+    .cover-divider { width: 80px; height: 4px; background: var(--accent); margin: 1.5rem auto; border-radius: 2px; }
+
+    .cover-title {
+      font-family: 'Poppins', sans-serif;
+      font-size: 3rem; font-weight: 700;
+      letter-spacing: -0.5px; margin-bottom: 0.5rem;
+    }
+
+    .cover-subtitle {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.4rem; font-weight: 300;
+      opacity: 0.9; margin-bottom: 1rem;
+    }
+
+    .cover-edition { font-size: 1rem; opacity: 0.7; margin-top: 1rem; }
+
+    .cover-badge {
+      display: inline-block; background: var(--accent);
+      color: var(--white); padding: 0.5rem 1.5rem;
+      border-radius: 50px; font-size: 0.9rem;
+      font-weight: 600; margin-top: 2rem; letter-spacing: 0.5px;
+    }
+
+    .cover-footer {
+      position: absolute; bottom: 2rem;
+      left: 0; right: 0; text-align: center; z-index: 1;
+    }
+    .cover-footer p { font-size: 0.85rem; opacity: 0.5; }
+
+    /* ===== NAVEGACION LATERAL ===== */
+    .manual-container { display: flex; min-height: 100vh; }
+
+    .sidebar {
+      width: 300px; background: var(--white);
+      border-right: 1px solid var(--gray-300);
+      position: fixed; top: 0; left: 0;
+      height: 100vh; overflow-y: auto;
+      z-index: 100; padding: 1.5rem 0;
+    }
+
+    .sidebar-header {
+      padding: 0 1.5rem 1.5rem;
+      border-bottom: 1px solid var(--gray-100);
+      margin-bottom: 1rem;
+    }
+    .sidebar-logo { width: 140px; }
+
+    .sidebar-label {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.7rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 1.5px;
+      color: var(--gray-500); padding: 1rem 1.5rem 0.5rem;
+    }
+
+    .sidebar nav ul { list-style: none; }
+    .sidebar nav ul li a {
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.45rem 1.5rem; color: var(--gray-700);
+      text-decoration: none; font-size: 0.88rem;
+      transition: all 0.2s; border-left: 3px solid transparent;
+    }
+    .sidebar nav ul li a:hover {
+      background: var(--primary-light); color: var(--primary);
+      border-left-color: var(--primary);
+    }
+    .sidebar nav ul li a .icon {
+      width: 16px; height: 16px; flex-shrink: 0; opacity: 0.6;
+    }
+    .sidebar nav ul li a:hover .icon { opacity: 1; }
+
+    .sidebar nav ul li ul li a {
+      padding-left: 3rem; font-size: 0.82rem; color: var(--gray-500);
+    }
+
+    /* ===== CONTENIDO PRINCIPAL ===== */
+    .main-content {
+      margin-left: 300px; flex: 1;
+      padding: 3rem 4rem; max-width: 960px;
+    }
+
+    /* ===== TIPOGRAFIA ===== */
+    h1, h2, h3, h4, h5, h6 { font-family: 'Poppins', sans-serif; color: var(--dark); }
+
+    h1 {
+      font-size: 2.2rem; font-weight: 700;
+      margin-bottom: 0.5rem; padding-bottom: 0.75rem;
+      border-bottom: 3px solid var(--primary); display: inline-block;
+    }
+
+    h2 {
+      font-size: 1.6rem; font-weight: 600;
+      margin-top: 3rem; margin-bottom: 1rem;
+      color: var(--primary); display: flex;
+      align-items: center; gap: 0.5rem;
+    }
+    h2::before {
+      content: ''; width: 4px; height: 28px;
+      background: var(--accent); border-radius: 2px; flex-shrink: 0;
+    }
+
+    h3 {
+      font-size: 1.25rem; font-weight: 600;
+      margin-top: 2rem; margin-bottom: 0.75rem; color: var(--gray-900);
+    }
+
+    p { margin-bottom: 1rem; }
+
+    .chapter-intro { font-size: 1.05rem; color: var(--gray-500); margin-bottom: 2rem; }
+
+    /* ===== BADGE ===== */
+    .badge {
+      display: inline-block; font-size: 0.7rem;
+      font-family: 'Poppins', sans-serif; font-weight: 600;
+      padding: 0.15rem 0.6rem; border-radius: 50px;
+      text-transform: uppercase; letter-spacing: 0.5px;
+      vertical-align: middle; margin-left: 0.5rem;
+    }
+    .badge-new { background: var(--accent); color: var(--white); }
+    .badge-updated { background: var(--warning); color: var(--white); }
+    .badge-priority { background: var(--danger); color: var(--white); }
+
+    /* ===== SECCIONES ===== */
+    .section { margin-bottom: 3rem; padding-top: 1rem; }
+
+    /* ===== TABLAS ===== */
+    table {
+      width: 100%; border-collapse: collapse;
+      margin: 1.5rem 0; font-size: 0.9rem;
+      border-radius: 8px; overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+    thead { background: var(--primary); color: var(--white); }
+    th {
+      font-family: 'Poppins', sans-serif; font-weight: 600;
+      padding: 0.85rem 1rem; text-align: left;
+      font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    td { padding: 0.75rem 1rem; border-bottom: 1px solid var(--gray-100); }
+    tbody tr:hover { background: var(--primary-light); }
+    tbody tr:last-child td { border-bottom: none; }
+
+    /* ===== CODIGO ===== */
+    code {
+      font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+      font-size: 0.85rem; background: var(--gray-100);
+      color: var(--primary-dark); padding: 0.15rem 0.45rem; border-radius: 4px;
+    }
+    pre {
+      background: var(--dark); color: #e0e0e0;
+      padding: 1.25rem 1.5rem; border-radius: 8px;
+      overflow-x: auto; margin: 1rem 0 1.5rem;
+      font-size: 0.85rem; line-height: 1.6;
+      border-left: 4px solid var(--accent);
+    }
+    pre code { background: none; color: inherit; padding: 0; }
+
+    /* ===== ALERTAS ===== */
+    .alert {
+      padding: 1rem 1.25rem; border-radius: 8px;
+      margin: 1.25rem 0; font-size: 0.9rem; border-left: 4px solid;
+    }
+    .alert-info { background: var(--primary-light); border-color: var(--primary); color: var(--primary-dark); }
+    .alert-warning { background: #fef9e7; border-color: var(--warning); color: #7d6608; }
+    .alert-danger { background: #fdedec; border-color: var(--danger); color: #922b21; }
+    .alert-success { background: var(--accent-light); border-color: var(--accent); color: #0e7a72; }
+    .alert-title { font-family: 'Poppins', sans-serif; font-weight: 600; margin-bottom: 0.25rem; }
+
+    /* ===== LISTAS ===== */
+    ul, ol { padding-left: 1.5rem; margin-bottom: 1rem; }
+    li { margin-bottom: 0.4rem; }
+
+    /* ===== CARDS ===== */
+    .card-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 1rem; margin: 1.5rem 0;
+    }
+    .card {
+      background: var(--white); border: 1px solid var(--gray-300);
+      border-radius: 8px; padding: 1.25rem; transition: all 0.2s;
+    }
+    .card:hover { border-color: var(--primary); box-shadow: 0 4px 12px rgba(23,141,194,0.1); }
+    .card h4 { font-size: 1rem; margin-bottom: 0.5rem; color: var(--primary); }
+    .card p { font-size: 0.85rem; color: var(--gray-500); margin-bottom: 0; }
+
+    /* ===== SHORTCUTS ===== */
+    kbd {
+      display: inline-block; padding: 0.15rem 0.5rem;
+      font-family: 'SF Mono', monospace; font-size: 0.8rem;
+      color: var(--gray-700); background: var(--gray-100);
+      border: 1px solid var(--gray-300); border-radius: 4px;
+      box-shadow: 0 1px 0 var(--gray-300);
+    }
+
+    /* ===== STEP LIST ===== */
+    .step-list { counter-reset: step; list-style: none; padding-left: 0; }
+    .step-list li {
+      counter-increment: step; padding: 1rem 1rem 1rem 3.5rem;
+      position: relative; margin-bottom: 0.75rem;
+      background: var(--white); border-radius: 8px;
+      border: 1px solid var(--gray-100);
+    }
+    .step-list li::before {
+      content: counter(step); position: absolute;
+      left: 1rem; top: 1rem; width: 28px; height: 28px;
+      background: var(--primary); color: var(--white);
+      border-radius: 50%; display: flex; align-items: center;
+      justify-content: center; font-family: 'Poppins', sans-serif;
+      font-weight: 600; font-size: 0.8rem;
+    }
+
+    /* ===== BOTON PDF ===== */
+    .btn-print {
+      position: fixed; bottom: 2rem; right: 2rem;
+      background: var(--primary); color: var(--white);
+      border: none; padding: 0.75rem 1.5rem;
+      border-radius: 50px; font-family: 'Poppins', sans-serif;
+      font-size: 0.9rem; font-weight: 600; cursor: pointer;
+      box-shadow: 0 4px 12px rgba(23,141,194,0.3);
+      transition: all 0.2s; z-index: 200;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .btn-print:hover { background: var(--primary-dark); transform: translateY(-2px); }
+    .btn-print svg { width: 18px; height: 18px; }
+
+    /* ===== PRINT / PDF ===== */
+    @media print {
+      @page { size: A4; margin: 2cm 1.5cm; }
+      @page :first { margin-top: 0; }
+
+      body { background: white; font-size: 11pt; }
+
+      .sidebar, .btn-print { display: none !important; }
+      .main-content { margin-left: 0; padding: 0; max-width: 100%; }
+
+      .cover-page {
+        page-break-after: always; min-height: 100vh;
+        -webkit-print-color-adjust: exact; print-color-adjust: exact;
+      }
+
+      .section {
+        page-break-inside: avoid;
+        page-break-before: auto;
+      }
+
+      h1 { page-break-after: avoid; }
+      h2, h3 { page-break-after: avoid; }
+
+      pre { white-space: pre-wrap; word-break: break-all; font-size: 9pt; }
+      table { font-size: 9pt; }
+
+      .alert, .card {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .card-grid { grid-template-columns: 1fr 1fr; }
+
+      a { color: var(--primary); text-decoration: none; }
+
+      hr { page-break-after: always; border: none; height: 0; margin: 0; }
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 900px) {
+      .sidebar { display: none; }
+      .main-content { margin-left: 0; padding: 2rem 1.5rem; }
+      .cover-title { font-size: 2rem; }
+      .card-grid { grid-template-columns: 1fr; }
+      .btn-print { bottom: 1rem; right: 1rem; padding: 0.6rem 1.2rem; font-size: 0.8rem; }
+    }
+
+    /* ===== SCROLLBAR ===== */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--gray-100); }
+    ::-webkit-scrollbar-thumb { background: var(--gray-300); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+
+    hr { border: none; height: 1px; background: var(--gray-300); margin: 2.5rem 0; }
+
+    /* ===== FOOTER ===== */
+    .manual-footer {
+      margin-top: 4rem; padding: 2rem 0;
+      border-top: 2px solid var(--gray-300);
+      text-align: center; color: var(--gray-500); font-size: 0.85rem;
+    }
+    .manual-footer img { width: 100px; margin-bottom: 0.5rem; }
+  </style>
+</head>
+<body>
+
+<!-- ======================================================================
+     PORTADA
+     ====================================================================== -->
+<div class="cover-page">
+  <div class="cover-content">
+    <img src="https://codanor.com/assets/img/logo-light.png" alt="CODANOR" class="cover-logo">
+    <div class="cover-divider"></div>
+    <h1 class="cover-title">Manual de Usuario</h1>
+    <p class="cover-subtitle">OpenCode &mdash; Agente de Codificacion IA</p>
+    <p class="cover-edition">Guia completa de uso, configuracion, agentes, resolucion de problemas y buenas practicas</p>
+    <span class="cover-badge">Version 2.0 &bull; Abril 2026</span>
+  </div>
+  <div class="cover-footer">
+    <p>Jafa, S.L. &mdash; CODANOR &bull; Barcelona, Catalunya</p>
+  </div>
+</div>
+
+<!-- ======================================================================
+     CONTENIDO CON SIDEBAR
+     ====================================================================== -->
+<div class="manual-container">
+
+  <!-- SIDEBAR / INDICE -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <img src="https://codanor.com/assets/img/logo_web-50.png" alt="CODANOR" class="sidebar-logo">
+    </div>
+
+    <p class="sidebar-label">Indice del Manual</p>
+    <nav>
+      <ul>
+        <li><a href="#cap1"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg> 1. Introduccion</a>
+          <ul>
+            <li><a href="#cap1-que-es">Que es OpenCode</a></li>
+            <li><a href="#cap1-modalidades">Modalidades de uso</a></li>
+            <li><a href="#cap1-funciones">Funcionalidades</a></li>
+            <li><a href="#cap1-comandos">Comandos esenciales</a></li>
+          </ul>
+        </li>
+        <li><a href="#cap2"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg> 2. Agentes</a>
+          <ul>
+            <li><a href="#cap2-primarios">Primarios</a></li>
+            <li><a href="#cap2-subagentes">Subagentes</a></li>
+            <li><a href="#cap2-custom">Crear agentes</a></li>
+          </ul>
+        </li>
+        <li><a href="#cap3"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg> 3. Permisos</a></li>
+        <li><a href="#cap4"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg> 4. Configuracion</a></li>
+        <li><a href="#cap5"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg> 5. Servidores MCP</a></li>
+        <li><a href="#cap6"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg> 6. Comandos y Skills</a></li>
+        <li><a href="#cap7"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg> 7. OpenCode Zen</a></li>
+        <li><a href="#cap8"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> 8. Error de Imagen</a></li>
+        <li><a href="#cap9"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> 9. Historico del Proyecto</a></li>
+        <li><a href="#cap10"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> 10. Procesos Bloqueados</a></li>
+        <li><a href="#cap11"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> 11. Rendimiento</a></li>
+        <li><a href="#cap12"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> 12. Tool Execution Aborted</a></li>
+        <li><a href="#cap13"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg> 13. Troubleshooting</a></li>
+        <li><a href="#cap14"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> 14. Buenas Practicas</a></li>
+        <li><a href="#cap15"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg> 15. Referencia Rapida</a></li>
+        <li><a href="#cap16"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> 16. Copias de Seguridad</a></li>
+        <li><a href="#cap17"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> 17. Analisis de Codigo</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="main-content">
+
+    <!-- ============================================================
+         CAPITULO 1: INTRODUCCION
+         ============================================================ -->
+    <div class="section" id="cap1">
+      <h1>1. Introduccion a OpenCode <span class="badge badge-updated">Actualizado</span></h1>
+      <p class="chapter-intro">
+        Fundamentos de OpenCode, la herramienta de codificacion con IA de codigo abierto que utilizamos en CODANOR.
+      </p>
+
+      <h2 id="cap1-que-es">Que es OpenCode</h2>
+      <p>
+        <strong>OpenCode</strong> es un agente de codificacion con inteligencia artificial de codigo abierto
+        desarrollado por <a href="https://anoma.ly" target="_blank">Anomaly</a>.
+        Permite interactuar con modelos de lenguaje (LLM) para explorar, modificar y gestionar proyectos
+        de software. Esta disponible en multiples modalidades: terminal (TUI), CLI, aplicacion de escritorio,
+        interfaz web y extension de IDE.
+      </p>
+
+      <div class="alert alert-info">
+        <div class="alert-title">Version actual</div>
+        OpenCode se encuentra en la version <strong>1.3.x</strong> (Marzo-Abril 2026). Soporta multiples
+        proveedores de IA incluyendo Anthropic (Claude), OpenAI (GPT), Google (Gemini), y muchos mas a
+        traves de OpenCode Zen.
+      </div>
+
+      <h2 id="cap1-modalidades">Modalidades de uso</h2>
+      <div class="card-grid">
+        <div class="card">
+          <h4>TUI (Terminal)</h4>
+          <p>Interfaz interactiva en la terminal. Es el modo principal y el mas completo. Se lanza con <code>opencode</code>.</p>
+        </div>
+        <div class="card">
+          <h4>CLI (Linea de comandos)</h4>
+          <p>Ejecucion directa sin interfaz interactiva. Ideal para scripts y CI/CD: <code>opencode run "mensaje"</code>.</p>
+        </div>
+        <div class="card">
+          <h4>Desktop App</h4>
+          <p>Aplicacion de escritorio nativa con interfaz grafica. Ejecuta un servidor OpenCode local en segundo plano.</p>
+        </div>
+        <div class="card">
+          <h4>Web / IDE</h4>
+          <p>Interfaz web accesible desde el navegador (<code>opencode web</code>) o extension integrada en tu editor favorito.</p>
+        </div>
+      </div>
+
+      <h2 id="cap1-funciones">Funcionalidades principales</h2>
+      <table>
+        <thead>
+          <tr><th>Funcion</th><th>Descripcion</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Explorar codigo</td><td>Lee, busca y analiza cualquier archivo del proyecto con herramientas <code>read</code>, <code>grep</code>, <code>glob</code></td></tr>
+          <tr><td>Editar archivos</td><td>Crea, edita y elimina archivos con <code>edit</code>, <code>write</code>, <code>apply_patch</code></td></tr>
+          <tr><td>Ejecutar comandos</td><td>Corre comandos de terminal (git, npm, docker, etc.) con la herramienta <code>bash</code></td></tr>
+          <tr><td>Buscar en la web</td><td>Busca informacion con <code>websearch</code> (Exa AI) y obtiene contenido con <code>webfetch</code></td></tr>
+          <tr><td>Agentes especializados</td><td>Build, Plan, General y Explore &mdash; cada uno optimizado para tareas diferentes</td></tr>
+          <tr><td>Servidores MCP</td><td>Integra herramientas externas via Model Context Protocol (Sentry, Context7, etc.)</td></tr>
+          <tr><td>Comandos personalizados</td><td>Crea comandos reutilizables en <code>.opencode/commands/</code></td></tr>
+          <tr><td>Agent Skills</td><td>Instrucciones reutilizables via <code>SKILL.md</code> que los agentes cargan bajo demanda</td></tr>
+          <tr><td>Permisos granulares</td><td>Controla que herramientas pueden ejecutarse, con wildcards y reglas por agente</td></tr>
+          <tr><td>Temas y personalización</td><td>Temas visuales, keybinds personalizables, formatters de codigo</td></tr>
+          <tr><td>Undo / Redo</td><td><code>/undo</code> y <code>/redo</code> para revertir o rehacer cambios (requiere Git)</td></tr>
+          <tr><td>Compartir</td><td><code>/share</code> genera un enlace publico de la conversacion</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="cap1-comandos">Comandos esenciales (TUI)</h2>
+      <table>
+        <thead>
+          <tr><th>Comando / Atajo</th><th>Funcion</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><kbd>ctrl</kbd>+<kbd>p</kbd></td><td>Lista de acciones disponibles</td></tr>
+          <tr><td><code>/init</code> &nbsp; <kbd>ctrl</kbd>+<kbd>x</kbd> <kbd>i</kbd></td><td>Inicializar proyecto (crea/actualiza AGENTS.md)</td></tr>
+          <tr><td><code>/connect</code></td><td>Configurar proveedor de LLM</td></tr>
+          <tr><td><code>/compact</code> &nbsp; <kbd>ctrl</kbd>+<kbd>x</kbd> <kbd>c</kbd></td><td>Comprimir historial de la conversacion</td></tr>
+          <tr><td><code>/models</code> &nbsp; <kbd>ctrl</kbd>+<kbd>x</kbd> <kbd>m</kbd></td><td>Listar y cambiar modelos de IA</td></tr>
+          <tr><td><code>/undo</code> &nbsp; <kbd>ctrl</kbd>+<kbd>x</kbd> <kbd>u</kbd></td><td>Deshacer ultimo mensaje y cambios</td></tr>
+          <tr><td><code>/redo</code> &nbsp; <kbd>ctrl</kbd>+<kbd>x</kbd> <kbd>r</kbd></td><td>Rehacer mensaje deshecho</td></tr>
+          <tr><td><code>/share</code> &nbsp; <kbd>ctrl</kbd>+<kbd>x</kbd> <kbd>s</kbd></td><td>Compartir conversacion</td></tr>
+          <tr><td><code>/new</code> &nbsp; <kbd>ctrl</kbd>+<kbd>x</kbd> <kbd>n</kbd></td><td>Iniciar nueva sesion</td></tr>
+          <tr><td><code>/sessions</code> &nbsp; <kbd>ctrl</kbd>+<kbd>x</kbd> <kbd>l</kbd></td><td>Listar y cambiar entre sesiones</td></tr>
+          <tr><td><code>/editor</code> &nbsp; <kbd>ctrl</kbd>+<kbd>x</kbd> <kbd>e</kbd></td><td>Abrir editor externo para componer mensaje</td></tr>
+          <tr><td><code>/export</code> &nbsp; <kbd>ctrl</kbd>+<kbd>x</kbd> <kbd>x</kbd></td><td>Exportar conversacion a Markdown</td></tr>
+          <tr><td><code>/details</code> &nbsp; <kbd>ctrl</kbd>+<kbd>x</kbd> <kbd>d</kbd></td><td>Mostrar/ocultar detalles de herramientas</td></tr>
+          <tr><td><code>/themes</code> &nbsp; <kbd>ctrl</kbd>+<kbd>x</kbd> <kbd>t</kbd></td><td>Listar y cambiar temas visuales</td></tr>
+          <tr><td><code>/thinking</code></td><td>Mostrar/ocultar bloques de razonamiento</td></tr>
+          <tr><td><code>/help</code> &nbsp; <kbd>ctrl</kbd>+<kbd>x</kbd> <kbd>h</kbd></td><td>Mostrar dialogo de ayuda</td></tr>
+          <tr><td><kbd>@</kbd></td><td>Buscar archivos del proyecto para dar contexto</td></tr>
+          <tr><td><kbd>!</kbd></td><td>Ejecutar comando bash inline (ej: <code>!ls -la</code>)</td></tr>
+          <tr><td><kbd>Tab</kbd></td><td>Alternar entre agentes primarios (Build / Plan)</td></tr>
+          <tr><td><kbd>ctrl</kbd>+<kbd>t</kbd></td><td>Ciclar variantes del modelo (con/sin razonamiento)</td></tr>
+          <tr><td><kbd>Esc</kbd></td><td>Cancelar la accion en curso</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <hr>
+
+    <!-- ============================================================
+         CAPITULO 2: AGENTES
+         ============================================================ -->
+    <div class="section" id="cap2">
+      <h1>2. Agentes y Modos de Operacion <span class="badge badge-new">Nuevo</span></h1>
+      <p class="chapter-intro">
+        OpenCode utiliza un sistema de agentes especializados. Comprender como funcionan es clave para usar la herramienta de forma eficiente.
+      </p>
+
+      <h2 id="cap2-primarios">Agentes primarios</h2>
+      <p>
+        Los agentes primarios son los asistentes principales con los que interactuas directamente.
+        Se alternan con la tecla <kbd>Tab</kbd>.
+      </p>
+
+      <div class="card-grid">
+        <div class="card">
+          <h4>Build (por defecto)</h4>
+          <p>Todas las herramientas habilitadas. Es el agente de trabajo habitual para desarrollo: lee, escribe, ejecuta comandos y modifica archivos.</p>
+        </div>
+        <div class="card">
+          <h4>Plan</h4>
+          <p>Agente restringido para planificacion y analisis. Las operaciones de edicion y bash requieren aprobacion (<code>ask</code>). Ideal para revisar antes de implementar.</p>
+        </div>
+      </div>
+
+      <div class="alert alert-warning">
+        <div class="alert-title">Plan Mode no es 100% de solo lectura</div>
+        A diferencia de versiones anteriores, Plan Mode ahora usa un <strong>sistema de permisos</strong>.
+        Las herramientas de edicion y bash estan configuradas como <code>"ask"</code>, lo que significa que
+        te pedira aprobacion antes de ejecutarlas. No las bloquea completamente.
+      </div>
+
+      <h2 id="cap2-subagentes">Subagentes</h2>
+      <p>
+        Los subagentes son asistentes especializados que los agentes primarios pueden invocar
+        automaticamente, o que puedes llamar manualmente con <code>@nombre</code>:
+      </p>
+      <pre><code>@general ayudame a buscar esta funcion
+@explore encuentra todos los archivos de test</code></pre>
+
+      <div class="card-grid">
+        <div class="card">
+          <h4>General</h4>
+          <p>Agente de proposito general para tareas complejas y multi-paso. Tiene acceso completo a herramientas, puede modificar archivos. Ideal para ejecutar trabajo en paralelo.</p>
+        </div>
+        <div class="card">
+          <h4>Explore</h4>
+          <p>Agente rapido de solo lectura para explorar codigo. No puede modificar archivos. Ideal para buscar patrones, encontrar definiciones o responder preguntas sobre el codigo.</p>
+        </div>
+      </div>
+
+      <h3>Agentes ocultos (sistema)</h3>
+      <p>OpenCode tambien tiene agentes internos que se ejecutan automaticamente:</p>
+      <ul>
+        <li><strong>Compaction</strong> &mdash; Comprime el contexto largo en un resumen mas pequeno</li>
+        <li><strong>Title</strong> &mdash; Genera titulos cortos para las sesiones</li>
+        <li><strong>Summary</strong> &mdash; Crea resumenes de sesion</li>
+      </ul>
+
+      <h3>Navegar entre sesiones de subagentes</h3>
+      <table>
+        <thead>
+          <tr><th>Accion</th><th>Keybind por defecto</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Entrar en sesion hijo</td><td><kbd>Leader</kbd>+<kbd>&darr;</kbd></td></tr>
+          <tr><td>Siguiente sesion hijo</td><td><kbd>&rarr;</kbd></td></tr>
+          <tr><td>Anterior sesion hijo</td><td><kbd>&larr;</kbd></td></tr>
+          <tr><td>Volver al padre</td><td><kbd>&uarr;</kbd></td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="cap2-custom">Crear agentes personalizados</h2>
+      <p>Puedes crear agentes propios de dos formas:</p>
+
+      <h3>1. Mediante archivos Markdown</h3>
+      <p>Crea un archivo <code>.md</code> en <code>.opencode/agents/</code> (proyecto) o <code>~/.config/opencode/agents/</code> (global):</p>
+      <pre><code># .opencode/agents/review.md
+---
+description: Revisa codigo buscando problemas
+mode: subagent
+model: anthropic/claude-sonnet-4-5
+temperature: 0.1
+permission:
+  edit: deny
+  bash:
+    "*": ask
+    "git diff": allow
+    "grep *": allow
+---
+Eres un revisor de codigo. Enfocate en:
+- Calidad y buenas practicas
+- Bugs potenciales
+- Rendimiento
+- Seguridad</code></pre>
+
+      <h3>2. Mediante opencode.json</h3>
+      <pre><code>{
+  "agent": {
+    "code-reviewer": {
+      "description": "Revisa codigo en busca de problemas",
+      "mode": "subagent",
+      "model": "anthropic/claude-sonnet-4-5",
+      "permission": {
+        "edit": "deny",
+        "bash": "ask"
+      }
+    }
+  }
+}</code></pre>
+
+      <h3>3. Comando interactivo</h3>
+      <pre><code>opencode agent create</code></pre>
+      <p>Este comando guiado te preguntara donde guardar el agente, su descripcion, herramientas y generara el archivo automaticamente.</p>
+
+      <div class="alert alert-success">
+        <div class="alert-title">Consejo</div>
+        Usa <code>default_agent</code> en <code>opencode.json</code> para definir que agente se usa por defecto al iniciar:
+        <pre><code>{ "default_agent": "build" }</code></pre>
+      </div>
+    </div>
+
+    <hr>
+
+    <!-- ============================================================
+         CAPITULO 3: PERMISOS Y SEGURIDAD
+         ============================================================ -->
+    <div class="section" id="cap3">
+      <h1>3. Permisos y Seguridad <span class="badge badge-new">Nuevo</span></h1>
+      <p class="chapter-intro">
+        Sistema granular de permisos para controlar que acciones puede realizar el agente sin tu aprobacion.
+      </p>
+
+      <h2>Acciones disponibles</h2>
+      <table>
+        <thead>
+          <tr><th>Accion</th><th>Descripcion</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>"allow"</code></td><td>Ejecutar sin pedir aprobacion</td></tr>
+          <tr><td><code>"ask"</code></td><td>Pedir aprobacion antes de ejecutar</td></tr>
+          <tr><td><code>"deny"</code></td><td>Bloquear la accion completamente</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Configuracion basica</h2>
+      <pre><code>{
+  "$schema": "https://opencode.ai/config.json",
+  "permission": {
+    "*": "ask",
+    "bash": "allow",
+    "edit": "deny",
+    "read": "allow"
+  }
+}</code></pre>
+
+      <h2>Permisos granulares con wildcards</h2>
+      <p>Para la herramienta <code>bash</code>, puedes definir reglas por comando. La <strong>ultima regla que coincida gana</strong>:</p>
+      <pre><code>{
+  "permission": {
+    "bash": {
+      "*": "ask",
+      "git *": "allow",
+      "git push *": "deny",
+      "npm *": "allow",
+      "rm *": "deny",
+      "grep *": "allow"
+    },
+    "edit": {
+      "*": "allow",
+      "*.env": "deny",
+      "*.env.*": "deny"
+    }
+  }
+}</code></pre>
+
+      <h2>Permisos disponibles</h2>
+      <table>
+        <thead>
+          <tr><th>Permiso</th><th>Controla</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>read</code></td><td>Lectura de archivos</td></tr>
+          <tr><td><code>edit</code></td><td>Todas las modificaciones (edit, write, patch, multiedit)</td></tr>
+          <tr><td><code>bash</code></td><td>Comandos de terminal</td></tr>
+          <tr><td><code>glob</code> / <code>grep</code> / <code>list</code></td><td>Busqueda de archivos y contenido</td></tr>
+          <tr><td><code>task</code></td><td>Invocacion de subagentes</td></tr>
+          <tr><td><code>skill</code></td><td>Carga de skills</td></tr>
+          <tr><td><code>webfetch</code> / <code>websearch</code></td><td>Acceso a internet</td></tr>
+          <tr><td><code>external_directory</code></td><td>Acceso a rutas fuera del proyecto (default: <code>ask</code>)</td></tr>
+          <tr><td><code>doom_loop</code></td><td>Detecta cuando una herramienta se repite 3 veces con misma entrada (default: <code>ask</code>)</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Permisos por agente</h2>
+      <p>Cada agente puede tener sus propios permisos que sobreescriben los globales:</p>
+      <pre><code>{
+  "permission": { "bash": "ask" },
+  "agent": {
+    "build": {
+      "permission": {
+        "bash": {
+          "*": "ask",
+          "git status *": "allow"
+        }
+      }
+    }
+  }
+}</code></pre>
+
+      <h2>Que hace "Ask"</h2>
+      <p>Cuando OpenCode pide aprobacion, tienes tres opciones:</p>
+      <ul>
+        <li><strong>once</strong> &mdash; Aprobar solo esta vez</li>
+        <li><strong>always</strong> &mdash; Aprobar futuros patrones similares (durante la sesion)</li>
+        <li><strong>reject</strong> &mdash; Rechazar la solicitud</li>
+      </ul>
+
+      <div class="alert alert-info">
+        <div class="alert-title">Valores por defecto</div>
+        Por defecto, la mayoria de permisos estan en <code>"allow"</code>. Los archivos <code>.env</code>
+        tienen lectura denegada por defecto. <code>doom_loop</code> y <code>external_directory</code>
+        estan en <code>"ask"</code>.
+      </div>
+    </div>
+
+    <hr>
+
+    <!-- ============================================================
+         CAPITULO 4: CONFIGURACION AVANZADA
+         ============================================================ -->
+    <div class="section" id="cap4">
+      <h1>4. Configuracion Avanzada <span class="badge badge-new">Nuevo</span></h1>
+      <p class="chapter-intro">
+        Todo lo que necesitas saber sobre los archivos de configuracion de OpenCode, su estructura y opciones.
+      </p>
+
+      <h2>Archivos de configuracion</h2>
+      <table>
+        <thead>
+          <tr><th>Archivo</th><th>Proposito</th><th>Ubicacion</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>opencode.json</code></td><td>Config del servidor/runtime</td><td>Proyecto o <code>~/.config/opencode/</code></td></tr>
+          <tr><td><code>tui.json</code></td><td>Config de la interfaz TUI</td><td>Proyecto o <code>~/.config/opencode/</code></td></tr>
+          <tr><td><code>AGENTS.md</code></td><td>Reglas e instrucciones del proyecto</td><td>Raiz del proyecto</td></tr>
+        </tbody>
+      </table>
+
+      <div class="alert alert-info">
+        <div class="alert-title">Formatos soportados</div>
+        OpenCode soporta JSON y JSONC (JSON con comentarios). Usa la extension <code>.jsonc</code> para poder incluir comentarios.
+      </div>
+
+      <h2>Orden de precedencia</h2>
+      <p>Las configuraciones se <strong>fusionan</strong> (no se reemplazan). El orden de prioridad (el ultimo gana):</p>
+      <ol class="step-list">
+        <li><strong>Config remota</strong> &mdash; Desde <code>.well-known/opencode</code> (defaults organizacionales)</li>
+        <li><strong>Config global</strong> &mdash; <code>~/.config/opencode/opencode.json</code></li>
+        <li><strong>Config custom</strong> &mdash; Variable <code>OPENCODE_CONFIG</code></li>
+        <li><strong>Config de proyecto</strong> &mdash; <code>opencode.json</code> en la raiz del proyecto</li>
+        <li><strong>Directorios .opencode</strong> &mdash; Agentes, comandos, plugins</li>
+        <li><strong>Config inline</strong> &mdash; Variable <code>OPENCODE_CONFIG_CONTENT</code></li>
+      </ol>
+
+      <h2>Opciones principales</h2>
+
+      <h3>Modelo y proveedor</h3>
+      <pre><code>{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "anthropic/claude-sonnet-4-5",
+  "small_model": "anthropic/claude-haiku-4-5",
+  "provider": {
+    "anthropic": {
+      "options": {
+        "timeout": 600000,
+        "chunkTimeout": 30000
+      }
+    }
+  }
+}</code></pre>
+      <p><code>small_model</code> se usa para tareas ligeras como generar titulos de sesion.</p>
+
+      <h3>Compaction automatica</h3>
+      <pre><code>{
+  "compaction": {
+    "auto": true,
+    "prune": true,
+    "reserved": 10000
+  }
+}</code></pre>
+      <ul>
+        <li><code>auto</code> &mdash; Compactar automaticamente cuando el contexto se llena (default: <code>true</code>)</li>
+        <li><code>prune</code> &mdash; Eliminar outputs antiguos de herramientas para ahorrar tokens (default: <code>true</code>)</li>
+        <li><code>reserved</code> &mdash; Buffer de tokens reservado para la compactacion</li>
+      </ul>
+
+      <h3>Snapshots (Undo/Redo)</h3>
+      <pre><code>{
+  "snapshot": false
+}</code></pre>
+      <p>Desactiva snapshots si el proyecto es muy grande y el indexado es lento. <strong>Sin snapshots no hay undo/redo.</strong></p>
+
+      <h3>Autoupdate</h3>
+      <pre><code>{
+  "autoupdate": true
+}</code></pre>
+      <p>Usa <code>"notify"</code> para solo recibir aviso de nuevas versiones sin instalar automaticamente.</p>
+
+      <h3>Variables en la configuracion</h3>
+      <p>Puedes usar variables de entorno y contenido de archivos:</p>
+      <pre><code>{
+  "model": "{env:OPENCODE_MODEL}",
+  "provider": {
+    "openai": {
+      "options": {
+        "apiKey": "{file:~/.secrets/openai-key}"
+      }
+    }
+  }
+}</code></pre>
+
+      <h3>Instrucciones adicionales</h3>
+      <pre><code>{
+  "instructions": [
+    "CONTRIBUTING.md",
+    "docs/guidelines.md",
+    ".cursor/rules/*.md",
+    "https://example.com/shared-rules.md"
+  ]
+}</code></pre>
+      <p>Acepta rutas locales, globs y URLs remotas. Se combinan con tu <code>AGENTS.md</code>.</p>
+
+      <h3>TUI (tui.json)</h3>
+      <pre><code>{
+  "$schema": "https://opencode.ai/tui.json",
+  "theme": "opencode",
+  "keybinds": { "leader": "ctrl+x" },
+  "scroll_speed": 3,
+  "scroll_acceleration": { "enabled": true },
+  "diff_style": "auto"
+}</code></pre>
+    </div>
+
+    <hr>
+
+    <!-- ============================================================
+         CAPITULO 5: SERVIDORES MCP
+         ============================================================ -->
+    <div class="section" id="cap5">
+      <h1>5. Servidores MCP <span class="badge badge-new">Nuevo</span></h1>
+      <p class="chapter-intro">
+        Integra herramientas externas mediante el Model Context Protocol (MCP) para ampliar las capacidades de OpenCode.
+      </p>
+
+      <div class="alert alert-warning">
+        <div class="alert-title">Cuidado con el contexto</div>
+        Cada servidor MCP anade herramientas al contexto del modelo. Demasiados servidores pueden
+        exceder el limite de contexto rapidamente. Se selectivo con los que activas.
+      </div>
+
+      <h2>Servidor local</h2>
+      <pre><code>{
+  "mcp": {
+    "mi-servidor": {
+      "type": "local",
+      "command": ["npx", "-y", "mi-mcp-server"],
+      "enabled": true,
+      "environment": {
+        "API_KEY": "{env:MI_API_KEY}"
+      }
+    }
+  }
+}</code></pre>
+
+      <h2>Servidor remoto</h2>
+      <pre><code>{
+  "mcp": {
+    "mi-servidor-remoto": {
+      "type": "remote",
+      "url": "https://mcp.ejemplo.com/mcp",
+      "enabled": true,
+      "headers": {
+        "Authorization": "Bearer {env:MI_API_KEY}"
+      }
+    }
+  }
+}</code></pre>
+
+      <h2>OAuth automatico</h2>
+      <p>OpenCode maneja OAuth automaticamente. Para servidores que lo requieren:</p>
+      <pre><code># Autenticar manualmente
+opencode mcp auth nombre-servidor
+
+# Listar servidores y estado de auth
+opencode mcp list
+
+# Eliminar credenciales almacenadas
+opencode mcp logout nombre-servidor</code></pre>
+
+      <h2>Ejemplos populares</h2>
+      <div class="card-grid">
+        <div class="card">
+          <h4>Sentry</h4>
+          <p>Monitoreo de errores. <code>"type": "remote", "url": "https://mcp.sentry.dev/mcp"</code> con OAuth.</p>
+        </div>
+        <div class="card">
+          <h4>Context7</h4>
+          <p>Busqueda en documentacion. <code>"url": "https://mcp.context7.com/mcp"</code>. Gratis con rate limits.</p>
+        </div>
+        <div class="card">
+          <h4>Grep (Vercel)</h4>
+          <p>Buscar snippets en GitHub. <code>"url": "https://mcp.grep.app"</code>. Sin auth requerida.</p>
+        </div>
+        <div class="card">
+          <h4>Tu propio MCP</h4>
+          <p>Crea MCPs locales con cualquier lenguaje. Usa <code>"type": "local"</code> con el comando de inicio.</p>
+        </div>
+      </div>
+
+      <h2>Gestion por agente</h2>
+      <p>Desactiva un MCP globalmente y activalo solo para un agente especifico:</p>
+      <pre><code>{
+  "mcp": {
+    "sentry": { "type": "remote", "url": "...", "enabled": true }
+  },
+  "tools": { "sentry_*": false },
+  "agent": {
+    "debug": { "tools": { "sentry_*": true } }
+  }
+}</code></pre>
+    </div>
+
+    <hr>
+
+    <!-- ============================================================
+         CAPITULO 6: COMANDOS PERSONALIZADOS Y SKILLS
+         ============================================================ -->
+    <div class="section" id="cap6">
+      <h1>6. Comandos Personalizados y Skills <span class="badge badge-new">Nuevo</span></h1>
+      <p class="chapter-intro">
+        Automatiza tareas repetitivas con comandos personalizados y proporciona instrucciones reutilizables mediante Agent Skills.
+      </p>
+
+      <h2>Comandos personalizados</h2>
+      <p>Crea archivos Markdown en <code>.opencode/commands/</code> (proyecto) o <code>~/.config/opencode/commands/</code> (global):</p>
+
+      <pre><code># .opencode/commands/test.md
+---
+description: Ejecutar tests con cobertura
+agent: build
+model: anthropic/claude-haiku-4-5
+---
+Ejecuta la suite de tests completa con reporte de cobertura.
+Muestra los tests fallidos y sugiere correcciones.</code></pre>
+
+      <p>Usa el comando escribiendo <code>/test</code> en la TUI.</p>
+
+      <h3>Argumentos</h3>
+      <pre><code># .opencode/commands/component.md
+---
+description: Crear un componente React
+---
+Crea un componente React llamado $ARGUMENTS con TypeScript.
+Incluye tipado correcto y estructura basica.
+
+# Uso: /component Button</code></pre>
+      <p>Tambien puedes usar <code>$1</code>, <code>$2</code>, <code>$3</code> para argumentos posicionales.</p>
+
+      <h3>Output de comandos shell</h3>
+      <pre><code># .opencode/commands/review-changes.md
+---
+description: Revisar cambios recientes
+---
+Commits recientes:
+!`git log --oneline -10`
+
+Revisa estos cambios y sugiere mejoras.</code></pre>
+
+      <h3>Referencias a archivos</h3>
+      <pre><code>Revisa el componente en @src/components/Button.tsx.
+Busca problemas de rendimiento.</code></pre>
+
+      <h2>Agent Skills</h2>
+      <p>Skills son instrucciones reutilizables que los agentes cargan bajo demanda. Se definen como archivos <code>SKILL.md</code>:</p>
+
+      <pre><code># .opencode/skills/git-release/SKILL.md
+---
+name: git-release
+description: Crear releases consistentes y changelogs
+---
+## Que hago
+- Redacto notas de release desde PRs fusionados
+- Propongo un version bump
+- Proporciono el comando `gh release create`
+
+## Cuando usarme
+Usa este skill al preparar un release.</code></pre>
+
+      <h3>Ubicaciones de skills</h3>
+      <ul>
+        <li><code>.opencode/skills/&lt;nombre&gt;/SKILL.md</code> (proyecto)</li>
+        <li><code>~/.config/opencode/skills/&lt;nombre&gt;/SKILL.md</code> (global)</li>
+        <li><code>.claude/skills/&lt;nombre&gt;/SKILL.md</code> (compatibilidad Claude Code)</li>
+      </ul>
+
+      <div class="alert alert-info">
+        <div class="alert-title">Requisitos del nombre</div>
+        El nombre del skill debe ser 1-64 caracteres, alfanumerico en minusculas con guiones simples como separador. Debe coincidir con el nombre del directorio.
+      </div>
+    </div>
+
+    <hr>
+
+    <!-- ============================================================
+         CAPITULO 7: OPENCODE ZEN
+         ============================================================ -->
+    <div class="section" id="cap7">
+      <h1>7. OpenCode Zen <span class="badge badge-new">Nuevo</span></h1>
+      <p class="chapter-intro">
+        Proveedor curado de modelos verificados por el equipo de OpenCode. Opcional pero recomendado para garantizar la mejor calidad.
+      </p>
+
+      <h2>Que es Zen</h2>
+      <p>
+        OpenCode Zen es un gateway de IA que da acceso a una seleccion de modelos que han sido
+        probados y verificados para funcionar bien como agentes de codigo. El equipo de OpenCode
+        trabajo con los proveedores para asegurar la mejor configuracion.
+      </p>
+
+      <h2>Como activarlo</h2>
+      <ol class="step-list">
+        <li>Ve a <a href="https://opencode.ai/auth" target="_blank">opencode.ai/auth</a> y crea una cuenta</li>
+        <li>Anade datos de facturacion y copia tu API key</li>
+        <li>En la TUI ejecuta <code>/connect</code>, selecciona OpenCode y pega la key</li>
+        <li>Usa <code>/models</code> para ver los modelos disponibles</li>
+      </ol>
+
+      <h2>Modelos destacados</h2>
+      <table>
+        <thead>
+          <tr><th>Modelo</th><th>ID</th><th>Uso recomendado</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Claude Opus 4.6</td><td><code>opencode/claude-opus-4-6</code></td><td>Tareas complejas, maximo rendimiento</td></tr>
+          <tr><td>Claude Sonnet 4.5</td><td><code>opencode/claude-sonnet-4-5</code></td><td>Desarrollo general, equilibrio calidad/velocidad</td></tr>
+          <tr><td>Claude Haiku 4.5</td><td><code>opencode/claude-haiku-4-5</code></td><td>Tareas rapidas, bajo coste</td></tr>
+          <tr><td>GPT 5.4</td><td><code>opencode/gpt-5.4</code></td><td>Desarrollo general con OpenAI</td></tr>
+          <tr><td>Gemini 3.1 Pro</td><td><code>opencode/gemini-3.1-pro</code></td><td>Contexto largo, analisis</td></tr>
+          <tr><td>Modelos gratuitos</td><td>Varios</td><td>MiniMax, MiMo, Qwen, Big Pickle (temporales)</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Equipos</h2>
+      <p>Zen funciona para equipos: invita miembros, asigna roles (Admin/Member), controla que modelos estan disponibles y establece limites de gasto mensuales por miembro.</p>
+
+      <h2>Bring Your Own Key (BYOK)</h2>
+      <p>Si ya tienes keys de OpenAI o Anthropic, puedes usarlas en Zen. Los tokens se facturan directamente por el proveedor, no por Zen.</p>
+
+      <div class="alert alert-success">
+        <div class="alert-title">Sin lock-in</div>
+        Zen es completamente opcional. Puedes usar cualquier proveedor directamente con OpenCode. Y puedes usar Zen con cualquier otro agente de coding.
+      </div>
+    </div>
+
+    <hr>
+
+    <!-- ============================================================
+         CAPITULO 8: ERROR DE IMAGEN
+         ============================================================ -->
+    <div class="section" id="cap8">
+      <h1>8. Error de Dimensiones de Imagen</h1>
+      <p class="chapter-intro">
+        Explicacion y resolucion del error relacionado con imagenes demasiado grandes en la API del modelo.
+      </p>
+
+      <h2>El mensaje de error</h2>
+      <pre><code>messages.104.content.1.image.source.base64.data:
+At least one of the image dimensions exceed max allowed
+size for many-image requests: 2000 pixels</code></pre>
+
+      <h2>Por que ocurre</h2>
+      <table>
+        <thead>
+          <tr><th>Escenario</th><th>Limite por dimension</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Una sola imagen</td><td>Hasta ~8000 px</td></tr>
+          <tr><td>Multiples imagenes</td><td>Maximo <strong>2000 px</strong></td></tr>
+        </tbody>
+      </table>
+      <p>Cuando la conversacion acumula varias imagenes, se activa el limite mas estricto.</p>
+
+      <h2>Soluciones</h2>
+      <ol class="step-list">
+        <li><strong>Redimensionar</strong> antes de enviar: ni ancho ni alto deben superar 2000 px</li>
+        <li><strong><code>/compact</code></strong> para eliminar imagenes del historial</li>
+        <li><strong>Compaction automatica</strong>: activa <code>"compaction": {"auto": true}</code> en config para prevenir acumulacion</li>
+        <li><strong>Nueva sesion</strong> (<code>/new</code>) para empezar limpio</li>
+      </ol>
+
+      <h3>Redimensionar en macOS</h3>
+      <pre><code># Usando sips (nativo)
+sips --resampleWidth 1800 imagen.png
+
+# Usando ImageMagick
+convert imagen.png -resize 1800x imagen_small.png</code></pre>
+    </div>
+
+    <hr>
+
+    <!-- ============================================================
+         CAPITULO 9: PRESERVAR HISTORICO
+         ============================================================ -->
+    <div class="section" id="cap9">
+      <h1>9. Preservar el Historico del Proyecto <span class="badge badge-updated">Actualizado</span></h1>
+      <p class="chapter-intro">
+        Como mantener el contexto del proyecto entre sesiones usando mecanismos de persistencia.
+      </p>
+
+      <h2>AGENTS.md</h2>
+      <p>El archivo <code>AGENTS.md</code> es la <strong>memoria permanente</strong> del proyecto. OpenCode lo lee al iniciar cada sesion.</p>
+      <pre><code>/init</code></pre>
+      <ul>
+        <li><code>/init</code> analiza tu repositorio y crea o actualiza <code>AGENTS.md</code></li>
+        <li>Incluye: comandos de build/test, estructura, convenciones, quirks del proyecto</li>
+        <li><strong>Siempre committealo a Git</strong></li>
+      </ul>
+
+      <h3>Compatibilidad con Claude Code</h3>
+      <p>OpenCode lee <code>CLAUDE.md</code> como fallback si no existe <code>AGENTS.md</code>. Tambien reconoce <code>~/.claude/CLAUDE.md</code> para reglas globales.</p>
+      <pre><code># Desactivar compatibilidad Claude Code
+export OPENCODE_DISABLE_CLAUDE_CODE=1</code></pre>
+
+      <h2>AGENTS.md global</h2>
+      <p>Crea <code>~/.config/opencode/AGENTS.md</code> para reglas personales que apliquen a todas las sesiones. No se commitea a Git.</p>
+
+      <h2>Instrucciones externas</h2>
+      <p>En <code>opencode.json</code> puedes referenciar archivos adicionales de instrucciones:</p>
+      <pre><code>{
+  "instructions": [
+    "CONTRIBUTING.md",
+    "docs/guidelines.md",
+    ".cursor/rules/*.md",
+    "packages/*/AGENTS.md"
+  ]
+}</code></pre>
+
+      <h2>/compact</h2>
+      <p>Comprime la conversacion eliminando imagenes y detalles de herramientas, conservando el contexto esencial en texto.</p>
+
+      <div class="alert alert-success">
+        <div class="alert-title">Compaction automatica</div>
+        Con <code>"compaction": {"auto": true}</code> en la config, OpenCode compacta automaticamente cuando el contexto se llena. Es la opcion recomendada.
+      </div>
+
+      <h2>Flujo recomendado</h2>
+      <ol class="step-list">
+        <li><strong><code>/init</code></strong> &mdash; Crea AGENTS.md (memoria del proyecto)</li>
+        <li><strong>Configura compaction auto</strong> &mdash; En <code>opencode.json</code></li>
+        <li><strong>Trabaja normalmente</strong> &mdash; Las imagenes y contexto se gestionan automaticamente</li>
+        <li><strong><code>/compact</code> manual</strong> &mdash; Cuando notes lentitud o antes de tareas grandes</li>
+        <li><strong>Nueva sesion si es necesario</strong> &mdash; OpenCode lee AGENTS.md al iniciar</li>
+      </ol>
+    </div>
+
+    <hr>
+
+    <!-- ============================================================
+         CAPITULO 10: PROCESOS BLOQUEADOS
+         ============================================================ -->
+    <div class="section" id="cap10">
+      <h1>10. Procesos Bloqueados ("Pensando...")</h1>
+      <p class="chapter-intro">
+        Que hacer cuando OpenCode se queda en estado "Pensando" y no avanza.
+      </p>
+
+      <h2>Por que se bloquea</h2>
+      <p>
+        Cuando OpenCode ejecuta un comando como <code>npm start</code> o <code>node server.js</code>,
+        ese proceso <strong>nunca termina</strong> porque queda escuchando conexiones.
+        OpenCode espera a que finalice, creando un bloqueo infinito.
+      </p>
+
+      <h2>Solucion inmediata</h2>
+      <table>
+        <thead>
+          <tr><th>Accion</th><th>Tecla</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Cancelar</td><td><kbd>Esc</kbd></td></tr>
+          <tr><td>Interrumpir (si Esc no funciona)</td><td><kbd>ctrl</kbd>+<kbd>c</kbd></td></tr>
+        </tbody>
+      </table>
+
+      <h2>Prevencion</h2>
+      <pre><code># MAL:
+"Levanta el servidor para probar"
+
+# BIEN:
+"Verifica que el codigo compila con: npm run build"
+
+# O SI NECESITAS el servidor:
+"Lanza el servidor en segundo plano con &amp; y verifica
+que arranco. No esperes a que termine."</code></pre>
+
+      <div class="alert alert-info">
+        <div class="alert-title">Regla general</div>
+        Nunca pidas a OpenCode que ejecute procesos que no terminan sin indicarle que los lance en segundo plano o que use un timeout.
+      </div>
+    </div>
+
+    <hr>
+
+    <!-- ============================================================
+         CAPITULO 11: RENDIMIENTO
+         ============================================================ -->
+    <div class="section" id="cap11">
+      <h1>11. Rendimiento y Lentitud <span class="badge badge-updated">Actualizado</span></h1>
+      <p class="chapter-intro">
+        Causas y soluciones cuando OpenCode responde lentamente.
+      </p>
+
+      <h2>Causas principales</h2>
+
+      <h3>Conversacion larga</h3>
+      <p>Cada mensaje envia <strong>todo el historial</strong> al modelo. Solucion: <code>/compact</code> o activar compaction automatica.</p>
+
+      <h3>Modelo pesado</h3>
+      <p>Claude Opus es el mas lento. Usa <code>/models</code> para cambiar a Sonnet o Haiku para tareas simples.</p>
+
+      <h3>Proyecto grande</h3>
+      <p>Muchos archivos = busquedas lentas. Se especifico en las instrucciones.</p>
+
+      <h3>Snapshots en repos grandes</h3>
+      <p>Si el indexado de snapshots es lento, desactivalos: <code>"snapshot": false</code> en la config.</p>
+
+      <h2>Soluciones</h2>
+      <table>
+        <thead>
+          <tr><th>Causa</th><th>Solucion</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Historial largo</td><td><code>/compact</code> + <code>"compaction": {"auto": true, "prune": true}</code></td></tr>
+          <tr><td>Modelo lento</td><td><code>/models</code> para cambiar a Sonnet/Haiku. Usa <code>small_model</code> en config</td></tr>
+          <tr><td>Proyecto grande</td><td>Se especifico. Usa <code>@archivo</code> para dar contexto exacto</td></tr>
+          <tr><td>Snapshots lentos</td><td><code>"snapshot": false</code> (pierdes undo/redo)</td></tr>
+          <tr><td>MCP excesivos</td><td>Desactiva MCPs que no uses: <code>"tools": {"mcp_*": false}</code></td></tr>
+        </tbody>
+      </table>
+
+      <div class="alert alert-success">
+        <div class="alert-title">Consejo</div>
+        Cuanto mas preciso seas en tus instrucciones, menos tiene que buscar OpenCode y mas rapido responde. Usa <code>@archivo.ts</code> para dar contexto directo.
+      </div>
+    </div>
+
+    <hr>
+
+    <!-- ============================================================
+         CAPITULO 12: TOOL EXECUTION ABORTED
+         ============================================================ -->
+    <div class="section" id="cap12">
+      <h1>12. Error "Tool Execution Aborted" <span class="badge badge-new">Nuevo</span></h1>
+      <p class="chapter-intro">
+        Diagnostico y solucion del error "Ejecucion de la herramienta abortada".
+      </p>
+
+      <h2>Que significa</h2>
+      <p>Este error aparece cuando OpenCode intenta usar una herramienta pero la operacion es cancelada antes de completarse.</p>
+
+      <h2>Causas principales</h2>
+
+      <h3>1. Permisos insuficientes (Plan Mode)</h3>
+      <p>
+        Si estas en el agente <strong>Plan</strong> y el modelo intenta escribir archivos, la operacion
+        requiere aprobacion (<code>ask</code>). Si se rechaza o si el agente no espera la aprobacion,
+        la herramienta se aborta.
+      </p>
+      <div class="alert alert-danger">
+        <div class="alert-title">Solucion</div>
+        Cambia al agente <strong>Build</strong> con <kbd>Tab</kbd> antes de pedir que se creen o modifiquen archivos.
+        Verifica el indicador en la esquina inferior derecha de la TUI.
+      </div>
+
+      <h3>2. Contenido demasiado grande</h3>
+      <p>Cuando el archivo a escribir excede los limites del mensaje de la API.</p>
+
+      <h3>3. Historial de sesion demasiado largo</h3>
+      <p>Ejecuta <code>/compact</code> para comprimir el historial.</p>
+
+      <h3>4. Timeout de herramienta</h3>
+      <p>El comando tardo demasiado. Aumenta el timeout en config si es necesario.</p>
+
+      <h2>Solucion paso a paso</h2>
+      <ol class="step-list">
+        <li>Verifica que estas en <strong>Build Mode</strong> (mira la esquina inferior derecha)</li>
+        <li>Si el error persiste, ejecuta <code>/compact</code></li>
+        <li>Si sigue fallando, inicia nueva sesion con <code>/new</code></li>
+        <li>Para archivos muy grandes, divide la operacion en partes mas pequenas</li>
+      </ol>
+    </div>
+
+    <hr>
+
+    <!-- ============================================================
+         CAPITULO 13: TROUBLESHOOTING GENERAL
+         ============================================================ -->
+    <div class="section" id="cap13">
+      <h1>13. Troubleshooting General <span class="badge badge-new">Nuevo</span><span class="badge badge-priority">Prioritario</span></h1>
+      <p class="chapter-intro">
+        Guia completa de resolucion de problemas comunes en OpenCode.
+      </p>
+
+      <h2>Logs</h2>
+      <p>Los archivos de log se encuentran en:</p>
+      <table>
+        <thead>
+          <tr><th>Sistema</th><th>Ubicacion</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>macOS / Linux</td><td><code>~/.local/share/opencode/log/</code></td></tr>
+          <tr><td>Windows</td><td><code>%USERPROFILE%\.local\share\opencode\log</code></td></tr>
+        </tbody>
+      </table>
+      <p>Para obtener mas detalle: <code>opencode --log-level DEBUG</code></p>
+
+      <h2>Almacenamiento</h2>
+      <p>Datos de sesion y aplicacion:</p>
+      <ul>
+        <li><code>~/.local/share/opencode/</code> &mdash; Datos de aplicacion</li>
+        <li><code>~/.local/share/opencode/auth.json</code> &mdash; API keys y tokens OAuth</li>
+        <li><code>~/.local/share/opencode/project/</code> &mdash; Datos de sesion por proyecto</li>
+        <li><code>~/.cache/opencode/</code> &mdash; Cache de paquetes de proveedores</li>
+      </ul>
+
+      <h2>OpenCode no arranca</h2>
+      <ol class="step-list">
+        <li>Revisa los logs con <code>opencode --print-logs</code></li>
+        <li>Actualiza a la ultima version: <code>opencode upgrade</code></li>
+        <li>Si hay error de proveedor, limpia la config:
+          <pre><code>rm -rf ~/.local/share/opencode</code></pre>
+          y vuelve a autenticar con <code>/connect</code></li>
+      </ol>
+
+      <h2>ProviderInitError</h2>
+      <p>Configuracion de proveedor invalida o corrupta:</p>
+      <ol class="step-list">
+        <li>Verifica que tu proveedor esta bien configurado</li>
+        <li>Limpia la configuracion almacenada:
+          <pre><code>rm -rf ~/.local/share/opencode</code></pre></li>
+        <li>Reautentica con <code>/connect</code></li>
+      </ol>
+
+      <h2>AI_APICallError (errores de API)</h2>
+      <p>Generalmente causado por paquetes de proveedor obsoletos:</p>
+      <pre><code># Limpiar cache de paquetes
+rm -rf ~/.cache/opencode
+
+# Reiniciar OpenCode para reinstalar</code></pre>
+
+      <h2>Modelo no disponible</h2>
+      <ul>
+        <li>Verifica autenticacion con el proveedor</li>
+        <li>Comprueba que el nombre del modelo es correcto: <code>proveedor/modelo-id</code></li>
+        <li>Ejecuta <code>opencode models</code> para ver modelos disponibles</li>
+      </ul>
+
+      <h2>Problemas de autenticacion</h2>
+      <ol class="step-list">
+        <li>Re-autenticar con <code>/connect</code></li>
+        <li>Verificar que las API keys son validas</li>
+        <li>Comprobar conectividad de red al proveedor</li>
+      </ol>
+
+      <h2>Desktop App</h2>
+      <table>
+        <thead>
+          <tr><th>Problema</th><th>Solucion</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>App no arranca</td><td>Cerrar y reabrir. Desactivar plugins en <code>opencode.json</code></td></tr>
+          <tr><td>UI en blanco</td><td>macOS: Menu OpenCode > Reload Webview. Windows: Instalar WebView2</td></tr>
+          <tr><td>Conexion fallida</td><td>Verificar que no hay <code>server.port</code> personalizado en config. Limpiar URL de servidor</td></tr>
+          <tr><td>Lentitud general</td><td>Limpiar cache: <code>rm -rf ~/.cache/opencode</code>. Desactivar plugins</td></tr>
+        </tbody>
+      </table>
+
+      <div class="alert alert-info">
+        <div class="alert-title">Obtener ayuda</div>
+        <ul>
+          <li>Issues: <a href="https://github.com/anomalyco/opencode/issues" target="_blank">github.com/anomalyco/opencode/issues</a></li>
+          <li>Discord: <a href="https://opencode.ai/discord" target="_blank">opencode.ai/discord</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <hr>
+
+    <!-- ============================================================
+         CAPITULO 14: BUENAS PRACTICAS
+         ============================================================ -->
+    <div class="section" id="cap14">
+      <h1>14. Buenas Practicas <span class="badge badge-updated">Actualizado</span></h1>
+      <p class="chapter-intro">
+        Recomendaciones para trabajar de forma eficiente y segura con OpenCode.
+      </p>
+
+      <div class="card-grid">
+        <div class="card">
+          <h4>Se especifico</h4>
+          <p>Indica archivos concretos con <code>@</code>, nombres exactos y alcance del cambio. Menos ambiguedad = mas velocidad.</p>
+        </div>
+        <div class="card">
+          <h4>Activa compaction auto</h4>
+          <p>Configura <code>"compaction": {"auto": true}</code> para que el contexto se gestione automaticamente.</p>
+        </div>
+        <div class="card">
+          <h4>Mantiene AGENTS.md</h4>
+          <p>Es la memoria persistente. Usa <code>/init</code> para crearlo y committealo a Git.</p>
+        </div>
+        <div class="card">
+          <h4>Usa Plan antes de Build</h4>
+          <p>Cambia a Plan (<kbd>Tab</kbd>) para revisar la estrategia antes de implementar. Luego vuelve a Build.</p>
+        </div>
+        <div class="card">
+          <h4>Configura permisos</h4>
+          <p>Bloquea operaciones peligrosas como <code>rm *</code> y <code>git push</code>. Usa <code>"ask"</code> para revisarlas.</p>
+        </div>
+        <div class="card">
+          <h4>Elige el modelo adecuado</h4>
+          <p>Opus para lo complejo, Sonnet para desarrollo general, Haiku para tareas rapidas.</p>
+        </div>
+        <div class="card">
+          <h4>Crea comandos custom</h4>
+          <p>Automatiza tareas repetitivas como tests, reviews y deploys en <code>.opencode/commands/</code>.</p>
+        </div>
+        <div class="card">
+          <h4>Usa subagentes</h4>
+          <p>Usa <code>@explore</code> para buscar en el codigo y <code>@general</code> para tareas multi-paso.</p>
+        </div>
+        <div class="card">
+          <h4>Redimensiona imagenes</h4>
+          <p>Antes de arrastrar capturas, asegurate de que no superen 2000 px en ninguna dimension.</p>
+        </div>
+        <div class="card">
+          <h4>Evita procesos sin fin</h4>
+          <p>No pidas levantar servidores directamente. Usa <code>build</code> o <code>check</code> para verificar.</p>
+        </div>
+        <div class="card">
+          <h4>Usa /undo con confianza</h4>
+          <p>Si algo no quedo bien, <code>/undo</code> revierte cambios (requiere que el proyecto sea un repo Git).</p>
+        </div>
+        <div class="card">
+          <h4>Se selectivo con MCPs</h4>
+          <p>Cada MCP consume contexto. Solo activa los que realmente necesites para la tarea actual.</p>
+        </div>
+      </div>
+    </div>
+
+    <hr>
+
+    <!-- ============================================================
+         CAPITULO 15: REFERENCIA RAPIDA
+         ============================================================ -->
+    <div class="section" id="cap15">
+      <h1>15. Referencia Rapida <span class="badge badge-updated">Actualizado</span></h1>
+      <p class="chapter-intro">
+        Tabla resumen completa de comandos, atajos y soluciones rapidas.
+      </p>
+
+      <h2>Comandos TUI</h2>
+      <table>
+        <thead>
+          <tr><th>Comando</th><th>Keybind</th><th>Funcion</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>/init</code></td><td><kbd>ctrl</kbd>+<kbd>x</kbd> <kbd>i</kbd></td><td>Crear/actualizar AGENTS.md</td></tr>
+          <tr><td><code>/compact</code></td><td><kbd>ctrl</kbd>+<kbd>x</kbd> <kbd>c</kbd></td><td>Comprimir historial</td></tr>
+          <tr><td><code>/connect</code></td><td></td><td>Configurar proveedor LLM</td></tr>
+          <tr><td><code>/models</code></td><td><kbd>ctrl</kbd>+<kbd>x</kbd> <kbd>m</kbd></td><td>Listar/cambiar modelos</td></tr>
+          <tr><td><code>/new</code></td><td><kbd>ctrl</kbd>+<kbd>x</kbd> <kbd>n</kbd></td><td>Nueva sesion</td></tr>
+          <tr><td><code>/sessions</code></td><td><kbd>ctrl</kbd>+<kbd>x</kbd> <kbd>l</kbd></td><td>Listar/cambiar sesiones</td></tr>
+          <tr><td><code>/undo</code></td><td><kbd>ctrl</kbd>+<kbd>x</kbd> <kbd>u</kbd></td><td>Deshacer ultimo cambio</td></tr>
+          <tr><td><code>/redo</code></td><td><kbd>ctrl</kbd>+<kbd>x</kbd> <kbd>r</kbd></td><td>Rehacer cambio deshecho</td></tr>
+          <tr><td><code>/share</code></td><td><kbd>ctrl</kbd>+<kbd>x</kbd> <kbd>s</kbd></td><td>Compartir conversacion</td></tr>
+          <tr><td><code>/unshare</code></td><td></td><td>Dejar de compartir</td></tr>
+          <tr><td><code>/editor</code></td><td><kbd>ctrl</kbd>+<kbd>x</kbd> <kbd>e</kbd></td><td>Editor externo para mensaje</td></tr>
+          <tr><td><code>/export</code></td><td><kbd>ctrl</kbd>+<kbd>x</kbd> <kbd>x</kbd></td><td>Exportar a Markdown</td></tr>
+          <tr><td><code>/details</code></td><td><kbd>ctrl</kbd>+<kbd>x</kbd> <kbd>d</kbd></td><td>Toggle detalles de herramientas</td></tr>
+          <tr><td><code>/themes</code></td><td><kbd>ctrl</kbd>+<kbd>x</kbd> <kbd>t</kbd></td><td>Cambiar tema visual</td></tr>
+          <tr><td><code>/thinking</code></td><td></td><td>Toggle bloques de razonamiento</td></tr>
+          <tr><td><code>/help</code></td><td><kbd>ctrl</kbd>+<kbd>x</kbd> <kbd>h</kbd></td><td>Mostrar ayuda</td></tr>
+          <tr><td><code>/exit</code></td><td><kbd>ctrl</kbd>+<kbd>x</kbd> <kbd>q</kbd></td><td>Salir de OpenCode</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Atajos de teclado</h2>
+      <table>
+        <thead>
+          <tr><th>Atajo</th><th>Funcion</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><kbd>ctrl</kbd>+<kbd>p</kbd></td><td>Lista de acciones (paleta de comandos)</td></tr>
+          <tr><td><kbd>Tab</kbd></td><td>Alternar entre agentes primarios (Build/Plan)</td></tr>
+          <tr><td><kbd>ctrl</kbd>+<kbd>t</kbd></td><td>Ciclar variantes del modelo (reasoning)</td></tr>
+          <tr><td><kbd>Esc</kbd></td><td>Cancelar accion en curso</td></tr>
+          <tr><td><kbd>ctrl</kbd>+<kbd>c</kbd></td><td>Interrumpir proceso / salir</td></tr>
+          <tr><td><kbd>@</kbd></td><td>Buscar archivos del proyecto</td></tr>
+          <tr><td><kbd>!</kbd></td><td>Ejecutar comando bash inline</td></tr>
+          <tr><td><kbd>Leader</kbd>+<kbd>&darr;</kbd></td><td>Entrar en sesion de subagente</td></tr>
+          <tr><td><kbd>&rarr;</kbd> / <kbd>&larr;</kbd></td><td>Navegar entre sesiones hijo</td></tr>
+          <tr><td><kbd>&uarr;</kbd></td><td>Volver a sesion padre</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Agentes</h2>
+      <table>
+        <thead>
+          <tr><th>Agente</th><th>Tipo</th><th>Descripcion</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Build</strong></td><td>Primario</td><td>Desarrollo con todas las herramientas</td></tr>
+          <tr><td><strong>Plan</strong></td><td>Primario</td><td>Analisis y planificacion (edit/bash = ask)</td></tr>
+          <tr><td><strong>General</strong></td><td>Subagente</td><td>Tareas complejas multi-paso. Invocalo con <code>@general</code></td></tr>
+          <tr><td><strong>Explore</strong></td><td>Subagente</td><td>Explorar codigo (solo lectura). Invocalo con <code>@explore</code></td></tr>
+        </tbody>
+      </table>
+
+      <h2>Herramientas integradas</h2>
+      <table>
+        <thead>
+          <tr><th>Herramienta</th><th>Funcion</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>bash</code></td><td>Ejecutar comandos de terminal</td></tr>
+          <tr><td><code>read</code></td><td>Leer archivos</td></tr>
+          <tr><td><code>edit</code></td><td>Modificar archivos existentes</td></tr>
+          <tr><td><code>write</code></td><td>Crear archivos nuevos</td></tr>
+          <tr><td><code>apply_patch</code></td><td>Aplicar parches/diffs</td></tr>
+          <tr><td><code>grep</code></td><td>Buscar contenido con regex</td></tr>
+          <tr><td><code>glob</code></td><td>Buscar archivos por patron</td></tr>
+          <tr><td><code>list</code></td><td>Listar directorios</td></tr>
+          <tr><td><code>webfetch</code></td><td>Obtener contenido de una URL</td></tr>
+          <tr><td><code>websearch</code></td><td>Buscar en la web (Exa AI)</td></tr>
+          <tr><td><code>codesearch</code></td><td>Buscar documentacion de codigo</td></tr>
+          <tr><td><code>todowrite</code></td><td>Gestionar listas de tareas</td></tr>
+          <tr><td><code>question</code></td><td>Hacer preguntas al usuario</td></tr>
+          <tr><td><code>skill</code></td><td>Cargar Agent Skills</td></tr>
+          <tr><td><code>lsp</code></td><td>Inteligencia de codigo (experimental)</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Solucion rapida de problemas</h2>
+      <table>
+        <thead>
+          <tr><th>Problema</th><th>Solucion inmediata</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Error de imagen &gt;2000px</td><td><code>/compact</code> + redimensionar imagenes</td></tr>
+          <tr><td>"Pensando..." bloqueado</td><td><kbd>Esc</kbd>, luego <kbd>ctrl</kbd>+<kbd>c</kbd></td></tr>
+          <tr><td>Respuestas lentas</td><td><code>/compact</code> + <code>/models</code> (Sonnet) + ser especifico</td></tr>
+          <tr><td>Tool execution aborted</td><td>Cambiar a Build (<kbd>Tab</kbd>) + <code>/compact</code></td></tr>
+          <tr><td>ProviderInitError</td><td><code>rm -rf ~/.local/share/opencode</code> + <code>/connect</code></td></tr>
+          <tr><td>API call errors</td><td><code>rm -rf ~/.cache/opencode</code> + reiniciar</td></tr>
+          <tr><td>Perder contexto</td><td><code>/init</code> para crear AGENTS.md + committearlo</td></tr>
+          <tr><td>Cambio no deseado</td><td><code>/undo</code> (requiere Git)</td></tr>
+          <tr><td>Modelo no encontrado</td><td>Verificar formato: <code>proveedor/modelo-id</code>. Ejecutar <code>opencode models</code></td></tr>
+          <tr><td>MCP no funciona</td><td>Verificar <code>"enabled": true</code>, probar auth: <code>opencode mcp auth nombre</code></td></tr>
+        </tbody>
+      </table>
+
+      <h2>Estructura de archivos de configuracion</h2>
+      <pre><code>~/.config/opencode/
+  opencode.json          # Config global servidor/runtime
+  tui.json               # Config global TUI (tema, keybinds)
+  AGENTS.md              # Reglas globales personales
+  agents/                # Agentes globales (.md)
+  commands/              # Comandos globales (.md)
+  skills/                # Skills globales
+  plugins/               # Plugins globales
+
+proyecto/
+  opencode.json          # Config de proyecto
+  tui.json               # Config TUI de proyecto
+  AGENTS.md              # Reglas del proyecto (committear!)
+  .opencode/
+    agents/              # Agentes del proyecto
+    commands/            # Comandos del proyecto
+    skills/              # Skills del proyecto
+    plugins/             # Plugins del proyecto</code></pre>
+    </div>
+
+    <hr>
+
+    <!-- ============================================================
+         CAPITULO 16: COPIAS DE SEGURIDAD
+         ============================================================ -->
+    <div class="section" id="cap16">
+      <h1>16. Copias de Seguridad <span class="badge badge-new">Nuevo</span></h1>
+      <p class="chapter-intro">
+        Como hacer backup completo de tus sesiones, configuracion y datos de OpenCode para no perder nada.
+      </p>
+
+      <h2>Donde almacena OpenCode los datos</h2>
+      <table>
+        <thead>
+          <tr><th>Datos</th><th>Ubicacion (macOS/Linux)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Sesiones y mensajes</td><td><code>~/.local/share/opencode/storage/</code></td></tr>
+          <tr><td>Autenticacion (API keys)</td><td><code>~/.local/share/opencode/auth.json</code></td></tr>
+          <tr><td>Logs</td><td><code>~/.local/share/opencode/log/</code></td></tr>
+          <tr><td>Configuracion global</td><td><code>~/.config/opencode/opencode.json</code></td></tr>
+          <tr><td>Config TUI</td><td><code>~/.config/opencode/tui.json</code></td></tr>
+          <tr><td>AGENTS.md global</td><td><code>~/.config/opencode/AGENTS.md</code></td></tr>
+          <tr><td>Agentes/comandos/skills globales</td><td><code>~/.config/opencode/agents/</code>, <code>commands/</code>, <code>skills/</code></td></tr>
+          <tr><td>Cache de proveedores</td><td><code>~/.cache/opencode/</code></td></tr>
+          <tr><td>Config de proyecto</td><td><code>&lt;proyecto&gt;/opencode.json</code>, <code>.opencode/</code></td></tr>
+          <tr><td>AGENTS.md de proyecto</td><td><code>&lt;proyecto&gt;/AGENTS.md</code></td></tr>
+        </tbody>
+      </table>
+
+      <h3>Estructura interna de sesiones</h3>
+      <pre><code>~/.local/share/opencode/storage/
+  session/
+    &lt;project-hash&gt;/
+      &lt;session-id&gt;.json
+  message/
+    &lt;session-id&gt;/
+      ...</code></pre>
+
+      <h2>Exportar sesiones individuales</h2>
+
+      <h3>Desde la TUI</h3>
+      <pre><code>/export     # Exporta la sesion actual a Markdown (abre en tu editor)</code></pre>
+
+      <h3>Desde la CLI</h3>
+      <pre><code># Listar todas las sesiones
+opencode session list
+
+# Exportar sesion especifica a JSON
+opencode export &lt;sessionID&gt; &gt; backup-sesion.json
+
+# Exportar interactivamente (seleccionar de la lista)
+opencode export</code></pre>
+
+      <h3>Importar una sesion</h3>
+      <pre><code># Desde archivo JSON local
+opencode import backup-sesion.json
+
+# Desde una URL compartida
+opencode import https://opncd.ai/s/abc123</code></pre>
+
+      <h2>Backup completo con script</h2>
+      <p>
+        Hemos creado el script <code>backup-opencode.sh</code> que automatiza todo el proceso.
+        Incluido en este repositorio.
+      </p>
+
+      <h3>Uso del script</h3>
+      <table>
+        <thead>
+          <tr><th>Comando</th><th>Funcion</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>./backup-opencode.sh</code></td><td>Backup completo (sesiones + config + cache)</td></tr>
+          <tr><td><code>./backup-opencode.sh --sessions</code></td><td>Solo sesiones y mensajes</td></tr>
+          <tr><td><code>./backup-opencode.sh --config</code></td><td>Solo archivos de configuracion</td></tr>
+          <tr><td><code>./backup-opencode.sh --export</code></td><td>Exportar cada sesion a JSON individual</td></tr>
+          <tr><td><code>./backup-opencode.sh --list</code></td><td>Listar backups existentes</td></tr>
+          <tr><td><code>./backup-opencode.sh --restore &lt;archivo&gt;</code></td><td>Restaurar un backup</td></tr>
+          <tr><td><code>./backup-opencode.sh --clean</code></td><td>Eliminar backups antiguos</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Automatizar con cron</h3>
+      <pre><code># Editar crontab
+crontab -e
+
+# Anadir esta linea (backup diario a las 2am)
+0 2 * * * /ruta/a/backup-opencode.sh >> /ruta/a/backup.log 2>&amp;1</code></pre>
+
+      <div class="alert alert-info">
+        <div class="alert-title">Variable de entorno</div>
+        Por defecto los backups se guardan en <code>~/Documents/opencode-backups/</code>.
+        Cambialo con: <code>export OPENCODE_BACKUP_DIR="/otra/ruta"</code>
+      </div>
+
+      <h2>Backup manual rapido (sin script)</h2>
+      <pre><code># Backup completo con tar
+tar -czf ~/opencode-backup-$(date +%Y%m%d).tar.gz \
+  -C "$HOME" \
+  .local/share/opencode/ \
+  .config/opencode/
+
+# Solo sesiones (mas ligero)
+tar -czf ~/opencode-sessions-$(date +%Y%m%d).tar.gz \
+  -C "$HOME" .local/share/opencode/storage/</code></pre>
+
+      <h2>No olvidar: archivos de proyecto en Git</h2>
+      <p>Estos archivos son parte de tu proyecto y deberian estar versionados:</p>
+      <pre><code>git add AGENTS.md opencode.json .opencode/
+git commit -m "Add OpenCode project configuration"</code></pre>
+
+      <div class="alert alert-warning">
+        <div class="alert-title">No committear secretos</div>
+        El archivo <code>auth.json</code> contiene API keys. <strong>Nunca lo subas a Git</strong>.
+        Anadelo a <code>.gitignore</code> si lo copias al proyecto.
+      </div>
+
+      <h2>Restaurar un backup</h2>
+      <ol class="step-list">
+        <li><strong>Con el script:</strong> <code>./backup-opencode.sh --restore backup.tar.gz</code> (crea un backup de seguridad antes de sobreescribir)</li>
+        <li><strong>Manualmente:</strong> <code>tar -xzf backup.tar.gz -C $HOME</code></li>
+        <li><strong>Importar sesion individual:</strong> <code>opencode import sesion.json</code></li>
+      </ol>
+
+      <h2>Resumen rapido</h2>
+      <table>
+        <thead>
+          <tr><th>Metodo</th><th>Que copia</th><th>Comando</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>/export</code> (TUI)</td><td>Sesion actual en Markdown</td><td><code>/export</code></td></tr>
+          <tr><td><code>opencode export</code> (CLI)</td><td>Sesion en JSON</td><td><code>opencode export &lt;id&gt; &gt; file.json</code></td></tr>
+          <tr><td>Script <code>--sessions</code></td><td>Todas las sesiones</td><td><code>./backup-opencode.sh --sessions</code></td></tr>
+          <tr><td>Script (sin flags)</td><td>Todo: sesiones + config + cache</td><td><code>./backup-opencode.sh</code></td></tr>
+          <tr><td>Git</td><td>Config de proyecto</td><td><code>git add AGENTS.md opencode.json .opencode/</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <hr>
+
+    <!-- ============================================================
+         CAPITULO 17: ANALISIS DE CODIGO CON SONARQUBE
+         ============================================================ -->
+    <div class="section" id="cap17">
+      <h1>17. Analisis de Codigo con SonarQube <span class="badge badge-new">Nuevo</span></h1>
+      <p class="chapter-intro">
+        Integracion de SonarQube Cloud para verificar la calidad y seguridad del codigo, incluyendo la conexion con OpenCode via MCP.
+      </p>
+
+      <h2>Que es SonarQube</h2>
+      <p>
+        <strong>SonarQube</strong> (de SonarSource) es la herramienta lider en analisis estatico de codigo.
+        Detecta bugs, vulnerabilidades de seguridad, code smells y deuda tecnica en mas de 30 lenguajes,
+        incluyendo HTML, JavaScript y CSS. Es especialmente relevante para validar codigo generado por IA.
+      </p>
+
+      <h2>Configuracion paso a paso</h2>
+
+      <h3>1. Crear cuenta en SonarCloud</h3>
+      <ol class="step-list">
+        <li>Ve a <a href="https://sonarcloud.io" target="_blank">sonarcloud.io</a> e inicia sesion con GitHub</li>
+        <li>Crea una organizacion (ej: <code>jfajeda</code>)</li>
+        <li>Importa tu repositorio como proyecto nuevo</li>
+        <li>Genera un token: <em>My Account &gt; Security &gt; Generate Token</em></li>
+        <li>Guarda el token: <code>export SONAR_TOKEN="tu-token"</code></li>
+      </ol>
+
+      <h3>2. sonar-project.properties</h3>
+      <pre><code>sonar.projectKey=jfajeda_plataforma-opencode
+sonar.organization=jfajeda
+sonar.projectName=Plataforma OpenCode
+sonar.sources=.
+sonar.sourceEncoding=UTF-8
+sonar.exclusions=**/node_modules/**,**/dist/**,**/.git/**
+sonar.qualitygate.wait=true</code></pre>
+
+      <h3>3. Ejecutar analisis</h3>
+      <pre><code># Con npx (sin instalacion)
+export SONAR_TOKEN="tu-token"
+npx @sonar/scan
+
+# O instalar globalmente
+npm install -g @sonar/scan
+sonar</code></pre>
+
+      <h2>Integracion MCP con OpenCode</h2>
+      <p>Anade el servidor MCP de SonarQube a tu <code>opencode.json</code>:</p>
+      <pre><code>{
+  "mcp": {
+    "sonarqube": {
+      "type": "local",
+      "command": ["npx", "-y", "sonarqube-mcp-server@latest"],
+      "environment": {
+        "SONARQUBE_URL": "https://sonarcloud.io",
+        "SONARQUBE_TOKEN": "{env:SONAR_TOKEN}",
+        "SONARQUBE_ORGANIZATION": "jfajeda"
+      }
+    }
+  }
+}</code></pre>
+      <p>Con esto, OpenCode puede verificar automaticamente la calidad del codigo que genera.</p>
+
+      <h2>Comandos personalizados</h2>
+      <table>
+        <thead>
+          <tr><th>Comando</th><th>Funcion</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>/sonar</code></td><td>Ejecuta analisis completo del proyecto</td></tr>
+          <tr><td><code>/sonar-report</code></td><td>Consulta issues abiertos y genera reporte</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Panel de Analisis</h2>
+      <p>
+        El archivo <code>analisis-codigo.html</code> es un panel independiente y exportable que muestra:
+      </p>
+      <ul>
+        <li>Estado del Quality Gate (PASSED/FAILED)</li>
+        <li>Metricas de seguridad: vulnerabilidades, ratings</li>
+        <li>Metricas de calidad: bugs, code smells, cobertura, duplicaciones</li>
+        <li>Historial de analisis con graficos de tendencia</li>
+        <li>Guia de configuracion integrada</li>
+      </ul>
+
+      <div class="alert alert-success">
+        <div class="alert-title">Panel exportable</div>
+        Para usar el panel en otro proyecto: copia <code>analisis-codigo.html</code>, edita el bloque
+        <code>SONAR_CONFIG</code> al inicio del archivo (organization, project key, branding) y listo.
+      </div>
+
+      <h2>Que detecta SonarQube</h2>
+      <table>
+        <thead>
+          <tr><th>Tipo</th><th>Descripcion</th><th>Ejemplo</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Vulnerabilidades</td><td>Problemas de seguridad explotables</td><td>XSS, inyeccion SQL, CSRF</td></tr>
+          <tr><td>Bugs</td><td>Errores que provocan comportamiento incorrecto</td><td>Null dereference, logica incorrecta</td></tr>
+          <tr><td>Code Smells</td><td>Problemas de mantenibilidad</td><td>Funciones demasiado largas, codigo duplicado</td></tr>
+          <tr><td>Security Hotspots</td><td>Codigo que requiere revision manual de seguridad</td><td>Uso de crypto, manejo de datos sensibles</td></tr>
+          <tr><td>Secretos</td><td>Credenciales hardcodeadas en el codigo</td><td>API keys, passwords, tokens</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="manual-footer">
+      <img src="https://codanor.com/assets/img/logo_web-50.png" alt="CODANOR">
+      <p>
+        <strong>CODANOR</strong> &mdash; Jafa, S.L.<br>
+        Consultoria Organizativa y Legal<br>
+        Barcelona, Catalunya &bull; info@codanor.com &bull; +34 616 947 274
+      </p>
+      <p style="margin-top: 1rem; color: #aaa;">
+        Manual generado el 10 de Abril de 2026 &bull; Version 2.2 (17 capitulos)
+      </p>
+    </div>
+
+  </main>
+</div>
+
+<!-- BOTON EXPORTAR PDF -->
+<button class="btn-print" onclick="window.print()" title="Exportar a PDF">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/>
+    <rect x="6" y="14" width="12" height="8"/>
+  </svg>
+  Exportar PDF
+</button>
+
+</body>
+</html>
