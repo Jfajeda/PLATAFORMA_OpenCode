@@ -668,7 +668,7 @@
 <!-- ===== HEADER ===== -->
 <header class="app-header" id="appHeader">
   <div class="app-header-left">
-    <img id="brandLogo" src="" alt="" class="app-header-logo">
+    <img id="brandLogo" src="" alt="Logo corporativo" class="app-header-logo">
     <div class="app-header-divider"></div>
     <span class="app-header-title">Analisis de Codigo</span>
     <span class="app-header-subtitle">
@@ -678,7 +678,7 @@
   </div>
   <div class="header-actions">
     <select class="project-select" id="projectSelect" onchange="switchProject(this.value)"></select>
-    <a class="btn btn-outline" id="dashboardLink" href="#" target="_blank">
+    <a class="btn btn-outline" id="dashboardLink" href="#" target="_blank" rel="noopener noreferrer">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
       Abrir en SonarCloud
     </a>
@@ -723,7 +723,7 @@
       <div class="qg-status" id="qgStatus">Esperando datos...</div>
       <div class="qg-subtitle" id="qgSubtitle">Configura tu proyecto en SonarCloud para ver el estado</div>
       <div class="qg-badges" id="qgBadges"></div>
-      <a class="qg-link" id="qgLink" href="#" target="_blank" style="display:none;">
+      <a class="qg-link" id="qgLink" href="#" target="_blank" rel="noopener noreferrer" style="display:none;">
         Ver dashboard completo en SonarCloud
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
       </a>
@@ -830,7 +830,7 @@
       <div class="panel-header"><span class="panel-title">1. Crear cuenta en SonarCloud</span></div>
       <div class="panel-body">
         <ol class="step-list">
-          <li>Ve a <a href="https://sonarcloud.io" target="_blank"><strong>sonarcloud.io</strong></a> e inicia sesion con GitHub</li>
+          <li>Ve a <a href="https://sonarcloud.io" target="_blank" rel="noopener noreferrer"><strong>sonarcloud.io</strong></a> e inicia sesion con GitHub</li>
           <li>Crea una organizacion (o usa la existente: <code id="setupOrg">jfajeda</code>)</li>
           <li>Importa tu repositorio como proyecto nuevo</li>
           <li>Genera un <strong>token</strong> en: <em>My Account &gt; Security &gt; Generate Token</em></li>
@@ -913,7 +913,7 @@ sonar</code></pre>
 
 <!-- ===== FOOTER ===== -->
 <div class="app-footer" id="appFooter">
-  <img id="footerLogo" src="" alt="">
+  <img id="footerLogo" src="" alt="Logo corporativo">
   <p id="footerText"></p>
 </div>
 
@@ -1130,7 +1130,7 @@ sonar</code></pre>
       renderQualityBars(measures);
 
     } catch (err) {
-      console.warn('SonarCloud API error:', err.message);
+      // Error silenciado: SonarCloud API no disponible o error de red
     }
   }
 

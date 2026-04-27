@@ -437,7 +437,7 @@
       <h2 id="cap1-que-es">Que es OpenCode</h2>
       <p>
         <strong>OpenCode</strong> es un agente de codificacion con inteligencia artificial de codigo abierto
-        desarrollado por <a href="https://anoma.ly" target="_blank">Anomaly</a>.
+        desarrollado por <a href="https://anoma.ly" target="_blank" rel="noopener noreferrer">Anomaly</a>.
         Permite interactuar con modelos de lenguaje (LLM) para explorar, modificar y gestionar proyectos
         de software. Esta disponible en multiples modalidades: terminal (TUI), CLI, aplicacion de escritorio,
         interfaz web y extension de IDE.
@@ -1057,7 +1057,7 @@ Usa este skill al preparar un release.</code></pre>
 
       <h2>Como activarlo</h2>
       <ol class="step-list">
-        <li>Ve a <a href="https://opencode.ai/auth" target="_blank">opencode.ai/auth</a> y crea una cuenta</li>
+        <li>Ve a <a href="https://opencode.ai/auth" target="_blank" rel="noopener noreferrer">opencode.ai/auth</a> y crea una cuenta</li>
         <li>Anade datos de facturacion y copia tu API key</li>
         <li>En la TUI ejecuta <code>/connect</code>, selecciona OpenCode y pega la key</li>
         <li>Usa <code>/models</code> para ver los modelos disponibles</li>
@@ -1416,8 +1416,8 @@ rm -rf ~/.cache/opencode
       <div class="alert alert-info">
         <div class="alert-title">Obtener ayuda</div>
         <ul>
-          <li>Issues: <a href="https://github.com/anomalyco/opencode/issues" target="_blank">github.com/anomalyco/opencode/issues</a></li>
-          <li>Discord: <a href="https://opencode.ai/discord" target="_blank">opencode.ai/discord</a></li>
+          <li>Issues: <a href="https://github.com/anomalyco/opencode/issues" target="_blank" rel="noopener noreferrer">github.com/anomalyco/opencode/issues</a></li>
+          <li>Discord: <a href="https://opencode.ai/discord" target="_blank" rel="noopener noreferrer">opencode.ai/discord</a></li>
         </ul>
       </div>
     </div>
@@ -1772,7 +1772,7 @@ git commit -m "Add OpenCode project configuration"</code></pre>
 
       <h2>Que es SonarQube y por que usarlo</h2>
       <p>
-        <strong>SonarQube Cloud</strong> (de <a href="https://www.sonarsource.com" target="_blank">SonarSource</a>)
+        <strong>SonarQube Cloud</strong> (de <a href="https://www.sonarsource.com" target="_blank" rel="noopener noreferrer">SonarSource</a>)
         es la herramienta lider en analisis estatico de codigo. Detecta automaticamente:
       </p>
       <table>
@@ -1792,8 +1792,8 @@ git commit -m "Add OpenCode project configuration"</code></pre>
       <div class="alert alert-info">
         <div class="alert-title">Herramientas involucradas</div>
         <ul>
-          <li><strong>SonarCloud</strong> (<a href="https://sonarcloud.io" target="_blank">sonarcloud.io</a>) &mdash; Servicio en la nube que analiza el codigo. Gratis hasta 200K lineas.</li>
-          <li><strong>GitHub</strong> (<a href="https://github.com" target="_blank">github.com</a>) &mdash; Donde se aloja el codigo fuente. SonarCloud se conecta a el.</li>
+          <li><strong>SonarCloud</strong> (<a href="https://sonarcloud.io" target="_blank" rel="noopener noreferrer">sonarcloud.io</a>) &mdash; Servicio en la nube que analiza el codigo. Gratis hasta 200K lineas.</li>
+          <li><strong>GitHub</strong> (<a href="https://github.com" target="_blank" rel="noopener noreferrer">github.com</a>) &mdash; Donde se aloja el codigo fuente. SonarCloud se conecta a el.</li>
           <li><strong>analisis-codigo.html</strong> &mdash; Panel local que muestra los badges y metricas de SonarCloud. Exportable a otros proyectos.</li>
           <li><strong>OpenCode + MCP</strong> &mdash; Integracion opcional para que el agente IA verifique codigo automaticamente.</li>
         </ul>
@@ -1807,7 +1807,7 @@ git commit -m "Add OpenCode project configuration"</code></pre>
       <div class="alert alert-warning">
         <div class="alert-title">Necesitas antes de empezar</div>
         <ul>
-          <li>Una cuenta en <strong>GitHub</strong> (<a href="https://github.com" target="_blank">github.com</a>)</li>
+          <li>Una cuenta en <strong>GitHub</strong> (<a href="https://github.com" target="_blank" rel="noopener noreferrer">github.com</a>)</li>
           <li><strong>Git</strong> instalado en tu Mac (viene preinstalado en macOS)</li>
           <li>Un <strong>proyecto con codigo</strong> que quieras analizar</li>
         </ul>
@@ -1840,7 +1840,7 @@ git commit -m "Initial commit"</code></pre>
         </li>
         <li><strong>Crea el repositorio en GitHub:</strong>
           <ul>
-            <li>Ve a <a href="https://github.com/new" target="_blank">github.com/new</a></li>
+            <li>Ve a <a href="https://github.com/new" target="_blank" rel="noopener noreferrer">github.com/new</a></li>
             <li>Nombre: el nombre de tu proyecto</li>
             <li>Visibilidad: <strong>Public</strong> (necesario para SonarCloud gratis)</li>
             <li><strong>NO</strong> marques "Add README" ni ".gitignore"</li>
@@ -1853,14 +1853,14 @@ git push -u origin main</code></pre>
           <p>Cuando pida credenciales:</p>
           <ul>
             <li><strong>Username</strong>: tu usuario de GitHub</li>
-            <li><strong>Password</strong>: un <em>Personal Access Token</em> de GitHub (NO tu password). Generalo en: <a href="https://github.com/settings/tokens/new?scopes=repo" target="_blank">github.com/settings/tokens/new</a></li>
+            <li><strong>Password</strong>: un <em>Personal Access Token</em> de GitHub (NO tu password). Generalo en: <a href="https://github.com/settings/tokens/new?scopes=repo" target="_blank" rel="noopener noreferrer">github.com/settings/tokens/new</a></li>
           </ul>
         </li>
       </ol>
 
       <h3>FASE 3: Crear proyecto en SonarCloud</h3>
       <ol class="step-list">
-        <li>Ve a <a href="https://sonarcloud.io" target="_blank"><strong>sonarcloud.io</strong></a> (no confundir con otros sitios como qt.io o sonarsource.com)</li>
+        <li>Ve a <a href="https://sonarcloud.io" target="_blank" rel="noopener noreferrer"><strong>sonarcloud.io</strong></a> (no confundir con otros sitios como qt.io o sonarsource.com)</li>
         <li>Clic en <strong>"Log in"</strong> (esquina superior derecha) &gt; elige <strong>"GitHub"</strong></li>
         <li>Autoriza SonarCloud a acceder a tu GitHub (popup)</li>
         <li>En el dashboard, clic en <strong>"+"</strong> (esquina superior derecha) &gt; <strong>"Analyze new project"</strong></li>
@@ -1915,7 +1915,7 @@ echo 'export SONAR_TOKEN="tu-token-aqui"' &gt;&gt; ~/.zshrc</code></pre>
         <div class="alert-title">URL del dashboard</div>
         Tu dashboard esta siempre disponible en:
         <pre><code>https://sonarcloud.io/dashboard?id=TU-ORG_TU-PROYECTO</code></pre>
-        Ejemplo real: <a href="https://sonarcloud.io/dashboard?id=Jfajeda_PLATAFORMA_OpenCode" target="_blank">sonarcloud.io/dashboard?id=Jfajeda_PLATAFORMA_OpenCode</a>
+        Ejemplo real: <a href="https://sonarcloud.io/dashboard?id=Jfajeda_PLATAFORMA_OpenCode" target="_blank" rel="noopener noreferrer">sonarcloud.io/dashboard?id=Jfajeda_PLATAFORMA_OpenCode</a>
       </div>
 
       <hr>
@@ -2060,7 +2060,7 @@ npx @sonar/scan</code></pre>
       <div class="alert alert-info">
         <div class="alert-title">Requisito: Node.js</div>
         El comando <code>npx @sonar/scan</code> requiere <strong>Node.js 18+</strong>. Si no lo tienes instalado,
-        puedes descargar el scanner binario desde <a href="https://docs.sonarsource.com/sonarqube-cloud/advanced-setup/ci-based-analysis/sonarscanner-cli/" target="_blank">docs.sonarsource.com</a>.
+        puedes descargar el scanner binario desde <a href="https://docs.sonarsource.com/sonarqube-cloud/advanced-setup/ci-based-analysis/sonarscanner-cli/" target="_blank" rel="noopener noreferrer">docs.sonarsource.com</a>.
         Sin embargo, con el analisis automatico de SonarCloud <strong>no necesitas instalar nada</strong>.
       </div>
 
@@ -2078,7 +2078,7 @@ git push</code></pre>
         <li><strong>SonarCloud analiza automaticamente</strong> (2-5 minutos)</li>
         <li><strong>Revisa los resultados</strong> en cualquiera de estas opciones:
           <ul>
-            <li><a href="https://sonarcloud.io" target="_blank">sonarcloud.io</a> &mdash; Dashboard completo con detalle de cada issue</li>
+            <li><a href="https://sonarcloud.io" target="_blank" rel="noopener noreferrer">sonarcloud.io</a> &mdash; Dashboard completo con detalle de cada issue</li>
             <li><code>analisis-codigo.html</code> &mdash; Panel local con badges y metricas</li>
             <li><code>/sonar-report</code> en OpenCode &mdash; Reporte desde el agente IA</li>
           </ul>
@@ -2375,13 +2375,13 @@ git add . &amp;&amp; git commit -m "Initial commit"</code></pre>
           <tr>
             <td><strong>2. GitHub</strong></td>
             <td>Repositorio en la nube</td>
-            <td><a href="https://github.com/Jfajeda" target="_blank">github.com/Jfajeda</a></td>
+            <td><a href="https://github.com/Jfajeda" target="_blank" rel="noopener noreferrer">github.com/Jfajeda</a></td>
             <td>Copia de seguridad en la nube. Necesario para SonarCloud. Permite colaborar.</td>
           </tr>
           <tr>
             <td><strong>3. SonarCloud</strong></td>
             <td>Analisis de calidad</td>
-            <td><a href="https://sonarcloud.io/organizations/Jfajeda" target="_blank">sonarcloud.io</a></td>
+            <td><a href="https://sonarcloud.io/organizations/Jfajeda" target="_blank" rel="noopener noreferrer">sonarcloud.io</a></td>
             <td>Analiza el codigo de GitHub automaticamente. Detecta bugs y vulnerabilidades.</td>
           </tr>
         </tbody>
@@ -2505,9 +2505,9 @@ SonarCloud (analisis de calidad)</code></pre>
           <tr><th>Recurso</th><th>URL</th></tr>
         </thead>
         <tbody>
-          <tr><td>Perfil GitHub</td><td><a href="https://github.com/Jfajeda" target="_blank">github.com/Jfajeda</a></td></tr>
-          <tr><td>PLATAFORMA_OpenCode (repo)</td><td><a href="https://github.com/Jfajeda/PLATAFORMA_OpenCode" target="_blank">github.com/Jfajeda/PLATAFORMA_OpenCode</a></td></tr>
-          <tr><td>Generar token de acceso</td><td><a href="https://github.com/settings/tokens/new?scopes=repo" target="_blank">github.com/settings/tokens/new</a></td></tr>
+          <tr><td>Perfil GitHub</td><td><a href="https://github.com/Jfajeda" target="_blank" rel="noopener noreferrer">github.com/Jfajeda</a></td></tr>
+          <tr><td>PLATAFORMA_OpenCode (repo)</td><td><a href="https://github.com/Jfajeda/PLATAFORMA_OpenCode" target="_blank" rel="noopener noreferrer">github.com/Jfajeda/PLATAFORMA_OpenCode</a></td></tr>
+          <tr><td>Generar token de acceso</td><td><a href="https://github.com/settings/tokens/new?scopes=repo" target="_blank" rel="noopener noreferrer">github.com/settings/tokens/new</a></td></tr>
         </tbody>
       </table>
 
@@ -2517,8 +2517,8 @@ SonarCloud (analisis de calidad)</code></pre>
           <tr><th>Recurso</th><th>URL</th></tr>
         </thead>
         <tbody>
-          <tr><td>Dashboard PLATAFORMA_OpenCode</td><td><a href="https://sonarcloud.io/dashboard?id=Jfajeda_PLATAFORMA_OpenCode" target="_blank">sonarcloud.io/dashboard?id=Jfajeda_PLATAFORMA_OpenCode</a></td></tr>
-          <tr><td>Organizacion</td><td><a href="https://sonarcloud.io/organizations/Jfajeda/projects" target="_blank">sonarcloud.io/organizations/Jfajeda</a></td></tr>
+          <tr><td>Dashboard PLATAFORMA_OpenCode</td><td><a href="https://sonarcloud.io/dashboard?id=Jfajeda_PLATAFORMA_OpenCode" target="_blank" rel="noopener noreferrer">sonarcloud.io/dashboard?id=Jfajeda_PLATAFORMA_OpenCode</a></td></tr>
+          <tr><td>Organizacion</td><td><a href="https://sonarcloud.io/organizations/Jfajeda/projects" target="_blank" rel="noopener noreferrer">sonarcloud.io/organizations/Jfajeda</a></td></tr>
           <tr><td>Generar token</td><td>SonarCloud &gt; Avatar &gt; My Account &gt; Security</td></tr>
           <tr><td>Crear nuevo proyecto</td><td>SonarCloud &gt; "+" &gt; Analyze new project</td></tr>
         </tbody>
@@ -2573,7 +2573,7 @@ SonarCloud (analisis de calidad)</code></pre>
       <h2>Que hacer para subir un proyecto existente a GitHub</h2>
       <p>Para los 7 proyectos que todavia no estan en GitHub:</p>
       <ol class="step-list">
-        <li>Ve a <a href="https://github.com/new" target="_blank"><strong>github.com/new</strong></a></li>
+        <li>Ve a <a href="https://github.com/new" target="_blank" rel="noopener noreferrer"><strong>github.com/new</strong></a></li>
         <li>Nombre del repositorio: el mismo nombre de la carpeta (ej: <code>legislacion_monitor</code>)</li>
         <li>Visibilidad: <strong>Public</strong> (gratis con SonarCloud) o <strong>Private</strong></li>
         <li><strong>NO</strong> marcar "Add README" ni ".gitignore" (ya los tenemos)</li>
@@ -2582,7 +2582,7 @@ SonarCloud (analisis de calidad)</code></pre>
           <pre><code>cd ~/Proyectos/nombre_proyecto
 git remote add origin https://github.com/Jfajeda/nombre_proyecto.git
 git push -u origin main</code></pre>
-          <p>Username: <code>Jfajeda</code> &mdash; Password: token de GitHub (ver <a href="https://github.com/settings/tokens/new?scopes=repo" target="_blank">generar token</a>)</p>
+          <p>Username: <code>Jfajeda</code> &mdash; Password: token de GitHub (ver <a href="https://github.com/settings/tokens/new?scopes=repo" target="_blank" rel="noopener noreferrer">generar token</a>)</p>
         </li>
         <li><strong>Actualizar este capitulo</strong>: cambiar "NO" a "SI" en la tabla de estado</li>
       </ol>
