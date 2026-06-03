@@ -354,6 +354,7 @@
 
     /* ===== DASHBOARD DEL ECOSISTEMA (BLOQUE A) ===== */
     .dashboard-section {
+      margin-left: 300px;
       padding: 3rem 4rem;
       background: linear-gradient(180deg, var(--gray-100) 0%, var(--white) 100%);
       border-bottom: 3px solid var(--primary);
@@ -396,7 +397,7 @@
     /* KPI Cards */
     .kpi-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
       gap: 1rem;
       margin-bottom: 2rem;
     }
@@ -627,7 +628,7 @@
 
     /* ===== RESPONSIVE DASHBOARD ===== */
     @media (max-width: 900px) {
-      .dashboard-section { padding: 2rem 1.5rem; }
+      .dashboard-section { margin-left: 0; padding: 2rem 1.5rem; }
       .kpi-grid { grid-template-columns: 1fr; }
       .layer-grid { grid-template-columns: 1fr; }
       .sonar-metric-grid { grid-template-columns: repeat(2, 1fr); }
