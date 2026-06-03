@@ -351,6 +351,295 @@
       text-align: center; color: var(--gray-500); font-size: 0.85rem;
     }
     .manual-footer img { width: 100px; margin-bottom: 0.5rem; }
+
+    /* ===== DASHBOARD DEL ECOSISTEMA (BLOQUE A) ===== */
+    .dashboard-section {
+      padding: 3rem 4rem;
+      background: linear-gradient(180deg, var(--gray-100) 0%, var(--white) 100%);
+      border-bottom: 3px solid var(--primary);
+    }
+    .dashboard-header {
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 1rem;
+      margin-bottom: 2rem; padding-bottom: 1rem;
+      border-bottom: 1px solid var(--gray-300);
+    }
+    .dashboard-header h2 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.6rem; font-weight: 600;
+      color: var(--primary); margin: 0;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .dashboard-header h2::before {
+      content: ''; width: 4px; height: 26px;
+      background: var(--accent); border-radius: 2px;
+    }
+    .dashboard-date {
+      font-size: 0.85rem; color: var(--gray-500);
+      font-family: 'Poppins', sans-serif;
+    }
+    .btn-refresh-dashboard {
+      background: var(--white); color: var(--primary);
+      border: 1px solid var(--primary);
+      padding: 0.4rem 1rem; border-radius: 50px;
+      font-family: 'Poppins', sans-serif; font-size: 0.8rem;
+      font-weight: 600; cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-refresh-dashboard:hover:not(:disabled) {
+      background: var(--primary); color: var(--white);
+    }
+    .btn-refresh-dashboard:disabled {
+      opacity: 0.5; cursor: not-allowed;
+    }
+
+    /* KPI Cards */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .kpi-card {
+      background: var(--white);
+      border: 1px solid var(--gray-300);
+      border-radius: 8px;
+      padding: 1.25rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+    .kpi-card:hover {
+      border-color: var(--primary);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(23,141,194,0.15);
+    }
+    .kpi-card::after {
+      content: '\2192';
+      position: absolute; top: 1rem; right: 1rem;
+      color: var(--gray-300); font-size: 1.2rem;
+      transition: all 0.2s;
+    }
+    .kpi-card:hover::after { color: var(--primary); transform: translateX(3px); }
+    .kpi-card .kpi-value {
+      font-family: 'Poppins', sans-serif;
+      font-size: 2.2rem; font-weight: 700;
+      color: var(--primary); line-height: 1;
+      margin-bottom: 0.3rem;
+    }
+    .kpi-card .kpi-value.kpi-low { color: var(--danger); }
+    .kpi-card .kpi-value.kpi-mid { color: var(--warning); }
+    .kpi-card .kpi-value.kpi-high { color: var(--success); }
+    .kpi-card .kpi-label {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.85rem; font-weight: 600;
+      color: var(--gray-900); margin-bottom: 0.3rem;
+    }
+    .kpi-card .kpi-sub {
+      font-size: 0.75rem; color: var(--gray-500);
+    }
+
+    /* Status del modulo actual */
+    .status-current-project {
+      background: var(--white);
+      border: 1px solid var(--gray-300);
+      border-radius: 8px;
+      padding: 1.25rem;
+      margin-bottom: 2rem;
+    }
+    .status-current-project h3 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1rem; font-weight: 600;
+      color: var(--gray-900); margin-bottom: 0.75rem;
+    }
+    .status-grid {
+      display: flex; flex-wrap: wrap; gap: 0.5rem;
+    }
+    .status-badge {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      background: var(--gray-100); color: var(--gray-700);
+      padding: 0.35rem 0.75rem; border-radius: 50px;
+      font-family: 'Poppins', sans-serif; font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .status-badge.status-ok {
+      background: var(--accent-light); color: #0e7a72;
+    }
+    .status-badge.status-warn {
+      background: #fef9e7; color: #7d6608;
+    }
+    .status-badge.status-fail {
+      background: #fdedec; color: #922b21;
+    }
+
+    /* Capas (Introduccion / Elaboracion / Apoyo) */
+    .layer-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+    .layer-card {
+      background: var(--white);
+      border-radius: 8px;
+      padding: 1.25rem;
+      border-left: 4px solid var(--primary);
+    }
+    .layer-card.layer-intro { border-left-color: var(--primary); }
+    .layer-card.layer-elab { border-left-color: var(--accent); }
+    .layer-card.layer-support { border-left-color: var(--warning); }
+    .layer-card h4 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.95rem; font-weight: 600;
+      color: var(--gray-900); margin-bottom: 0.5rem;
+    }
+    .layer-card .layer-count {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.8rem; font-weight: 700;
+      color: var(--primary);
+      display: block; line-height: 1;
+      margin-bottom: 0.5rem;
+    }
+    .layer-card.layer-elab .layer-count { color: var(--accent); }
+    .layer-card.layer-support .layer-count { color: var(--warning); }
+    .layer-card p {
+      font-size: 0.78rem; color: var(--gray-500);
+      margin: 0; line-height: 1.4;
+    }
+
+    /* ===== SIDEBAR BADGES (BLOQUE E) ===== */
+    .sidebar-badge {
+      display: inline-block;
+      margin-left: auto;
+      padding: 0.1rem 0.5rem;
+      border-radius: 50px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+    .sidebar-badge-ok { background: var(--accent); color: var(--white); }
+    .sidebar-badge-info { background: var(--primary); color: var(--white); }
+    .sidebar-badge-warn { background: var(--warning); color: var(--white); }
+
+    /* ===== PROGRESS BARS (BLOQUE B) ===== */
+    .progress-list {
+      margin: 1.5rem 0;
+    }
+    .progress-item {
+      margin-bottom: 0.85rem;
+    }
+    .progress-row {
+      display: flex; align-items: center; gap: 1rem;
+      margin-bottom: 0.3rem;
+    }
+    .progress-label {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.85rem; font-weight: 600;
+      color: var(--gray-900);
+      flex: 1;
+    }
+    .progress-stats {
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 0.78rem;
+      color: var(--gray-500);
+      white-space: nowrap;
+    }
+    .progress-bar-bg {
+      width: 100%; height: 10px;
+      background: var(--gray-100);
+      border-radius: 5px; overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: 5px;
+      transition: width 0.6s ease;
+    }
+    .progress-bar-fill.fill-high { background: linear-gradient(90deg, var(--accent), var(--success)); }
+    .progress-bar-fill.fill-mid { background: linear-gradient(90deg, var(--warning), #f5b041); }
+    .progress-bar-fill.fill-low { background: linear-gradient(90deg, var(--danger), #ec7063); }
+
+    /* ===== ESTADO TABLE CELLS (B y C) ===== */
+    .st-ok-cell { background: var(--accent-light); color: #0e7a72; font-weight: 600; text-align: center; font-size: 0.8rem; }
+    .st-warn-cell { background: #fef9e7; color: #7d6608; font-weight: 600; text-align: center; font-size: 0.8rem; }
+    .st-fail-cell { background: #fdedec; color: #922b21; font-weight: 600; text-align: center; font-size: 0.8rem; }
+
+    /* ===== SONAR METRIC GRID (BLOQUE C) ===== */
+    .sonar-metric-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+    .sonar-metric {
+      background: var(--white);
+      border: 1px solid var(--gray-300);
+      border-radius: 8px;
+      padding: 1rem;
+      text-align: center;
+    }
+    .sonar-metric.metric-ok { border-top: 4px solid var(--accent); }
+    .sonar-metric.metric-warn { border-top: 4px solid var(--warning); }
+    .sonar-metric.metric-fail { border-top: 4px solid var(--danger); }
+    .sonar-metric .sm-value {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.8rem; font-weight: 700;
+      color: var(--gray-900); line-height: 1;
+    }
+    .sonar-metric .sm-label {
+      font-size: 0.75rem; color: var(--gray-500);
+      text-transform: uppercase; letter-spacing: 0.5px;
+      margin-top: 0.4rem;
+    }
+    .sonar-metric .sm-detail {
+      font-size: 0.7rem; color: var(--gray-500);
+      margin-top: 0.3rem;
+    }
+
+    /* ===== MEMORY STATS CARDS (BLOQUE C) ===== */
+    .memory-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+    .memory-stat-card {
+      background: var(--white);
+      border-radius: 8px;
+      padding: 1rem;
+      border-left: 4px solid var(--gray-300);
+    }
+    .memory-stat-card.ms-ok { border-left-color: var(--accent); }
+    .memory-stat-card.ms-warn { border-left-color: var(--warning); }
+    .memory-stat-card.ms-fail { border-left-color: var(--danger); }
+    .memory-stat-card .ms-value {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.5rem; font-weight: 700;
+      color: var(--gray-900); line-height: 1;
+    }
+    .memory-stat-card .ms-label {
+      font-size: 0.8rem; color: var(--gray-700);
+      font-weight: 600; margin-top: 0.3rem;
+    }
+    .memory-stat-card .ms-list {
+      font-size: 0.72rem; color: var(--gray-500);
+      margin-top: 0.4rem; line-height: 1.4;
+    }
+
+    /* ===== RESPONSIVE DASHBOARD ===== */
+    @media (max-width: 900px) {
+      .dashboard-section { padding: 2rem 1.5rem; }
+      .kpi-grid { grid-template-columns: 1fr; }
+      .layer-grid { grid-template-columns: 1fr; }
+      .sonar-metric-grid { grid-template-columns: repeat(2, 1fr); }
+      .memory-stats { grid-template-columns: 1fr; }
+    }
+
+    /* ===== PRINT: OCULTAR DASHBOARD ===== */
+    @media print {
+      .dashboard-section { display: none !important; }
+      .sidebar-badge { display: none !important; }
+      .btn-refresh-dashboard { display: none !important; }
+    }
   </style>
 </head>
 <body>
@@ -365,12 +654,93 @@
     <h1 class="cover-title">Manual de Usuario</h1>
     <p class="cover-subtitle">OpenCode &mdash; Agente de Codificacion IA</p>
     <p class="cover-edition">Guia completa de uso, configuracion, agentes, resolucion de problemas y buenas practicas</p>
-    <span class="cover-badge">Version 2.0 &bull; Abril 2026</span>
+    <span class="cover-badge">Version 3.0 &bull; Abril 2026</span>
   </div>
   <div class="cover-footer">
     <p>Jafa, S.L. &mdash; CODANOR &bull; Barcelona, Catalunya</p>
   </div>
 </div>
+
+<!-- ======================================================================
+     DASHBOARD DEL ECOSISTEMA (BLOQUE A)
+     ====================================================================== -->
+<section class="dashboard-section">
+  <div class="dashboard-header">
+    <h2>Estado del Ecosistema CODANOR</h2>
+    <span class="dashboard-date">Ultima actualizacion: 23 mayo 2026</span>
+    <button class="btn-refresh-dashboard" id="btnRefreshDashboard">
+      &#x21BB; Refrescar
+    </button>
+  </div>
+
+  <!-- A.1: KPI Cards -->
+  <div class="kpi-grid">
+    <div class="kpi-card" onclick="document.getElementById('cap19').scrollIntoView({behavior:'smooth'})" title="Ver Capitulo 19">
+      <div class="kpi-value">21</div>
+      <div class="kpi-label">Proyectos totales</div>
+      <div class="kpi-sub">17 activos + 4 extras/duplicados</div>
+    </div>
+    <div class="kpi-card" onclick="document.getElementById('cap19').scrollIntoView({behavior:'smooth'})" title="Ver Capitulo 19">
+      <div class="kpi-value kpi-mid">15</div>
+      <div class="kpi-label">Con opencode.json</div>
+      <div class="kpi-sub">71% del ecosistema (15 / 21)</div>
+    </div>
+    <div class="kpi-card" onclick="document.getElementById('cap19').scrollIntoView({behavior:'smooth'})" title="Ver Capitulo 19">
+      <div class="kpi-value kpi-mid">13</div>
+      <div class="kpi-label">Con AGENTS.md</div>
+      <div class="kpi-sub">62% del ecosistema (13 / 21)</div>
+    </div>
+    <div class="kpi-card" onclick="document.getElementById('cap19').scrollIntoView({behavior:'smooth'})" title="Ver Capitulo 19">
+      <div class="kpi-value kpi-mid">13</div>
+      <div class="kpi-label">Con Git</div>
+      <div class="kpi-sub">62% versionados (13 / 21)</div>
+    </div>
+    <div class="kpi-card" onclick="document.getElementById('cap19').scrollIntoView({behavior:'smooth'})" title="Ver Capitulo 19">
+      <div class="kpi-value kpi-low">1</div>
+      <div class="kpi-label">En GitHub</div>
+      <div class="kpi-sub">Solo PLATAFORMA_OpenCode (5%)</div>
+    </div>
+    <div class="kpi-card" onclick="document.getElementById('cap19').scrollIntoView({behavior:'smooth'})" title="Ver Capitulo 19">
+      <div class="kpi-value kpi-low">1</div>
+      <div class="kpi-label">En SonarCloud</div>
+      <div class="kpi-sub">Solo PLATAFORMA_OpenCode (5%)</div>
+    </div>
+  </div>
+
+  <!-- A.2: Status del modulo actual -->
+  <div class="status-current-project">
+    <h3>Estado de este modulo (PLATAFORMA_OpenCode-NEW)</h3>
+    <div class="status-grid">
+      <span class="status-badge">Manual v3.0 &bull; 20 capitulos</span>
+      <span class="status-badge">Git: 7 commits</span>
+      <span class="status-badge status-ok">Security A</span>
+      <span class="status-badge status-warn">Reliability B</span>
+      <span class="status-badge status-ok">Maintainability A</span>
+      <span class="status-badge status-ok">37 / 55 bugs corregidos</span>
+      <span class="status-badge status-warn">18 innerHTML pendientes</span>
+      <span class="status-badge status-ok">Duplications 3.5%</span>
+    </div>
+  </div>
+
+  <!-- A.3: Proyectos por capa (Estructura_PROYECTOS) -->
+  <div class="layer-grid">
+    <div class="layer-card layer-intro">
+      <h4>Capa Introduccion</h4>
+      <span class="layer-count">3</span>
+      <p>Planificacion_Diaria &bull; OSSINT &bull; Seguimiento_licitaciones</p>
+    </div>
+    <div class="layer-card layer-elab">
+      <h4>Capa Elaboracion</h4>
+      <span class="layer-count">11</span>
+      <p>5 sub-plataformas SGI &bull; 7 Gestion_Riesgos &bull; Plantillas_ENS_ISO &bull; Mapa_Procesos</p>
+    </div>
+    <div class="layer-card layer-support">
+      <h4>Capa Apoyo</h4>
+      <span class="layer-count">2</span>
+      <p>Seguimiento_Actas &bull; legislacion_monitor</p>
+    </div>
+  </div>
+</section>
 
 <!-- ======================================================================
      CONTENIDO CON SIDEBAR
@@ -415,9 +785,10 @@
         <li><a href="#cap14"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> 14. Buenas Practicas</a></li>
         <li><a href="#cap15"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg> 15. Referencia Rapida</a></li>
         <li><a href="#cap16"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> 16. Copias de Seguridad</a></li>
-        <li><a href="#cap17"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> 17. Analisis de Codigo</a></li>
+        <li><a href="#cap17"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> 17. Analisis de Codigo <span class="sidebar-badge sidebar-badge-ok">A</span></a></li>
         <li><a href="#cap18"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg> 18. Centralizacion de Proyectos</a></li>
-        <li><a href="#cap19"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg> 19. Mapa de Infraestructura</a></li>
+        <li><a href="#cap19"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg> 19. Mapa de Infraestructura <span class="sidebar-badge sidebar-badge-info">21</span></a></li>
+        <li><a href="#cap20"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg> 20. Memory.md y Seguridad <span class="sidebar-badge sidebar-badge-warn">18</span></a></li>
       </ul>
     </nav>
   </aside>
@@ -2347,6 +2718,134 @@ git add . &amp;&amp; git commit -m "Initial commit"</code></pre>
         Este capitulo debe actualizarse cada vez que se anade un proyecto o cambia su estado.
       </p>
 
+      <!-- ============================================================
+           BLOQUE B: VISTA RAPIDA DEL ESTADO (anadido al cap 19)
+           ============================================================ -->
+      <h2>Vista rapida del estado <span class="badge badge-new">Nuevo</span></h2>
+      <p>Indicadores de adopcion de las practicas estandar en los 21 proyectos del ecosistema:</p>
+
+      <div class="progress-list">
+        <div class="progress-item">
+          <div class="progress-row">
+            <span class="progress-label">Adopcion opencode.json</span>
+            <span class="progress-stats">15 / 21 &middot; 71%</span>
+          </div>
+          <div class="progress-bar-bg"><div class="progress-bar-fill fill-mid" style="width:71%"></div></div>
+        </div>
+        <div class="progress-item">
+          <div class="progress-row">
+            <span class="progress-label">Adopcion AGENTS.md</span>
+            <span class="progress-stats">13 / 21 &middot; 62%</span>
+          </div>
+          <div class="progress-bar-bg"><div class="progress-bar-fill fill-mid" style="width:62%"></div></div>
+        </div>
+        <div class="progress-item">
+          <div class="progress-row">
+            <span class="progress-label">Adopcion Memory.md</span>
+            <span class="progress-stats">17 / 21 &middot; 81%</span>
+          </div>
+          <div class="progress-bar-bg"><div class="progress-bar-fill fill-high" style="width:81%"></div></div>
+        </div>
+        <div class="progress-item">
+          <div class="progress-row">
+            <span class="progress-label">Adopcion .gitignore</span>
+            <span class="progress-stats">13 / 21 &middot; 62%</span>
+          </div>
+          <div class="progress-bar-bg"><div class="progress-bar-fill fill-mid" style="width:62%"></div></div>
+        </div>
+        <div class="progress-item">
+          <div class="progress-row">
+            <span class="progress-label">Versionado Git local</span>
+            <span class="progress-stats">13 / 21 &middot; 62%</span>
+          </div>
+          <div class="progress-bar-bg"><div class="progress-bar-fill fill-mid" style="width:62%"></div></div>
+        </div>
+        <div class="progress-item">
+          <div class="progress-row">
+            <span class="progress-label">Repositorio en GitHub</span>
+            <span class="progress-stats">1 / 21 &middot; 5%</span>
+          </div>
+          <div class="progress-bar-bg"><div class="progress-bar-fill fill-low" style="width:5%"></div></div>
+        </div>
+        <div class="progress-item">
+          <div class="progress-row">
+            <span class="progress-label">Conectado a SonarCloud</span>
+            <span class="progress-stats">1 / 21 &middot; 5%</span>
+          </div>
+          <div class="progress-bar-bg"><div class="progress-bar-fill fill-low" style="width:5%"></div></div>
+        </div>
+      </div>
+
+      <h3>Matriz de estado por proyecto (resumen)</h3>
+      <p>Tabla resumen con badges de estado. Para detalles, ver la tabla extendida mas abajo.</p>
+      <table>
+        <thead>
+          <tr>
+            <th>#</th><th>Proyecto</th><th>OC</th><th>AGENTS</th><th>Memory</th><th>.gitignore</th><th>Git</th><th>GitHub</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>PLATAFORMA_OpenCode-NEW</td>
+            <td class="st-ok-cell">OK</td><td class="st-ok-cell">OK</td><td class="st-ok-cell">OK</td>
+            <td class="st-ok-cell">OK</td><td class="st-ok-cell">OK</td><td class="st-ok-cell">OK</td></tr>
+          <tr><td>2</td><td>Planificacion_Diaria_Proyectos</td>
+            <td class="st-ok-cell">OK</td><td class="st-ok-cell">OK</td><td class="st-ok-cell">OK</td>
+            <td class="st-ok-cell">OK</td><td class="st-ok-cell">OK</td><td class="st-fail-cell">--</td></tr>
+          <tr><td>3</td><td>OSSINT</td>
+            <td class="st-ok-cell">OK</td><td class="st-ok-cell">OK</td><td class="st-ok-cell">OK</td>
+            <td class="st-ok-cell">OK</td><td class="st-fail-cell">--</td><td class="st-fail-cell">--</td></tr>
+          <tr><td>4</td><td>Seguimiento_licitaciones</td>
+            <td class="st-ok-cell">OK</td><td class="st-ok-cell">OK</td><td class="st-ok-cell">OK</td>
+            <td class="st-ok-cell">OK</td><td class="st-ok-cell">OK</td><td class="st-fail-cell">--</td></tr>
+          <tr><td>5</td><td>ANALISIS_LOGs_PreSIEM</td>
+            <td class="st-ok-cell">OK</td><td class="st-ok-cell">OK</td><td class="st-ok-cell">OK</td>
+            <td class="st-ok-cell">OK</td><td class="st-ok-cell">OK</td><td class="st-fail-cell">--</td></tr>
+          <tr><td>6</td><td>Gestion_Riesgos_ENS</td>
+            <td class="st-ok-cell">OK</td><td class="st-ok-cell">OK</td><td class="st-ok-cell">OK</td>
+            <td class="st-ok-cell">OK</td><td class="st-ok-cell">OK</td><td class="st-fail-cell">--</td></tr>
+          <tr><td>7</td><td>Gestion_Riesgos_ISO27001</td>
+            <td class="st-ok-cell">OK</td><td class="st-ok-cell">OK</td><td class="st-ok-cell">OK</td>
+            <td class="st-ok-cell">OK</td><td class="st-ok-cell">OK</td><td class="st-fail-cell">--</td></tr>
+          <tr><td>8</td><td>Gestion_Riesgos_LOPD-RGPD</td>
+            <td class="st-ok-cell">OK</td><td class="st-ok-cell">OK</td><td class="st-ok-cell">OK</td>
+            <td class="st-ok-cell">OK</td><td class="st-ok-cell">OK</td><td class="st-fail-cell">--</td></tr>
+          <tr><td>9</td><td>Mapa_Procesos</td>
+            <td class="st-ok-cell">OK</td><td class="st-ok-cell">OK</td><td class="st-ok-cell">OK</td>
+            <td class="st-ok-cell">OK</td><td class="st-fail-cell">--</td><td class="st-fail-cell">--</td></tr>
+          <tr><td>10</td><td>Wiki_CODANOR</td>
+            <td class="st-ok-cell">OK</td><td class="st-ok-cell">OK</td><td class="st-ok-cell">OK</td>
+            <td class="st-ok-cell">OK</td><td class="st-fail-cell">--</td><td class="st-fail-cell">--</td></tr>
+          <tr><td>11</td><td>legislacion_monitor</td>
+            <td class="st-ok-cell">OK</td><td class="st-ok-cell">OK</td><td class="st-ok-cell">OK</td>
+            <td class="st-ok-cell">OK</td><td class="st-ok-cell">OK</td><td class="st-fail-cell">--</td></tr>
+          <tr><td>12</td><td>Plantillas_ENS_ISO</td>
+            <td class="st-ok-cell">OK</td><td class="st-warn-cell">parcial</td><td class="st-ok-cell">OK</td>
+            <td class="st-ok-cell">OK</td><td class="st-ok-cell">OK</td><td class="st-fail-cell">--</td></tr>
+          <tr><td>13</td><td>Evaluacion_Aspectos_Amb</td>
+            <td class="st-fail-cell">--</td><td class="st-ok-cell">OK</td><td class="st-ok-cell">OK</td>
+            <td class="st-fail-cell">--</td><td class="st-fail-cell">--</td><td class="st-fail-cell">--</td></tr>
+          <tr><td>14</td><td>Plataforma_Seguimiento_Proyectos</td>
+            <td class="st-fail-cell">--</td><td class="st-fail-cell">--</td><td class="st-ok-cell">OK</td>
+            <td class="st-ok-cell">OK</td><td class="st-ok-cell">OK</td><td class="st-fail-cell">--</td></tr>
+          <tr><td>15</td><td>Seguimiento de Actas de reunion</td>
+            <td class="st-fail-cell">--</td><td class="st-fail-cell">--</td><td class="st-fail-cell">--</td>
+            <td class="st-fail-cell">--</td><td class="st-fail-cell">--</td><td class="st-fail-cell">--</td></tr>
+          <tr><td>16</td><td>Gestion_Riesgos_ISO14001</td>
+            <td class="st-fail-cell">--</td><td class="st-fail-cell">--</td><td class="st-ok-cell">OK</td>
+            <td class="st-fail-cell">--</td><td class="st-fail-cell">--</td><td class="st-fail-cell">--</td></tr>
+          <tr><td>17</td><td>Gestion_Riesgos_ISO9001</td>
+            <td class="st-fail-cell">--</td><td class="st-fail-cell">--</td><td class="st-ok-cell">OK</td>
+            <td class="st-fail-cell">--</td><td class="st-fail-cell">--</td><td class="st-fail-cell">--</td></tr>
+          <tr><td>18</td><td>Gestion_Riesgos_ISO42001</td>
+            <td class="st-fail-cell">--</td><td class="st-fail-cell">--</td><td class="st-fail-cell">--</td>
+            <td class="st-fail-cell">--</td><td class="st-fail-cell">--</td><td class="st-fail-cell">--</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:0.8rem;color:var(--gray-500);margin-top:-0.5rem">
+        <strong>OC</strong> = opencode.json &middot; <strong>OK</strong> verde = instalado &middot; <strong>parcial</strong> amarillo = ubicacion no estandar &middot; <strong>--</strong> rojo = falta
+      </p>
+
+
       <div class="alert alert-warning">
         <div class="alert-title">Mantener actualizado</div>
         Este capitulo es un <strong>registro vivo</strong>. Actualizalo cada vez que:
@@ -2356,7 +2855,7 @@ git add . &amp;&amp; git commit -m "Initial commit"</code></pre>
           <li>Se conecta un proyecto a SonarCloud</li>
           <li>Cambia la configuracion de algun proyecto</li>
         </ul>
-        <strong>Ultima actualizacion: 12 Abril 2026</strong>
+        <strong>Ultima actualizacion: 27 Abril 2026</strong>
       </div>
 
       <h2>Donde esta cada cosa</h2>
@@ -2400,16 +2899,17 @@ SonarCloud (analisis de calidad)</code></pre>
 
       <h2>Estado de cada proyecto</h2>
 
-      <h3>Vista general</h3>
+      <h3>Vista general (10 proyectos)</h3>
       <table>
         <thead>
           <tr>
             <th>Proyecto</th>
-            <th>Mac local</th>
+            <th>Git</th>
             <th>GitHub</th>
             <th>SonarCloud</th>
             <th>AGENTS.md</th>
-            <th>opencode.json</th>
+            <th>Memory.md</th>
+            <th>Revision seguridad</th>
           </tr>
         </thead>
         <tbody>
@@ -2417,57 +2917,82 @@ SonarCloud (analisis de calidad)</code></pre>
             <td><strong>PLATAFORMA_OpenCode</strong></td>
             <td style="color:var(--success);">SI</td>
             <td style="color:var(--success);">SI</td>
+            <td style="color:var(--success);">SI (A/B/A)</td>
             <td style="color:var(--success);">SI</td>
             <td style="color:var(--success);">SI</td>
+            <td style="color:var(--success);">37 bugs corregidos</td>
+          </tr>
+          <tr>
+            <td><strong>Seguimiento de Actas de reunion</strong></td>
+            <td style="color:var(--danger);">NO</td>
+            <td style="color:var(--danger);">NO</td>
+            <td style="color:var(--danger);">NO</td>
             <td style="color:var(--success);">SI</td>
+            <td style="color:var(--success);">SI</td>
+            <td style="color:var(--success);">8 correcciones</td>
+          </tr>
+          <tr>
+            <td><strong>Gestion_Riesgos_LOPD-RGPD</strong></td>
+            <td style="color:var(--success);">SI</td>
+            <td style="color:var(--danger);">NO</td>
+            <td style="color:var(--danger);">NO</td>
+            <td style="color:var(--success);">SI</td>
+            <td style="color:var(--success);">SI</td>
+            <td style="color:var(--success);">7 correcciones</td>
           </tr>
           <tr>
             <td>ANALISIS_LOGs_PreSIEM</td>
             <td style="color:var(--success);">SI</td>
             <td style="color:var(--danger);">NO</td>
             <td style="color:var(--danger);">NO</td>
-            <td style="color:var(--danger);">NO</td>
-            <td style="color:var(--danger);">NO</td>
+            <td style="color:var(--success);">SI</td>
+            <td style="color:var(--success);">SI</td>
+            <td style="color:var(--success);">CSP + datos IBO eliminados</td>
           </tr>
           <tr>
             <td>Seguimiento_licitaciones</td>
             <td style="color:var(--success);">SI</td>
             <td style="color:var(--danger);">NO</td>
             <td style="color:var(--danger);">NO</td>
-            <td style="color:var(--danger);">NO</td>
-            <td style="color:var(--danger);">NO</td>
+            <td style="color:var(--success);">SI</td>
+            <td style="color:var(--success);">SI</td>
+            <td style="color:var(--success);">3 correcciones</td>
           </tr>
           <tr>
             <td>Gestion_Riesgos_ISO27001</td>
             <td style="color:var(--success);">SI</td>
             <td style="color:var(--danger);">NO</td>
             <td style="color:var(--danger);">NO</td>
-            <td style="color:var(--danger);">NO</td>
-            <td style="color:var(--danger);">NO</td>
+            <td style="color:var(--success);">SI</td>
+            <td style="color:var(--success);">SI</td>
+            <td style="color:var(--success);">12 correcciones</td>
           </tr>
           <tr>
             <td>legislacion_monitor</td>
             <td style="color:var(--success);">SI</td>
             <td style="color:var(--danger);">NO</td>
             <td style="color:var(--danger);">NO</td>
-            <td style="color:var(--danger);">NO</td>
-            <td style="color:var(--danger);">NO</td>
+            <td style="color:var(--success);">SI</td>
+            <td style="color:var(--success);">SI</td>
+            <td style="color:var(--success);">3 correcciones</td>
           </tr>
           <tr>
             <td>Gestion_Riesgos_ENS</td>
             <td style="color:var(--success);">SI</td>
             <td style="color:var(--danger);">NO</td>
             <td style="color:var(--danger);">NO</td>
-            <td style="color:var(--danger);">NO</td>
-            <td style="color:var(--danger);">NO</td>
+            <td style="color:var(--success);">SI</td>
+            <td style="color:var(--success);">SI</td>
+            <td style="color:var(--success);">12 correcciones</td>
           </tr>
           <tr>
             <td>Plantillas_ENS_ISO</td>
             <td style="color:var(--success);">SI</td>
             <td style="color:var(--danger);">NO</td>
             <td style="color:var(--danger);">NO</td>
-            <td style="color:var(--danger);">NO</td>
-            <td style="color:var(--danger);">NO</td>
+            <td style="color:var(--success);">SI</td>
+            <td style="color:var(--success);">SI</td>
+            <td style="color:var(--success);">2 correcciones</td>
           </tr>
           <tr>
             <td>Plataforma_Seguimiento_Proyectos</td>
@@ -2475,7 +3000,8 @@ SonarCloud (analisis de calidad)</code></pre>
             <td style="color:var(--danger);">NO</td>
             <td style="color:var(--danger);">NO</td>
             <td style="color:var(--danger);">NO</td>
-            <td style="color:var(--danger);">NO</td>
+            <td style="color:var(--success);">SI</td>
+            <td style="color:#f39c12;">Revisado (pendiente corregir)</td>
           </tr>
         </tbody>
       </table>
@@ -2486,14 +3012,16 @@ SonarCloud (analisis de calidad)</code></pre>
           <tr><th>Proyecto</th><th>Tamano</th><th>Archivos</th><th>Commits</th><th>Lenguajes</th></tr>
         </thead>
         <tbody>
-          <tr><td><strong>PLATAFORMA_OpenCode</strong></td><td>7 MB</td><td>795</td><td>5</td><td>HTML, JavaScript, TypeScript</td></tr>
-          <tr><td>ANALISIS_LOGs_PreSIEM</td><td>42 MB</td><td>88</td><td>1</td><td>Python, HTML, Docs (docx, xlsx, pdf)</td></tr>
-          <tr><td>Seguimiento_licitaciones</td><td>792 KB</td><td>14</td><td>1</td><td>Python, HTML, Docs</td></tr>
-          <tr><td>Gestion_Riesgos_ISO27001</td><td>36 MB</td><td>58</td><td>1</td><td>Python, HTML, Docs</td></tr>
-          <tr><td>legislacion_monitor</td><td>968 KB</td><td>39</td><td>1</td><td>Python, HTML, Docs</td></tr>
-          <tr><td>Gestion_Riesgos_ENS</td><td>17 MB</td><td>72</td><td>1</td><td>Python, HTML, Docs</td></tr>
-          <tr><td>Plantillas_ENS_ISO</td><td>2.4 GB</td><td>1,309</td><td>1</td><td>Python, HTML, Docs</td></tr>
-          <tr><td>Plataforma_Seguimiento_Proyectos</td><td>57 MB</td><td>845</td><td>1</td><td>HTML, JavaScript, TypeScript, Docs</td></tr>
+          <tr><td><strong>PLATAFORMA_OpenCode</strong></td><td>7 MB</td><td>795</td><td>7</td><td>HTML, JavaScript, Bash</td></tr>
+          <tr><td><strong>Seguimiento de Actas de reunion</strong></td><td>~5 MB</td><td>~50</td><td>0</td><td>Python (Flask), HTML (Jinja2), SQLite</td></tr>
+          <tr><td><strong>Gestion_Riesgos_LOPD-RGPD</strong></td><td>~10 MB</td><td>~30</td><td>1</td><td>HTML/JS (dashboards), Python (scripts docx)</td></tr>
+          <tr><td>ANALISIS_LOGs_PreSIEM</td><td>42 MB</td><td>88</td><td>1</td><td>HTML/JS (dashboard 11K lineas), Python</td></tr>
+          <tr><td>Seguimiento_licitaciones</td><td>792 KB</td><td>14</td><td>1</td><td>Python (Flask + scraper), HTML</td></tr>
+          <tr><td>Gestion_Riesgos_ISO27001</td><td>36 MB</td><td>58</td><td>1</td><td>HTML/JS (dashboard), Python (scripts docx)</td></tr>
+          <tr><td>legislacion_monitor</td><td>968 KB</td><td>39</td><td>1</td><td>Python (Flask + scrapers), HTML (Jinja2)</td></tr>
+          <tr><td>Gestion_Riesgos_ENS</td><td>17 MB</td><td>72</td><td>1</td><td>HTML/JS (dashboard), Python (scripts docx)</td></tr>
+          <tr><td>Plantillas_ENS_ISO</td><td>2.4 GB</td><td>1,309</td><td>1</td><td>Python (servidor HTTP), HTML, Shell, Docs</td></tr>
+          <tr><td>Plataforma_Seguimiento_Proyectos</td><td>57 MB</td><td>845</td><td>1</td><td>HTML/JS (SPA 22 modulos), Docs</td></tr>
         </tbody>
       </table>
 
@@ -2607,14 +3135,219 @@ git push -u origin main</code></pre>
       </table>
 
       <div class="alert alert-success">
-        <div class="alert-title">Resumen del ecosistema CODANOR</div>
+        <div class="alert-title">Resumen del ecosistema CODANOR (actualizado 27 Abril 2026)</div>
         <ul>
-          <li><strong>8 proyectos</strong> centralizados en <code>~/Proyectos/</code></li>
+          <li><strong>10 proyectos</strong> centralizados en <code>~/Proyectos/</code></li>
           <li><strong>1 proyecto</strong> subido a GitHub y conectado a SonarCloud (PLATAFORMA_OpenCode)</li>
-          <li><strong>7 proyectos</strong> pendientes de subir a GitHub</li>
+          <li><strong>9 proyectos</strong> pendientes de subir a GitHub</li>
+          <li><strong>10 Memory.md</strong> de seguimiento creados (3 completos + 7 basicos)</li>
+          <li><strong>10 revisiones de seguridad</strong> completadas con ~100 correcciones aplicadas</li>
           <li><strong>3 herramientas web</strong>: Manual (este documento), Plataforma de seguimiento, Panel de analisis</li>
           <li><strong>1 script de backup</strong> con backup de proyectos y sesiones</li>
           <li><strong>2 comandos OpenCode</strong> personalizados: <code>/sonar</code> y <code>/sonar-report</code></li>
+        </ul>
+      </div>
+    </div>
+
+    <hr>
+
+    <!-- ============================================================
+         CAPITULO 20: MEMORY.MD Y GESTION DE SEGURIDAD
+         ============================================================ -->
+    <div class="section" id="cap20">
+      <h1>20. Memory.md y Gestion de Seguridad <span class="badge badge-new">Nuevo</span></h1>
+      <p class="chapter-intro">
+        Sistema de memoria persistente para cada proyecto y registro de las revisiones
+        de seguridad y calidad realizadas en el ecosistema CODANOR.
+      </p>
+
+      <!-- ============================================================
+           BLOQUE C: METRICAS DE MEMORY.MD Y SONARCLOUD
+           ============================================================ -->
+      <h2>Indicadores de Memory.md y Seguridad <span class="badge badge-new">Nuevo</span></h2>
+
+      <h3>Estado de los Memory.md del ecosistema</h3>
+      <p>Resumen del tamano de los Memory.md detectados en los 17 modulos activos. Los Memory.md gigantes (&gt;500 lineas) generan timeouts en OpenCode.</p>
+      <div class="memory-stats">
+        <div class="memory-stat-card ms-ok">
+          <div class="ms-value">12</div>
+          <div class="ms-label">Compactados (&lt;200 lineas)</div>
+          <div class="ms-list">PLATAFORMA_OpenCode, Planificacion_Diaria, OSSINT (raiz), ENS, ISO27001, LOPD-RGPD, PreSIEM, licitaciones, legislacion, Wiki, Mapa, Eval.Amb.</div>
+        </div>
+        <div class="memory-stat-card ms-warn">
+          <div class="ms-value">3</div>
+          <div class="ms-label">Atencion (200-500 lineas)</div>
+          <div class="ms-list">ISO27701-SGP (361), Plataforma_Seguimiento raiz (323), ISO42001-SGIA (266), OSSINT (266)</div>
+        </div>
+        <div class="memory-stat-card ms-fail">
+          <div class="ms-value">2</div>
+          <div class="ms-label">Urgente compactar (&gt;500 lineas)</div>
+          <div class="ms-list">ISO27001-SGSI/MEMORY.md (1.165 lineas), ISO9001-SGQ_2015/MEMORY.md (1.017 lineas)</div>
+        </div>
+      </div>
+
+      <h3>Bugs SonarCloud (PLATAFORMA_OpenCode)</h3>
+      <p>Resumen del estado actual de los hallazgos de SonarCloud sobre este modulo:</p>
+      <div class="sonar-metric-grid">
+        <div class="sonar-metric metric-ok">
+          <div class="sm-value">55</div>
+          <div class="sm-label">Detectados</div>
+          <div class="sm-detail">Revision manual + SonarCloud</div>
+        </div>
+        <div class="sonar-metric metric-ok">
+          <div class="sm-value">37</div>
+          <div class="sm-label">Corregidos</div>
+          <div class="sm-detail">67% del total (target_blank, alt, console)</div>
+        </div>
+        <div class="sonar-metric metric-warn">
+          <div class="sm-value">18</div>
+          <div class="sm-label">Pendientes</div>
+          <div class="sm-detail">innerHTML con datos de localStorage</div>
+        </div>
+        <div class="sonar-metric metric-ok">
+          <div class="sm-value">0</div>
+          <div class="sm-label">Criticos abiertos</div>
+          <div class="sm-detail">Ningun bloqueante activo</div>
+        </div>
+      </div>
+
+      <h3>Quality Gates del ecosistema</h3>
+      <p>Estado de calidad de los proyectos conectados a SonarCloud:</p>
+      <div class="status-grid" style="margin-bottom:2rem;">
+        <span class="status-badge status-ok">PLATAFORMA_OpenCode: PASS</span>
+        <span class="status-badge status-fail">16 proyectos sin conectar</span>
+        <span class="status-badge status-warn">Pendiente: subir 16 a GitHub primero</span>
+      </div>
+
+
+      <h2>Que es Memory.md</h2>
+      <p>
+        <strong>Memory.md</strong> es un archivo de texto plano que se crea en la raiz de cada proyecto.
+        Su funcion es mantener un <strong>registro vivo</strong> del estado del proyecto, las decisiones
+        tomadas, las revisiones de seguridad realizadas y las tareas pendientes.
+      </p>
+
+      <div class="alert alert-info">
+        <div class="alert-title">Diferencia con AGENTS.md</div>
+        <ul>
+          <li><strong>AGENTS.md</strong> dice <em>"como funciona el proyecto"</em> (arquitectura, reglas, gotchas). Es tecnico y en ingles.</li>
+          <li><strong>Memory.md</strong> dice <em>"que hemos hecho, que falta y por que"</em> (historial, decisiones, estado). Es operativo y en espanol.</li>
+        </ul>
+        Ambos son complementarios. Memory.md NO afecta la ejecucion del proyecto &mdash; es solo informativo.
+      </div>
+
+      <h2>Estructura estandar</h2>
+      <p>Todos los Memory.md siguen esta estructura:</p>
+      <pre><code># Memory.md &mdash; [Nombre del Proyecto]
+&gt; Ultima actualizacion: [fecha]
+
+## Estado actual
+- Fase / version
+- Ultimo cambio significativo
+
+## Infraestructura
+| Elemento | Estado | Detalle |
+(Git, GitHub, SonarCloud, AGENTS.md, Memory.md)
+
+## Historial de decisiones
+| Fecha | Decision | Razon |
+
+## Revisiones de calidad/seguridad
+| Fecha | Tipo | Resultado |
+
+## Pendiente
+- [ ] Tarea 1
+- [ ] Tarea 2
+
+## Notas y descubrimientos</code></pre>
+
+      <h2>Politica de actualizacion</h2>
+      <p>El Memory.md se actualiza:</p>
+      <ul>
+        <li>Al final de cada sesion de trabajo con OpenCode</li>
+        <li>Cuando se aplican correcciones de seguridad</li>
+        <li>Cuando se sube un proyecto a GitHub o se conecta a SonarCloud</li>
+        <li>Cuando se toma una decision tecnica relevante</li>
+      </ul>
+
+      <h2>Revisiones de seguridad realizadas</h2>
+      <p>
+        El 27 de Abril de 2026 se completaron revisiones de calidad y seguridad de los
+        <strong>10 proyectos</strong> del ecosistema CODANOR, con un total de <strong>~100 correcciones aplicadas</strong>.
+      </p>
+
+      <table>
+        <thead>
+          <tr><th>Proyecto</th><th>Lineas revisadas</th><th>Problemas encontrados</th><th>Correcciones aplicadas</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>PLATAFORMA_OpenCode</strong></td><td>~4.600</td><td>34 target_blank + 18 innerHTML + 3 otros</td><td>37 (target_blank, alt, console.warn)</td></tr>
+          <tr><td><strong>Seguimiento Actas reunion</strong></td><td>~4.650</td><td>5 seguridad + 12 calidad</td><td>8 (secret key, path traversal, 0.0.0.0, requirements, .gitignore, import, jobs, UUID)</td></tr>
+          <tr><td><strong>Gestion_Riesgos_LOPD-RGPD</strong></td><td>~12.580</td><td>14 seguridad + 30 calidad</td><td>7 (escapeHtml x2, SRI, CSP, duplicada, charts, import)</td></tr>
+          <tr><td>ANALISIS_LOGs_PreSIEM</td><td>~11.350</td><td>2 criticos + 4 altos + 5 medios</td><td>CSP + crossorigin CDN + datos cliente eliminados (958 lineas)</td></tr>
+          <tr><td>Seguimiento_licitaciones</td><td>~2.065</td><td>3 criticos + 4 altos + 5 medios</td><td>3 (0.0.0.0 x2, debug=True)</td></tr>
+          <tr><td>Gestion_Riesgos_ISO27001</td><td>~4.320</td><td>Identico a LOPD-RGPD sin parchar</td><td>12 (CSP, SRI, escapeHtml ~35 puntos, duplicada, import)</td></tr>
+          <tr><td>legislacion_monitor</td><td>~3.000</td><td>4 criticos + 5 altos + 4 medios</td><td>3 (SECRET_KEY, 0.0.0.0, pip auto-install) + sanitizar emails</td></tr>
+          <tr><td>Gestion_Riesgos_ENS</td><td>~4.456</td><td>Identico a ISO27001 sin parchar</td><td>12 (CSP, SRI, escapeHtml ~35 puntos, duplicada, import)</td></tr>
+          <tr><td>Plantillas_ENS_ISO</td><td>~4.800</td><td>4 criticos + 5 altos + 4 medios</td><td>2 (0.0.0.0, .gitignore datos RGPD)</td></tr>
+          <tr><td>Plataforma_Seguimiento_Proyectos</td><td>~4.500</td><td>2 criticos + 2 altos + 3 medios</td><td>Revisado, correcciones pendientes</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Vulnerabilidades mas comunes encontradas</h2>
+      <p>Los patrones de seguridad que se repiten en multiples proyectos son:</p>
+
+      <table>
+        <thead>
+          <tr><th>Patron</th><th>Proyectos afectados</th><th>Correccion aplicada</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>XSS via innerHTML</strong><br><small>Datos de usuario insertados en HTML sin sanitizar</small></td>
+            <td>7 de 10</td>
+            <td>Funcion <code>escapeHtml()</code> creada y aplicada en ~100 puntos de inyeccion</td>
+          </tr>
+          <tr>
+            <td><strong>CDN sin SRI</strong><br><small>Librerias externas sin verificacion de integridad</small></td>
+            <td>6 de 10</td>
+            <td>Atributos <code>integrity</code> y <code>crossorigin</code> anadidos</td>
+          </tr>
+          <tr>
+            <td><strong>Servidor en 0.0.0.0</strong><br><small>Acepta conexiones de toda la red sin autenticacion</small></td>
+            <td>4 de 10</td>
+            <td>Cambiado a <code>127.0.0.1</code> (solo acceso local)</td>
+          </tr>
+          <tr>
+            <td><strong>target="_blank" sin rel</strong><br><small>Permite reverse tabnabbing</small></td>
+            <td>3 de 10</td>
+            <td><code>rel="noopener noreferrer"</code> anadido a todos los enlaces</td>
+          </tr>
+          <tr>
+            <td><strong>Sin Content Security Policy</strong><br><small>Sin restriccion de origenes de scripts</small></td>
+            <td>5 de 10</td>
+            <td>Meta <code>Content-Security-Policy</code> anadida</td>
+          </tr>
+          <tr>
+            <td><strong>Secret key hardcodeada</strong><br><small>Clave de sesion predecible en Flask</small></td>
+            <td>2 de 10</td>
+            <td>Generada con <code>os.urandom(32)</code></td>
+          </tr>
+          <tr>
+            <td><strong>Datos confidenciales en codigo fuente</strong><br><small>NIF, datos de clientes, infraestructura</small></td>
+            <td>3 de 10</td>
+            <td>Eliminados o excluidos de Git con .gitignore</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="alert alert-warning">
+        <div class="alert-title">Pendiente de corregir</div>
+        <ul>
+          <li>18 innerHTML en PLATAFORMA_OpenCode (security hotspots)</li>
+          <li>Path traversal en Seguimiento_licitaciones y Plantillas_ENS_ISO</li>
+          <li>CORS abierto en Seguimiento_licitaciones y Plantillas_ENS_ISO</li>
+          <li>API keys en localStorage en Plataforma_Seguimiento_Proyectos</li>
+          <li>Subir los 9 proyectos a GitHub y conectar a SonarCloud</li>
         </ul>
       </div>
     </div>
@@ -2628,7 +3361,7 @@ git push -u origin main</code></pre>
         Barcelona, Catalunya &bull; info@codanor.com &bull; +34 616 947 274
       </p>
       <p style="margin-top: 1rem; color: #aaa;">
-        Manual generado el 12 de Abril de 2026 &bull; Version 2.4 (19 capitulos)
+        Manual generado el 27 de Abril de 2026 &bull; Version 3.0 (20 capitulos)
       </p>
     </div>
 
@@ -2643,6 +3376,26 @@ git push -u origin main</code></pre>
   </svg>
   Exportar PDF
 </button>
+
+<!-- ======================================================================
+     BLOQUE D: SCRIPT BOTON REFRESCAR DASHBOARD
+     ====================================================================== -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var btn = document.getElementById('btnRefreshDashboard');
+    if (!btn) return;
+    if (location.protocol === 'file:') {
+      btn.disabled = true;
+      btn.title = 'Datos estaticos. Edita el HTML para actualizar los valores y la fecha.';
+    } else {
+      btn.title = 'Refrescar datos del dashboard (sin accion por ahora)';
+      btn.addEventListener('click', function() {
+        // Placeholder para futura integracion con API
+        alert('Funcionalidad futura: refrescar datos via API.\n\nPor ahora los datos son estaticos.\nUltima actualizacion: 23 mayo 2026');
+      });
+    }
+  });
+</script>
 
 </body>
 </html>
