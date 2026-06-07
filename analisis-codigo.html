@@ -1130,7 +1130,7 @@ sonar</code></pre>
       renderQualityBars(measures);
 
     } catch (err) {
-      // Error silenciado: SonarCloud API no disponible o error de red
+      console.info('SonarCloud API no disponible:', err.message);
     }
   }
 

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  com.codanor.opencode-backup.plist
+  Agente launchd para backup automatico de OpenCode al NAS CODANOR.
+  CODANOR - Jafa, S.L. | Barcelona, Catalunya
+
+  INSTALACION:
+    1. Edita la ruta de ProgramArguments si el repo no esta en
+       ~/Proyectos/PLATAFORMA_OpenCode-NEW.
+    2. Copia este archivo a ~/Library/LaunchAgents/:
+         cp com.codanor.opencode-backup.plist ~/Library/LaunchAgents/
+    3. Cargalo:
+         launchctl load ~/Library/LaunchAgents/com.codanor.opencode-backup.plist
+    4. (Opcional) Ejecutarlo de inmediato para probar:
+         launchctl start com.codanor.opencode-backup
+
+  IMPORTANTE (macOS):
+    El proceso lanzado por launchd necesita "Acceso total al disco" para
+    escribir en el NAS (volumen de red). Concedelo en:
+      Ajustes del Sistema > Privacidad y seguridad > Acceso total al disco
+    anadiendo /bin/bash (o el binario que corresponda).
+
+  DESINSTALAR:
+    launchctl unload ~/Library/LaunchAgents/com.codanor.opencode-backup.plist
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.codanor.opencode-backup</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>/Users/jaimefajeda/Proyectos/PLATAFORMA_OpenCode-NEW/backup-opencode.sh</string>
+  </array>
+
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Hour</key>
+    <integer>2</integer>
+    <key>Minute</key>
+    <integer>0</integer>
+  </dict>
+
+  <key>StandardOutPath</key>
+  <string>/Volumes/CODANOR/opencode-backups/backup.log</string>
+
+  <key>StandardErrorPath</key>
+  <string>/Volumes/CODANOR/opencode-backups/backup.log</string>
+
+  <key>RunAtLoad</key>
+  <false/>
+</dict>
+</plist>

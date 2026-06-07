@@ -6,8 +6,9 @@
 ## Project Overview
 
 This repository contains documentation and tooling for the OpenCode platform
-used internally at CODANOR. It currently includes an HTML-based user manual
-and may grow to include additional utilities, scripts, or web assets.
+used internally at CODANOR. It includes a corporate HTML manual (20 chapters),
+a Kanban issue tracker, a SonarCloud analysis panel, a module homogenization
+plan, a backup script, and OpenCode slash commands.
 
 ## Build / Lint / Test Commands
 
@@ -33,9 +34,25 @@ No build system is currently configured. When one is added, update this section.
 ## Repository Structure
 
 ```
-PLATAFORMA_OpenCode/
-  AGENTS.md                          # This file — agent instructions
-  Manual_OpenCode_Codanor.html       # Corporate HTML manual (Codanor branding)
+PLATAFORMA_OpenCode-NEW/
+  AGENTS.md                            # This file — agent instructions
+  Memory.md                            # Project state, history, pending tasks
+  opencode.json                        # OpenCode config (MCP SonarQube)
+  .gitignore                           # Git exclusions
+  Manual_OpenCode_Codanor.html         # Corporate manual v3.0 (20 chapters, ~137 KB)
+  plataforma-seguimiento.html          # Dashboard + Kanban issue tracker (~63 KB)
+  analisis-codigo.html                 # SonarCloud analysis panel (~46 KB)
+  plan-homogeneizacion-modulos.html    # Module homogenization plan (~72 KB)
+  backup-opencode.sh                   # Backup script (8 modes, executable)
+  sonar-project.properties             # SonarCloud scanner config
+  Prompt.docx                          # Project prompt specification
+  Estructura_PROYECTOS.pdf             # Module hierarchy diagram
+  Biblioteca/                          # Screenshots and reference images
+  .opencode/
+    commands/
+      sonar.md                         # Slash command /sonar
+      sonar-report.md                  # Slash command /sonar-report
+    package.json                       # OpenCode plugin dependency
 ```
 
 ## Code Style Guidelines
@@ -146,4 +163,4 @@ contents into this section.
 
 ---
 
-*Last updated: 2026-04-01*
+*Last updated: 2026-05-18*

@@ -6,29 +6,41 @@
 # =============================================================================
 #
 # USO:
-#   ./backup-opencode.sh              # Backup completo (OpenCode)
+#   ./backup-opencode.sh              # Backup completo al NAS (proyectos + datos + config)
 #   ./backup-opencode.sh --proyectos  # Backup de TODOS los proyectos (~/Proyectos/)
-#   ./backup-opencode.sh --sessions   # Solo sesiones
+#   ./backup-opencode.sh --sessions   # Solo sesiones + DB (consistente)
 #   ./backup-opencode.sh --config     # Solo configuracion
 #   ./backup-opencode.sh --export     # Exportar sesiones a JSON individual
 #   ./backup-opencode.sh --restore <archivo.tar.gz>  # Restaurar backup
 #
-# AUTOMATIZAR (cron diario a las 2am):
+# DESTINO POR DEFECTO: NAS CODANOR (/Volumes/CODANOR/opencode-backups)
+#   Los snapshots internos (~19 GB), cache, log y bin se EXCLUYEN del backup.
+#   La base de datos opencode.db se copia de forma CONSISTENTE con sqlite3.
+#
+# AUTOMATIZAR (launchd recomendado en macOS, ver seccion al final del repo).
+# Alternativa cron diario a las 2am:
 #   crontab -e
 #   0 2 * * * /ruta/a/backup-opencode.sh >> /ruta/a/backup.log 2>&1
+#
+# IMPORTANTE (macOS / NAS por SMB):
+#   El proceso que ejecuta este script (Terminal o launchd) necesita permiso
+#   TCC para escribir en volumenes de red. Concede "Acceso total al disco" en:
+#   Ajustes del Sistema > Privacidad y seguridad > Acceso total al disco.
 #
 # =============================================================================
 
 set -euo pipefail
 
 # --- CONFIGURACION ---
-BACKUP_DIR="${OPENCODE_BACKUP_DIR:-$HOME/Documents/opencode-backups}"
+BACKUP_DIR="${OPENCODE_BACKUP_DIR:-/Volumes/CODANOR/opencode-backups}"
 PROYECTOS_DIR="${OPENCODE_PROYECTOS_DIR:-$HOME/Proyectos}"
 DATA_DIR="$HOME/.local/share/opencode"
 CONFIG_DIR="$HOME/.config/opencode"
 CACHE_DIR="$HOME/.cache/opencode"
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 MAX_BACKUPS=30
+# Espacio libre minimo requerido en el destino (en MB) antes de respaldar
+MIN_FREE_MB="${OPENCODE_MIN_FREE_MB:-8000}"
 COLOR_GREEN='\033[0;32m'
 COLOR_BLUE='\033[0;34m'
 COLOR_RED='\033[0;31m'
@@ -47,9 +59,9 @@ show_help() {
   echo "  CODANOR - Jafa, S.L."
   echo ""
   echo "  Uso:"
-  echo "    ./backup-opencode.sh              Backup completo de OpenCode (sesiones + config + cache)"
+  echo "    ./backup-opencode.sh              Backup completo al NAS (proyectos + datos + config)"
   echo "    ./backup-opencode.sh --proyectos  Backup de TODOS los proyectos en ~/Proyectos/"
-  echo "    ./backup-opencode.sh --sessions   Solo sesiones y mensajes"
+  echo "    ./backup-opencode.sh --sessions   Datos OpenCode (storage + DB consistente)"
   echo "    ./backup-opencode.sh --config     Solo archivos de configuracion"
   echo "    ./backup-opencode.sh --export     Exportar cada sesion a JSON individual"
   echo "    ./backup-opencode.sh --list       Listar backups existentes"
@@ -57,8 +69,12 @@ show_help() {
   echo "    ./backup-opencode.sh --clean      Eliminar backups antiguos (>$MAX_BACKUPS)"
   echo "    ./backup-opencode.sh --help       Mostrar esta ayuda"
   echo ""
+  echo "  NOTA: los snapshots internos (~19 GB), cache, log y bin se EXCLUYEN."
+  echo ""
   echo "  Variables de entorno:"
-  echo "    OPENCODE_BACKUP_DIR   Directorio de backups (default: ~/Documents/opencode-backups)"
+  echo "    OPENCODE_BACKUP_DIR   Directorio destino (default: /Volumes/CODANOR/opencode-backups)"
+  echo "    OPENCODE_PROYECTOS_DIR Directorio de proyectos (default: ~/Proyectos)"
+  echo "    OPENCODE_MIN_FREE_MB  Espacio libre minimo en MB (default: 8000)"
   echo ""
 }
 
@@ -69,8 +85,61 @@ check_dirs() {
   fi
 }
 
+# Verifica que el destino (NAS) este montado y sea escribible.
+# Si BACKUP_DIR apunta a /Volumes/..., comprueba el volumen y permisos TCC.
 ensure_backup_dir() {
-  mkdir -p "$BACKUP_DIR"
+  # Detectar si el destino esta en un volumen externo/red (/Volumes/...)
+  case "$BACKUP_DIR" in
+    /Volumes/*)
+      local VOLUME
+      VOLUME=$(echo "$BACKUP_DIR" | awk -F/ '{print "/"$2"/"$3}')
+      if [ ! -d "$VOLUME" ]; then
+        error "El volumen de destino no esta montado: $VOLUME
+       Monta el NAS CODANOR (Finder > Ir > Conectar al servidor) y reintenta."
+      fi
+      # Comprobar acceso real (TCC en macOS bloquea volumenes de red)
+      if ! ls "$VOLUME" >/dev/null 2>&1; then
+        error "Sin acceso al volumen $VOLUME (permiso denegado).
+       En macOS concede 'Acceso total al disco' al proceso que ejecuta este
+       script: Ajustes del Sistema > Privacidad y seguridad > Acceso total al disco."
+      fi
+      ;;
+  esac
+
+  mkdir -p "$BACKUP_DIR" 2>/dev/null || error "No se pudo crear el directorio de backups: $BACKUP_DIR"
+
+  # Prueba de escritura real
+  local WTEST="$BACKUP_DIR/.write_test_$$"
+  if ! touch "$WTEST" 2>/dev/null; then
+    error "No hay permiso de escritura en: $BACKUP_DIR
+       Revisa los permisos del NAS y el 'Acceso total al disco' en macOS."
+  fi
+  rm -f "$WTEST"
+}
+
+# Comprueba que haya al menos MIN_FREE_MB libres en el destino.
+check_free_space() {
+  local FREE_MB
+  FREE_MB=$(df -m "$BACKUP_DIR" 2>/dev/null | awk 'NR==2 {print $4}')
+  if [ -n "${FREE_MB:-}" ] && [ "$FREE_MB" -lt "$MIN_FREE_MB" ]; then
+    error "Espacio insuficiente en $BACKUP_DIR: ${FREE_MB} MB libres (minimo ${MIN_FREE_MB} MB)."
+  fi
+}
+
+# Copia consistente de la DB SQLite usando el comando .backup (evita corrupcion
+# por el modo WAL). Devuelve la ruta del fichero temporal copiado.
+backup_db_consistent() {
+  local DEST="$1"
+  local DB="$DATA_DIR/opencode.db"
+  [ -f "$DB" ] || return 1
+  if command -v sqlite3 >/dev/null 2>&1; then
+    sqlite3 "$DB" ".backup '$DEST'" 2>/dev/null && return 0
+    warn "sqlite3 .backup fallo; usando copia directa (menos segura)."
+  else
+    warn "sqlite3 no disponible; usando copia directa de la DB."
+  fi
+  cp "$DB" "$DEST" 2>/dev/null || return 1
+  return 0
 }
 
 get_size() {
@@ -82,40 +151,26 @@ get_size() {
 }
 
 # --- BACKUP COMPLETO ---
+# Respalda, en archivos SEPARADOS, los tres bloques relevantes:
+#   1) proyectos   2) datos OpenCode (storage + DB consistente)   3) config
+# EXCLUYE snapshots (~19 GB), cache, log y bin por ser pesados/regenerables.
 backup_full() {
-  info "Iniciando backup COMPLETO de OpenCode..."
+  info "Iniciando backup COMPLETO al NAS (snapshots/cache/log/bin EXCLUIDOS)..."
   ensure_backup_dir
+  check_free_space
   check_dirs
 
-  local BACKUP_FILE="$BACKUP_DIR/opencode_full_$TIMESTAMP.tar.gz"
-  local DIRS_TO_BACKUP=""
+  backup_proyectos
+  backup_sessions
+  backup_config
 
-  # Construir lista de directorios existentes
-  [ -d "$DATA_DIR" ] && DIRS_TO_BACKUP="$DIRS_TO_BACKUP .local/share/opencode/"
-  [ -d "$CONFIG_DIR" ] && DIRS_TO_BACKUP="$DIRS_TO_BACKUP .config/opencode/"
-  [ -d "$CACHE_DIR" ] && DIRS_TO_BACKUP="$DIRS_TO_BACKUP .cache/opencode/"
-
-  if [ -z "$DIRS_TO_BACKUP" ]; then
-    error "No se encontraron directorios de OpenCode para respaldar."
-  fi
-
-  info "Directorios a respaldar:"
-  [ -d "$DATA_DIR" ] && info "  - $DATA_DIR (datos, sesiones, auth)"
-  [ -d "$CONFIG_DIR" ] && info "  - $CONFIG_DIR (configuracion, agentes, comandos)"
-  [ -d "$CACHE_DIR" ] && info "  - $CACHE_DIR (cache de proveedores)"
-
-  tar -czf "$BACKUP_FILE" -C "$HOME" $DIRS_TO_BACKUP 2>/dev/null || true
-
-  local SIZE=$(get_size "$BACKUP_FILE")
-  ok "Backup completo creado: $BACKUP_FILE ($SIZE)"
-
-  cleanup_old_backups "opencode_full_"
+  ok "Backup completo finalizado en: $BACKUP_DIR"
   show_summary
 }
 
-# --- BACKUP SOLO SESIONES ---
+# --- BACKUP DATOS OPENCODE (sesiones + DB consistente) ---
 backup_sessions() {
-  info "Iniciando backup de SESIONES..."
+  info "Iniciando backup de DATOS OpenCode (storage + DB consistente)..."
   ensure_backup_dir
   check_dirs
 
@@ -124,26 +179,50 @@ backup_sessions() {
     error "No se encontro directorio de sesiones: $STORAGE_DIR"
   fi
 
-  local BACKUP_FILE="$BACKUP_DIR/opencode_sessions_$TIMESTAMP.tar.gz"
+  local BACKUP_FILE="$BACKUP_DIR/opencode_data_$TIMESTAMP.tar.gz"
 
-  # Incluir storage + auth.json si existe
+  # Copia consistente de la DB en un area temporal
+  local TMP_DIR
+  TMP_DIR=$(mktemp -d)
+  trap 'rm -rf "$TMP_DIR"' RETURN
+  local DB_OK=0
+  if [ -f "$DATA_DIR/opencode.db" ]; then
+    info "Copiando opencode.db de forma consistente (sqlite3 .backup)..."
+    if backup_db_consistent "$TMP_DIR/opencode.db"; then
+      DB_OK=1
+      ok "DB copiada de forma consistente."
+    else
+      warn "No se pudo copiar la DB; el backup continuara sin ella."
+    fi
+  fi
+
+  # Empaquetar: storage/ + auth/account + DB consistente
   local FILES=".local/share/opencode/storage/"
   [ -f "$DATA_DIR/auth.json" ] && FILES="$FILES .local/share/opencode/auth.json"
+  [ -f "$DATA_DIR/account.json" ] && FILES="$FILES .local/share/opencode/account.json"
 
-  tar -czf "$BACKUP_FILE" -C "$HOME" $FILES 2>/dev/null || true
+  if [ "$DB_OK" -eq 1 ]; then
+    # Incluir la DB consistente bajo la misma ruta relativa que tendria en HOME
+    mkdir -p "$TMP_DIR/.local/share/opencode"
+    mv "$TMP_DIR/opencode.db" "$TMP_DIR/.local/share/opencode/opencode.db"
+    tar -czf "$BACKUP_FILE" -C "$HOME" $FILES -C "$TMP_DIR" .local/share/opencode/opencode.db 2>/dev/null || true
+  else
+    tar -czf "$BACKUP_FILE" -C "$HOME" $FILES 2>/dev/null || true
+  fi
 
   local SIZE=$(get_size "$BACKUP_FILE")
   local SESSION_COUNT=$(find "$STORAGE_DIR" -name "*.json" -path "*/session/*" 2>/dev/null | wc -l | tr -d ' ')
-  ok "Backup de sesiones creado: $BACKUP_FILE ($SIZE)"
+  ok "Backup de datos creado: $BACKUP_FILE ($SIZE)"
   info "Sesiones encontradas: $SESSION_COUNT"
 
-  cleanup_old_backups "opencode_sessions_"
+  cleanup_old_backups "opencode_data_"
 }
 
 # --- BACKUP SOLO CONFIG ---
 backup_config() {
   info "Iniciando backup de CONFIGURACION..."
   ensure_backup_dir
+  check_free_space
 
   if [ ! -d "$CONFIG_DIR" ]; then
     error "No se encontro directorio de configuracion: $CONFIG_DIR"
@@ -289,6 +368,7 @@ clean_backups() {
 backup_proyectos() {
   info "Iniciando backup de TODOS los proyectos en $PROYECTOS_DIR..."
   ensure_backup_dir
+  check_free_space
 
   if [ ! -d "$PROYECTOS_DIR" ]; then
     error "No se encontro directorio de proyectos: $PROYECTOS_DIR"

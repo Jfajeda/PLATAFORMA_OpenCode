@@ -1,0 +1,1841 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plan de Homogeneizacion de Modulos - CODANOR</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Nunito+Sans:wght@300;400;600;700&family=Muli:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #178DC2;
+      --primary-dark: #1275A3;
+      --primary-light: #e8f4fa;
+      --accent: #12A79D;
+      --accent-light: #e6f7f6;
+      --dark: #1a1a2e;
+      --navy: #0D3B66;
+      --gray-900: #2d2d44;
+      --gray-700: #4a4a5a;
+      --gray-500: #7a7a8a;
+      --gray-300: #c4c4d0;
+      --gray-100: #f0f0f5;
+      --white: #ffffff;
+      --danger: #e74c3c;
+      --warning: #f39c12;
+      --success: #12A79D;
+      --ok-bg: #e6f7f6;
+      --warn-bg: #fef9e7;
+      --fail-bg: #fdedec;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Nunito Sans', 'Muli', sans-serif;
+      color: var(--gray-700);
+      line-height: 1.7;
+      background: var(--gray-100);
+    }
+
+    /* ===== PORTADA ===== */
+    .cover-page {
+      min-height: 100vh;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 40%, var(--dark) 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      color: var(--white);
+      position: relative;
+      overflow: hidden;
+      padding: 2rem;
+      z-index: 500;
+    }
+
+    .cover-page::before {
+      content: '';
+      position: absolute;
+      top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background: radial-gradient(ellipse at 30% 50%, rgba(18,167,157,0.15) 0%, transparent 60%),
+                  radial-gradient(ellipse at 70% 20%, rgba(23,141,194,0.1) 0%, transparent 50%);
+      animation: float 20s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0); }
+      50% { transform: translate(-2%, 2%); }
+    }
+
+    .cover-content { position: relative; z-index: 1; max-width: 750px; }
+    .cover-logo { width: 180px; margin-bottom: 1.5rem; filter: brightness(0) invert(1); }
+    .cover-divider { width: 80px; height: 4px; background: var(--accent); margin: 1.2rem auto; border-radius: 2px; }
+
+    .cover-title {
+      font-family: 'Poppins', sans-serif;
+      font-size: 2.6rem; font-weight: 700;
+      letter-spacing: -0.5px; margin-bottom: 0.5rem;
+      border: none; border-bottom: none;
+      padding-bottom: 0; display: block;
+      color: var(--white);
+    }
+
+    .cover-subtitle {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.3rem; font-weight: 300;
+      opacity: 0.9; margin-bottom: 0.5rem;
+    }
+
+    .cover-description {
+      font-size: 1rem; opacity: 0.7;
+      max-width: 600px; margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    .cover-edition { font-size: 1rem; opacity: 0.7; margin-top: 1rem; }
+
+    .cover-badge {
+      display: inline-block; background: var(--accent);
+      color: var(--white); padding: 0.5rem 1.5rem;
+      border-radius: 50px; font-size: 0.9rem;
+      font-weight: 600; margin-top: 2rem; letter-spacing: 0.5px;
+    }
+
+    .cover-meta {
+      margin-top: 2.5rem;
+      display: flex; gap: 2rem; justify-content: center;
+      flex-wrap: wrap;
+    }
+    .cover-meta-item {
+      text-align: center;
+    }
+    .cover-meta-item .label {
+      font-size: 0.7rem; text-transform: uppercase;
+      letter-spacing: 1px; opacity: 0.5;
+    }
+    .cover-meta-item .value {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.1rem; font-weight: 600;
+    }
+
+    .cover-footer {
+      position: absolute; bottom: 2rem;
+      left: 0; right: 0; text-align: center; z-index: 1;
+    }
+    .cover-footer p { font-size: 0.85rem; opacity: 0.5; }
+
+    /* ===== CABECERA STICKY ===== */
+    .page-header {
+      position: sticky; top: 0; z-index: 150;
+      background: var(--white);
+      border-bottom: 1px solid var(--gray-300);
+      padding: 0.6rem 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+    .page-header-left {
+      display: flex; align-items: center; gap: 1rem;
+    }
+    .page-header-logo { height: 28px; }
+    .page-header-sep {
+      width: 1px; height: 24px; background: var(--gray-300);
+    }
+    .page-header-title {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.85rem; font-weight: 600;
+      color: var(--gray-700);
+    }
+    .page-header-right {
+      font-size: 0.75rem; color: var(--gray-500);
+      font-family: 'Poppins', sans-serif;
+    }
+
+    /* ===== LAYOUT: SIDEBAR + CONTENIDO ===== */
+    .doc-container { display: flex; min-height: 100vh; }
+
+    .sidebar {
+      width: 280px; background: var(--white);
+      border-right: 1px solid var(--gray-300);
+      position: fixed; top: 48px; left: 0;
+      height: calc(100vh - 48px); overflow-y: auto;
+      z-index: 100; padding: 1.5rem 0;
+    }
+
+    .sidebar-label {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.65rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 1.5px;
+      color: var(--gray-500); padding: 1rem 1.5rem 0.5rem;
+    }
+
+    .sidebar nav ul { list-style: none; }
+    .sidebar nav ul li a {
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.45rem 1.5rem; color: var(--gray-700);
+      text-decoration: none; font-size: 0.85rem;
+      transition: all 0.2s; border-left: 3px solid transparent;
+    }
+    .sidebar nav ul li a:hover {
+      background: var(--primary-light); color: var(--primary);
+      border-left-color: var(--primary);
+    }
+    .sidebar nav ul li a .num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 22px; height: 22px; border-radius: 50%;
+      background: var(--gray-100); color: var(--gray-500);
+      font-family: 'Poppins', sans-serif; font-size: 0.7rem;
+      font-weight: 600; flex-shrink: 0;
+    }
+    .sidebar nav ul li a:hover .num {
+      background: var(--primary); color: var(--white);
+    }
+
+    /* ===== CONTENIDO PRINCIPAL ===== */
+    .main-content {
+      margin-left: 280px; flex: 1;
+      padding: 2.5rem 3.5rem; max-width: 940px;
+    }
+
+    /* ===== TIPOGRAFIA ===== */
+    h1, h2, h3, h4, h5, h6 { font-family: 'Poppins', sans-serif; color: var(--dark); }
+
+    h1 {
+      font-size: 2rem; font-weight: 700;
+      margin-bottom: 0.5rem; padding-bottom: 0.75rem;
+      border-bottom: 3px solid var(--primary); display: inline-block;
+    }
+
+    h2 {
+      font-size: 1.5rem; font-weight: 600;
+      margin-top: 2.5rem; margin-bottom: 1rem;
+      color: var(--primary); display: flex;
+      align-items: center; gap: 0.5rem;
+    }
+    h2::before {
+      content: ''; width: 4px; height: 26px;
+      background: var(--accent); border-radius: 2px; flex-shrink: 0;
+    }
+
+    h3 {
+      font-size: 1.15rem; font-weight: 600;
+      margin-top: 1.75rem; margin-bottom: 0.75rem; color: var(--gray-900);
+    }
+
+    h4 {
+      font-size: 1rem; font-weight: 600;
+      margin-top: 1.25rem; margin-bottom: 0.5rem; color: var(--primary-dark);
+    }
+
+    p { margin-bottom: 1rem; }
+
+    .chapter-intro { font-size: 1.05rem; color: var(--gray-500); margin-bottom: 2rem; }
+
+    /* ===== SECCIONES ===== */
+    .section { margin-bottom: 3rem; padding-top: 1rem; }
+
+    /* ===== TABLAS ===== */
+    table {
+      width: 100%; border-collapse: collapse;
+      margin: 1.25rem 0; font-size: 0.85rem;
+      border-radius: 8px; overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+    thead { background: var(--primary); color: var(--white); }
+    th {
+      font-family: 'Poppins', sans-serif; font-weight: 600;
+      padding: 0.75rem 0.85rem; text-align: left;
+      font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    td { padding: 0.65rem 0.85rem; border-bottom: 1px solid var(--gray-100); background: var(--white); }
+    tbody tr:hover { background: var(--primary-light); }
+    tbody tr:hover td { background: var(--primary-light); }
+    tbody tr:last-child td { border-bottom: none; }
+
+    /* ===== ESTADO CELLS ===== */
+    .st-ok { background: var(--ok-bg); color: #0e7a72; font-weight: 600; text-align: center; }
+    .st-warn { background: var(--warn-bg); color: #7d6608; font-weight: 600; text-align: center; }
+    .st-fail { background: var(--fail-bg); color: #922b21; font-weight: 600; text-align: center; }
+    .st-na { background: var(--gray-100); color: var(--gray-500); text-align: center; font-style: italic; }
+
+    /* ===== CODIGO ===== */
+    code {
+      font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+      font-size: 0.82rem; background: var(--gray-100);
+      color: var(--primary-dark); padding: 0.15rem 0.45rem; border-radius: 4px;
+    }
+    pre {
+      background: var(--dark); color: #e0e0e0;
+      padding: 1.25rem 1.5rem; border-radius: 8px;
+      overflow-x: auto; margin: 1rem 0 1.5rem;
+      font-size: 0.82rem; line-height: 1.6;
+      border-left: 4px solid var(--accent);
+    }
+    pre code { background: none; color: inherit; padding: 0; }
+
+    /* ===== ALERTAS ===== */
+    .alert {
+      padding: 1rem 1.25rem; border-radius: 8px;
+      margin: 1.25rem 0; font-size: 0.88rem; border-left: 4px solid;
+    }
+    .alert-info { background: var(--primary-light); border-color: var(--primary); color: var(--primary-dark); }
+    .alert-warning { background: #fef9e7; border-color: var(--warning); color: #7d6608; }
+    .alert-danger { background: #fdedec; border-color: var(--danger); color: #922b21; }
+    .alert-success { background: var(--accent-light); border-color: var(--accent); color: #0e7a72; }
+    .alert-title { font-family: 'Poppins', sans-serif; font-weight: 600; margin-bottom: 0.25rem; }
+
+    /* ===== LISTAS ===== */
+    ul, ol { padding-left: 1.5rem; margin-bottom: 1rem; }
+    li { margin-bottom: 0.4rem; }
+
+    /* ===== CARDS ===== */
+    .card-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 1rem; margin: 1.5rem 0;
+    }
+    .card-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+    .card {
+      background: var(--white); border: 1px solid var(--gray-300);
+      border-radius: 8px; padding: 1.25rem; transition: all 0.2s;
+    }
+    .card:hover { border-color: var(--primary); box-shadow: 0 4px 12px rgba(23,141,194,0.1); }
+    .card h4 { font-size: 0.95rem; margin-bottom: 0.5rem; color: var(--primary); margin-top: 0; }
+    .card p { font-size: 0.82rem; color: var(--gray-500); margin-bottom: 0; }
+    .card .card-badge {
+      display: inline-block; font-size: 0.65rem; font-weight: 700;
+      padding: 0.1rem 0.5rem; border-radius: 50px;
+      text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;
+    }
+    .card .card-badge.alta { background: var(--fail-bg); color: #922b21; }
+    .card .card-badge.media { background: var(--warn-bg); color: #7d6608; }
+    .card .card-badge.baja { background: var(--ok-bg); color: #0e7a72; }
+
+    /* ===== STEP LIST ===== */
+    .step-list { counter-reset: step; list-style: none; padding-left: 0; }
+    .step-list li {
+      counter-increment: step; padding: 1rem 1rem 1rem 3.5rem;
+      position: relative; margin-bottom: 0.75rem;
+      background: var(--white); border-radius: 8px;
+      border: 1px solid var(--gray-100);
+    }
+    .step-list li::before {
+      content: counter(step); position: absolute;
+      left: 1rem; top: 1rem; width: 28px; height: 28px;
+      background: var(--primary); color: var(--white);
+      border-radius: 50%; display: flex; align-items: center;
+      justify-content: center; font-family: 'Poppins', sans-serif;
+      font-weight: 600; font-size: 0.8rem;
+    }
+
+    /* ===== BADGES INLINE ===== */
+    .badge {
+      display: inline-block; font-size: 0.65rem;
+      font-family: 'Poppins', sans-serif; font-weight: 600;
+      padding: 0.12rem 0.5rem; border-radius: 50px;
+      text-transform: uppercase; letter-spacing: 0.5px;
+      vertical-align: middle; margin-left: 0.3rem;
+    }
+    .badge-phase { background: var(--primary); color: var(--white); }
+    .badge-ok { background: var(--accent); color: var(--white); }
+    .badge-warn { background: var(--warning); color: var(--white); }
+    .badge-fail { background: var(--danger); color: var(--white); }
+
+    /* ===== DIAGRAMA ASCII ===== */
+    .diagram {
+      background: var(--dark); color: var(--accent);
+      padding: 1.5rem 2rem; border-radius: 8px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 0.78rem; line-height: 1.5;
+      overflow-x: auto; margin: 1.5rem 0;
+      border-left: 4px solid var(--accent);
+    }
+    .diagram .comment { color: var(--gray-500); }
+    .diagram .highlight { color: var(--warning); }
+    .diagram .ok { color: #27ae60; }
+
+    /* ===== PRINCIPIO CARD ===== */
+    .principle {
+      background: var(--white); border: 2px solid var(--accent);
+      border-radius: 8px; padding: 1.25rem 1.5rem; margin: 1rem 0;
+    }
+    .principle h4 {
+      color: var(--accent); margin-top: 0; margin-bottom: 0.5rem;
+      font-size: 1rem;
+    }
+    .principle p { font-size: 0.88rem; margin-bottom: 0; color: var(--gray-700); }
+
+    /* ===== BOTON PDF ===== */
+    .btn-print {
+      position: fixed; bottom: 2rem; right: 2rem;
+      background: var(--primary); color: var(--white);
+      border: none; padding: 0.75rem 1.5rem;
+      border-radius: 50px; font-family: 'Poppins', sans-serif;
+      font-size: 0.9rem; font-weight: 600; cursor: pointer;
+      box-shadow: 0 4px 12px rgba(23,141,194,0.3);
+      transition: all 0.2s; z-index: 200;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .btn-print:hover { background: var(--primary-dark); transform: translateY(-2px); }
+    .btn-print svg { width: 18px; height: 18px; }
+
+    /* ===== PIE DE PAGINA ===== */
+    .doc-footer {
+      margin-top: 4rem; padding: 2rem 0;
+      border-top: 2px solid var(--gray-300);
+      text-align: center; color: var(--gray-500); font-size: 0.85rem;
+    }
+    .doc-footer img { width: 100px; margin-bottom: 0.5rem; }
+
+    /* ===== PRINT / PDF ===== */
+    @media print {
+      @page { size: A4; margin: 2cm 1.5cm; }
+      @page :first { margin-top: 0; }
+
+      body { background: white; font-size: 10pt; }
+
+      .sidebar, .btn-print, .page-header { display: none !important; }
+      .main-content { margin-left: 0; padding: 0; max-width: 100%; }
+
+      .cover-page {
+        page-break-after: always; min-height: 100vh;
+        -webkit-print-color-adjust: exact; print-color-adjust: exact;
+      }
+
+      .section { page-break-inside: avoid; page-break-before: auto; }
+      h1 { page-break-after: avoid; }
+      h2, h3 { page-break-after: avoid; }
+
+      pre, .diagram { white-space: pre-wrap; word-break: break-all; font-size: 8pt; }
+      table { font-size: 8pt; }
+
+      .alert, .card, .principle {
+        -webkit-print-color-adjust: exact; print-color-adjust: exact;
+      }
+
+      .card-grid { grid-template-columns: 1fr 1fr; }
+      .card-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+      a { color: var(--primary); text-decoration: none; }
+
+      hr.page-break { page-break-after: always; border: none; height: 0; margin: 0; }
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 900px) {
+      .sidebar { display: none; }
+      .main-content { margin-left: 0; padding: 2rem 1.5rem; }
+      .cover-title { font-size: 2rem; }
+      .card-grid { grid-template-columns: 1fr; }
+      .card-grid-3 { grid-template-columns: 1fr; }
+      .btn-print { bottom: 1rem; right: 1rem; padding: 0.6rem 1.2rem; font-size: 0.8rem; }
+      .page-header { padding: 0.6rem 1rem; }
+    }
+
+    /* ===== SCROLLBAR ===== */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--gray-100); }
+    ::-webkit-scrollbar-thumb { background: var(--gray-300); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+
+    hr { border: none; height: 1px; background: var(--gray-300); margin: 2.5rem 0; }
+  </style>
+</head>
+<body>
+
+<!-- ======================================================================
+     PORTADA
+     ====================================================================== -->
+<div class="cover-page">
+  <div class="cover-content">
+    <img src="https://codanor.com/assets/img/logo-light.png" alt="CODANOR" class="cover-logo">
+    <div class="cover-divider"></div>
+    <h1 class="cover-title">Plan de Homogeneizacion de Modulos</h1>
+    <p class="cover-subtitle">Ecosistema de Proyectos &mdash; ~/Proyectos/</p>
+    <p class="cover-description">
+      Documento tecnico de planificacion para la estandarizacion estructural
+      de los 17 modulos activos del ecosistema CODANOR, integracion del
+      fichero compartido de clientes y garantia de autonomia inter-modulo.
+    </p>
+    <span class="cover-badge">Version 1.0 &bull; Mayo 2026</span>
+    <div class="cover-meta">
+      <div class="cover-meta-item">
+        <div class="label">Modulos</div>
+        <div class="value">17</div>
+      </div>
+      <div class="cover-meta-item">
+        <div class="label">Fases</div>
+        <div class="value">4</div>
+      </div>
+      <div class="cover-meta-item">
+        <div class="label">Prioridad</div>
+        <div class="value">Estructura</div>
+      </div>
+      <div class="cover-meta-item">
+        <div class="label">Esfuerzo est.</div>
+        <div class="value">~6 h</div>
+      </div>
+    </div>
+  </div>
+  <div class="cover-footer">
+    <p>Jafa, S.L. &mdash; CODANOR &bull; Barcelona, Catalunya</p>
+  </div>
+</div>
+
+<!-- ======================================================================
+     CABECERA STICKY
+     ====================================================================== -->
+<div class="page-header">
+  <div class="page-header-left">
+    <img src="https://codanor.com/assets/img/logo_web-50.png" alt="CODANOR" class="page-header-logo">
+    <div class="page-header-sep"></div>
+    <span class="page-header-title">Plan de Homogeneizacion de Modulos v1.0</span>
+  </div>
+  <div class="page-header-right">
+    CODANOR &mdash; Mayo 2026
+  </div>
+</div>
+
+<!-- ======================================================================
+     CONTENIDO CON SIDEBAR
+     ====================================================================== -->
+<div class="doc-container">
+
+  <!-- SIDEBAR / INDICE -->
+  <aside class="sidebar">
+    <div class="sidebar-label">Indice del documento</div>
+    <nav>
+      <ul>
+        <li><a href="#cap1"><span class="num">1</span> Contexto y Objetivos</a></li>
+        <li><a href="#cap2"><span class="num">2</span> Estado Actual del Ecosistema</a></li>
+        <li><a href="#cap3"><span class="num">3</span> Matriz de Cumplimiento</a></li>
+        <li><a href="#cap4"><span class="num">4</span> Principios de Autonomia</a></li>
+        <li><a href="#cap5"><span class="num">5</span> Arquitectura de Datos Compartidos</a></li>
+        <li><a href="#cap6"><span class="num">6</span> Fase 1: Modulos Criticos</a></li>
+        <li><a href="#cap7"><span class="num">7</span> Fase 1.5: Integracion Clientes</a></li>
+        <li><a href="#cap8"><span class="num">8</span> Fase 2: Modulos Incompletos</a></li>
+        <li><a href="#cap9"><span class="num">9</span> Fase 3: Configuracion Pendiente</a></li>
+        <li><a href="#cap10"><span class="num">10</span> Fase 4: Limpieza y Consolidacion</a></li>
+        <li><a href="#cap11"><span class="num">11</span> Plantillas Estandar</a></li>
+        <li><a href="#cap12"><span class="num">12</span> Criterios de Verificacion</a></li>
+        <li><a href="#cap13"><span class="num">13</span> Cronograma y Esfuerzo</a></li>
+        <li><a href="#cap14"><span class="num">14</span> Exclusiones y Fase Posterior</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <!-- CONTENIDO -->
+  <main class="main-content">
+
+    <!-- ================================================================
+         CAPITULO 1: CONTEXTO Y OBJETIVOS
+         ================================================================ -->
+    <div class="section" id="cap1">
+      <h1>1. Contexto y Objetivos</h1>
+      <p class="chapter-intro">
+        Por que se necesita este plan y que se espera conseguir.
+      </p>
+
+      <h2>Situacion actual</h2>
+      <p>
+        El ecosistema de proyectos de CODANOR en <code>~/Proyectos/</code> contiene
+        <strong>17 modulos activos</strong> (mas PLATAFORMA_OpenCode como base, modulo 0),
+        organizados en 3 capas segun el diagrama <em>Estructura_PROYECTOS.pdf</em>:
+        <strong>Introduccion</strong>, <strong>Elaboracion</strong> y <strong>Apoyo</strong>.
+      </p>
+      <p>
+        Cada modulo deberia tener 4 artefactos obligatorios: <code>AGENTS.md</code>,
+        <code>Memory.md</code>, una carpeta <code>Prompt/</code> y una carpeta
+        <code>Manuales/</code>. Tras una auditoria exhaustiva, se ha detectado que
+        <strong>solo 7 de los 18 modulos cumplen completamente</strong> este estandar.
+      </p>
+
+      <h2>Objetivo del plan</h2>
+      <div class="card-grid card-grid-3">
+        <div class="card">
+          <h4>Homogeneizar</h4>
+          <p>Que los 17 modulos tengan la misma estructura base: AGENTS.md, Memory.md, Prompt/, Manuales/, opencode.json, .gitignore.</p>
+        </div>
+        <div class="card">
+          <h4>Integrar clientes</h4>
+          <p>Establecer un patron estandar para que cada modulo pueda consumir <code>clientes_codanor.json</code> de forma autonoma y opcional.</p>
+        </div>
+        <div class="card">
+          <h4>Garantizar autonomia</h4>
+          <p>Cada modulo debe funcionar de forma independiente, sin depender de la existencia de otros modulos ni de rutas fijas.</p>
+        </div>
+      </div>
+
+      <h2>Que NO incluye este plan</h2>
+      <ul>
+        <li>Crear el modulo <strong>GeNIS2</strong> (modulo 10) &mdash; se deja para una fase posterior.</li>
+        <li>Inicializar <code>.git</code> y subir a GitHub los proyectos sin repositorio.</li>
+        <li>Corregir bugs de SonarCloud (innerHTML, CORS, etc.).</li>
+        <li>Instalar Node.js, Homebrew o <code>gh</code> en el equipo.</li>
+        <li>Automatizar backups con cron.</li>
+      </ul>
+    </div>
+
+    <hr>
+
+    <!-- ================================================================
+         CAPITULO 2: ESTADO ACTUAL DEL ECOSISTEMA
+         ================================================================ -->
+    <div class="section" id="cap2">
+      <h1>2. Estado Actual del Ecosistema</h1>
+      <p class="chapter-intro">
+        Mapa completo de los 18 modulos, su clasificacion por capa y su estado de madurez.
+      </p>
+
+      <h2>Capas del diagrama</h2>
+      <table>
+        <thead>
+          <tr><th>Capa</th><th>Modulos</th><th>Funcion</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Introduccion</strong></td>
+            <td>Planificacion_Diaria (1), OSSINT (2), Seguimiento_licitaciones (3)</td>
+            <td>Herramientas de entrada y planificacion</td>
+          </tr>
+          <tr>
+            <td><strong>Elaboracion</strong></td>
+            <td>Plataforma_Seguimiento (4), Mapa_Procesos (5), ISO9001 (6), ISO14001 (7), ISO27001 (8), ENS (9), GeNIS2 (10), LOPD-RGPD (11), ISO42001 (12), Eval.Ambiental (13), Plantillas_ENS_ISO (14), ANALISIS_LOGs (15)</td>
+            <td>Produccion por normativa</td>
+          </tr>
+          <tr>
+            <td><strong>Apoyo</strong></td>
+            <td>Seguimiento Actas (16), legislacion_monitor (17)</td>
+            <td>Soporte transversal</td>
+          </tr>
+          <tr>
+            <td><strong>Base</strong></td>
+            <td>PLATAFORMA_OpenCode (0)</td>
+            <td>Plataforma raiz, documentacion y herramientas</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>Clasificacion por tipo de contenido</h2>
+      <h3>Aplicaciones con codigo (Python/Flask/scripts)</h3>
+      <table>
+        <thead>
+          <tr><th>#</th><th>Modulo</th><th>Tecnologia</th><th>Puerto</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>2</td><td>OSSINT</td><td>Flask + SQLite + ReportLab + maltego-trx</td><td>9000 + 8765</td></tr>
+          <tr><td>17</td><td>legislacion_monitor</td><td>Flask + scraping + tests</td><td>8080</td></tr>
+          <tr><td>16</td><td>Seguimiento Actas</td><td>Flask (codanor-actas/)</td><td>5000</td></tr>
+          <tr><td>14</td><td>Plantillas_ENS_ISO</td><td>Python servidor + Shell</td><td>8080</td></tr>
+          <tr><td>3</td><td>Seguimiento_licitaciones</td><td>Python scraper + servidor</td><td>&mdash;</td></tr>
+          <tr><td>&mdash;</td><td>Wiki_CODANOR</td><td>Docker (Ollama + ChromaDB)</td><td>3000</td></tr>
+        </tbody>
+      </table>
+
+      <h3>HTML dashboards monoliticos (sin servidor)</h3>
+      <table>
+        <thead>
+          <tr><th>#</th><th>Modulo</th><th>Tipo</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>15</td><td>ANALISIS_LOGs_PreSIEM</td><td>Dashboard ciberseguridad (~11.470 lineas)</td></tr>
+          <tr><td>9</td><td>Gestion_Riesgos_ENS</td><td>Dashboard riesgos ENS (~4.450 lineas)</td></tr>
+          <tr><td>8</td><td>Gestion_Riesgos_ISO27001</td><td>Dashboard riesgos ISO27001 (~4.300 lineas)</td></tr>
+          <tr><td>11</td><td>Gestion_Riesgos_LOPD-RGPD</td><td>2 dashboards (riesgos + EIPD)</td></tr>
+          <tr><td>13</td><td>Evaluacion_Aspectos_Ambientales</td><td>SPA evaluacion ambiental</td></tr>
+          <tr><td>5</td><td>Mapa_Procesos</td><td>SPA mapa de procesos</td></tr>
+          <tr><td>1</td><td>Planificacion_Diaria_Proyectos</td><td>HTML tracker + generadores Python</td></tr>
+          <tr><td>0</td><td>PLATAFORMA_OpenCode</td><td>Manual + analisis + seguimiento HTML</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Solo documentacion / datos (sin codigo funcional)</h3>
+      <table>
+        <thead>
+          <tr><th>#</th><th>Modulo</th><th>Contenido actual</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>6</td><td>Gestion_Riesgos_ISO9001</td><td>Solo Memory.md (placeholder)</td></tr>
+          <tr><td>7</td><td>Gestion_Riesgos_ISO14001</td><td>1 PDF + Memory.md (embrionario)</td></tr>
+          <tr><td>12</td><td>Gestion_Riesgos_ISO42001</td><td>Solo CSV/XLSX (datos crudos)</td></tr>
+          <tr><td>4</td><td>Plataforma_Seguimiento_Proyectos</td><td>Carpetas organizativas por norma</td></tr>
+        </tbody>
+      </table>
+
+      <div class="alert alert-warning">
+        <div class="alert-title">Conflicto de puertos detectado</div>
+        <p>
+          El puerto <strong>8080</strong> es usado por 3 proyectos (Plantillas_ENS_ISO,
+          legislacion_monitor, Plataforma_Seguimiento ISO27001). No pueden ejecutarse
+          simultaneamente. Se recomienda asignar puertos unicos en una fase posterior.
+        </p>
+      </div>
+    </div>
+
+    <hr>
+
+    <!-- ================================================================
+         CAPITULO 3: MATRIZ DE CUMPLIMIENTO
+         ================================================================ -->
+    <div class="section" id="cap3">
+      <h1>3. Matriz de Cumplimiento</h1>
+      <p class="chapter-intro">
+        Comparativa entre lo que el diagrama exige y lo que existe actualmente en cada modulo.
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Modulo</th>
+            <th>AGENTS.md</th>
+            <th>Memory.md</th>
+            <th>Prompt/</th>
+            <th>Manuales/</th>
+            <th>.git</th>
+            <th>opencode.json</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>0</td><td>PLATAFORMA_OpenCode</td>
+            <td class="st-ok">Si</td><td class="st-ok">Si</td>
+            <td class="st-ok">Si</td><td class="st-ok">Si</td>
+            <td class="st-ok">Si</td><td class="st-ok">Si</td>
+          </tr>
+          <tr>
+            <td>1</td><td>Planificacion_Diaria</td>
+            <td class="st-ok">Si</td><td class="st-ok">Si</td>
+            <td class="st-ok">Si</td><td class="st-ok">Si</td>
+            <td class="st-fail">No</td><td class="st-fail">No</td>
+          </tr>
+          <tr>
+            <td>2</td><td>OSSINT</td>
+            <td class="st-ok">Si</td><td class="st-ok">Si</td>
+            <td class="st-ok">Si</td><td class="st-ok">Si</td>
+            <td class="st-fail">No</td><td class="st-ok">Si</td>
+          </tr>
+          <tr>
+            <td>3</td><td>Seguimiento_licitaciones</td>
+            <td class="st-ok">Si</td><td class="st-ok">Si</td>
+            <td class="st-ok">Si</td><td class="st-ok">Si</td>
+            <td class="st-ok">Si</td><td class="st-ok">Si</td>
+          </tr>
+          <tr>
+            <td>4</td><td>Plataforma_Seguimiento</td>
+            <td class="st-fail">No</td><td class="st-ok">Si</td>
+            <td class="st-fail">No</td><td class="st-fail">No</td>
+            <td class="st-ok">Si</td><td class="st-fail">No</td>
+          </tr>
+          <tr>
+            <td>5</td><td>Mapa_Procesos</td>
+            <td class="st-ok">Si</td><td class="st-ok">Si</td>
+            <td class="st-fail">No</td><td class="st-fail">No</td>
+            <td class="st-fail">No</td><td class="st-ok">Si</td>
+          </tr>
+          <tr>
+            <td>6</td><td>Gestion_Riesgos_ISO9001</td>
+            <td class="st-fail">No</td><td class="st-ok">Si</td>
+            <td class="st-fail">No</td><td class="st-fail">No</td>
+            <td class="st-fail">No</td><td class="st-fail">No</td>
+          </tr>
+          <tr>
+            <td>7</td><td>Gestion_Riesgos_ISO14001</td>
+            <td class="st-fail">No</td><td class="st-ok">Si</td>
+            <td class="st-fail">No</td><td class="st-fail">No</td>
+            <td class="st-fail">No</td><td class="st-fail">No</td>
+          </tr>
+          <tr>
+            <td>8</td><td>Gestion_Riesgos_ISO27001</td>
+            <td class="st-ok">Si</td><td class="st-ok">Si</td>
+            <td class="st-ok">Si</td><td class="st-ok">Si</td>
+            <td class="st-ok">Si</td><td class="st-ok">Si</td>
+          </tr>
+          <tr>
+            <td>9</td><td>Gestion_Riesgos_ENS</td>
+            <td class="st-ok">Si</td><td class="st-ok">Si</td>
+            <td class="st-ok">Si</td><td class="st-ok">Si</td>
+            <td class="st-ok">Si</td><td class="st-ok">Si</td>
+          </tr>
+          <tr>
+            <td>10</td><td>GeNIS2</td>
+            <td class="st-na">N/A</td><td class="st-na">N/A</td>
+            <td class="st-na">N/A</td><td class="st-na">N/A</td>
+            <td class="st-na">N/A</td><td class="st-na">N/A</td>
+          </tr>
+          <tr>
+            <td>11</td><td>Gestion_Riesgos_LOPD-RGPD</td>
+            <td class="st-ok">Si</td><td class="st-ok">Si</td>
+            <td class="st-ok">Si</td><td class="st-ok">Si</td>
+            <td class="st-ok">Si</td><td class="st-ok">Si</td>
+          </tr>
+          <tr>
+            <td>12</td><td>Gestion_Riesgos_ISO42001</td>
+            <td class="st-fail">No</td><td class="st-fail">No</td>
+            <td class="st-fail">No</td><td class="st-fail">No</td>
+            <td class="st-fail">No</td><td class="st-fail">No</td>
+          </tr>
+          <tr>
+            <td>13</td><td>Eval_Aspectos_Ambientales</td>
+            <td class="st-ok">Si</td><td class="st-ok">Si</td>
+            <td class="st-warn">Parcial</td><td class="st-fail">No</td>
+            <td class="st-fail">No</td><td class="st-warn">Roto</td>
+          </tr>
+          <tr>
+            <td>14</td><td>Plantillas_ENS_ISO</td>
+            <td class="st-warn">Mal ubicado</td><td class="st-ok">Si</td>
+            <td class="st-ok">Si</td><td class="st-ok">Si</td>
+            <td class="st-ok">Si</td><td class="st-ok">Si</td>
+          </tr>
+          <tr>
+            <td>15</td><td>ANALISIS_LOGs_PreSIEM</td>
+            <td class="st-ok">Si</td><td class="st-ok">Si</td>
+            <td class="st-ok">Si</td><td class="st-ok">Si</td>
+            <td class="st-ok">Si</td><td class="st-ok">Si</td>
+          </tr>
+          <tr>
+            <td>16</td><td>Seguimiento Actas</td>
+            <td class="st-warn">En subcarpeta</td><td class="st-warn">En subcarpeta</td>
+            <td class="st-warn">En subcarpeta</td><td class="st-warn">En subcarpeta</td>
+            <td class="st-fail">No</td><td class="st-warn">En subcarpeta</td>
+          </tr>
+          <tr>
+            <td>17</td><td>legislacion_monitor</td>
+            <td class="st-ok">Si</td><td class="st-ok">Si</td>
+            <td class="st-ok">Si</td><td class="st-ok">Si</td>
+            <td class="st-ok">Si</td><td class="st-ok">Si</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>Resumen de cobertura</h2>
+      <table>
+        <thead>
+          <tr><th>Artefacto</th><th>Presente</th><th>Ausente / Parcial</th><th>%</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>AGENTS.md</td><td>13</td><td>5</td><td>72%</td></tr>
+          <tr><td>Memory.md</td><td>17</td><td>1</td><td>94%</td></tr>
+          <tr><td>Prompt/</td><td>13</td><td>5</td><td>72%</td></tr>
+          <tr><td>Manuales/</td><td>13</td><td>5</td><td>72%</td></tr>
+          <tr><td>.git</td><td>8</td><td>10</td><td>44%</td></tr>
+          <tr><td>opencode.json</td><td>13</td><td>5</td><td>72%</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Clasificacion de gaps</h2>
+      <div class="card-grid">
+        <div class="card">
+          <span class="card-badge baja">7 modulos</span>
+          <h4>Completamente OK</h4>
+          <p>0 (OpenCode), 3 (Licitaciones), 8 (ISO27001), 9 (ENS), 11 (LOPD-RGPD), 15 (PreSIEM), 17 (Legislacion)</p>
+        </div>
+        <div class="card">
+          <span class="card-badge media">2 modulos</span>
+          <h4>Funcionales, sin .git</h4>
+          <p>1 (Planificacion Diaria), 2 (OSSINT)</p>
+        </div>
+        <div class="card">
+          <span class="card-badge media">5 modulos</span>
+          <h4>Faltan artefactos</h4>
+          <p>4 (Plataforma_Seguimiento), 5 (Mapa_Procesos), 13 (Eval.Ambiental), 14 (Plantillas_ENS_ISO), 16 (Actas)</p>
+        </div>
+        <div class="card">
+          <span class="card-badge alta">3 modulos</span>
+          <h4>Casi vacios / embrionarios</h4>
+          <p>6 (ISO9001), 7 (ISO14001), 12 (ISO42001)</p>
+        </div>
+      </div>
+    </div>
+
+    <hr>
+
+    <!-- ================================================================
+         CAPITULO 4: PRINCIPIOS DE AUTONOMIA
+         ================================================================ -->
+    <div class="section" id="cap4">
+      <h1>4. Principios de Autonomia</h1>
+      <p class="chapter-intro">
+        Reglas inviolables que garantizan que cada modulo puede funcionar, desarrollarse
+        y mantenerse de forma completamente independiente.
+      </p>
+
+      <div class="principle">
+        <h4>Principio 1: Standalone por defecto</h4>
+        <p>
+          Cada modulo arranca, se ejecuta y es util <strong>sin que exista
+          <code>clientes_codanor.json</code> ni ningun otro fichero de otro proyecto</strong>.
+          Los datos compartidos son un enriquecimiento opcional, nunca un requisito.
+        </p>
+      </div>
+
+      <div class="principle">
+        <h4>Principio 2: Cero imports cruzados</h4>
+        <p>
+          Ningun modulo referencia directamente la carpeta de otro modulo. El unico punto
+          de intercambio es <code>~/Proyectos/clientes_codanor.json</code> (raiz compartida),
+          y se accede siempre con <strong>degradacion elegante</strong> (si falta, warning &mdash; no error).
+        </p>
+      </div>
+
+      <div class="principle">
+        <h4>Principio 3: Repositorio independiente</h4>
+        <p>
+          Cada carpeta es (o sera) un repositorio Git independiente. Puede clonarse en cualquier
+          maquina, en cualquier ruta, y funcionar. El codigo <strong>nunca asume una ruta absoluta</strong>
+          &mdash; las rutas externas se configuran via variables de entorno con fallback.
+        </p>
+      </div>
+
+      <div class="principle">
+        <h4>Principio 4: Datos locales, nunca remotos</h4>
+        <p>
+          El codigo de la aplicacion lee siempre una <strong>copia local</strong> del fichero de clientes
+          (e.g. <code>./Datos/clientes/clientes_codanor.json</code>), nunca directamente de
+          <code>~/Proyectos/</code>. Solo el script <code>iniciar.sh</code> conoce la ruta de origen.
+        </p>
+      </div>
+
+      <div class="principle">
+        <h4>Principio 5: Proteccion RGPD integrada</h4>
+        <p>
+          Todo fichero con datos de clientes reales esta excluido de Git via <code>.gitignore</code>.
+          Nunca se commitea. Nunca se sube a GitHub ni a ninguna nube publica.
+        </p>
+      </div>
+
+      <h2>Test de autonomia</h2>
+      <p>Cada modulo debe pasar estas 3 pruebas para considerarse autonomo:</p>
+      <table>
+        <thead>
+          <tr><th>Prueba</th><th>Verificacion</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Standalone</strong></td>
+            <td><code>git clone &lt;repo&gt; /tmp/test && cd /tmp/test && ./iniciar.sh</code> funciona (con warning de clientes, pero arranca)</td>
+          </tr>
+          <tr>
+            <td><strong>Sin raiz</strong></td>
+            <td>El modulo funciona en cualquier ruta, no solo en <code>~/Proyectos/</code></td>
+          </tr>
+          <tr>
+            <td><strong>Sin hermanos</strong></td>
+            <td>El modulo NO referencia ningun otro modulo por nombre ni ruta</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <hr>
+
+    <!-- ================================================================
+         CAPITULO 5: ARQUITECTURA DE DATOS COMPARTIDOS
+         ================================================================ -->
+    <div class="section" id="cap5">
+      <h1>5. Arquitectura de Datos Compartidos</h1>
+      <p class="chapter-intro">
+        Como funciona <code>clientes_codanor.json</code>, quien lo produce, quien lo consume,
+        y como se garantiza la autonomia de cada modulo.
+      </p>
+
+      <h2>El fichero maestro</h2>
+      <table>
+        <thead>
+          <tr><th>Atributo</th><th>Valor</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Ubicacion</td><td><code>~/Proyectos/clientes_codanor.json</code></td></tr>
+          <tr><td>Productor</td><td>Planificacion_Diaria_Proyectos (modulo 1)</td></tr>
+          <tr><td>Contenido</td><td>33 clientes reales (nombre, CIF, email, contacto, dominio)</td></tr>
+          <tr><td>Proteccion</td><td><code>.gitignore</code> en raiz &mdash; RGPD, nunca en Git/GitHub</td></tr>
+          <tr><td>Esquema</td><td><code>{ version, exportado, origen, clientes: [{numero_cliente, nombre, ...}] }</code></td></tr>
+        </tbody>
+      </table>
+
+      <h2>Flujo de datos actual</h2>
+      <div class="diagram">
+<span class="comment"># PRODUCTOR (escribe/exporta)</span>
+Planificacion_Diaria_Proyectos
+        |
+        v
+~/Proyectos/<span class="highlight">clientes_codanor.json</span>    <span class="comment"># FICHERO MAESTRO</span>
+        |
+        |--- OSSINT                      <span class="comment"># Lee directamente (app.py)</span>
+        |--- Plataforma_Seguimiento/     <span class="comment"># Copia via iniciar.sh</span>
+        |      |--- ISO27001-SGSI/
+        |      '--- ISO9001-SGQ_2015/
+        |
+        <span class="comment"># MODULOS PENDIENTES DE INTEGRAR:</span>
+        |--- Gestion_Riesgos_ENS         <span class="ok"># (a integrar)</span>
+        |--- Gestion_Riesgos_ISO27001    <span class="ok"># (a integrar)</span>
+        |--- Gestion_Riesgos_ISO9001     <span class="ok"># (a integrar)</span>
+        |--- Gestion_Riesgos_ISO14001    <span class="ok"># (a integrar)</span>
+        |--- Gestion_Riesgos_ISO42001    <span class="ok"># (a integrar)</span>
+        |--- Gestion_Riesgos_LOPD-RGPD   <span class="ok"># (a integrar)</span>
+        |--- Evaluacion_Aspectos_Amb     <span class="ok"># (a integrar)</span>
+        |--- Seguimiento_licitaciones    <span class="ok"># (a integrar)</span>
+        '--- Plantillas_ENS_ISO          <span class="ok"># (import opcional)</span>
+      </div>
+
+      <h2>Patron estandar de consumo</h2>
+      <p>
+        Todos los modulos que consuman el fichero de clientes deben seguir este patron
+        de <strong>4 capas de proteccion</strong>:
+      </p>
+
+      <ol class="step-list">
+        <li>
+          <strong>Capa 1: <code>iniciar.sh</code></strong> (script de arranque, opcional)<br>
+          Intenta copiar el fichero desde la raiz. La ruta es configurable via variable
+          de entorno <code>CLIENTES_JSON</code>. Si falla, imprime warning pero NO aborta.
+          <pre><code>CLIENTES_JSON="${CLIENTES_JSON:-$HOME/Proyectos/clientes_codanor.json}"
+if [ -f "$CLIENTES_JSON" ]; then
+    cp "$CLIENTES_JSON" "$DIR/Datos/clientes/clientes_codanor.json"
+    echo "[OK] Clientes actualizados"
+else
+    echo "[WARN] Sin datos de clientes. Funcionalidad limitada."
+fi</code></pre>
+        </li>
+        <li>
+          <strong>Capa 2: Codigo de la aplicacion</strong><br>
+          Lee SIEMPRE la copia local: <code>./Datos/clientes/clientes_codanor.json</code>.
+          <strong>NUNCA</strong> referencia <code>~/Proyectos/</code> directamente desde el
+          codigo fuente. Si no encuentra el fichero, muestra un boton "Importar clientes"
+          o simplemente oculta el selector de cliente.
+        </li>
+        <li>
+          <strong>Capa 3: <code>.gitignore</code></strong><br>
+          Excluye siempre: <code>Datos/clientes/clientes_codanor.json</code>,
+          <code>clientes_codanor.json</code>, <code>*.sqlite</code>, <code>.env</code>.
+          El fichero de clientes <strong>nunca se commitea</strong>.
+        </li>
+        <li>
+          <strong>Capa 4: <code>AGENTS.md</code></strong><br>
+          Documenta la dependencia opcional en una seccion <em>"Datos compartidos"</em>:
+          que es, de donde viene, que pasa si falta.
+        </li>
+      </ol>
+
+      <h2>Caso especial: Plantillas_ENS_ISO</h2>
+      <div class="alert alert-info">
+        <div class="alert-title">clientes_codanor.json != clientes_guardados.json</div>
+        <p>
+          <code>Plantillas_ENS_ISO</code> tiene su propio fichero <code>clientes_guardados.json</code>
+          con un <strong>esquema completamente distinto</strong> (campos como <code>cl-email-dpo</code>,
+          <code>cl-admin-user</code>, <code>cl-sharepoint-url</code>) orientado a rellenar
+          placeholders en plantillas documentales .docx.
+        </p>
+        <p>
+          <strong>NO se fusionan.</strong> Son complementarios: <code>clientes_codanor.json</code>
+          es el directorio de contacto (quien es el cliente), <code>clientes_guardados.json</code>
+          son datos de formulario para generar documentos. Se documenta en AGENTS.md
+          y opcionalmente se permite pre-rellenar campos comunes (nombre, CIF) desde
+          <code>clientes_codanor.json</code> como import opcional.
+        </p>
+      </div>
+
+      <h2>Consumidores actuales vs. previstos</h2>
+      <table>
+        <thead>
+          <tr><th>Modulo</th><th>Estado actual</th><th>Mecanismo</th><th>Si falta el fichero</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>OSSINT (2)</td>
+            <td class="st-ok">Integrado</td>
+            <td>Lee directa (<code>../../clientes_codanor.json</code>)</td>
+            <td>HTTP 404 elegante</td>
+          </tr>
+          <tr>
+            <td>Plat.Seg. ISO27001 (4)</td>
+            <td class="st-ok">Integrado</td>
+            <td>Copia via <code>iniciar.sh</code></td>
+            <td>Warning + arranca</td>
+          </tr>
+          <tr>
+            <td>Plat.Seg. ISO9001 (4)</td>
+            <td class="st-ok">Integrado</td>
+            <td>Copia via <code>iniciar.sh</code></td>
+            <td>Warning + arranca</td>
+          </tr>
+          <tr>
+            <td>Gestion_Riesgos_ENS (9)</td>
+            <td class="st-warn">Pendiente</td>
+            <td>Crear iniciar.sh + selector cliente</td>
+            <td>&mdash;</td>
+          </tr>
+          <tr>
+            <td>Gestion_Riesgos_ISO27001 (8)</td>
+            <td class="st-warn">Pendiente</td>
+            <td>Crear iniciar.sh + selector cliente</td>
+            <td>&mdash;</td>
+          </tr>
+          <tr>
+            <td>Gestion_Riesgos_LOPD-RGPD (11)</td>
+            <td class="st-warn">Pendiente</td>
+            <td>Crear iniciar.sh + selector cliente</td>
+            <td>&mdash;</td>
+          </tr>
+          <tr>
+            <td>Gestion_Riesgos_ISO9001 (6)</td>
+            <td class="st-fail">Modulo vacio</td>
+            <td>Se creara con la estructura completa</td>
+            <td>&mdash;</td>
+          </tr>
+          <tr>
+            <td>Gestion_Riesgos_ISO14001 (7)</td>
+            <td class="st-fail">Modulo vacio</td>
+            <td>Se creara con la estructura completa</td>
+            <td>&mdash;</td>
+          </tr>
+          <tr>
+            <td>Gestion_Riesgos_ISO42001 (12)</td>
+            <td class="st-fail">Modulo vacio</td>
+            <td>Se creara con la estructura completa</td>
+            <td>&mdash;</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>Refactorizacion prevista: OSSINT</h2>
+      <p>
+        Actualmente OSSINT lee el fichero con ruta relativa
+        <code>os.path.dirname(os.path.dirname(__file__))</code> que asume estar en
+        <code>~/Proyectos/OSSINT/</code>. Se refactorizara para usar una variable
+        de entorno con fallback:
+      </p>
+      <pre><code># Antes (acoplado a la ruta):
+CLIENTES_PATH = os.path.join(
+    os.path.dirname(os.path.dirname(__file__)),
+    'clientes_codanor.json'
+)
+
+# Despues (autonomo):
+CLIENTES_PATH = os.environ.get(
+    'CLIENTES_JSON',
+    os.path.join(os.path.dirname(__file__), 'Datos', 'clientes', 'clientes_codanor.json')
+)</code></pre>
+    </div>
+
+    <hr>
+
+    <!-- ================================================================
+         CAPITULO 6: FASE 1 — MODULOS CRITICOS
+         ================================================================ -->
+    <div class="section" id="cap6">
+      <h1>6. Fase 1: Modulos Criticos</h1>
+      <p class="chapter-intro">
+        Crear los 4 artefactos completos para los 3 modulos casi vacios.
+        <span class="badge badge-phase">Prioridad ALTA</span>
+      </p>
+
+      <h2>Modulos afectados</h2>
+      <table>
+        <thead>
+          <tr><th>#</th><th>Modulo</th><th>Tiene</th><th>Falta</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>6</td><td>Gestion_Riesgos_ISO9001</td>
+            <td>Memory.md</td>
+            <td>AGENTS.md, opencode.json, .gitignore, Prompt/, Manuales/</td>
+          </tr>
+          <tr>
+            <td>7</td><td>Gestion_Riesgos_ISO14001</td>
+            <td>Memory.md</td>
+            <td>AGENTS.md, opencode.json, .gitignore, Prompt/, Manuales/</td>
+          </tr>
+          <tr>
+            <td>12</td><td>Gestion_Riesgos_ISO42001</td>
+            <td>CSV/XLSX sueltos</td>
+            <td><strong>TODO</strong>: Memory.md, AGENTS.md, opencode.json, .gitignore, Prompt/, Manuales/</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>Tareas por modulo</h2>
+      <ol class="step-list">
+        <li>
+          <strong>Crear <code>AGENTS.md</code></strong> usando la plantilla estandar
+          (ver Capitulo 11). Secciones obligatorias: What this is, Critical rules,
+          Project structure, Key facts an agent would miss, Datos compartidos.
+        </li>
+        <li>
+          <strong>Crear/completar <code>Memory.md</code></strong> para ISO42001 (los otros 2 ya lo tienen).
+          Secciones: Estado actual, Infraestructura, Historial de decisiones, Pendiente, Notas.
+        </li>
+        <li>
+          <strong>Crear <code>opencode.json</code></strong> identico en los 3:
+          <pre><code>{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": ["AGENTS.md"]
+}</code></pre>
+        </li>
+        <li>
+          <strong>Crear <code>.gitignore</code></strong> estandar (ver Capitulo 11).
+        </li>
+        <li>
+          <strong>Crear carpeta <code>Prompt/</code></strong> con al menos un fichero
+          de especificacion base (<code>Prompt_Maestro_{nombre}.docx</code> o
+          <code>.md</code> con la descripcion del modulo).
+        </li>
+        <li>
+          <strong>Crear carpeta <code>Manuales/</code></strong> con un placeholder
+          o un manual minimo si el modulo ya tiene interfaz.
+        </li>
+      </ol>
+
+      <div class="alert alert-info">
+        <div class="alert-title">Esfuerzo estimado</div>
+        <p>~2&ndash;3 horas para los 3 modulos. ISO42001 requiere mas trabajo al ser el mas vacio.</p>
+      </div>
+    </div>
+
+    <hr>
+
+    <!-- ================================================================
+         CAPITULO 7: FASE 1.5 — INTEGRACION CLIENTES
+         ================================================================ -->
+    <div class="section" id="cap7">
+      <h1>7. Fase 1.5: Integracion de Clientes</h1>
+      <p class="chapter-intro">
+        Establecer el patron estandar de consumo de <code>clientes_codanor.json</code>
+        en los modulos que gestionan riesgos por cliente.
+        <span class="badge badge-phase">Prioridad ALTA</span>
+      </p>
+
+      <h2>Acciones por modulo</h2>
+      <table>
+        <thead>
+          <tr><th>#</th><th>Modulo</th><th>Accion</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>9</td><td>Gestion_Riesgos_ENS</td>
+            <td>Crear <code>iniciar.sh</code> con patron estandar. Anadir selector de cliente al HTML.</td>
+          </tr>
+          <tr>
+            <td>8</td><td>Gestion_Riesgos_ISO27001</td>
+            <td>Idem. Ya tiene dashboard funcional.</td>
+          </tr>
+          <tr>
+            <td>11</td><td>Gestion_Riesgos_LOPD-RGPD</td>
+            <td>Idem. Prioridad especial: RGPD gestiona directamente datos personales.</td>
+          </tr>
+          <tr>
+            <td>6, 7, 12</td><td>ISO9001, ISO14001, ISO42001</td>
+            <td>Se crean ya con la integracion de clientes incluida (Fase 1).</td>
+          </tr>
+          <tr>
+            <td>13</td><td>Eval_Aspectos_Ambientales</td>
+            <td>Anadir <code>iniciar.sh</code>. Corregir <code>opencode.json</code> roto.</td>
+          </tr>
+          <tr>
+            <td>3</td><td>Seguimiento_licitaciones</td>
+            <td>Anadir <code>iniciar.sh</code> para licitaciones por cliente.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>Acciones transversales</h2>
+      <ul>
+        <li>
+          <strong>Cada <code>.gitignore</code></strong> de cada proyecto consumidor debe incluir:
+          <pre><code>clientes_codanor.json
+Datos/clientes/
+*.sqlite
+.env
+.env.*</code></pre>
+        </li>
+        <li>
+          <strong>Cada <code>AGENTS.md</code></strong> de modulo consumidor debe documentar la
+          dependencia opcional en una seccion <em>"Datos compartidos"</em>.
+        </li>
+        <li>
+          <strong>Refactorizar OSSINT</strong>: cambiar ruta hardcoded relativa por variable de
+          entorno <code>CLIENTES_JSON</code> con fallback a copia local.
+        </li>
+        <li>
+          <strong>Memory.md raiz</strong>: actualizar la tabla de consumidores de
+          <code>clientes_codanor.json</code>.
+        </li>
+      </ul>
+
+      <div class="alert alert-info">
+        <div class="alert-title">Esfuerzo estimado</div>
+        <p>~2 horas. La mayor parte del trabajo es replicar el patron de <code>iniciar.sh</code>
+        (ya probado en Plataforma_Seguimiento) y anadir selectores de cliente a los dashboards HTML.</p>
+      </div>
+    </div>
+
+    <hr>
+
+    <!-- ================================================================
+         CAPITULO 8: FASE 2 — MODULOS INCOMPLETOS
+         ================================================================ -->
+    <div class="section" id="cap8">
+      <h1>8. Fase 2: Modulos Incompletos</h1>
+      <p class="chapter-intro">
+        Completar artefactos faltantes en 5 modulos que ya existen pero no cumplen el estandar.
+        <span class="badge badge-warn">Prioridad MEDIA</span>
+      </p>
+
+      <table>
+        <thead>
+          <tr><th>#</th><th>Modulo</th><th>Accion especifica</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>4</td><td>Plataforma_Seguimiento_Proyectos</td>
+            <td>Crear AGENTS.md, opencode.json. Crear carpetas Prompt/ y Manuales/ en la raiz del modulo.</td>
+          </tr>
+          <tr>
+            <td>5</td><td>Mapa_Procesos</td>
+            <td>Crear carpetas Prompt/ y Manuales/. Anadir .gitignore.</td>
+          </tr>
+          <tr>
+            <td>13</td><td>Evaluacion_Aspectos_Ambientales</td>
+            <td>Crear carpeta Manuales/. Corregir nombre de fichero <code>opencode.json</code> (actualmente roto). Anadir .gitignore.</td>
+          </tr>
+          <tr>
+            <td>14</td><td>Plantillas_ENS_ISO</td>
+            <td>Mover <code>Agente/AGENTS.md</code> a la raiz del proyecto.</td>
+          </tr>
+          <tr>
+            <td>16</td><td>Seguimiento de Actas de reunion</td>
+            <td>Decidir: subir artefactos (AGENTS.md, Memory.md, opencode.json) de <code>codanor-actas/</code> a la raiz, o documentar que la sub-estructura es intencional.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="alert alert-info">
+        <div class="alert-title">Esfuerzo estimado</div>
+        <p>~1.5&ndash;2 horas. Principalmente creacion de ficheros con plantillas ya definidas.</p>
+      </div>
+    </div>
+
+    <hr>
+
+    <!-- ================================================================
+         CAPITULO 9: FASE 3 — CONFIGURACION PENDIENTE
+         ================================================================ -->
+    <div class="section" id="cap9">
+      <h1>9. Fase 3: Configuracion Pendiente</h1>
+      <p class="chapter-intro">
+        Modulos funcionales con artefactos completos pero sin <code>opencode.json</code>.
+        <span class="badge badge-warn">Prioridad MEDIA</span>
+      </p>
+
+      <table>
+        <thead>
+          <tr><th>#</th><th>Modulo</th><th>Accion</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td><td>Planificacion_Diaria_Proyectos</td>
+            <td>Crear <code>opencode.json</code> estandar.</td>
+          </tr>
+          <tr>
+            <td>2</td><td>OSSINT</td>
+            <td>Ya tiene <code>opencode.json</code>. Solo falta <code>.git</code> (queda para fase posterior).</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="alert alert-info">
+        <div class="alert-title">Esfuerzo estimado</div>
+        <p>~15 minutos.</p>
+      </div>
+    </div>
+
+    <hr>
+
+    <!-- ================================================================
+         CAPITULO 10: FASE 4 — LIMPIEZA Y CONSOLIDACION
+         ================================================================ -->
+    <div class="section" id="cap10">
+      <h1>10. Fase 4: Limpieza y Consolidacion</h1>
+      <p class="chapter-intro">
+        Tareas de mantenimiento y cierre del plan.
+        <span class="badge badge-ok">Prioridad BAJA</span>
+      </p>
+
+      <table>
+        <thead>
+          <tr><th>Tarea</th><th>Detalle</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Deprecar PLATAFORMA_OpenCode viejo</strong></td>
+            <td>Anadir un <code>DEPRECATED.md</code> en <code>~/Proyectos/PLATAFORMA_OpenCode/</code>
+            apuntando a <code>PLATAFORMA_OpenCode-NEW</code> como sucesor.</td>
+          </tr>
+          <tr>
+            <td><strong>Eliminar token SonarCloud expuesto</strong></td>
+            <td>Quitar el token en texto plano de <code>Memory.md</code> de PLATAFORMA_OpenCode-NEW (linea 77).
+            Regenerar el token en SonarCloud.</td>
+          </tr>
+          <tr>
+            <td><strong>Actualizar Memory.md raiz</strong></td>
+            <td>Reflejar el estado real de los 17 modulos tras la homogeneizacion completada.</td>
+          </tr>
+          <tr>
+            <td><strong>Actualizar AGENTS.md raiz</strong></td>
+            <td>Actualizar la tabla de navegacion con los modulos corregidos y los nuevos artefactos.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="alert alert-info">
+        <div class="alert-title">Esfuerzo estimado</div>
+        <p>~30 minutos.</p>
+      </div>
+    </div>
+
+    <hr>
+
+    <!-- ================================================================
+         CAPITULO 11: PLANTILLAS ESTANDAR
+         ================================================================ -->
+    <div class="section" id="cap11">
+      <h1>11. Plantillas Estandar</h1>
+      <p class="chapter-intro">
+        Plantillas reutilizables para crear los artefactos en cada modulo.
+        Basadas en el patron detectado en los modulos completos (ENS, ISO27001, PreSIEM).
+      </p>
+
+      <h2>Plantilla: opencode.json</h2>
+      <pre><code>{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": ["AGENTS.md"]
+}</code></pre>
+
+      <h2>Plantilla: AGENTS.md</h2>
+      <pre><code># AGENTS.md &mdash; {NOMBRE_PROYECTO}
+
+## What this is
+{Descripcion en 1-3 lineas: que hace, tecnologia, tamano}
+**Client:** CODANOR (JAFA, SLU, NIF B08358327, codanor.com)
+
+## Critical rules
+- **{Regla 1}**: {explicacion}
+- **{Regla 2}**: {explicacion}
+
+## Project structure
+```
+{NOMBRE_PROYECTO}/
++-- opencode.json       &larr; Config OpenCode
++-- AGENTS.md           &larr; Este fichero
++-- Memory.md           &larr; Estado, historial, pendientes
++-- .gitignore          &larr; Exclusiones Git
++-- {app_principal}     &larr; Aplicacion (HTML/Python/...)
++-- Datos/
+|   '-- clientes/       &larr; Copia local de clientes (RGPD, .gitignore)
++-- Prompt/             &larr; Prompts y especificaciones
++-- Manuales/           &larr; Manuales de usuario
+'-- Scripts/            &larr; Generadores y utilidades
+```
+
+## Key facts an agent would miss
+- {Gotcha 1}
+- {Gotcha 2}
+
+## Datos compartidos
+- **clientes_codanor.json**: fichero maestro de clientes CODANOR.
+  Producido por Planificacion_Diaria, copiado por `iniciar.sh`.
+  Ruta local: `./Datos/clientes/clientes_codanor.json`.
+  Si falta: la app funciona sin selector de cliente.</code></pre>
+
+      <h2>Plantilla: Memory.md</h2>
+      <pre><code># Memory.md &mdash; {NOMBRE_PROYECTO}
+> Ultima actualizacion: {YYYY-MM-DD}
+
+## Estado actual
+
+- **Fase**: {Desarrollo / Produccion / Embrionario}
+- **Ultimo cambio significativo**: {descripcion (fecha)}
+- **Tamano**: {X MB, Y archivos}
+
+## Infraestructura
+
+| Elemento | Estado | Detalle |
+|----------|--------|---------|
+| Git | {Si/No} | {detalle} |
+| GitHub | {Si/No} | {detalle} |
+| SonarCloud | {Si/No} | {detalle} |
+| .gitignore | {Si/No} | {detalle} |
+| AGENTS.md | Si | Instrucciones para agentes IA |
+| Memory.md | Si | Este archivo |
+
+## Historial de decisiones
+
+| Fecha | Decision | Razon |
+|-------|----------|-------|
+| {fecha} | {que} | {por que} |
+
+## Pendiente
+
+- [ ] {tarea 1}
+- [ ] {tarea 2}
+
+## Notas y descubrimientos
+
+- {Nota relevante}</code></pre>
+
+      <h2>Plantilla: .gitignore</h2>
+      <pre><code># OS
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/
+package-lock.json
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+venv/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Sonar
+.scannerwork/
+
+# Datos sensibles (RGPD - NUNCA subir)
+clientes_codanor.json
+clientes_guardados.json
+Datos/clientes/
+*.sqlite
+*.db
+
+# Secretos
+.env
+.env.*
+auth.json
+
+# Logs
+*.log
+
+# Backups locales
+*.tar.gz</code></pre>
+
+      <h2>Plantilla: iniciar.sh</h2>
+      <pre><code>#!/bin/bash
+# =============================================================
+# iniciar.sh - {NOMBRE_PROYECTO}
+# CODANOR - Jafa, S.L. | Barcelona, Catalunya
+# =============================================================
+set -euo pipefail
+
+DIR="$(cd "$(dirname "$0")" && pwd)"
+CLIENTES_JSON="${CLIENTES_JSON:-$HOME/Proyectos/clientes_codanor.json}"
+
+echo "=== {NOMBRE_PROYECTO} ==="
+echo ""
+
+# --- Copiar datos de clientes (opcional) ---
+mkdir -p "$DIR/Datos/clientes"
+if [ -f "$CLIENTES_JSON" ]; then
+    cp "$CLIENTES_JSON" "$DIR/Datos/clientes/clientes_codanor.json"
+    echo "[OK] Clientes actualizados desde $CLIENTES_JSON"
+else
+    echo "[WARN] No se encontro $CLIENTES_JSON"
+    echo "       El modulo funcionara sin selector de cliente."
+fi
+
+# --- Arrancar aplicacion ---
+echo ""
+echo "Abriendo aplicacion..."
+# Para HTML: open "$DIR/{nombre}.html"
+# Para Python: python3 "$DIR/app.py"</code></pre>
+
+      <h2>Estructura objetivo de un modulo completo</h2>
+      <pre><code>{NOMBRE_PROYECTO}/
++-- opencode.json              &larr; Siempre identico (3 lineas)
++-- AGENTS.md                  &larr; Instrucciones agentes IA
++-- Memory.md                  &larr; Estado, historial, pendientes
++-- .gitignore                 &larr; Exclusiones Git + RGPD
++-- iniciar.sh                 &larr; Arranque + copia clientes
++-- {app_principal}            &larr; El producto (HTML/Python/...)
++-- assets/
+|   '-- img/                   &larr; logo_codanor.png + imagenes
++-- Datos/
+|   '-- clientes/              &larr; Copia local clientes (excluida de Git)
++-- Prompt/                    &larr; Especificaciones de prompts
++-- Manuales/                  &larr; Manuales de usuario (.docx/.html)
++-- Scripts/                   &larr; Generadores, utilidades
+'-- Referencia/                &larr; PDFs normativos de referencia</code></pre>
+    </div>
+
+    <hr>
+
+    <!-- ================================================================
+         CAPITULO 12: CRITERIOS DE VERIFICACION
+         ================================================================ -->
+    <div class="section" id="cap12">
+      <h1>12. Criterios de Verificacion</h1>
+      <p class="chapter-intro">
+        Checklist para verificar que cada modulo cumple el estandar tras la ejecucion del plan.
+      </p>
+
+      <h2>Checklist por modulo</h2>
+      <table>
+        <thead>
+          <tr><th>#</th><th>Criterio</th><th>Verificacion</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>Existe <code>opencode.json</code></td>
+            <td>Fichero valido con <code>"instructions": ["AGENTS.md"]</code></td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>Existe <code>AGENTS.md</code> en la raiz</td>
+            <td>Contiene secciones: What this is, Critical rules, Project structure, Key facts</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>Existe <code>Memory.md</code></td>
+            <td>Contiene secciones: Estado actual, Infraestructura, Historial, Pendiente, Notas</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>Existe <code>.gitignore</code></td>
+            <td>Incluye <code>clientes_codanor.json</code>, <code>*.sqlite</code>, <code>.env</code>, <code>.DS_Store</code></td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td>Existe carpeta <code>Prompt/</code></td>
+            <td>Contiene al menos 1 fichero de especificacion</td>
+          </tr>
+          <tr>
+            <td>6</td>
+            <td>Existe carpeta <code>Manuales/</code></td>
+            <td>Contiene al menos 1 manual o placeholder</td>
+          </tr>
+          <tr>
+            <td>7</td>
+            <td>Autonomia: standalone</td>
+            <td>Funciona sin <code>clientes_codanor.json</code> (warning, no error)</td>
+          </tr>
+          <tr>
+            <td>8</td>
+            <td>Autonomia: sin raiz</td>
+            <td>No tiene rutas absolutas hardcoded en el codigo fuente</td>
+          </tr>
+          <tr>
+            <td>9</td>
+            <td>Autonomia: sin hermanos</td>
+            <td>No referencia otros modulos por nombre o ruta en el codigo</td>
+          </tr>
+          <tr>
+            <td>10</td>
+            <td>RGPD: datos protegidos</td>
+            <td><code>clientes_codanor.json</code> excluido de Git en <code>.gitignore</code></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>Comando de verificacion rapida</h2>
+      <pre><code># Ejecutar desde ~/Proyectos/ para verificar todos los modulos:
+for d in */; do
+  echo "=== $d ==="
+  [ -f "$d/opencode.json" ]  && echo "  [OK] opencode.json" || echo "  [!!] opencode.json"
+  [ -f "$d/AGENTS.md" ]      && echo "  [OK] AGENTS.md"     || echo "  [!!] AGENTS.md"
+  [ -f "$d/Memory.md" ]      && echo "  [OK] Memory.md"     || echo "  [!!] Memory.md"
+  [ -f "$d/.gitignore" ]     && echo "  [OK] .gitignore"    || echo "  [!!] .gitignore"
+  [ -d "$d/Prompt" ] || [ -d "$d/PROMPT" ] && echo "  [OK] Prompt/"  || echo "  [!!] Prompt/"
+  [ -d "$d/Manuales" ] || [ -d "$d/Manual" ] && echo "  [OK] Manuales/"  || echo "  [!!] Manuales/"
+  echo ""
+done</code></pre>
+    </div>
+
+    <hr>
+
+    <!-- ================================================================
+         CAPITULO 13: CRONOGRAMA Y ESFUERZO
+         ================================================================ -->
+    <div class="section" id="cap13">
+      <h1>13. Cronograma y Esfuerzo</h1>
+      <p class="chapter-intro">
+        Resumen de fases, esfuerzos estimados y orden de ejecucion.
+      </p>
+
+      <table>
+        <thead>
+          <tr><th>Fase</th><th>Contenido</th><th>Modulos</th><th>Artefactos</th><th>Esfuerzo</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-fail">Fase 1</span></td>
+            <td>Modulos criticos: crear 4 artefactos completos</td>
+            <td>ISO9001 (6), ISO14001 (7), ISO42001 (12)</td>
+            <td>~15 ficheros nuevos</td>
+            <td><strong>2&ndash;3 h</strong></td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-fail">Fase 1.5</span></td>
+            <td>Integrar <code>clientes_codanor.json</code> + refactor OSSINT</td>
+            <td>ENS (9), ISO27001 (8), LOPD (11), Eval.Amb (13), Licit. (3), OSSINT (2)</td>
+            <td>~10 ficheros + ediciones</td>
+            <td><strong>2 h</strong></td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-warn">Fase 2</span></td>
+            <td>Completar artefactos faltantes</td>
+            <td>Plat.Seg. (4), Mapa (5), Eval.Amb (13), Plantillas (14), Actas (16)</td>
+            <td>~10 ficheros + 2 reorganizaciones</td>
+            <td><strong>1.5&ndash;2 h</strong></td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-warn">Fase 3</span></td>
+            <td>Configuracion pendiente (opencode.json)</td>
+            <td>Planificacion_Diaria (1)</td>
+            <td>1 fichero</td>
+            <td><strong>15 min</strong></td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-ok">Fase 4</span></td>
+            <td>Limpieza: deprecar viejo, token, Memory raiz</td>
+            <td>PLATAFORMA_OpenCode viejo, Memory.md raiz, AGENTS.md raiz</td>
+            <td>Ediciones + 1 fichero nuevo</td>
+            <td><strong>30 min</strong></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>Resumen total</h2>
+      <div class="card-grid card-grid-3">
+        <div class="card">
+          <h4>Esfuerzo total</h4>
+          <p style="font-size: 1.8rem; font-weight: 700; color: var(--primary); text-align: center;">~6 horas</p>
+        </div>
+        <div class="card">
+          <h4>Modulos afectados</h4>
+          <p style="font-size: 1.8rem; font-weight: 700; color: var(--primary); text-align: center;">14 de 17</p>
+        </div>
+        <div class="card">
+          <h4>Ficheros a crear</h4>
+          <p style="font-size: 1.8rem; font-weight: 700; color: var(--primary); text-align: center;">~36</p>
+        </div>
+      </div>
+
+      <h2>Orden de ejecucion recomendado</h2>
+      <p>Las fases 1 y 1.5 pueden ejecutarse en paralelo si se trabajan modulos diferentes
+      simultaneamente. Las fases 3 y 4 dependen de que las anteriores esten completadas.
+      Se recomienda ejecutar secuencialmente:</p>
+      <ol>
+        <li><strong>Fase 1</strong> &rarr; completar los 3 modulos vacios (base minima).</li>
+        <li><strong>Fase 1.5</strong> &rarr; integrar clientes en los modulos existentes.</li>
+        <li><strong>Fase 2</strong> &rarr; cerrar gaps de artefactos en los 5 modulos incompletos.</li>
+        <li><strong>Fase 3 + 4</strong> &rarr; config pendiente + limpieza final.</li>
+      </ol>
+    </div>
+
+    <hr>
+
+    <!-- ================================================================
+         CAPITULO 14: EXCLUSIONES Y FASE POSTERIOR
+         ================================================================ -->
+    <div class="section" id="cap14">
+      <h1>14. Exclusiones y Fase Posterior</h1>
+      <p class="chapter-intro">
+        Elementos explicitamente excluidos de este plan y previstos para fases futuras.
+      </p>
+
+      <h2>Excluido de este plan</h2>
+      <table>
+        <thead>
+          <tr><th>Elemento</th><th>Razon</th><th>Cuando</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Crear modulo <strong>GeNIS2</strong> (10)</td>
+            <td>Decision del usuario: dejarlo para mas adelante</td>
+            <td>Fase posterior</td>
+          </tr>
+          <tr>
+            <td>Inicializar <code>.git</code> en 10 proyectos</td>
+            <td>Prioridad del plan es estructura, no versionado</td>
+            <td>Fase posterior</td>
+          </tr>
+          <tr>
+            <td>Subir a GitHub los repos faltantes</td>
+            <td>Requiere <code>gh</code> o autenticacion manual</td>
+            <td>Fase posterior</td>
+          </tr>
+          <tr>
+            <td>Corregir 18 <code>innerHTML</code> (SonarCloud)</td>
+            <td>Bug de seguridad &mdash; plan separado</td>
+            <td>Mantenimiento continuo</td>
+          </tr>
+          <tr>
+            <td>Instalar Node.js / Homebrew / <code>gh</code></td>
+            <td>Requisito de infraestructura</td>
+            <td>Fase posterior</td>
+          </tr>
+          <tr>
+            <td>Automatizar backup con cron</td>
+            <td>El script existe, falta programar</td>
+            <td>Fase posterior</td>
+          </tr>
+          <tr>
+            <td>Asignar puertos unicos (conflicto 8080)</td>
+            <td>Requiere coordinar 3 proyectos</td>
+            <td>Fase posterior</td>
+          </tr>
+          <tr>
+            <td>Crear entornos virtuales Python (<code>venv</code>)</td>
+            <td>Requiere Node.js y Python gestionado</td>
+            <td>Fase posterior</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="alert alert-success">
+        <div class="alert-title">Resultado esperado</div>
+        <p>
+          Al completar las 4 fases de este plan, los <strong>17 modulos activos</strong> tendran
+          una estructura homogenea con los 6 artefactos obligatorios (AGENTS.md, Memory.md,
+          opencode.json, .gitignore, Prompt/, Manuales/), el fichero de clientes integrado
+          de forma autonoma y opcional, y cada modulo sera completamente independiente
+          para su desarrollo y mantenimiento continuado.
+        </p>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="doc-footer">
+      <img src="https://codanor.com/assets/img/logo_web-50.png" alt="CODANOR">
+      <p>
+        <strong>CODANOR</strong> &mdash; Jafa, S.L.<br>
+        Consultoria Organizativa y Legal<br>
+        Barcelona, Catalunya &bull; info@codanor.com &bull; +34 616 947 274
+      </p>
+      <p style="margin-top: 1rem; color: #aaa;">
+        Documento generado el 17 de Mayo de 2026 &bull; Version 1.0 (14 capitulos)
+      </p>
+    </div>
+
+  </main>
+</div>
+
+<!-- BOTON EXPORTAR PDF -->
+<button class="btn-print" onclick="window.print()" title="Exportar a PDF">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/>
+    <rect x="6" y="14" width="12" height="8"/>
+  </svg>
+  Exportar PDF
+</button>
+
+</body>
+</html>

@@ -21,6 +21,9 @@ package-lock.json
 # Backups locales (no subir al repo)
 # Los backups se guardan en ~/Documents/opencode-backups/
 
+# Datos sensibles (RGPD - NUNCA subir)
+clientes_codanor.json
+
 # Secretos - NUNCA subir
 .env
 .env.*
