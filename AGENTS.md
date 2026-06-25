@@ -128,6 +128,10 @@ PLATAFORMA_OpenCode-NEW/
   Example: `Add user authentication endpoint`.
 - Keep commits atomic — one logical change per commit.
 - Do not commit secrets, `.env` files, or credentials.
+- **Regular commit prompting**: When the user makes changes during a session,
+  proactively ask (in Spanish) whether they want to commit and push to GitHub.
+  Ask at natural checkpoints (after completing a logical unit of work), not on
+  every single edit. Never commit or push without explicit confirmation.
 
 ## Agent-Specific Instructions
 

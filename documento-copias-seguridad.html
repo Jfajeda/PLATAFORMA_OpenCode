@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Copias de Seguridad de OpenCode - CODANOR</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Nunito+Sans:wght@300;400;600;700&family=Muli:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #178DC2;
+      --primary-dark: #1275A3;
+      --primary-light: #e8f4fa;
+      --accent: #12A79D;
+      --accent-light: #e6f6f5;
+      --dark: #1f2933;
+      --gray: #52606d;
+      --gray-light: #e4e7eb;
+      --bg: #f5f7fa;
+      --white: #ffffff;
+      --warning: #f0a202;
+      --warning-light: #fff6e0;
+      --danger: #d64545;
+      --danger-light: #fceaea;
+      --success: #12A79D;
+      --space: 1rem;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Nunito Sans', 'Muli', sans-serif;
+      color: var(--dark);
+      background: var(--bg);
+      line-height: 1.65;
+    }
+
+    /* ===================== PORTADA ===================== */
+    .cover-page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 40%, var(--dark) 100%);
+      color: var(--white);
+      padding: 3rem 1.5rem;
+      position: relative;
+    }
+    .cover-logo { width: 220px; margin-bottom: 2rem; filter: brightness(0) invert(1); }
+    .cover-divider { width: 80px; height: 4px; background: var(--accent); border-radius: 2px; margin: 1.5rem 0; }
+    .cover-title {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: 2.6rem;
+      margin-bottom: 0.75rem;
+      letter-spacing: -0.5px;
+    }
+    .cover-subtitle {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 400;
+      font-size: 1.25rem;
+      opacity: 0.92;
+      margin-bottom: 1rem;
+    }
+    .cover-edition { max-width: 540px; opacity: 0.85; margin-bottom: 1.75rem; }
+    .cover-badge {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      padding: 0.4rem 1.1rem;
+      border-radius: 50px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+    .cover-footer {
+      position: absolute;
+      bottom: 2rem;
+      width: 100%;
+    }
+    .cover-footer p { opacity: 0.85; font-size: 0.9rem; }
+
+    /* ===================== LAYOUT ===================== */
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem 5rem;
+    }
+
+    section.block { margin-bottom: 3rem; }
+
+    h2 {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      font-size: 1.7rem;
+      color: var(--dark);
+      padding-bottom: 0.4rem;
+      border-bottom: 3px solid var(--primary);
+      display: inline-block;
+      margin-bottom: 1.25rem;
+    }
+    h3 {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      font-size: 1.25rem;
+      color: var(--primary);
+      margin: 1.5rem 0 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    h4 {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      font-size: 1.05rem;
+      color: var(--dark);
+      margin: 1rem 0 0.5rem;
+    }
+    p { margin-bottom: 0.85rem; color: var(--gray); }
+    ul, ol { margin: 0 0 1rem 1.5rem; color: var(--gray); }
+    li { margin-bottom: 0.4rem; }
+    strong { color: var(--dark); }
+
+    a { color: var(--primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    code {
+      font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+      background: var(--primary-light);
+      color: var(--primary-dark);
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      font-size: 0.88em;
+    }
+    pre {
+      background: var(--dark);
+      color: #e4e7eb;
+      padding: 1rem 1.25rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 0.75rem 0 1.25rem;
+      font-size: 0.85rem;
+      line-height: 1.55;
+    }
+    pre code {
+      background: none;
+      color: inherit;
+      padding: 0;
+      font-size: inherit;
+    }
+
+    /* ===================== TABLAS ===================== */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0 1.5rem;
+      background: var(--white);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+    }
+    thead { background: var(--primary); color: var(--white); }
+    th, td {
+      padding: 0.7rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--gray-light);
+      font-size: 0.92rem;
+    }
+    th { font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 0.88rem; }
+    tbody tr:hover { background: var(--primary-light); }
+    tbody tr:last-child td { border-bottom: none; }
+
+    /* ===================== ALERTAS ===================== */
+    .alert {
+      padding: 1rem 1.25rem;
+      border-radius: 8px;
+      border-left: 4px solid;
+      margin: 1.25rem 0;
+    }
+    .alert-title { font-family: 'Poppins', sans-serif; font-weight: 600; margin-bottom: 0.25rem; }
+    .alert-info { background: var(--primary-light); border-color: var(--primary); }
+    .alert-info .alert-title { color: var(--primary-dark); }
+    .alert-warning { background: var(--warning-light); border-color: var(--warning); }
+    .alert-warning .alert-title { color: #b67a00; }
+    .alert-danger { background: var(--danger-light); border-color: var(--danger); }
+    .alert-danger .alert-title { color: var(--danger); }
+    .alert-success { background: var(--accent-light); border-color: var(--accent); }
+    .alert-success .alert-title { color: var(--accent); }
+    .alert p:last-child { margin-bottom: 0; }
+
+    /* ===================== TARJETAS DE OPCIONES ===================== */
+    .options-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.25rem;
+      margin: 1.5rem 0;
+    }
+    .option-card {
+      background: var(--white);
+      border: 1px solid var(--gray-light);
+      border-top: 4px solid var(--gray);
+      border-radius: 10px;
+      padding: 1.25rem;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .option-card:hover { transform: translateY(-3px); box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08); }
+    .option-card.featured {
+      border-top-color: var(--accent);
+      box-shadow: 0 4px 16px rgba(18, 167, 157, 0.18);
+      position: relative;
+    }
+    .option-card.featured::after {
+      content: 'RECOMENDADO';
+      position: absolute;
+      top: -11px;
+      right: 1rem;
+      background: var(--accent);
+      color: var(--white);
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      padding: 0.2rem 0.7rem;
+      border-radius: 50px;
+    }
+    .option-card h4 {
+      color: var(--primary);
+      margin-top: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .option-card.featured h4 { color: var(--accent); }
+    .option-card .tag {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      padding: 0.15rem 0.6rem;
+      border-radius: 50px;
+      margin-bottom: 0.6rem;
+    }
+    .tag-pro { background: var(--accent-light); color: var(--accent); }
+    .tag-mid { background: var(--primary-light); color: var(--primary-dark); }
+    .tag-future { background: var(--gray-light); color: var(--gray); }
+    .option-card p { font-size: 0.88rem; margin-bottom: 0.5rem; }
+
+    /* ===================== SECCION DESTACADA NAS ===================== */
+    .nas-highlight {
+      background: linear-gradient(135deg, var(--accent-light) 0%, var(--white) 100%);
+      border: 2px solid var(--accent);
+      border-radius: 14px;
+      padding: 2rem;
+      margin: 1.5rem 0;
+    }
+    .nas-highlight h2 {
+      border-bottom-color: var(--accent);
+      color: var(--accent);
+    }
+    .step-list { counter-reset: step; list-style: none; margin-left: 0; }
+    .step-list li {
+      position: relative;
+      padding-left: 2.5rem;
+      margin-bottom: 1rem;
+    }
+    .step-list li::before {
+      counter-increment: step;
+      content: counter(step);
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 1.7rem;
+      height: 1.7rem;
+      background: var(--accent);
+      color: var(--white);
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      font-size: 0.85rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ===================== FOOTER ===================== */
+    .doc-footer {
+      background: var(--dark);
+      color: #cbd2d9;
+      padding: 2.5rem 1.5rem;
+      text-align: center;
+    }
+    .doc-footer img { height: 40px; filter: brightness(0) invert(1); opacity: 0.9; margin-bottom: 1rem; }
+    .doc-footer p { color: #cbd2d9; margin-bottom: 0.3rem; font-size: 0.9rem; }
+    .doc-footer .brand { font-family: 'Poppins', sans-serif; font-weight: 600; color: var(--white); }
+
+    /* ===================== BOTON IMPRIMIR ===================== */
+    .btn-print {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      background: var(--primary);
+      color: var(--white);
+      border: none;
+      padding: 0.7rem 1.4rem;
+      border-radius: 50px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 500;
+      font-size: 0.9rem;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(23, 141, 194, 0.35);
+      transition: background 0.15s, transform 0.15s;
+      z-index: 100;
+    }
+    .btn-print:hover { background: var(--primary-dark); transform: translateY(-2px); }
+
+    @media print {
+      .btn-print { display: none !important; }
+      body { background: var(--white); }
+      .cover-page { min-height: 100vh; page-break-after: always; }
+      section.block { page-break-inside: avoid; }
+    }
+
+    @media (max-width: 640px) {
+      .cover-title { font-size: 1.9rem; }
+      .container { padding: 2rem 1rem 3rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ======================================================================
+     PORTADA
+     ====================================================================== -->
+<div class="cover-page">
+  <div class="cover-content">
+    <img src="https://codanor.com/assets/img/logo-light.png" alt="Logo corporativo CODANOR" class="cover-logo">
+    <div class="cover-divider"></div>
+    <h1 class="cover-title">Copias de Seguridad de OpenCode</h1>
+    <p class="cover-subtitle">Opciones de respaldo, automatizacion y recuperacion</p>
+    <p class="cover-edition">
+      Guia corporativa sobre las posibilidades de realizar copias de seguridad de
+      proyectos, datos y configuracion de OpenCode, con enfasis en el almacenamiento
+      en NAS Synology.
+    </p>
+    <span class="cover-badge">Version 1.0 &bull; Junio 2026</span>
+  </div>
+  <div class="cover-footer">
+    <p>Jafa, S.L. &mdash; CODANOR &bull; Barcelona, Catalunya</p>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- ================================================================== -->
+  <!-- 1. INTRODUCCION                                                     -->
+  <!-- ================================================================== -->
+  <section class="block">
+    <h2>1. Introduccion</h2>
+    <p>
+      El entorno de trabajo con <strong>OpenCode</strong> en CODANOR genera tres
+      activos digitales que deben protegerse frente a perdida de datos, fallos de
+      hardware o errores humanos:
+    </p>
+    <ul>
+      <li><strong>Proyectos de codigo</strong> &mdash; el trabajo desarrollado en <code>~/Proyectos</code>.</li>
+      <li><strong>Datos de OpenCode</strong> &mdash; el historial de sesiones, almacenamiento interno
+        y la base de datos <code>opencode.db</code>.</li>
+      <li><strong>Configuracion</strong> &mdash; agentes, comandos y ajustes en <code>~/.config/opencode</code>.</li>
+    </ul>
+    <p>
+      Este documento describe las <strong>opciones disponibles</strong> para realizar
+      dichas copias de forma fiable y recurrente, haciendo especial enfasis en el uso
+      de un <strong>NAS Synology</strong> como destino principal de respaldo.
+    </p>
+    <div class="alert alert-info">
+      <div class="alert-title">Regla 3-2-1</div>
+      <p>
+        Mantener <strong>3</strong> copias de los datos, en <strong>2</strong> tipos
+        de soporte distintos, con <strong>1</strong> copia fuera del equipo principal.
+        El NAS Synology cubre la copia centralizada y duradera de esta estrategia.
+      </p>
+    </div>
+  </section>
+
+  <!-- ================================================================== -->
+  <!-- 2. QUE SE RESPALDA Y QUE SE EXCLUYE                                 -->
+  <!-- ================================================================== -->
+  <section class="block">
+    <h2>2. Que se respalda y que se excluye</h2>
+    <p>
+      Para optimizar espacio y tiempo, el respaldo incluye solo los datos
+      imprescindibles y excluye material voluminoso y reproducible.
+    </p>
+
+    <h3>Incluido en la copia</h3>
+    <table>
+      <thead>
+        <tr><th>Bloque</th><th>Origen</th><th>Tamano aprox.</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Proyectos</td><td><code>~/Proyectos</code> (18 proyectos)</td><td>~5.6 GB</td></tr>
+        <tr><td>Datos OpenCode</td><td><code>storage/</code> + <code>opencode.db</code> + <code>auth.json</code> + <code>account.json</code></td><td>~640 MB</td></tr>
+        <tr><td>Configuracion</td><td><code>~/.config/opencode</code></td><td>~6.5 MB</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Excluido de la copia</h3>
+    <table>
+      <thead>
+        <tr><th>Elemento</th><th>Motivo de exclusion</th><th>Tamano evitado</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>snapshot/</code></td><td>Voluminoso y regenerable</td><td>~19 GB</td></tr>
+        <tr><td><code>cache/</code></td><td>Datos temporales reproducibles</td><td>~102 MB</td></tr>
+        <tr><td><code>log/</code></td><td>Registros no criticos</td><td>variable</td></tr>
+        <tr><td><code>bin/</code></td><td>Binarios reinstalables</td><td>variable</td></tr>
+      </tbody>
+    </table>
+
+    <div class="alert alert-success">
+      <div class="alert-title">Resultado</div>
+      <p>
+        Al excluir los snapshots, el tamano total del respaldo se reduce de unos
+        26 GB a aproximadamente <strong>6.3 GB</strong>, agilizando cada copia y
+        reduciendo el consumo de almacenamiento en el NAS.
+      </p>
+    </div>
+  </section>
+
+  <!-- ================================================================== -->
+  <!-- 3. COMPARATIVA DE OPCIONES                                          -->
+  <!-- ================================================================== -->
+  <section class="block">
+    <h2>3. Opciones de realizacion del backup</h2>
+    <p>
+      Existen varias vias para almacenar las copias. La siguiente comparativa resume
+      las disponibles en el entorno CODANOR.
+    </p>
+
+    <div class="options-grid">
+      <div class="option-card featured">
+        <span class="tag tag-pro">Principal</span>
+        <h4>NAS Synology</h4>
+        <p>Almacenamiento en red centralizado, con RAID, gran capacidad (7.4 TB libres)
+          y retencion prolongada. Destino por defecto del script de backup.</p>
+        <p><strong>Ideal para:</strong> copia principal, automatizada y duradera.</p>
+      </div>
+
+      <div class="option-card">
+        <span class="tag tag-mid">Sistema</span>
+        <h4>Time Machine</h4>
+        <p>Copia horaria del sistema completo de macOS sobre disco dedicado. Ya activa
+          en el equipo (disco de 1.8 TB).</p>
+        <p><strong>Ideal para:</strong> recuperacion del sistema completo.</p>
+      </div>
+
+      <div class="option-card">
+        <span class="tag tag-mid">Local</span>
+        <h4>Disco externo USB</h4>
+        <p>Copia manual o programada en una unidad externa (p. ej. Transcend, 852 GB).
+          Util como copia fisica desconectable.</p>
+        <p><strong>Ideal para:</strong> copia offline portatil.</p>
+      </div>
+
+      <div class="option-card">
+        <span class="tag tag-future">Futuro</span>
+        <h4>Nube / GitHub</h4>
+        <p>Tercera capa fuera de las instalaciones. Pendiente de definir (repositorios
+          privados o almacenamiento en la nube cifrado).</p>
+        <p><strong>Ideal para:</strong> copia externa (off-site).</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================================================================== -->
+  <!-- 4. SECCION DESTACADA: NAS SYNOLOGY                                  -->
+  <!-- ================================================================== -->
+  <section class="block nas-highlight">
+    <h2>4. Copia de seguridad en NAS Synology</h2>
+    <p>
+      El <strong>NAS Synology</strong> es la opcion recomendada como destino principal
+      de las copias de OpenCode en CODANOR. Un NAS (<em>Network Attached Storage</em>)
+      es un sistema de almacenamiento conectado a la red local que ofrece capacidad,
+      redundancia y acceso compartido.
+    </p>
+
+    <h3>Ventajas frente a otras opciones</h3>
+    <ul>
+      <li><strong>Centralizado</strong>: accesible desde cualquier equipo de la red.</li>
+      <li><strong>Redundancia RAID</strong>: tolerancia a fallo de disco.</li>
+      <li><strong>Gran capacidad</strong>: 7.4 TB libres en el volumen <code>CODANOR</code>.</li>
+      <li><strong>Retencion prolongada</strong>: permite conservar muchas versiones.</li>
+      <li><strong>Funciones DSM</strong>: snapshots, papelera de red, cuotas y Hyper Backup.</li>
+    </ul>
+
+    <h3>4.1. Montar el NAS en macOS (SMB)</h3>
+    <p>El volumen se conecta mediante el protocolo SMB. Desde Finder:</p>
+    <ol class="step-list">
+      <li>En Finder, menu <strong>Ir &rarr; Conectarse al servidor</strong> (<code>Cmd</code>+<code>K</code>).</li>
+      <li>Introducir la direccion del NAS, por ejemplo
+        <code>smb://SYCODANOR-920.local/CODANOR</code>.</li>
+      <li>Autenticarse con el usuario del NAS (p. ej. <code>Jfajeda</code>).</li>
+      <li>El volumen quedara montado en <code>/Volumes/CODANOR</code>.</li>
+    </ol>
+
+    <div class="alert alert-warning">
+      <div class="alert-title">Requisito imprescindible en macOS: Acceso total al disco</div>
+      <p>
+        Para que un <strong>script o tarea automatica</strong> pueda escribir en un
+        volumen de red, macOS exige conceder el permiso <strong>"Acceso total al
+        disco"</strong> (TCC). Sin el, los comandos devuelven
+        <code>Operation not permitted</code>.
+      </p>
+      <p>
+        Concedelo en <strong>Ajustes del Sistema &rarr; Privacidad y seguridad &rarr;
+        Acceso total al disco</strong>, anadiendo la aplicacion de <strong>Terminal</strong>
+        (y <code>/bin/bash</code> si se usa <code>launchd</code>). Despues, reinicia la
+        Terminal.
+      </p>
+    </div>
+
+    <h3>4.2. Configurar el script de backup hacia el NAS</h3>
+    <p>
+      El script <code>backup-opencode.sh</code> tiene como destino por defecto el NAS.
+      Tambien puede indicarse explicitamente mediante variables de entorno:
+    </p>
+    <pre><code>export OPENCODE_BACKUP_DIR="/Volumes/CODANOR/opencode-backups"
+export OPENCODE_MIN_FREE_MB=8000
+
+# Backup completo (proyectos + datos + configuracion)
+./backup-opencode.sh
+
+# Solo datos de OpenCode (storage + DB consistente)
+./backup-opencode.sh --sessions</code></pre>
+    <p>
+      La base de datos <code>opencode.db</code> se copia de forma <strong>consistente</strong>
+      con <code>sqlite3 ".backup"</code>, evitando corrupcion por el modo WAL. Antes de
+      copiar, el script valida que el volumen este montado, realiza una prueba de
+      escritura real y comprueba el espacio libre minimo.
+    </p>
+
+    <h3>4.3. Automatizacion (copias recurrentes)</h3>
+    <p>Para respaldar de forma sucesiva y desatendida, se emplea <code>launchd</code> (recomendado en macOS):</p>
+    <pre><code>cp com.codanor.opencode-backup.plist ~/Library/LaunchAgents/
+launchctl load ~/Library/LaunchAgents/com.codanor.opencode-backup.plist</code></pre>
+    <p>El agente ejecuta el backup <strong>diariamente a las 02:00</strong>. Alternativa con <code>cron</code>:</p>
+    <pre><code>0 2 * * * /ruta/al/backup-opencode.sh >> /Volumes/CODANOR/opencode-backups/backup.log 2>&1</code></pre>
+
+    <h3>4.4. Buenas practicas en Synology DSM</h3>
+    <p>Desde el panel <strong>DSM</strong> del NAS Synology conviene configurar:</p>
+    <table>
+      <thead>
+        <tr><th>Funcion DSM</th><th>Recomendacion</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Carpeta compartida</td><td>Crear una carpeta dedicada (p. ej. <code>opencode-backups</code>) con permisos restringidos al usuario de backup.</td></tr>
+        <tr><td>Snapshot Replication</td><td>Activar snapshots programados de la carpeta compartida (Btrfs) para versiones inmutables.</td></tr>
+        <tr><td>Papelera de red</td><td>Habilitar la papelera (#recycle) para recuperar archivos borrados por error.</td></tr>
+        <tr><td>Cuotas de usuario</td><td>Definir una cuota para evitar que el backup agote el volumen.</td></tr>
+        <tr><td>Hyper Backup</td><td>Replicar la carpeta a otro NAS o a la nube (copia off-site / regla 3-2-1).</td></tr>
+        <tr><td>SMB version</td><td>Forzar SMB 3 y cifrado en transito desde Panel de control &rarr; Servicio de archivos.</td></tr>
+      </tbody>
+    </table>
+
+    <div class="alert alert-info">
+      <div class="alert-title">Estructura de archivos en el NAS</div>
+      <p>
+        Cada copia genera ficheros con marca temporal:
+        <code>proyectos_AAAAMMDD_HHMMSS.tar.gz</code>,
+        <code>opencode_data_AAAAMMDD_HHMMSS.tar.gz</code> y
+        <code>opencode_config_AAAAMMDD_HHMMSS.tar.gz</code>, junto a un registro
+        <code>backup.log</code>. Se conservan las ultimas 30 copias por tipo (rotacion automatica).
+      </p>
+    </div>
+  </section>
+
+  <!-- ================================================================== -->
+  <!-- 5. ESTRATEGIA RECOMENDADA                                          -->
+  <!-- ================================================================== -->
+  <section class="block">
+    <h2>5. Estrategia recomendada</h2>
+    <p>La combinacion de capas garantiza resiliencia ante distintos tipos de fallo:</p>
+    <table>
+      <thead>
+        <tr><th>Capa</th><th>Soporte</th><th>Frecuencia</th><th>Cubre</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>1 &mdash; Principal</td><td>NAS Synology</td><td>Diaria (02:00)</td><td>Proyectos + datos + config</td></tr>
+        <tr><td>2 &mdash; Sistema</td><td>Time Machine</td><td>Horaria</td><td>Sistema completo de macOS</td></tr>
+        <tr><td>3 &mdash; Off-site (futuro)</td><td>Nube / Hyper Backup</td><td>Por definir</td><td>Copia externa fuera de sede</td></tr>
+      </tbody>
+    </table>
+    <div class="alert alert-success">
+      <div class="alert-title">Recomendacion CODANOR</div>
+      <p>
+        Mantener el NAS Synology como destino principal automatizado y Time Machine
+        como copia del sistema. Cuando se habilite la capa off-site (Hyper Backup a la
+        nube), se completara la regla 3-2-1.
+      </p>
+    </div>
+  </section>
+
+  <!-- ================================================================== -->
+  <!-- 6. RESTAURACION                                                    -->
+  <!-- ================================================================== -->
+  <section class="block">
+    <h2>6. Restauracion de copias</h2>
+    <p>El propio script permite listar y restaurar copias existentes:</p>
+    <pre><code># Listar copias disponibles en el NAS
+./backup-opencode.sh --list
+
+# Restaurar una copia concreta (crea un backup de seguridad previo)
+./backup-opencode.sh --restore opencode_data_20260606_020000.tar.gz</code></pre>
+    <p>
+      Antes de sobrescribir, el proceso de restauracion genera automaticamente una
+      copia de seguridad del estado actual, de modo que una restauracion erronea sea
+      reversible.
+    </p>
+    <p>Tambien es posible restaurar manualmente un archivo comprimido:</p>
+    <pre><code># Verificar integridad del paquete antes de restaurar
+tar -tzf opencode_data_20260606_020000.tar.gz | head
+
+# Extraer en el directorio de usuario
+tar -xzf opencode_data_20260606_020000.tar.gz -C ~/
+
+# Comprobar la integridad de la base de datos restaurada
+sqlite3 ~/.local/share/opencode/opencode.db "PRAGMA integrity_check;"</code></pre>
+  </section>
+
+  <!-- ================================================================== -->
+  <!-- 7. RECUPERACION ANTE DESASTRE TOTAL                                -->
+  <!-- ================================================================== -->
+  <section class="block">
+    <h2>7. Recuperacion ante desastre total</h2>
+    <p>
+      En caso de perdida completa del equipo (robo, averia irreparable o sustitucion
+      por un Mac nuevo), el procedimiento de recuperacion es el siguiente:
+    </p>
+    <ol class="step-list">
+      <li><strong>Instalar OpenCode</strong> en el equipo nuevo.</li>
+      <li><strong>Montar el NAS Synology</strong> por SMB en <code>/Volumes/CODANOR</code>.</li>
+      <li><strong>Conceder "Acceso total al disco"</strong> a la Terminal en Ajustes del Sistema.</li>
+      <li><strong>Restaurar la configuracion</strong>: extraer el ultimo <code>opencode_config_*.tar.gz</code> en <code>~/</code>.</li>
+      <li><strong>Restaurar los datos</strong>: extraer el ultimo <code>opencode_data_*.tar.gz</code> (incluye sesiones, DB, credenciales).</li>
+      <li><strong>Restaurar los proyectos</strong>: extraer el ultimo <code>proyectos_*.tar.gz</code> en <code>~/</code>.</li>
+      <li><strong>Verificar</strong> la integridad de la base de datos con <code>PRAGMA integrity_check</code>.</li>
+      <li><strong>Reactivar la automatizacion</strong> cargando de nuevo el agente <code>launchd</code>.</li>
+    </ol>
+    <div class="alert alert-danger">
+      <div class="alert-title">Importante</div>
+      <p>
+        El archivo <code>auth.json</code> contiene credenciales. Tratalo como
+        informacion sensible: nunca lo subas a repositorios publicos y restaura los
+        datos solo en equipos de confianza de CODANOR.
+      </p>
+    </div>
+  </section>
+
+</div>
+
+<!-- ======================================================================
+     FOOTER
+     ====================================================================== -->
+<footer class="doc-footer">
+  <img src="https://codanor.com/assets/img/logo_web-50.png" alt="Logo corporativo CODANOR">
+  <p class="brand">CODANOR &mdash; Jafa, S.L.</p>
+  <p>Barcelona, Catalunya</p>
+  <p>Documento interno &bull; Copias de Seguridad de OpenCode &bull; Version 1.0 &mdash; Junio 2026</p>
+</footer>
+
+<button class="btn-print" onclick="window.print()">Imprimir / Guardar PDF</button>
+
+</body>
+</html>

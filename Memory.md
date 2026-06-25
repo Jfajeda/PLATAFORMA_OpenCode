@@ -30,6 +30,9 @@
 | plan-homogeneizacion-modulos.html | Plan de homogeneizacion de modulos (14 caps) | ~72 KB |
 | backup-opencode.sh | Script backup -> NAS CODANOR (DB consistente, snapshots excluidos) | ~14 KB |
 | com.codanor.opencode-backup.plist | Agente launchd backup diario 02:00 | ~2 KB |
+| documento-copias-seguridad.html | Doc corporativo opciones de backup (enfasis NAS Synology) | ~26 KB |
+| documento-copias-seguridad.docx | Version Word del doc de backup (generada por tools/generar-docx.py) | ~41 KB |
+| tools/generar-docx.py | Generador del .docx con branding CODANOR (python-docx) | ~16 KB |
 | sonar-project.properties | Config scanner SonarCloud | 762 B |
 | Prompt.docx | Especificacion del proyecto | ~22 KB |
 | Estructura_PROYECTOS.pdf | Diagrama jerarquico de modulos | ~386 KB |
