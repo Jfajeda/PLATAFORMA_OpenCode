@@ -1,11 +1,11 @@
 # Memory.md — PLATAFORMA_OpenCode
-> Ultima actualizacion: 2026-06-06
+> Ultima actualizacion: 2026-07-05
 
 ## Estado actual
 
 - **Fase**: Produccion / mantenimiento activo
 - **Version**: Manual v3.0 (20 capitulos)
-- **Ultimo cambio significativo**: Centralizacion de 8 proyectos a ~/Proyectos/, integracion SonarCloud
+- **Ultimo cambio significativo**: Herramienta "Homogeneizacion de Proyectos" (analisis read-only vs patron ISO27001-SGSI, dashboard web + informes Word/Excel)
 - **Issues abiertos**: 72 bugs de reliability + 3 security hotspots detectados por SonarCloud
 
 ## Infraestructura
@@ -28,6 +28,7 @@
 | plataforma-seguimiento.html | Dashboard + Kanban + Docs Hub + Changelog | ~63 KB |
 | analisis-codigo.html | Panel SonarCloud exportable, 5 pestanas | ~46 KB |
 | plan-homogeneizacion-modulos.html | Plan de homogeneizacion de modulos (14 caps) | ~72 KB |
+| homogeneizacion-proyectos.html | Dashboard herramienta homogeneizacion (5 pestanas, JSON embebido, export Word/Excel) | ~46 KB |
 | backup-opencode.sh | Script backup -> NAS CODANOR (DB consistente, snapshots excluidos) | ~14 KB |
 | com.codanor.opencode-backup.plist | Agente launchd backup diario 02:00 | ~2 KB |
 | documento-copias-seguridad.html | Doc corporativo opciones de backup (enfasis NAS Synology) | ~26 KB |
@@ -49,6 +50,10 @@
 | 2026-04-26 | Crear AGENTS.md solo en PLATAFORMA_OpenCode (no en los 7 restantes) | Se creara en cada proyecto al ejecutar /init desde OpenCode |
 | 2026-04-26 | Eliminar originales del Desktop despues de mover a ~/Proyectos/ | Aprobado por el usuario, evita confusion y duplicados |
 | 2026-04-26 | 190 .DS_Store + 11 .pyc eliminados de todos los proyectos | Limpieza previa a versionado en Git |
+| 2026-07-05 | Crear herramienta "Homogeneizacion de Proyectos" (7 pasos) | Analizar/comparar los 17 subproyectos contra patron ISO27001-SGSI |
+| 2026-07-05 | Scripts Python en Plataforma_Seguimiento/_homogeneizacion; HTML en OpenCode-NEW | Separar logica de scan (read-only) de la visualizacion |
+| 2026-07-05 | Score global ponderado (estructura 25, js_modules 20, js_core/utils/plantillas 15, idiomas/menus 5) | Reflejar importancia relativa de cada bloque del CSV guia |
+| 2026-07-05 | Proyectos documentales y pendientes con score null (no penalizan) | No tiene sentido comparar carpetas sin app o aun no creadas |
 
 ## Revisiones de calidad/seguridad
 
@@ -76,6 +81,47 @@
 - [x] ~~Automatizar backup (launchd diario 02:00 -> NAS CODANOR)~~ (2026-06-06, falta conceder TCC)
 - [ ] Conceder "Acceso total al disco" al shell/launchd para escribir en el NAS (accion usuario)
 - [ ] Regenerar token SonarCloud (el actual de 39 chars puede estar truncado)
+
+## Herramienta "Homogeneizacion de Proyectos" (2026-07-05)
+
+Herramienta de analisis **read-only** que compara los subproyectos de
+`~/Proyectos/Plataforma_Seguimiento_Proyectos/` contra el patron gold standard
+**ISO27001-SGSI**, y genera dashboard web + informes Word/Excel.
+
+### Ficheros (scripts en Plataforma_Seguimiento/_homogeneizacion/)
+| Fichero | Descripcion |
+|---------|-------------|
+| patron_iso27001.json | Gold standard: 7 bloques, pesos, clasificacion |
+| scan_proyectos.py | Scanner read-only, tolerante a variantes de nombres |
+| estado_proyectos.json | Salida del scan (datos que consume la web) |
+| generar_informe_docx.py | Informe Word (python-docx + fallback .doc HTML) |
+| generar_informe_xlsx.py | Informe Excel 5 hojas (openpyxl + fallback .xls HTML) |
+| README.md | Instrucciones de uso |
+| .gitignore | Excluye informes generados (regenerables) |
+
+Visualizacion: `PLATAFORMA_OpenCode-NEW/homogeneizacion-proyectos.html`
+(accesible desde sidebar "Herramientas" de plataforma-seguimiento.html).
+
+### Bloques comparados y pesos
+estructura 25% | js_modules 20% | js_core 15% | js_utils 15% |
+plantillas 15% | idiomas 5% | menus 5%.
+
+### Resultados del ultimo scan (17 proyectos)
+7 apps, 3 documentales, 6 pendientes. Score medio apps: **85%**.
+- ISO27001-SGSI 100% (patron) · ISO42001-SGIA 93% · ISO27701-SGP 89%
+- ISO9001 85% · RGPD-LOPD 85% · ISO14001-2015 82%
+- ISO14001-2026_NEW 76% · TISAX 67%
+- Documentales y pendientes: score null (no penalizan).
+
+### Notas clave
+- El scanner NUNCA modifica los proyectos analizados; solo escribe en `_homogeneizacion/`.
+- El HTML lleva datos embebidos (`var DATA_EMBEBIDA`) como fallback para `file://`.
+  Para actualizar: ejecutar scan + re-embeber (script en README).
+- Comparacion por presencia de ficheros, no por contenido.
+- python-docx y openpyxl estan instalados (informes nativos, no fallback).
+- Commit HTML: `e963377` en PLATAFORMA_OpenCode-NEW.
+- Scripts Python quedan sin commitear en Plataforma_Seguimiento (repo con
+  cambios pendientes del usuario; decidira cuando commitear ahi).
 
 ## Sistema de copias de seguridad (2026-06-06)
 

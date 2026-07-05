@@ -43,6 +43,7 @@ PLATAFORMA_OpenCode-NEW/
   plataforma-seguimiento.html          # Dashboard + Kanban issue tracker (~63 KB)
   analisis-codigo.html                 # SonarCloud analysis panel (~46 KB)
   plan-homogeneizacion-modulos.html    # Module homogenization plan (~72 KB)
+  homogeneizacion-proyectos.html       # Project homogenization tool dashboard (~46 KB)
   backup-opencode.sh                   # Backup script (8 modes, executable)
   sonar-project.properties             # SonarCloud scanner config
   Prompt.docx                          # Project prompt specification
@@ -167,4 +168,4 @@ contents into this section.
 
 ---
 
-*Last updated: 2026-05-18*
+*Last updated: 2026-07-05*
