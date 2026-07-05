@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Homogeneizacion de Proyectos - CODANOR</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Nunito+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --primary:#178DC2;--primary-dark:#1275A3;--primary-light:#e8f4fa;
+    --accent:#12A79D;--accent-light:#e6f7f6;--navy:#0D3B66;
+    --dark:#1a1a2e;--gray-900:#2d2d44;--gray-700:#4a4a5a;--gray-500:#7a7a8a;
+    --gray-300:#c4c4d0;--gray-100:#f0f0f5;--white:#fff;
+    --danger:#e74c3c;--warning:#f39c12;--success:#12A79D;
+    --ok-bg:#e6f7f6;--warn-bg:#fef9e7;--fail-bg:#fdedec;
+    --rating-a:#12A79D;--rating-b:#7cb342;--rating-c:#f39c12;--rating-d:#e67e22;--rating-e:#e74c3c;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Nunito Sans',sans-serif;color:var(--gray-700);line-height:1.6;background:var(--gray-100)}
+
+  /* HEADER */
+  .top-header{position:sticky;top:0;z-index:150;background:var(--dark);color:var(--white);
+    padding:0.9rem 2rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;
+    box-shadow:0 2px 8px rgba(0,0,0,0.2)}
+  .top-header-left{display:flex;align-items:center;gap:1rem}
+  .top-header-logo{height:32px;filter:brightness(0) invert(1)}
+  .top-header h1{font-family:'Poppins',sans-serif;font-size:1.1rem;font-weight:600;margin:0}
+  .top-header .subtitle{font-size:0.75rem;opacity:0.7;font-family:'Poppins',sans-serif}
+  .header-meta{font-size:0.75rem;opacity:0.8;text-align:right}
+  .header-actions{display:flex;gap:0.5rem;flex-wrap:wrap}
+  .btn{background:var(--primary);color:var(--white);border:none;padding:0.5rem 1rem;
+    border-radius:50px;font-family:'Poppins',sans-serif;font-size:0.78rem;font-weight:600;
+    cursor:pointer;transition:all 0.2s;display:inline-flex;align-items:center;gap:0.4rem}
+  .btn:hover{background:var(--primary-dark);transform:translateY(-1px)}
+  .btn-accent{background:var(--accent)}
+  .btn-accent:hover{background:#0e8a80}
+  .btn svg{width:15px;height:15px}
+
+  /* TABS */
+  .tabs{background:var(--white);border-bottom:1px solid var(--gray-300);padding:0 2rem;
+    display:flex;gap:0.25rem;overflow-x:auto;position:sticky;top:60px;z-index:140}
+  .tab{padding:0.9rem 1.25rem;border:none;background:none;cursor:pointer;
+    font-family:'Poppins',sans-serif;font-size:0.85rem;font-weight:600;color:var(--gray-500);
+    border-bottom:3px solid transparent;white-space:nowrap;transition:all 0.2s}
+  .tab:hover{color:var(--primary)}
+  .tab.active{color:var(--primary);border-bottom-color:var(--primary)}
+
+  /* CONTENT */
+  .content{max-width:1200px;margin:0 auto;padding:2rem}
+  .page{display:none}
+  .page.active{display:block}
+  h2{font-family:'Poppins',sans-serif;font-size:1.4rem;color:var(--primary);margin-bottom:1rem;
+    display:flex;align-items:center;gap:0.5rem}
+  h2::before{content:'';width:4px;height:24px;background:var(--accent);border-radius:2px}
+  h3{font-family:'Poppins',sans-serif;font-size:1.1rem;color:var(--gray-900);margin:1.5rem 0 0.75rem}
+  p{margin-bottom:1rem}
+  .intro{color:var(--gray-500);font-size:1rem;margin-bottom:1.5rem}
+
+  /* RESUMEN KPI */
+  .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;margin-bottom:2rem}
+  .kpi{background:var(--white);border:1px solid var(--gray-300);border-radius:10px;padding:1.25rem;text-align:center}
+  .kpi .val{font-family:'Poppins',sans-serif;font-size:2rem;font-weight:700;color:var(--primary);line-height:1}
+  .kpi .lbl{font-size:0.78rem;color:var(--gray-500);margin-top:0.4rem;text-transform:uppercase;letter-spacing:0.5px}
+
+  /* PROJECT CARDS */
+  .proj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem}
+  .proj-card{background:var(--white);border:1px solid var(--gray-300);border-radius:10px;padding:1.25rem;transition:all 0.2s;cursor:pointer}
+  .proj-card:hover{border-color:var(--primary);box-shadow:0 4px 14px rgba(23,141,194,0.12);transform:translateY(-2px)}
+  .proj-card-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.75rem}
+  .proj-name{font-family:'Poppins',sans-serif;font-weight:600;font-size:0.95rem;color:var(--gray-900)}
+  .proj-type{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.5px;padding:0.15rem 0.5rem;border-radius:50px;font-weight:700}
+  .type-patron{background:var(--navy);color:var(--white)}
+  .type-app{background:var(--primary-light);color:var(--primary-dark)}
+  .type-documental{background:var(--gray-100);color:var(--gray-500)}
+  .type-pendiente{background:var(--warn-bg);color:#7d6608}
+  .score-big{font-family:'Poppins',sans-serif;font-size:2.5rem;font-weight:700;line-height:1}
+  .score-a{color:var(--rating-a)}.score-b{color:var(--rating-b)}.score-c{color:var(--rating-c)}
+  .score-d{color:var(--rating-d)}.score-e{color:var(--rating-e)}.score-na{color:var(--gray-300);font-size:1.5rem}
+  .score-bar{height:8px;background:var(--gray-100);border-radius:4px;overflow:hidden;margin-top:0.5rem}
+  .score-bar-fill{height:100%;border-radius:4px;transition:width 0.6s}
+
+  /* TABLE */
+  table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:0.82rem;background:var(--white);
+    border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.08)}
+  thead{background:var(--primary);color:var(--white)}
+  th{padding:0.7rem 0.6rem;text-align:left;font-family:'Poppins',sans-serif;font-size:0.72rem;
+    text-transform:uppercase;letter-spacing:0.4px}
+  th.center,td.center{text-align:center}
+  td{padding:0.6rem;border-bottom:1px solid var(--gray-100)}
+  tbody tr:hover{background:var(--primary-light)}
+  .cell-ok{background:var(--ok-bg);color:#0e7a72;font-weight:700;text-align:center}
+  .cell-warn{background:var(--warn-bg);color:#7d6608;font-weight:700;text-align:center}
+  .cell-fail{background:var(--fail-bg);color:#922b21;font-weight:700;text-align:center}
+  .cell-na{background:var(--gray-100);color:var(--gray-500);text-align:center;font-style:italic}
+
+  /* DETALLE */
+  .selector{margin-bottom:1.5rem}
+  .selector select{padding:0.6rem 1rem;border:1px solid var(--gray-300);border-radius:8px;
+    font-family:'Poppins',sans-serif;font-size:0.9rem;min-width:250px;background:var(--white)}
+  .block-detail{background:var(--white);border:1px solid var(--gray-300);border-radius:10px;
+    padding:1.25rem;margin-bottom:1rem}
+  .block-detail-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem}
+  .block-detail-title{font-family:'Poppins',sans-serif;font-weight:600;color:var(--gray-900)}
+  .block-score{font-family:'Poppins',sans-serif;font-weight:700;font-size:1.1rem}
+  .chip-list{display:flex;flex-wrap:wrap;gap:0.4rem;margin-top:0.5rem}
+  .chip{font-size:0.72rem;padding:0.2rem 0.6rem;border-radius:50px;font-weight:600}
+  .chip-ok{background:var(--ok-bg);color:#0e7a72}
+  .chip-fail{background:var(--fail-bg);color:#922b21}
+  .chip-label{font-size:0.7rem;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.5px;margin-top:0.75rem;display:block}
+
+  /* RECOMENDACIONES */
+  .rec-box{background:var(--warn-bg);border-left:4px solid var(--warning);border-radius:8px;padding:1rem 1.25rem;margin-top:1rem}
+  .rec-box.rec-ok{background:var(--ok-bg);border-left-color:var(--accent)}
+  .rec-box ul{margin:0.5rem 0 0 1.2rem}
+  .rec-box li{margin-bottom:0.3rem;font-size:0.85rem}
+
+  /* ALERT */
+  .alert{padding:1rem 1.25rem;border-radius:8px;margin:1rem 0;font-size:0.88rem;border-left:4px solid}
+  .alert-info{background:var(--primary-light);border-color:var(--primary);color:var(--primary-dark)}
+
+  code{font-family:'SF Mono',monospace;font-size:0.82rem;background:var(--gray-100);color:var(--primary-dark);padding:0.1rem 0.4rem;border-radius:4px}
+
+  .footer{text-align:center;padding:2rem;color:var(--gray-500);font-size:0.8rem;border-top:1px solid var(--gray-300);margin-top:2rem}
+  .footer img{width:90px;margin-bottom:0.5rem;opacity:0.7}
+
+  @media(max-width:768px){
+    .content{padding:1rem}
+    .top-header{padding:0.75rem 1rem}
+    .tabs{padding:0 1rem}
+  }
+</style>
+</head>
+<body>
+
+<header class="top-header">
+  <div class="top-header-left">
+    <img src="https://codanor.com/assets/img/logo_web-50.png" alt="CODANOR" class="top-header-logo">
+    <div>
+      <h1>Homogeneizacion de Proyectos</h1>
+      <div class="subtitle">Plataforma_Seguimiento_Proyectos &bull; Patron: ISO27001-SGSI</div>
+    </div>
+  </div>
+  <div class="header-meta">
+    <div id="headerDate">&mdash;</div>
+    <div class="header-actions" style="margin-top:0.5rem">
+      <button class="btn" onclick="exportarWord()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Word</button>
+      <button class="btn btn-accent" onclick="exportarExcel()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>Excel</button>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs">
+  <button class="tab active" onclick="showTab('resumen')">Resumen</button>
+  <button class="tab" onclick="showTab('comparativa')">Comparativa</button>
+  <button class="tab" onclick="showTab('detalle')">Detalle por Proyecto</button>
+  <button class="tab" onclick="showTab('plantillas')">Plantillas</button>
+  <button class="tab" onclick="showTab('patron')">Patron ISO27001</button>
+</nav>
+
+<div class="content">
+  <!-- RESUMEN -->
+  <div class="page active" id="page-resumen">
+    <h2>Resumen del Ecosistema</h2>
+    <p class="intro">Estado de homogeneizacion de los proyectos comparados contra el patron ISO27001-SGSI. Los proyectos documentales y pendientes de crear no penalizan el score.</p>
+    <div class="kpi-row" id="kpiRow"></div>
+    <h3>Ranking de Homogeneizacion</h3>
+    <div class="proj-grid" id="projGrid"></div>
+  </div>
+
+  <!-- COMPARATIVA -->
+  <div class="page" id="page-comparativa">
+    <h2>Matriz Comparativa</h2>
+    <p class="intro">Puntuacion por bloque de cada proyecto. Verde &ge;80%, amarillo 50-79%, rojo &lt;50%.</p>
+    <div style="overflow-x:auto"><table id="matrizTable"></table></div>
+  </div>
+
+  <!-- DETALLE -->
+  <div class="page" id="page-detalle">
+    <h2>Detalle por Proyecto</h2>
+    <div class="selector">
+      <select id="projSelector" onchange="renderDetalle()"></select>
+    </div>
+    <div id="detalleContent"></div>
+  </div>
+
+  <!-- PLANTILLAS -->
+  <div class="page" id="page-plantillas">
+    <h2>Estado de Plantillas</h2>
+    <p class="intro">Regla espejo: cada plantilla <code>.md</code> debe tener su equivalente <code>.docx</code> en <code>Plantillas-word/</code>.</p>
+    <div style="overflow-x:auto"><table id="plantillasTable"></table></div>
+  </div>
+
+  <!-- PATRON -->
+  <div class="page" id="page-patron">
+    <h2>Patron de Referencia: ISO27001-SGSI</h2>
+    <p class="intro">Estructura que todos los proyectos app deberian replicar. Este es el proyecto que estamos testeando mas a fondo.</p>
+    <div id="patronContent"></div>
+  </div>
+
+  <div class="footer">
+    <img src="https://codanor.com/assets/img/logo_web-50.png" alt="CODANOR">
+    <p><strong>CODANOR</strong> &mdash; Jafa, S.L. &bull; Barcelona, Catalunya<br>
+    Herramienta de Homogeneizacion &bull; Datos generados por scan_proyectos.py</p>
+  </div>
+</div>
+
+<script>
+// ====== DATOS EMBEBIDOS (fallback file://) ======
+var DATA_EMBEBIDA = {"generado":"2026-07-05T12:22:52","patron":"ISO27001-SGSI","raiz":"/Users/jaimefajeda/Proyectos/Plataforma_Seguimiento_Proyectos","resumen":{"total_proyectos":17,"apps":7,"patron":1,"documentales":3,"pendientes":6,"score_medio_apps":85},"proyectos":[{"nombre":"EMAS-SGMA","tipo":"pendiente","score_global":null,"bloques":{},"recomendaciones":["Proyecto pendiente de crear. Usar ISO27001-SGSI como plantilla base."]},{"nombre":"ENS-RD311-2022","tipo":"documental","score_global":null,"bloques":{},"recomendaciones":["Proyecto documental (sin app). No requiere estructura de aplicacion."]},{"nombre":"ISO14001-SGMA_2015","tipo":"app","score_global":82,"bloques":{"estructura":{"score":91,"presentes":["index.html","AGENTS.md","MEMORY.md","opencode.json","clientes_codanor.json","css","img","js","lang","Plantillas"],"faltantes":["iniciar.sh"],"recomendados_presentes":["Manuales","Biblioteca","GUIA-FUNCIONAMIENTO-Y-SOPORTE.html"],"recomendados_faltantes":["PROMPT","Back web",".git"]},"js_core":{"score":100,"presentes":["app.js","store.js","i18n.js","i18n-embedded.js","clientes-embedded.js","plantillas-catalog.js","plantillas-md-embedded.js","wiki-categories.js"],"faltantes":[],"especificos_norma":["*-data.js","*-clauses-detailed.js"],"opcionales_presentes":[],"total_js":10},"js_modules":{"score":58,"presentes":["projects.js","clients.js","dashboard.js","phase1-gap.js","phase3-audit.js","documents.js","wiki.js"],"faltantes":["phase2-consulting.js","phase4-evidence.js","phase5-certification.js","soa.js","norma-soa.js"],"especificos_norma":[],"opcionales_presentes":["formacion.js"],"total_js":11},"js_utils":{"score":92,"presentes":["export.js","import.js","charts.js","codanor-report.js","report-builders.js","report-modal.js","docx-personalizer.js","llm.js","llm-models.js","embeddings.js","markdown.js","progress-util.js"],"faltantes":["soa-kpis.js"],"especificos_norma":[],"opcionales_presentes":["report-xlsx.js"],"total_js":14},"idiomas":{"score":100,"presentes":["es.json","ca.json","en.json"],"faltantes":[]},"plantillas":{"score":75,"md_total":26,"docx_total":26,"md_clausulas":22,"docx_word":26,"carpetas_presentes":["C04-Contexto","C05-Liderazgo","C06-Planificacion","C07-Apoyo","C08-Operacion","C09-EvaluacionDesempeno","C10-Mejora"],"carpetas_faltantes":["A5-Organizativos","A6-Personas","A7-Fisicos","A8-Tecnologicos"],"meta_presentes":["INDICE.md","_Comunes","Plantillas-word"],"meta_faltantes":["_Scripts"],"espejo_ok":22,"espejo_roto":4},"menus":{"score":56,"presentes":["dashboard.js","phase1-gap.js","phase3-audit.js","documents.js","wiki.js"],"faltantes":["phase2-consulting.js","phase4-evidence.js","phase5-certification.js","soa.js"]}},"recomendaciones":["Crear ficheros/carpetas raiz faltantes: iniciar.sh","Anadir modulos de pantalla: phase2-consulting.js, phase4-evidence.js, phase5-certification.js, soa.js, norma-soa.js","Anadir utilidades: soa-kpis.js","Crear carpetas de plantillas: A5-Organizativos, A6-Personas, A7-Fisicos, A8-Tecnologicos","Regenerar espejo .docx: 4 plantillas .md sin su .docx (usar md_a_docx.py)","Anadir meta-plantillas: _Scripts"]},{"nombre":"ISO14001-SGMA_2026_NEW","tipo":"app","score_global":76,"bloques":{"estructura":{"score":91,"presentes":["index.html","AGENTS.md","MEMORY.md","opencode.json","clientes_codanor.json","css","img","js","lang","Plantillas"],"faltantes":["iniciar.sh"],"recomendados_presentes":["Manuales","Biblioteca","GUIA-FUNCIONAMIENTO-Y-SOPORTE.html"],"recomendados_faltantes":["PROMPT","Back web",".git"]},"js_core":{"score":75,"presentes":["app.js","store.js","i18n.js","i18n-embedded.js","clientes-embedded.js","wiki-categories.js"],"faltantes":["plantillas-catalog.js","plantillas-md-embedded.js"],"especificos_norma":["*-data.js","*-clauses-detailed.js"],"opcionales_presentes":[],"total_js":8},"js_modules":{"score":58,"presentes":["projects.js","clients.js","dashboard.js","phase1-gap.js","phase3-audit.js","documents.js","wiki.js"],"faltantes":["phase2-consulting.js","phase4-evidence.js","phase5-certification.js","soa.js","norma-soa.js"],"especificos_norma":[],"opcionales_presentes":["formacion.js"],"total_js":11},"js_utils":{"score":77,"presentes":["export.js","import.js","charts.js","codanor-report.js","report-builders.js","report-modal.js","llm.js","llm-models.js","embeddings.js","markdown.js"],"faltantes":["docx-personalizer.js","progress-util.js","soa-kpis.js"],"especificos_norma":[],"opcionales_presentes":[],"total_js":11},"idiomas":{"score":100,"presentes":["es.json","ca.json","en.json"],"faltantes":[]},"plantillas":{"score":75,"md_total":26,"docx_total":26,"md_clausulas":22,"docx_word":26,"carpetas_presentes":["C04-Contexto","C05-Liderazgo","C06-Planificacion","C07-Apoyo","C08-Operacion","C09-EvaluacionDesempeno","C10-Mejora"],"carpetas_faltantes":["A5-Organizativos","A6-Personas","A7-Fisicos","A8-Tecnologicos"],"meta_presentes":["INDICE.md","_Comunes","Plantillas-word"],"meta_faltantes":["_Scripts"],"espejo_ok":22,"espejo_roto":4},"menus":{"score":56,"presentes":["dashboard.js","phase1-gap.js","phase3-audit.js","documents.js","wiki.js"],"faltantes":["phase2-consulting.js","phase4-evidence.js","phase5-certification.js","soa.js"]}},"recomendaciones":["Crear ficheros/carpetas raiz faltantes: iniciar.sh","Anadir JS core: plantillas-catalog.js, plantillas-md-embedded.js","Anadir modulos de pantalla: phase2-consulting.js, phase4-evidence.js, phase5-certification.js, soa.js, norma-soa.js","Anadir utilidades: docx-personalizer.js, progress-util.js, soa-kpis.js","Crear carpetas de plantillas: A5-Organizativos, A6-Personas, A7-Fisicos, A8-Tecnologicos","Regenerar espejo .docx: 4 plantillas .md sin su .docx (usar md_a_docx.py)","Anadir meta-plantillas: _Scripts"]},{"nombre":"ISO19601-SGCP","tipo":"pendiente","score_global":null,"bloques":{},"recomendaciones":["Proyecto pendiente de crear. Usar ISO27001-SGSI como plantilla base."]},{"nombre":"ISO2000-1-SGS","tipo":"pendiente","score_global":null,"bloques":{},"recomendaciones":["Proyecto pendiente de crear. Usar ISO27001-SGSI como plantilla base."]},{"nombre":"ISO22301-SGCN","tipo":"pendiente","score_global":null,"bloques":{},"recomendaciones":["Proyecto pendiente de crear. Usar ISO27001-SGSI como plantilla base."]},{"nombre":"ISO27001-SGSI","tipo":"patron","score_global":100,"bloques":{"estructura":{"score":100,"presentes":["index.html","iniciar.sh","AGENTS.md","MEMORY.md","opencode.json","clientes_codanor.json","css","img","js","lang","Plantillas"],"faltantes":[],"recomendados_presentes":["Manuales","PROMPT","Biblioteca","Back web","GUIA-FUNCIONAMIENTO-Y-SOPORTE.html"],"recomendados_faltantes":[".git"]},"js_core":{"score":100,"presentes":["app.js","store.js","i18n.js","i18n-embedded.js","clientes-embedded.js","plantillas-catalog.js","plantillas-md-embedded.js","wiki-categories.js"],"faltantes":[],"especificos_norma":["*-data.js","*-controls-detailed.js","*-controls-attributes.js","*-clauses-detailed.js"],"opcionales_presentes":["forensic-tests-data.js"],"total_js":13},"js_modules":{"score":100,"presentes":["projects.js","clients.js","dashboard.js","phase1-gap.js","phase2-consulting.js","phase3-audit.js","phase4-evidence.js","phase5-certification.js","soa.js","norma-soa.js","documents.js","wiki.js"],"faltantes":[],"especificos_norma":[],"opcionales_presentes":["formacion.js"],"total_js":13},"js_utils":{"score":100,"presentes":["export.js","import.js","charts.js","codanor-report.js","report-builders.js","report-modal.js","docx-personalizer.js","llm.js","llm-models.js","embeddings.js","markdown.js","progress-util.js","soa-kpis.js"],"faltantes":[],"especificos_norma":[],"opcionales_presentes":["report-xlsx.js"],"total_js":14},"idiomas":{"score":100,"presentes":["es.json","ca.json","en.json"],"faltantes":[]},"plantillas":{"score":99,"md_total":47,"docx_total":46,"md_clausulas":44,"docx_word":46,"carpetas_presentes":["C04-Contexto","C05-Liderazgo","C06-Planificacion","C07-Apoyo","C08-Operacion","C09-EvaluacionDesempeno","C10-Mejora","A5-Organizativos","A6-Personas","A7-Fisicos","A8-Tecnologicos"],"carpetas_faltantes":[],"meta_presentes":["INDICE.md","_Comunes","_Scripts","Plantillas-word"],"meta_faltantes":[],"espejo_ok":44,"espejo_roto":2},"menus":{"score":100,"presentes":["dashboard.js","phase1-gap.js","phase2-consulting.js","phase3-audit.js","phase4-evidence.js","phase5-certification.js","soa.js","documents.js","wiki.js"],"faltantes":[]}},"recomendaciones":["PROYECTO PATRON (gold standard). Referencia de homogeneizacion."]},{"nombre":"ISO27701-SGP","tipo":"app","score_global":89,"bloques":{"estructura":{"score":91,"presentes":["index.html","iniciar.sh","AGENTS.md","MEMORY.md","opencode.json","css","img","js","lang","Plantillas"],"faltantes":["clientes_codanor.json"],"recomendados_presentes":["Manuales","Biblioteca","GUIA-FUNCIONAMIENTO-Y-SOPORTE.html"],"recomendados_faltantes":["PROMPT","Back web",".git"]},"js_core":{"score":100,"presentes":["app.js","store.js","i18n.js","i18n-embedded.js","clientes-embedded.js","plantillas-catalog.js","plantillas-md-embedded.js","wiki-categories.js"],"faltantes":[],"especificos_norma":["*-data.js","*-controls-detailed.js","*-clauses-detailed.js"],"opcionales_presentes":[],"total_js":12},"js_modules":{"score":92,"presentes":["projects.js","clients.js","dashboard.js","phase1-gap.js","phase2-consulting.js","phase3-audit.js","phase4-evidence.js","soa.js","norma-soa.js","documents.js","wiki.js"],"faltantes":["phase5-certification.js"],"especificos_norma":[],"opcionales_presentes":["formacion.js"],"total_js":12},"js_utils":{"score":100,"presentes":["export.js","import.js","charts.js","codanor-report.js","report-builders.js","report-modal.js","docx-personalizer.js","llm.js","llm-models.js","embeddings.js","markdown.js","progress-util.js","soa-kpis.js"],"faltantes":[],"especificos_norma":[],"opcionales_presentes":["report-xlsx.js"],"total_js":14},"idiomas":{"score":100,"presentes":["es.json","ca.json","en.json"],"faltantes":[]},"plantillas":{"score":59,"md_total":42,"docx_total":42,"md_clausulas":16,"docx_word":42,"carpetas_presentes":["C04-Contexto","C05-Liderazgo","C06-Planificacion","C07-Apoyo","C08-Operacion","C09-EvaluacionDesempeno","C10-Mejora"],"carpetas_faltantes":["A5-Organizativos","A6-Personas","A7-Fisicos","A8-Tecnologicos"],"meta_presentes":["INDICE.md","_Comunes","Plantillas-word"],"meta_faltantes":["_Scripts"],"espejo_ok":16,"espejo_roto":26},"menus":{"score":89,"presentes":["dashboard.js","phase1-gap.js","phase2-consulting.js","phase3-audit.js","phase4-evidence.js","soa.js","documents.js","wiki.js"],"faltantes":["phase5-certification.js"]}},"recomendaciones":["Crear ficheros/carpetas raiz faltantes: clientes_codanor.json","Anadir modulos de pantalla: phase5-certification.js","Crear carpetas de plantillas: A5-Organizativos, A6-Personas, A7-Fisicos, A8-Tecnologicos","Regenerar espejo .docx: 26 plantillas .md sin su .docx (usar md_a_docx.py)","Anadir meta-plantillas: _Scripts"]},{"nombre":"ISO42001-SGIA","tipo":"app","score_global":93,"bloques":{"estructura":{"score":100,"presentes":["index.html","iniciar.sh","AGENTS.md","MEMORY.md","opencode.json","clientes_codanor.json","css","img","js","lang","Plantillas"],"faltantes":[],"recomendados_presentes":["Manuales","PROMPT","Biblioteca"],"recomendados_faltantes":["Back web",".git","GUIA-FUNCIONAMIENTO-Y-SOPORTE.html"]},"js_core":{"score":100,"presentes":["app.js","store.js","i18n.js","i18n-embedded.js","clientes-embedded.js","plantillas-catalog.js","plantillas-md-embedded.js","wiki-categories.js"],"faltantes":[],"especificos_norma":["*-data.js","*-controls-detailed.js","*-clauses-detailed.js"],"opcionales_presentes":[],"total_js":13},"js_modules":{"score":92,"presentes":["projects.js","clients.js","dashboard.js","phase1-gap.js","phase2-consulting.js","phase3-audit.js","phase4-evidence.js","soa.js","norma-soa.js","documents.js","wiki.js"],"faltantes":["phase5-certification.js"],"especificos_norma":[],"opcionales_presentes":["formacion.js"],"total_js":12},"js_utils":{"score":100,"presentes":["export.js","import.js","charts.js","codanor-report.js","report-builders.js","report-modal.js","docx-personalizer.js","llm.js","llm-models.js","embeddings.js","markdown.js","progress-util.js","soa-kpis.js"],"faltantes":[],"especificos_norma":[],"opcionales_presentes":["report-xlsx.js"],"total_js":14},"idiomas":{"score":100,"presentes":["es.json","ca.json","en.json"],"faltantes":[]},"plantillas":{"score":67,"md_total":40,"docx_total":39,"md_clausulas":0,"docx_word":39,"carpetas_presentes":[],"carpetas_faltantes":["C04-Contexto","C05-Liderazgo","C06-Planificacion","C07-Apoyo","C08-Operacion","C09-EvaluacionDesempeno","C10-Mejora","A5-Organizativos","A6-Personas","A7-Fisicos","A8-Tecnologicos"],"meta_presentes":["INDICE.md","_Comunes","_Scripts","Plantillas-word"],"meta_faltantes":[],"espejo_ok":0,"espejo_roto":39},"menus":{"score":89,"presentes":["dashboard.js","phase1-gap.js","phase2-consulting.js","phase3-audit.js","phase4-evidence.js","soa.js","documents.js","wiki.js"],"faltantes":["phase5-certification.js"]}},"recomendaciones":["Anadir modulos de pantalla: phase5-certification.js","Crear carpetas de plantillas: C04-Contexto, C05-Liderazgo, C06-Planificacion, C07-Apoyo, C08-Operacion, C09-EvaluacionDesempeno, C10-Mejora, A5-Organizativos, A6-Personas, A7-Fisicos, A8-Tecnologicos","Regenerar espejo .docx: 39 plantillas .md sin su .docx (usar md_a_docx.py)"]},{"nombre":"ISO9001-SGQ_2015","tipo":"app","score_global":85,"bloques":{"estructura":{"score":100,"presentes":["index.html","iniciar.sh","AGENTS.md","MEMORY.md","opencode.json","clientes_codanor.json","css","img","js","lang","Plantillas"],"faltantes":[],"recomendados_presentes":["Manuales","Biblioteca","GUIA-FUNCIONAMIENTO-Y-SOPORTE.html"],"recomendados_faltantes":["PROMPT","Back web",".git"]},"js_core":{"score":100,"presentes":["app.js","store.js","i18n.js","i18n-embedded.js","clientes-embedded.js","plantillas-catalog.js","plantillas-md-embedded.js","wiki-categories.js"],"faltantes":[],"especificos_norma":["*-data.js","*-clauses-detailed.js"],"opcionales_presentes":[],"total_js":11},"js_modules":{"score":58,"presentes":["projects.js","clients.js","dashboard.js","phase1-gap.js","phase3-audit.js","documents.js","wiki.js"],"faltantes":["phase2-consulting.js","phase4-evidence.js","phase5-certification.js","soa.js","norma-soa.js"],"especificos_norma":[],"opcionales_presentes":["formacion.js"],"total_js":11},"js_utils":{"score":92,"presentes":["export.js","import.js","charts.js","codanor-report.js","report-builders.js","report-modal.js","docx-personalizer.js","llm.js","llm-models.js","embeddings.js","markdown.js","progress-util.js"],"faltantes":["soa-kpis.js"],"especificos_norma":[],"opcionales_presentes":["report-xlsx.js"],"total_js":14},"idiomas":{"score":100,"presentes":["es.json","ca.json","en.json"],"faltantes":[]},"plantillas":{"score":77,"md_total":28,"docx_total":28,"md_clausulas":26,"docx_word":28,"carpetas_presentes":["C04-Contexto","C05-Liderazgo","C06-Planificacion","C07-Apoyo","C08-Operacion","C09-EvaluacionDesempeno","C10-Mejora"],"carpetas_faltantes":["A5-Organizativos","A6-Personas","A7-Fisicos","A8-Tecnologicos"],"meta_presentes":["INDICE.md","_Comunes","Plantillas-word"],"meta_faltantes":["_Scripts"],"espejo_ok":26,"espejo_roto":2},"menus":{"score":56,"presentes":["dashboard.js","phase1-gap.js","phase3-audit.js","documents.js","wiki.js"],"faltantes":["phase2-consulting.js","phase4-evidence.js","phase5-certification.js","soa.js"]}},"recomendaciones":["Anadir modulos de pantalla: phase2-consulting.js, phase4-evidence.js, phase5-certification.js, soa.js, norma-soa.js","Anadir utilidades: soa-kpis.js","Crear carpetas de plantillas: A5-Organizativos, A6-Personas, A7-Fisicos, A8-Tecnologicos","Regenerar espejo .docx: 2 plantillas .md sin su .docx (usar md_a_docx.py)","Anadir meta-plantillas: _Scripts"]},{"nombre":"Ley 2:2023_Canal_Denuncias","tipo":"pendiente","score_global":null,"bloques":{},"recomendaciones":["Proyecto pendiente de crear. Usar ISO27001-SGSI como plantilla base."]},{"nombre":"NIS2","tipo":"documental","score_global":null,"bloques":{},"recomendaciones":["Proyecto documental (sin app). No requiere estructura de aplicacion."]},{"nombre":"RGPD-LOPD-GDD","tipo":"app","score_global":85,"bloques":{"estructura":{"score":100,"presentes":["index.html","iniciar.sh","AGENTS.md","MEMORY.md","opencode.json","clientes_codanor.json","css","img","js","lang","Plantillas"],"faltantes":[],"recomendados_presentes":["Manuales","Biblioteca"],"recomendados_faltantes":["PROMPT","Back web",".git","GUIA-FUNCIONAMIENTO-Y-SOPORTE.html"]},"js_core":{"score":88,"presentes":["app.js","store.js","i18n.js","i18n-embedded.js","clientes-embedded.js","plantillas-catalog.js","wiki-categories.js"],"faltantes":["plantillas-md-embedded.js"],"especificos_norma":["*-data.js"],"opcionales_presentes":["forensic-tests-data.js"],"total_js":12},"js_modules":{"score":75,"presentes":["projects.js","clients.js","dashboard.js","phase1-gap.js","phase2-consulting.js","phase3-audit.js","phase4-evidence.js","documents.js","wiki.js"],"faltantes":["phase5-certification.js","soa.js","norma-soa.js"],"especificos_norma":[],"opcionales_presentes":["formacion.js"],"total_js":15},"js_utils":{"score":85,"presentes":["export.js","import.js","charts.js","codanor-report.js","report-builders.js","report-modal.js","llm.js","llm-models.js","embeddings.js","markdown.js","soa-kpis.js"],"faltantes":["docx-personalizer.js","progress-util.js"],"especificos_norma":[],"opcionales_presentes":[],"total_js":11},"idiomas":{"score":100,"presentes":["es.json","ca.json","en.json"],"faltantes":[]},"plantillas":{"score":67,"md_total":26,"docx_total":25,"md_clausulas":0,"docx_word":25,"carpetas_presentes":[],"carpetas_faltantes":["C04-Contexto","C05-Liderazgo","C06-Planificacion","C07-Apoyo","C08-Operacion","C09-EvaluacionDesempeno","C10-Mejora","A5-Organizativos","A6-Personas","A7-Fisicos","A8-Tecnologicos"],"meta_presentes":["INDICE.md","_Comunes","_Scripts","Plantillas-word"],"meta_faltantes":[],"espejo_ok":0,"espejo_roto":25},"menus":{"score":78,"presentes":["dashboard.js","phase1-gap.js","phase2-consulting.js","phase3-audit.js","phase4-evidence.js","documents.js","wiki.js"],"faltantes":["phase5-certification.js","soa.js"]}},"recomendaciones":["Anadir JS core: plantillas-md-embedded.js","Anadir modulos de pantalla: phase5-certification.js, soa.js, norma-soa.js","Anadir utilidades: docx-personalizer.js, progress-util.js","Crear carpetas de plantillas: C04-Contexto, C05-Liderazgo, C06-Planificacion, C07-Apoyo, C08-Operacion, C09-EvaluacionDesempeno, C10-Mejora, A5-Organizativos, A6-Personas, A7-Fisicos, A8-Tecnologicos","Regenerar espejo .docx: 25 plantillas .md sin su .docx (usar md_a_docx.py)"]},{"nombre":"SIG_ENS_ISO27001","tipo":"documental","score_global":null,"bloques":{},"recomendaciones":["Proyecto documental (sin app). No requiere estructura de aplicacion."]},{"nombre":"SOC","tipo":"pendiente","score_global":null,"bloques":{},"recomendaciones":["Proyecto pendiente de crear. Usar ISO27001-SGSI como plantilla base."]},{"nombre":"TISAX","tipo":"app","score_global":67,"bloques":{"estructura":{"score":100,"presentes":["index.html","iniciar.sh","AGENTS.md","MEMORY.md","opencode.json","clientes_codanor.json","css","img","js","lang","Plantillas"],"faltantes":[],"recomendados_presentes":["Biblioteca"],"recomendados_faltantes":["Manuales","PROMPT","Back web",".git","GUIA-FUNCIONAMIENTO-Y-SOPORTE.html"]},"js_core":{"score":75,"presentes":["app.js","store.js","i18n.js","i18n-embedded.js","clientes-embedded.js","plantillas-catalog.js"],"faltantes":["plantillas-md-embedded.js","wiki-categories.js"],"especificos_norma":["*-data.js"],"opcionales_presentes":[],"total_js":11},"js_modules":{"score":33,"presentes":["projects.js","clients.js","dashboard.js","documents.js"],"faltantes":["phase1-gap.js","phase2-consulting.js","phase3-audit.js","phase4-evidence.js","phase5-certification.js","soa.js","norma-soa.js","wiki.js"],"especificos_norma":[],"opcionales_presentes":["formacion.js"],"total_js":12},"js_utils":{"score":62,"presentes":["export.js","import.js","charts.js","codanor-report.js","report-builders.js","report-modal.js","llm.js","llm-models.js"],"faltantes":["docx-personalizer.js","embeddings.js","markdown.js","progress-util.js","soa-kpis.js"],"especificos_norma":[],"opcionales_presentes":[],"total_js":8},"idiomas":{"score":100,"presentes":["es.json","ca.json","en.json"],"faltantes":[]},"plantillas":{"score":58,"md_total":65,"docx_total":29,"md_clausulas":0,"docx_word":29,"carpetas_presentes":[],"carpetas_faltantes":["C04-Contexto","C05-Liderazgo","C06-Planificacion","C07-Apoyo","C08-Operacion","C09-EvaluacionDesempeno","C10-Mejora","A5-Organizativos","A6-Personas","A7-Fisicos","A8-Tecnologicos"],"meta_presentes":["INDICE.md","_Comunes","Plantillas-word"],"meta_faltantes":["_Scripts"],"espejo_ok":0,"espejo_roto":29},"menus":{"score":22,"presentes":["dashboard.js","documents.js"],"faltantes":["phase1-gap.js","phase2-consulting.js","phase3-audit.js","phase4-evidence.js","phase5-certification.js","soa.js","wiki.js"]}},"recomendaciones":["Anadir JS core: plantillas-md-embedded.js, wiki-categories.js","Anadir modulos de pantalla: phase1-gap.js, phase2-consulting.js, phase3-audit.js, phase4-evidence.js, phase5-certification.js, soa.js, norma-soa.js, wiki.js","Anadir utilidades: docx-personalizer.js, embeddings.js, markdown.js, progress-util.js, soa-kpis.js","Crear carpetas de plantillas: C04-Contexto, C05-Liderazgo, C06-Planificacion, C07-Apoyo, C08-Operacion, C09-EvaluacionDesempeno, C10-Mejora, A5-Organizativos, A6-Personas, A7-Fisicos, A8-Tecnologicos","Regenerar espejo .docx: 29 plantillas .md sin su .docx (usar md_a_docx.py)","Anadir meta-plantillas: _Scripts"]}]};
+
+var DATA = null;
+
+// ====== CARGA DE DATOS ======
+async function cargarDatos(){
+  try{
+    var res = await fetch('../Plataforma_Seguimiento_Proyectos/_homogeneizacion/estado_proyectos.json');
+    if(res.ok){ DATA = await res.json(); return; }
+  }catch(e){}
+  // Fallback: datos embebidos
+  DATA = DATA_EMBEBIDA;
+}
+
+function scoreClass(s){
+  if(s===null||s===undefined) return 'score-na';
+  if(s>=90) return 'score-a';
+  if(s>=80) return 'score-b';
+  if(s>=65) return 'score-c';
+  if(s>=50) return 'score-d';
+  return 'score-e';
+}
+function scoreColor(s){
+  if(s===null||s===undefined) return 'var(--gray-300)';
+  if(s>=90) return 'var(--rating-a)';
+  if(s>=80) return 'var(--rating-b)';
+  if(s>=65) return 'var(--rating-c)';
+  if(s>=50) return 'var(--rating-d)';
+  return 'var(--rating-e)';
+}
+function cellClass(s){
+  if(s===null||s===undefined) return 'cell-na';
+  if(s>=80) return 'cell-ok';
+  if(s>=50) return 'cell-warn';
+  return 'cell-fail';
+}
+function esc(t){var d=document.createElement('div');d.textContent=t==null?'':String(t);return d.innerHTML;}
+
+// ====== TABS ======
+function showTab(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ====== RENDER RESUMEN ======
+function renderResumen(){
+  var r = DATA.resumen;
+  document.getElementById('headerDate').textContent = 'Generado: ' + DATA.generado;
+  var kpis = [
+    {v:r.total_proyectos, l:'Proyectos'},
+    {v:r.apps, l:'Apps'},
+    {v:r.score_medio_apps+'%', l:'Score medio'},
+    {v:r.documentales, l:'Documentales'},
+    {v:r.pendientes, l:'Pendientes'}
+  ];
+  document.getElementById('kpiRow').innerHTML = kpis.map(k=>
+    '<div class="kpi"><div class="val">'+esc(k.v)+'</div><div class="lbl">'+esc(k.l)+'</div></div>').join('');
+
+  // Ordenar: apps por score desc, luego documentales, luego pendientes
+  var proys = DATA.proyectos.slice().sort((a,b)=>{
+    var orden={patron:0,app:1,documental:2,pendiente:3};
+    if(orden[a.tipo]!==orden[b.tipo]) return orden[a.tipo]-orden[b.tipo];
+    return (b.score_global||0)-(a.score_global||0);
+  });
+  document.getElementById('projGrid').innerHTML = proys.map(p=>{
+    var sc = p.score_global;
+    return '<div class="proj-card" onclick="irDetalle(\''+esc(p.nombre)+'\')">'+
+      '<div class="proj-card-head"><span class="proj-name">'+esc(p.nombre)+'</span>'+
+      '<span class="proj-type type-'+p.tipo+'">'+esc(p.tipo)+'</span></div>'+
+      '<div class="score-big '+scoreClass(sc)+'">'+(sc===null?'N/A':sc+'%')+'</div>'+
+      (sc!==null?'<div class="score-bar"><div class="score-bar-fill" style="width:'+sc+'%;background:'+scoreColor(sc)+'"></div></div>':'')+
+      '</div>';
+  }).join('');
+}
+
+// ====== RENDER COMPARATIVA ======
+function renderComparativa(){
+  var bloques = ['estructura','js_core','js_modules','js_utils','idiomas','plantillas','menus'];
+  var labels = {estructura:'Estructura',js_core:'JS Core',js_modules:'JS Modulos',js_utils:'JS Utils',idiomas:'Idiomas',plantillas:'Plantillas',menus:'Menus'};
+  var apps = DATA.proyectos.filter(p=>p.tipo==='app'||p.tipo==='patron')
+    .sort((a,b)=>(b.score_global||0)-(a.score_global||0));
+  var h = '<thead><tr><th>Proyecto</th><th class="center">Global</th>';
+  bloques.forEach(b=>h+='<th class="center">'+labels[b]+'</th>');
+  h+='</tr></thead><tbody>';
+  apps.forEach(p=>{
+    h+='<tr><td><strong>'+esc(p.nombre)+'</strong></td>';
+    h+='<td class="'+cellClass(p.score_global)+'">'+(p.score_global===null?'N/A':p.score_global+'%')+'</td>';
+    bloques.forEach(b=>{
+      var s = p.bloques[b] ? p.bloques[b].score : null;
+      h+='<td class="'+cellClass(s)+'">'+(s===null?'-':s+'%')+'</td>';
+    });
+    h+='</tr>';
+  });
+  h+='</tbody>';
+  document.getElementById('matrizTable').innerHTML = h;
+}
+
+// ====== RENDER DETALLE ======
+function irDetalle(nombre){
+  showTabById('detalle');
+  document.getElementById('projSelector').value = nombre;
+  renderDetalle();
+}
+function showTabById(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  var idx = ['resumen','comparativa','detalle','plantillas','patron'].indexOf(id);
+  document.querySelectorAll('.tab')[idx].classList.add('active');
+}
+function initSelector(){
+  var sel = document.getElementById('projSelector');
+  sel.innerHTML = DATA.proyectos.map(p=>'<option value="'+esc(p.nombre)+'">'+esc(p.nombre)+' ('+p.tipo+')</option>').join('');
+}
+function renderDetalle(){
+  var nombre = document.getElementById('projSelector').value;
+  var p = DATA.proyectos.find(x=>x.nombre===nombre);
+  if(!p){document.getElementById('detalleContent').innerHTML='';return;}
+  var labels = {estructura:'Estructura de Ficheros',js_core:'JS Core (cerebro)',js_modules:'JS Modulos (pantallas)',js_utils:'JS Utils (herramientas)',idiomas:'Idiomas',plantillas:'Plantillas',menus:'Menus'};
+  var h = '<div class="block-detail"><div class="block-detail-head"><span class="block-detail-title">'+esc(p.nombre)+'</span>'+
+    '<span class="block-score '+scoreClass(p.score_global)+'">'+(p.score_global===null?'N/A':p.score_global+'%')+' &bull; '+esc(p.tipo)+'</span></div></div>';
+
+  if(p.bloques && Object.keys(p.bloques).length){
+    Object.keys(p.bloques).forEach(bk=>{
+      var b = p.bloques[bk];
+      h+='<div class="block-detail"><div class="block-detail-head">'+
+        '<span class="block-detail-title">'+esc(labels[bk]||bk)+'</span>'+
+        '<span class="block-score" style="color:'+scoreColor(b.score)+'">'+b.score+'%</span></div>';
+      if(b.presentes && b.presentes.length){
+        h+='<span class="chip-label">Presentes ('+b.presentes.length+')</span><div class="chip-list">'+
+          b.presentes.map(x=>'<span class="chip chip-ok">'+esc(x)+'</span>').join('')+'</div>';
+      }
+      if(b.faltantes && b.faltantes.length){
+        h+='<span class="chip-label">Faltantes ('+b.faltantes.length+')</span><div class="chip-list">'+
+          b.faltantes.map(x=>'<span class="chip chip-fail">'+esc(x)+'</span>').join('')+'</div>';
+      }
+      if(bk==='plantillas'){
+        h+='<span class="chip-label">Espejo .md/.docx</span><div class="chip-list">'+
+          '<span class="chip chip-ok">'+b.md_clausulas+' .md</span>'+
+          '<span class="chip '+(b.espejo_roto>0?'chip-fail':'chip-ok')+'">'+b.docx_word+' .docx</span>'+
+          (b.espejo_roto>0?'<span class="chip chip-fail">'+b.espejo_roto+' sin espejo</span>':'')+'</div>';
+      }
+      h+='</div>';
+    });
+  }
+  var recOk = p.recomendaciones.length===1 && p.recomendaciones[0].indexOf('homogeneizado')>=0;
+  h+='<div class="rec-box'+(recOk?' rec-ok':'')+'"><strong>Recomendaciones</strong><ul>'+
+    p.recomendaciones.map(r=>'<li>'+esc(r)+'</li>').join('')+'</ul></div>';
+  document.getElementById('detalleContent').innerHTML = h;
+}
+
+// ====== RENDER PLANTILLAS ======
+function renderPlantillas(){
+  var apps = DATA.proyectos.filter(p=>p.tipo==='app'||p.tipo==='patron');
+  var h='<thead><tr><th>Proyecto</th><th class="center">.md total</th><th class="center">.docx total</th>'+
+    '<th class="center">.md clausulas</th><th class="center">.docx espejo</th><th class="center">Sin espejo</th><th class="center">Score</th></tr></thead><tbody>';
+  apps.forEach(p=>{
+    var b = p.bloques.plantillas;
+    if(!b) return;
+    h+='<tr><td><strong>'+esc(p.nombre)+'</strong></td>'+
+      '<td class="center">'+b.md_total+'</td><td class="center">'+b.docx_total+'</td>'+
+      '<td class="center">'+b.md_clausulas+'</td><td class="center">'+b.docx_word+'</td>'+
+      '<td class="'+(b.espejo_roto>0?'cell-fail':'cell-ok')+'">'+b.espejo_roto+'</td>'+
+      '<td class="'+cellClass(b.score)+'">'+b.score+'%</td></tr>';
+  });
+  h+='</tbody>';
+  document.getElementById('plantillasTable').innerHTML = h;
+}
+
+// ====== RENDER PATRON ======
+function renderPatron(){
+  var patron = DATA.proyectos.find(p=>p.tipo==='patron');
+  var h = '<div class="alert alert-info">El patron <strong>ISO27001-SGSI</strong> es la referencia. Todos los proyectos app deben replicar su estructura de 7 bloques.</div>';
+  var bloques = [
+    ['Estructura','index.html, iniciar.sh, AGENTS.md, MEMORY.md, opencode.json, clientes_codanor.json, css/, img/, js/, lang/, Plantillas/'],
+    ['JS Core (15)','app.js, store.js, i18n.js, i18n-embedded.js, clientes-embedded.js, {norma}-data.js, {norma}-controls-detailed.js, plantillas-catalog.js, wiki-categories.js...'],
+    ['JS Modulos (13)','projects, clients, dashboard, phase1-gap, phase2-consulting, phase3-audit, phase4-evidence, phase5-certification, soa, norma-soa, documents, wiki'],
+    ['JS Utils (14)','export, import, charts, codanor-report, report-builders, report-modal, docx-personalizer, llm, llm-models, embeddings, markdown, progress-util, soa-kpis'],
+    ['Idiomas (3)','es.json, ca.json, en.json'],
+    ['Plantillas','C04-C10 (clausulas) + A5-A8 (controles), regla espejo .md/.docx, _Comunes, _Scripts, INDICE.md, Plantillas-word/'],
+    ['Menus','Cuadro de Mandos, Analisis Diferencial, Consultoria, Auditoria Interna, Evidencias']
+  ];
+  h+='<table><thead><tr><th>Bloque</th><th>Contenido esperado</th></tr></thead><tbody>';
+  bloques.forEach(b=>h+='<tr><td><strong>'+esc(b[0])+'</strong></td><td>'+esc(b[1])+'</td></tr>');
+  h+='</tbody></table>';
+  document.getElementById('patronContent').innerHTML = h;
+}
+
+// ====== EXPORT WORD (OpenXML simplificado -> genera .doc HTML) ======
+function exportarWord(){
+  var html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>Informe Homogeneizacion</title></head><body>';
+  html += '<h1 style="color:#178DC2;font-family:Poppins,sans-serif">Informe de Homogeneizacion de Proyectos</h1>';
+  html += '<p><b>CODANOR - Jafa, S.L.</b> | Patron: ISO27001-SGSI | Generado: '+esc(DATA.generado)+'</p>';
+  var r = DATA.resumen;
+  html += '<h2 style="color:#12A79D">Resumen</h2><ul>';
+  html += '<li>Total proyectos: '+r.total_proyectos+'</li><li>Apps: '+r.apps+'</li>';
+  html += '<li>Score medio apps: '+r.score_medio_apps+'%</li><li>Documentales: '+r.documentales+'</li><li>Pendientes: '+r.pendientes+'</li></ul>';
+  html += '<h2 style="color:#12A79D">Matriz por proyecto</h2>';
+  html += '<table border="1" cellspacing="0" cellpadding="4" style="border-collapse:collapse"><tr style="background:#178DC2;color:#fff"><th>Proyecto</th><th>Tipo</th><th>Global</th><th>Estructura</th><th>JS Core</th><th>JS Mod</th><th>JS Utils</th><th>Idiomas</th><th>Plantillas</th><th>Menus</th></tr>';
+  DATA.proyectos.forEach(function(p){
+    var b=p.bloques;
+    function g(k){return b&&b[k]?b[k].score+'%':'-';}
+    html+='<tr><td>'+esc(p.nombre)+'</td><td>'+esc(p.tipo)+'</td><td>'+(p.score_global===null?'N/A':p.score_global+'%')+'</td>'+
+      '<td>'+g('estructura')+'</td><td>'+g('js_core')+'</td><td>'+g('js_modules')+'</td><td>'+g('js_utils')+'</td>'+
+      '<td>'+g('idiomas')+'</td><td>'+g('plantillas')+'</td><td>'+g('menus')+'</td></tr>';
+  });
+  html += '</table>';
+  html += '<h2 style="color:#12A79D">Recomendaciones por proyecto</h2>';
+  DATA.proyectos.forEach(function(p){
+    html+='<h3>'+esc(p.nombre)+' ('+esc(p.tipo)+')</h3><ul>';
+    p.recomendaciones.forEach(function(rec){html+='<li>'+esc(rec)+'</li>';});
+    html+='</ul>';
+  });
+  html += '</body></html>';
+  var blob = new Blob(['\ufeff'+html],{type:'application/msword'});
+  descargar(blob,'Informe_Homogeneizacion_CODANOR.doc');
+}
+
+// ====== EXPORT EXCEL (formato .xls HTML) ======
+function exportarExcel(){
+  var bloques=['estructura','js_core','js_modules','js_utils','idiomas','plantillas','menus'];
+  var html='<html xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="utf-8"></head><body>';
+  html+='<table border="1"><tr style="background:#178DC2;color:#fff"><th>Proyecto</th><th>Tipo</th><th>Score Global</th>';
+  bloques.forEach(function(b){html+='<th>'+b+'</th>';});
+  html+='<th>md total</th><th>docx total</th><th>sin espejo</th></tr>';
+  DATA.proyectos.forEach(function(p){
+    html+='<tr><td>'+esc(p.nombre)+'</td><td>'+esc(p.tipo)+'</td><td>'+(p.score_global===null?'':p.score_global)+'</td>';
+    bloques.forEach(function(bk){var b=p.bloques[bk];html+='<td>'+(b?b.score:'')+'</td>';});
+    var pl=p.bloques.plantillas;
+    html+='<td>'+(pl?pl.md_total:'')+'</td><td>'+(pl?pl.docx_total:'')+'</td><td>'+(pl?pl.espejo_roto:'')+'</td>';
+    html+='</tr>';
+  });
+  html+='</table></body></html>';
+  var blob=new Blob(['\ufeff'+html],{type:'application/vnd.ms-excel'});
+  descargar(blob,'Estado_Homogeneizacion_CODANOR.xls');
+}
+
+function descargar(blob,nombre){
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');a.href=url;a.download=nombre;a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ====== INIT ======
+(async function(){
+  await cargarDatos();
+  renderResumen();
+  renderComparativa();
+  initSelector();
+  renderDetalle();
+  renderPlantillas();
+  renderPatron();
+})();
+</script>
+</body>
+</html>
