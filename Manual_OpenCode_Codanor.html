@@ -655,7 +655,7 @@
     <h1 class="cover-title">Manual de Usuario</h1>
     <p class="cover-subtitle">OpenCode &mdash; Agente de Codificacion IA</p>
     <p class="cover-edition">Guia completa de uso, configuracion, agentes, resolucion de problemas y buenas practicas</p>
-    <span class="cover-badge">Version 3.0 &bull; Abril 2026</span>
+    <span class="cover-badge">Version 3.1 &bull; Julio 2026</span>
   </div>
   <div class="cover-footer">
     <p>Jafa, S.L. &mdash; CODANOR &bull; Barcelona, Catalunya</p>
@@ -668,7 +668,7 @@
 <section class="dashboard-section">
   <div class="dashboard-header">
     <h2>Estado del Ecosistema CODANOR</h2>
-    <span class="dashboard-date">Ultima actualizacion: 23 mayo 2026</span>
+    <span class="dashboard-date">Ultima actualizacion: 5 julio 2026</span>
     <button class="btn-refresh-dashboard" id="btnRefreshDashboard">
       &#x21BB; Refrescar
     </button>
@@ -677,9 +677,9 @@
   <!-- A.1: KPI Cards -->
   <div class="kpi-grid">
     <div class="kpi-card" onclick="document.getElementById('cap19').scrollIntoView({behavior:'smooth'})" title="Ver Capitulo 19">
-      <div class="kpi-value">21</div>
+      <div class="kpi-value">22</div>
       <div class="kpi-label">Proyectos totales</div>
-      <div class="kpi-sub">17 activos + 4 extras/duplicados</div>
+      <div class="kpi-sub">+ ENS-RD311-2022 (subproyecto nuevo)</div>
     </div>
     <div class="kpi-card" onclick="document.getElementById('cap19').scrollIntoView({behavior:'smooth'})" title="Ver Capitulo 19">
       <div class="kpi-value kpi-mid">15</div>
@@ -697,9 +697,9 @@
       <div class="kpi-sub">62% versionados (13 / 21)</div>
     </div>
     <div class="kpi-card" onclick="document.getElementById('cap19').scrollIntoView({behavior:'smooth'})" title="Ver Capitulo 19">
-      <div class="kpi-value kpi-low">1</div>
+      <div class="kpi-value kpi-mid">2</div>
       <div class="kpi-label">En GitHub</div>
-      <div class="kpi-sub">Solo PLATAFORMA_OpenCode (5%)</div>
+      <div class="kpi-sub">PLATAFORMA_OpenCode + Plataforma_Seguimiento (9%)</div>
     </div>
     <div class="kpi-card" onclick="document.getElementById('cap19').scrollIntoView({behavior:'smooth'})" title="Ver Capitulo 19">
       <div class="kpi-value kpi-low">1</div>
@@ -790,6 +790,7 @@
         <li><a href="#cap18"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg> 18. Centralizacion de Proyectos</a></li>
         <li><a href="#cap19"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg> 19. Mapa de Infraestructura <span class="sidebar-badge sidebar-badge-info">21</span></a></li>
         <li><a href="#cap20"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg> 20. Memory.md y Seguridad <span class="sidebar-badge sidebar-badge-warn">18</span></a></li>
+        <li><a href="#cap21"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg> 21. Homogeneizacion de Proyectos <span class="sidebar-badge sidebar-badge-ok">85%</span></a></li>
       </ul>
     </nav>
   </aside>
@@ -2764,9 +2765,9 @@ git add . &amp;&amp; git commit -m "Initial commit"</code></pre>
         <div class="progress-item">
           <div class="progress-row">
             <span class="progress-label">Repositorio en GitHub</span>
-            <span class="progress-stats">1 / 21 &middot; 5%</span>
+            <span class="progress-stats">2 / 22 &middot; 9%</span>
           </div>
-          <div class="progress-bar-bg"><div class="progress-bar-fill fill-low" style="width:5%"></div></div>
+          <div class="progress-bar-bg"><div class="progress-bar-fill fill-low" style="width:9%"></div></div>
         </div>
         <div class="progress-item">
           <div class="progress-row">
@@ -2827,7 +2828,7 @@ git add . &amp;&amp; git commit -m "Initial commit"</code></pre>
             <td class="st-fail-cell">--</td><td class="st-fail-cell">--</td><td class="st-fail-cell">--</td></tr>
           <tr><td>14</td><td>Plataforma_Seguimiento_Proyectos</td>
             <td class="st-fail-cell">--</td><td class="st-fail-cell">--</td><td class="st-ok-cell">OK</td>
-            <td class="st-ok-cell">OK</td><td class="st-ok-cell">OK</td><td class="st-fail-cell">--</td></tr>
+            <td class="st-ok-cell">OK</td><td class="st-ok-cell">OK</td><td class="st-ok-cell">OK</td></tr>
           <tr><td>15</td><td>Seguimiento de Actas de reunion</td>
             <td class="st-fail-cell">--</td><td class="st-fail-cell">--</td><td class="st-fail-cell">--</td>
             <td class="st-fail-cell">--</td><td class="st-fail-cell">--</td><td class="st-fail-cell">--</td></tr>
@@ -2845,6 +2846,11 @@ git add . &amp;&amp; git commit -m "Initial commit"</code></pre>
       <p style="font-size:0.8rem;color:var(--gray-500);margin-top:-0.5rem">
         <strong>OC</strong> = opencode.json &middot; <strong>OK</strong> verde = instalado &middot; <strong>parcial</strong> amarillo = ubicacion no estandar &middot; <strong>--</strong> rojo = falta
       </p>
+      <p style="font-size:0.8rem;color:var(--gray-500);margin-top:0.25rem">
+        <strong>Nota (jul 2026):</strong> <code>Plataforma_Seguimiento_Proyectos</code> ya esta en
+        GitHub. Incluye el subproyecto nuevo <code>ENS-RD311-2022</code> (app de cumplimiento del
+        Real Decreto 311/2022) y la herramienta de homogeneizacion (ver Capitulo 21).
+      </p>
 
 
       <div class="alert alert-warning">
@@ -2856,7 +2862,7 @@ git add . &amp;&amp; git commit -m "Initial commit"</code></pre>
           <li>Se conecta un proyecto a SonarCloud</li>
           <li>Cambia la configuracion de algun proyecto</li>
         </ul>
-        <strong>Ultima actualizacion: 27 Abril 2026</strong>
+        <strong>Ultima actualizacion: 5 julio 2026</strong>
       </div>
 
       <h2>Donde esta cada cosa</h2>
@@ -3353,6 +3359,110 @@ git push -u origin main</code></pre>
       </div>
     </div>
 
+    <!-- ============================================================
+         CAPITULO 21: HOMOGENEIZACION DE PROYECTOS
+         ============================================================ -->
+    <div class="section" id="cap21">
+      <h1>21. Homogeneizacion de Proyectos <span class="badge badge-new">Nuevo</span></h1>
+      <p class="chapter-intro">
+        Herramienta de analisis e informe (solo lectura) que compara la estructura de los
+        subproyectos de <code>Plataforma_Seguimiento_Proyectos/</code> contra el patron de
+        referencia <strong>ISO27001-SGSI</strong>, para detectar desviaciones y homogeneizar
+        el ecosistema de aplicaciones de cumplimiento normativo.
+      </p>
+
+      <div class="alert alert-info">
+        <div class="alert-title">Solo lectura sobre los proyectos analizados</div>
+        La herramienta <strong>nunca modifica</strong> los proyectos que analiza. Solo lee su
+        estructura de ficheros y escribe informes en la carpeta <code>_homogeneizacion/</code>.
+      </div>
+
+      <h2>Que hace</h2>
+      <p>
+        Toma <strong>ISO27001-SGSI</strong> como patron "gold standard" (siempre 100%) y evalua
+        cada proyecto por presencia de ficheros en 7 bloques ponderados. El score global es la
+        media ponderada de esos bloques.
+      </p>
+
+      <table>
+        <thead>
+          <tr><th>Bloque</th><th>Que comprueba</th><th>Peso</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Estructura</td><td>index.html, iniciar.sh, AGENTS.md, MEMORY.md, opencode.json, css/, img/, js/, lang/, Plantillas/...</td><td>25%</td></tr>
+          <tr><td>JS Modulos</td><td>13 pantallas (projects, clients, dashboard, phase1-5, soa, wiki...)</td><td>20%</td></tr>
+          <tr><td>JS Core</td><td>15 ficheros del cerebro (app.js, store.js, i18n.js, {norma}-data.js...)</td><td>15%</td></tr>
+          <tr><td>JS Utils</td><td>14 utilidades (export, import, charts, llm, docx-personalizer...)</td><td>15%</td></tr>
+          <tr><td>Plantillas</td><td>C04-C10 + A5-A8, regla espejo .md/.docx, _Comunes, _Scripts</td><td>15%</td></tr>
+          <tr><td>Idiomas</td><td>es.json, ca.json, en.json</td><td>5%</td></tr>
+          <tr><td>Menus</td><td>Cuadro de Mandos, Analisis Diferencial, Consultoria, Auditoria, Evidencias</td><td>5%</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Componentes</h2>
+      <p>Los scripts residen en <code>Plataforma_Seguimiento_Proyectos/_homogeneizacion/</code>:</p>
+      <table>
+        <thead>
+          <tr><th>Fichero</th><th>Descripcion</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>patron_iso27001.json</code></td><td>Definicion del gold standard (7 bloques, pesos, clasificacion)</td></tr>
+          <tr><td><code>scan_proyectos.py</code></td><td>Scanner read-only, tolerante a variantes de nombres</td></tr>
+          <tr><td><code>estado_proyectos.json</code></td><td>Salida del scan (datos que consume la web)</td></tr>
+          <tr><td><code>generar_informe_docx.py</code></td><td>Informe Word (python-docx + fallback .doc HTML)</td></tr>
+          <tr><td><code>generar_informe_xlsx.py</code></td><td>Informe Excel 5 hojas (openpyxl + fallback .xls HTML)</td></tr>
+          <tr><td><code>README.md</code></td><td>Instrucciones de uso</td></tr>
+        </tbody>
+      </table>
+      <p>
+        La visualizacion web esta en <code>homogeneizacion-proyectos.html</code>, accesible desde
+        el sidebar "Herramientas" de la plataforma de seguimiento
+        (<a href="homogeneizacion-proyectos.html" target="_blank" rel="noopener noreferrer">abrir dashboard</a>).
+      </p>
+
+      <h2>Resultados del ultimo analisis</h2>
+      <p>17 proyectos analizados: 7 apps, 3 documentales, 6 pendientes de crear. Score medio de apps: <strong>85%</strong>.</p>
+      <table>
+        <thead>
+          <tr><th>Proyecto</th><th>Tipo</th><th>Score</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>ISO27001-SGSI</td><td>patron</td><td class="st-ok-cell">100%</td></tr>
+          <tr><td>ISO42001-SGIA</td><td>app</td><td class="st-ok-cell">93%</td></tr>
+          <tr><td>ISO27701-SGP</td><td>app</td><td class="st-ok-cell">89%</td></tr>
+          <tr><td>ISO9001-SGQ_2015</td><td>app</td><td class="st-ok-cell">85%</td></tr>
+          <tr><td>RGPD-LOPD-GDD</td><td>app</td><td class="st-ok-cell">85%</td></tr>
+          <tr><td>ISO14001-SGMA_2015</td><td>app</td><td class="st-ok-cell">82%</td></tr>
+          <tr><td>ISO14001-SGMA_2026_NEW</td><td>app</td><td class="st-warn-cell">76%</td></tr>
+          <tr><td>TISAX</td><td>app</td><td class="st-warn-cell">67%</td></tr>
+          <tr><td>Documentales y pendientes (9)</td><td>documental / pendiente</td><td>N/A</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:0.8rem;color:var(--gray-500);margin-top:-0.5rem">
+        Los proyectos documentales (sin app) y los pendientes de crear no penalizan el score.
+      </p>
+
+      <h2>Flujo de uso</h2>
+      <table>
+        <thead>
+          <tr><th>Paso</th><th>Comando / accion</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1. Analizar</td><td><code>python3 scan_proyectos.py</code> &rarr; regenera <code>estado_proyectos.json</code></td></tr>
+          <tr><td>2. Visualizar</td><td>Abrir <code>homogeneizacion-proyectos.html</code> (5 pestanas: Resumen, Comparativa, Detalle, Plantillas, Patron)</td></tr>
+          <tr><td>3. Informe Word</td><td><code>python3 generar_informe_docx.py</code></td></tr>
+          <tr><td>4. Informe Excel</td><td><code>python3 generar_informe_xlsx.py</code></td></tr>
+        </tbody>
+      </table>
+
+      <div class="alert alert-info">
+        <div class="alert-title">Datos embebidos para file://</div>
+        El dashboard lleva los datos del scan embebidos (<code>var DATA_EMBEBIDA</code>) como
+        fallback, por lo que funciona abierto directamente desde el disco. Si se sirve por HTTP,
+        hace <code>fetch</code> del JSON mas reciente automaticamente.
+      </div>
+    </div>
+
     <!-- FOOTER -->
     <div class="manual-footer">
       <img src="https://codanor.com/assets/img/logo_web-50.png" alt="CODANOR">
@@ -3362,7 +3472,7 @@ git push -u origin main</code></pre>
         Barcelona, Catalunya &bull; info@codanor.com &bull; +34 616 947 274
       </p>
       <p style="margin-top: 1rem; color: #aaa;">
-        Manual generado el 27 de Abril de 2026 &bull; Version 3.0 (20 capitulos)
+        Manual generado el 27 de Abril de 2026 &bull; Actualizado el 5 de Julio de 2026 &bull; Version 3.1 (21 capitulos)
       </p>
     </div>
 
@@ -3392,7 +3502,7 @@ git push -u origin main</code></pre>
       btn.title = 'Refrescar datos del dashboard (sin accion por ahora)';
       btn.addEventListener('click', function() {
         // Placeholder para futura integracion con API
-        alert('Funcionalidad futura: refrescar datos via API.\n\nPor ahora los datos son estaticos.\nUltima actualizacion: 23 mayo 2026');
+        alert('Funcionalidad futura: refrescar datos via API.\n\nPor ahora los datos son estaticos.\nUltima actualizacion: 5 julio 2026');
       });
     }
   });

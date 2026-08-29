@@ -2,59 +2,143 @@
 
 > Instructions for AI coding agents operating in this repository.
 > Maintained by Jafa, S.L. (CODANOR), Barcelona, Catalunya.
+> Last updated: 2026-08-29
 
 ## Project Overview
 
 This repository contains documentation and tooling for the OpenCode platform
 used internally at CODANOR. It includes a corporate HTML manual (20 chapters),
 a Kanban issue tracker, a SonarCloud analysis panel, a module homogenization
-plan, a backup script, and OpenCode slash commands.
+plan, a backup script, OpenCode slash commands, and the technical proposal for
+the Tiquets tool (v1.2).
+
+The **Tiquets module** is the most active component: a full-stack ticketing
+system integrated into `plataforma.db` (SQLite) served by Flask on port 5001,
+deployed across all 9 ISO/ENS apps and in `plataforma-seguimiento.html`.
 
 ## Build / Lint / Test Commands
 
-No build system is currently configured. When one is added, update this section.
-
 ```bash
-# Build (placeholder — update when a build tool is configured)
-# npm run build
+# Start the Plataforma backend (required for Tiquets, Exports, Uploads)
+cd ~/Proyectos/Plataforma_Seguimiento_Proyectos/servidor
+python3 server.py
+# → http://localhost:5001  (HOST 0.0.0.0 — LAN accessible)
 
-# Lint (placeholder)
-# npm run lint
+# Verify DB integrity
+sqlite3 servidor/plataforma.db "PRAGMA integrity_check;"
 
-# Run all tests (placeholder)
-# npm test
+# Check all 10 tables exist
+sqlite3 servidor/plataforma.db \
+  "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name;"
 
-# Run a single test file (placeholder)
-# npm test -- path/to/test.spec.ts
-
-# Type-check (placeholder)
-# npx tsc --noEmit
+# Verify tiquets module (9 apps)
+python3 -c "
+import re, os
+from collections import Counter
+BASE='~/Proyectos/Plataforma_Seguimiento_Proyectos'
+for app in ['ISO27001-SGSI','RGPD-LOPD-GDD','ENS-RD311-2022']:
+    src=open(f'{BASE}/{app}/js/modules/tiquets.js').read()
+    dups={k:v for k,v in Counter([m[1] for m in re.findall(r'^\s{2}(async\s+)?(\w+)\s*\(',src,re.MULTILINE)]).items() if v>1}
+    print(app, 'dups:', dups if dups else 'NONE')
+"
 ```
 
 ## Repository Structure
 
 ```
 PLATAFORMA_OpenCode-NEW/
-  AGENTS.md                            # This file — agent instructions
-  Memory.md                            # Project state, history, pending tasks
-  opencode.json                        # OpenCode config (MCP SonarQube)
-  .gitignore                           # Git exclusions
-  Manual_OpenCode_Codanor.html         # Corporate manual v3.0 (20 chapters, ~137 KB)
-  plataforma-seguimiento.html          # Dashboard + Kanban issue tracker (~63 KB)
-  analisis-codigo.html                 # SonarCloud analysis panel (~46 KB)
-  plan-homogeneizacion-modulos.html    # Module homogenization plan (~72 KB)
-  homogeneizacion-proyectos.html       # Project homogenization tool dashboard (~46 KB)
-  backup-opencode.sh                   # Backup script (8 modes, executable)
-  sonar-project.properties             # SonarCloud scanner config
-  Prompt.docx                          # Project prompt specification
-  Estructura_PROYECTOS.pdf             # Module hierarchy diagram
-  Biblioteca/                          # Screenshots and reference images
+  AGENTS.md                               # This file — agent instructions
+  Memory.md                               # Project state, history, pending tasks
+  opencode.json                           # OpenCode config (MCP SonarQube)
+  .gitignore                              # Git exclusions
+  Manual_OpenCode_Codanor.html            # Corporate manual v3.0 (20 chapters, ~137 KB)
+  plataforma-seguimiento.html             # Dashboard + Kanban + Gestor de Tiquets (~98 KB)
+  analisis-codigo.html                    # SonarCloud analysis panel (~46 KB)
+  plan-homogeneizacion-modulos.html       # Module homogenization plan (~72 KB)
+  homogeneizacion-proyectos.html          # Project homogenization dashboard (~46 KB)
+  propuesta-herramienta-tiquets.html      # Tiquets tool proposal v1.2 (~98 KB)
+  backup-opencode.sh                      # Backup script (8 modes, executable)
+  sonar-project.properties                # SonarCloud scanner config
+  Prompt.docx                             # Project prompt specification
+  Estructura_PROYECTOS.pdf                # Module hierarchy diagram
+  Biblioteca/                             # Screenshots and reference images
   .opencode/
     commands/
-      sonar.md                         # Slash command /sonar
-      sonar-report.md                  # Slash command /sonar-report
-    package.json                       # OpenCode plugin dependency
+      sonar.md                            # Slash command /sonar
+      sonar-report.md                     # Slash command /sonar-report
+    package.json                          # OpenCode plugin dependency
 ```
+
+## Critical Architecture — Tiquets Module
+
+### Backend (Plataforma_Seguimiento_Proyectos/servidor/)
+
+| File | Role |
+|---|---|
+| `server.py` | Flask app, port 5001, HOST 0.0.0.0. Contains ALL routes including 19 tiquets endpoints. **2559 lines** — do NOT create a separate file. |
+| `plataforma.db` | SQLite WAL. **10 tables**: 4 original + 6 tiquets. See ARQUITECTURA_DB_SQLITE.html. |
+| `migration_tiquets.sql` | DDL standalone v1.0→v1.4. Safe to re-run (IF NOT EXISTS). |
+| `uploads/tiquets/` | Physical files for ticket attachments. Max 10 MB. Excluded from Git. |
+
+### DB Tables — plataforma.db (10 tables)
+
+**Original (4):** `clients` (298) · `projects` (32) · `phase_data` (35) · `settings` (0)
+
+**Tiquets module (6):**
+
+| Table | Version | Description |
+|---|---|---|
+| `contadores_tiquets` | v1.0 | Atomic NNN counter per (client_id, app_id) |
+| `tiquets` | v1.0+v1.4 | Main table. 22 columns incl. `wiki_article_id` (ALTER TABLE v1.4) |
+| `tiquets_historial` | v1.0 | Field-by-field audit log (ISO 27001 A.16) |
+| `tiquets_comentarios` | v1.0 | Free-text follow-up log |
+| `tiquets_acciones` | v1.2 | Resolution actions: pendiente→en_curso→resuelta |
+| `tiquets_adjuntos` | v1.3 | File attachments stored in uploads/tiquets/ |
+
+**Ticket ID format:** `TIK-{NNN:03d}-{client_id}-{app_id}-{DD-MM-AAAA}`
+
+### Frontend — 9 ISO/ENS apps
+
+Each app under `Plataforma_Seguimiento_Proyectos/` has:
+
+| File | Role |
+|---|---|
+| `js/modules/tiquets.js` | TiquetsModule object. **Do NOT create duplicated methods.** Always check for duplicates after editing. Current version: `v=20260829f` |
+| `js/wiki-categories.js` | Category definitions. **Balance of `{}`  in WIKI_CATEGORIES array MUST be 0.** Category `resolved_ticket` added as last item with proper `,` after previous item. |
+| `index.html` | References `tiquets.js?v=20260829f`. Bump version letter on every change. |
+
+### Frontend — plataforma-seguimiento.html
+
+- Sidebar section **ACCIONES** → "Gestor de Tiquets"
+- Page `#page-tickets` outside the SPA container (uses `visibility:hidden` trick)
+- `TK_API` auto-detects host for LAN: `window.location.hostname + ':5001'`
+- Offline fallback: `localStorage` key `codanor_tiquets_v2`
+- Version bump: `?v=20260829f` in tiquets.js references
+
+### Key tiquets.js methods (DO NOT DUPLICATE)
+
+```
+_apiBase(), _loadLocal(), _saveLocal(), _detectar(), init(),
+_cargar(), _filtrarLocal(), _crear(), _actualizar(), _comentar(),
+_cargarDetalle(), _actualizarContador(), _sincronizar(),
+_renderSelectores(), _renderSelectorProyecto(), _renderTabla(),
+_toggleDetalle(), _renderDetalle(), _crearAccion(),
+_actualizarAccion(), _eliminarAccion(), _subirAdjuntos(),
+_eliminarAdjunto(), _exportarTiquet(), _exportar(),
+_actualizarEstadoTiquet(), _abrirModalWiki(), _cerrarModalWiki(),
+_confirmarPasarAConocimiento(), _generarMarkdownWiki(),
+_abrirModal(), _cerrarModal(), _guardarModal(), _recargar()
+```
+
+### Wiki / Knowledge Base integration (v1.4)
+
+- `wiki_article_id TEXT DEFAULT NULL` in `tiquets` table (ALTER TABLE)
+- Button "📚 Pasar a Conocimiento" appears **only when `estado === 'cerrado'`**
+- Button "✓ Cerrar Tiquet" appears when `estado === 'resuelto'`
+- `Store.saveWikiArticle()` creates article in IndexedDB (browser)
+- `POST /api/tiquets/<id>/enviar-wiki` registers the wiki ID server-side (HTTP 409 if already sent)
+- Category `resolved_ticket` "BD de Tiquets Resueltos" added to `wiki-categories.js` in all 9 apps
+- **IMPORTANT**: `wiki_article_id` balance in `wiki-categories.js` WIKI_CATEGORIES array must be 0. The `resolved_ticket` item must be inserted INSIDE the array with proper `,` separator.
 
 ## Code Style Guidelines
 
@@ -86,47 +170,29 @@ PLATAFORMA_OpenCode-NEW/
 | HTML IDs           | camelCase          | `sidebarNav`           |
 | Env variables      | UPPER_SNAKE_CASE   | `DATABASE_URL`         |
 
-### Imports (JS/TS)
-
-- Group imports in this order, separated by a blank line:
-  1. Node built-ins (`fs`, `path`, `http`)
-  2. External packages (`react`, `express`)
-  3. Internal aliases / modules (`@/utils`, `@/components`)
-  4. Relative imports (`./helpers`, `../types`)
-- Use named imports; avoid wildcard (`* as`) unless required.
-- Never use `require()` in TypeScript files.
-
-### TypeScript
-
-- Prefer `interface` over `type` for object shapes.
-- Avoid `any`; use `unknown` when the type is truly unknown.
-- Export types/interfaces that are consumed by other modules.
-- Use `readonly` for properties that should not be mutated.
-- Use strict mode (`"strict": true` in tsconfig).
-
-### Error Handling
-
-- Always catch errors at the boundary (API handler, event listener, main).
-- Use typed/custom error classes when multiple error kinds exist.
-- Never swallow errors silently — at minimum, log them.
-- Async functions: prefer `try/catch` over `.catch()` chains.
-- Return early on error conditions to reduce nesting.
-
 ### HTML / CSS
 
 - Use semantic HTML5 elements (`<header>`, `<nav>`, `<main>`, `<section>`).
 - Follow the CODANOR brand palette:
   - Primary: `#178DC2`
   - Accent: `#12A79D`
-  - Fonts: Poppins (headings), Nunito Sans (body), Muli (alt).
+  - Dark: `#1a1a2e`
+  - Fonts: Poppins (headings), Nunito Sans (body).
 - Keep CSS specificity low; prefer class selectors over IDs.
 - Use CSS custom properties for colors and spacing tokens.
+
+### Error Handling
+
+- Always catch errors at the boundary (API handler, event listener, main).
+- Never swallow errors silently — at minimum, log them.
+- Async functions: prefer `try/catch` over `.catch()` chains.
+- Return early on error conditions to reduce nesting.
+- In tiquets.js: always show `App.toast(error.message)` on catch blocks.
 
 ### Git Practices
 
 - Branch names: `feature/short-description`, `fix/issue-number`.
 - Commit messages: imperative mood, max 72 chars for the subject line.
-  Example: `Add user authentication endpoint`.
 - Keep commits atomic — one logical change per commit.
 - Do not commit secrets, `.env` files, or credentials.
 - **Regular commit prompting**: When the user makes changes during a session,
@@ -142,11 +208,31 @@ PLATAFORMA_OpenCode-NEW/
   conversation grows large, suggest `/compact` or starting a new session.
 - When creating or editing HTML files, preserve CODANOR corporate branding.
 
+### Critical Rules for Tiquets Module
+
+1. **Never duplicate methods** in `tiquets.js`. Always verify with:
+   ```python
+   python3 -c "import re; from collections import Counter; src=open('tiquets.js').read(); print({k:v for k,v in Counter([m[1] for m in re.findall(r'^\s{2}(async\s+)?(\w+)\s*\(',src,re.MULTILINE)]).items() if v>1})"
+   ```
+
+2. **wiki-categories.js**: after any edit, verify `{` balance = 0 in WIKI_CATEGORIES array.
+
+3. **Propagation**: after editing `ISO27001-SGSI/js/modules/tiquets.js`, always copy to 8 other apps using `sed "s/appId:      'iso27001'/appId:      '$AID'/"` and bump version in all 9 `index.html`.
+
+4. **Version bumping pattern**: `tiquets.js?v=2026082Xa` → increment letter (a→b→c...).
+
+5. **plataforma.db**: `wiki_article_id` column added via `ALTER TABLE` in `init_db()`. Safe to run multiple times (try/except ignores duplicate column error).
+
+6. **Never hardcode `localhost`** in `TK_API` — use `window.location.hostname` for LAN support.
+
+7. **Store.initDB()**: always call `await Store.initDB()` before `Store.saveWikiArticle()` to ensure IndexedDB is ready.
+
 ### File Operations
 
 - Prefer editing existing files over creating new ones.
 - Never overwrite `Manual_OpenCode_Codanor.html` without explicit user consent.
 - When generating new documentation, use the same branding and styles.
+- `ARQUITECTURA_DB_SQLITE.html` is the authoritative reference for plataforma.db schema.
 
 ### Communication
 
@@ -168,4 +254,4 @@ contents into this section.
 
 ---
 
-*Last updated: 2026-07-05*
+*Last updated: 2026-08-29*

@@ -796,6 +796,13 @@
         Changelog
       </div>
 
+      <div class="nav-label">Acciones</div>
+      <div class="nav-item" data-page="tickets" onclick="showPage('tickets')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 5H9a2 2 0 00-2 2v10a2 2 0 002 2h6a2 2 0 002-2V7a2 2 0 00-2-2z"/><line x1="9" y1="10" x2="15" y2="10"/><line x1="9" y1="14" x2="13" y2="14"/></svg>
+        Gestor de Tiquets
+        <span class="badge-count" id="ticketsBadge" style="display:none">0</span>
+      </div>
+
       <div class="nav-label">Herramientas</div>
       <a class="nav-item" href="analisis-codigo.html" target="_blank" rel="noopener noreferrer" style="text-decoration:none;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
@@ -1141,6 +1148,228 @@
   </div><!-- /main -->
 </div><!-- /app -->
 
+<!-- ===== PÁGINA GESTOR DE TIQUETS (fuera del layout SPA para evitar conflictos de scroll) ===== -->
+<div class="page" id="page-tickets" style="display:none;position:fixed;top:var(--header-h);left:var(--sidebar-w);right:0;bottom:0;overflow-y:auto;background:var(--gray-100);padding:1.5rem;z-index:10">
+
+  <!-- Cabecera de la página -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:.75rem">
+    <div style="display:flex;align-items:center;gap:.75rem">
+      <h2 style="font-family:'Poppins',sans-serif;font-size:1.1rem;font-weight:600;color:var(--gray-900)">Gestor de Tiquets</h2>
+      <span id="tk-modo-ind" style="font-size:.72rem;font-weight:700;padding:.15rem .6rem;border-radius:10px;background:var(--gray-100)">● Detectando...</span>
+    </div>
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+      <button onclick="tkAbrirModal(null)" class="btn btn-primary" style="font-size:.82rem;padding:.4rem .9rem">+ Nuevo Tiquet</button>
+      <button onclick="tkExportar()" style="background:none;border:1px solid var(--gray-200);border-radius:6px;padding:.4rem .8rem;font-size:.82rem;cursor:pointer;color:var(--gray-700)">&#x2193; CSV</button>
+      <button onclick="initTickets()" style="background:none;border:1px solid var(--gray-200);border-radius:6px;padding:.4rem .8rem;font-size:.82rem;cursor:pointer;color:var(--gray-700)">&#x21bb; Actualizar</button>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <div style="background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:.9rem 1.25rem;margin-bottom:1rem;display:flex;flex-wrap:wrap;gap:.6rem;align-items:center">
+    <select id="tk-sel-cliente" onchange="tkFiltros.client_id=this.value;tkCargarProyectos(this.value);tkCargarTiquets()" style="border:1px solid var(--gray-200);border-radius:6px;padding:.35rem .65rem;font-size:.82rem;font-family:'Nunito Sans',sans-serif">
+      <option value="">Todos los clientes</option>
+    </select>
+    <select id="tk-sel-norma" onchange="tkFiltros.app_id=this.value;tkCargarTiquets()" style="border:1px solid var(--gray-200);border-radius:6px;padding:.35rem .65rem;font-size:.82rem;font-family:'Nunito Sans',sans-serif">
+      <option value="">Todas las normas</option>
+    </select>
+    <select onchange="tkFiltros.tipo=this.value;tkCargarTiquets()" style="border:1px solid var(--gray-200);border-radius:6px;padding:.35rem .65rem;font-size:.82rem;font-family:'Nunito Sans',sans-serif">
+      <option value="">Todos los tipos</option>
+      <option value="incidencia">Incidencia</option>
+      <option value="peticion">Petición</option>
+      <option value="cambio">Cambio</option>
+      <option value="problema">Problema</option>
+      <option value="vulnerabilidad">Vulnerabilidad</option>
+      <option value="ciberincidente">Ciberincidente</option>
+    </select>
+    <select onchange="tkFiltros.estado=this.value;tkCargarTiquets()" style="border:1px solid var(--gray-200);border-radius:6px;padding:.35rem .65rem;font-size:.82rem;font-family:'Nunito Sans',sans-serif">
+      <option value="">Todos los estados</option>
+      <option value="nuevo">Nuevo</option>
+      <option value="asignado">Asignado</option>
+      <option value="en_progreso">En Progreso</option>
+      <option value="pendiente">Pendiente</option>
+      <option value="resuelto">Resuelto</option>
+      <option value="cerrado">Cerrado</option>
+    </select>
+    <select onchange="tkFiltros.prioridad=this.value;tkCargarTiquets()" style="border:1px solid var(--gray-200);border-radius:6px;padding:.35rem .65rem;font-size:.82rem;font-family:'Nunito Sans',sans-serif">
+      <option value="">Todas las prioridades</option>
+      <option value="critica">Crítica</option>
+      <option value="alta">Alta</option>
+      <option value="media">Media</option>
+      <option value="baja">Baja</option>
+    </select>
+    <input type="text" placeholder="Buscar ID, título..." oninput="tkFiltros.q=this.value;tkCargarTiquets()"
+      style="border:1px solid var(--gray-200);border-radius:6px;padding:.35rem .75rem;font-size:.82rem;font-family:'Nunito Sans',sans-serif;flex:1;min-width:160px">
+  </div>
+
+  <!-- Layout: tabla + panel detalle -->
+  <div style="display:flex;gap:1rem;align-items:flex-start">
+
+    <!-- Tabla de tiquets -->
+    <div style="flex:1;min-width:0;background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden">
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:.82rem">
+          <thead>
+            <tr style="background:var(--dark)">
+              <th style="padding:.6rem 1rem;text-align:left;color:var(--white);font-family:'Poppins',sans-serif;font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap">ID</th>
+              <th style="padding:.6rem 1rem;text-align:left;color:var(--white);font-family:'Poppins',sans-serif;font-size:.72rem;font-weight:600;text-transform:uppercase">Título</th>
+              <th style="padding:.6rem 1rem;text-align:left;color:var(--white);font-family:'Poppins',sans-serif;font-size:.72rem;font-weight:600;text-transform:uppercase">Tipo</th>
+              <th style="padding:.6rem 1rem;text-align:left;color:var(--white);font-family:'Poppins',sans-serif;font-size:.72rem;font-weight:600;text-transform:uppercase">Prioridad</th>
+              <th style="padding:.6rem 1rem;text-align:left;color:var(--white);font-family:'Poppins',sans-serif;font-size:.72rem;font-weight:600;text-transform:uppercase">Estado</th>
+              <th style="padding:.6rem 1rem;text-align:left;color:var(--white);font-family:'Poppins',sans-serif;font-size:.72rem;font-weight:600;text-transform:uppercase">Asignado</th>
+              <th style="padding:.6rem 1rem;text-align:left;color:var(--white);font-family:'Poppins',sans-serif;font-size:.72rem;font-weight:600;text-transform:uppercase">SLA</th>
+              <th style="padding:.6rem 1rem;text-align:left;color:var(--white);font-family:'Poppins',sans-serif;font-size:.72rem"></th>
+            </tr>
+          </thead>
+          <tbody id="tk-tbody">
+            <tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--gray-400)">Cargando tiquets...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Panel de detalle -->
+    <div id="tk-detalle" style="display:none;width:340px;flex-shrink:0;background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:1.25rem;font-size:.83rem;max-height:calc(100vh - 14rem);overflow-y:auto">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem">
+        <div>
+          <div id="tk-det-id" style="font-family:monospace;font-size:.72rem;color:var(--primary-dark);margin-bottom:.2rem"></div>
+          <div id="tk-det-titulo" style="font-family:'Poppins',sans-serif;font-weight:600;font-size:.92rem;color:var(--gray-900)"></div>
+        </div>
+        <button onclick="document.getElementById('tk-detalle').style.display='none'" style="background:none;border:none;cursor:pointer;color:var(--gray-400);font-size:1.1rem">&#x2715;</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem;margin-bottom:.75rem">
+        <div><span style="font-size:.68rem;color:var(--gray-400);text-transform:uppercase">Tipo</span><div id="tk-det-tipo"></div></div>
+        <div><span style="font-size:.68rem;color:var(--gray-400);text-transform:uppercase">Prioridad</span><div id="tk-det-prio"></div></div>
+        <div><span style="font-size:.68rem;color:var(--gray-400);text-transform:uppercase">Estado</span><div id="tk-det-estado" style="font-weight:600"></div></div>
+        <div><span style="font-size:.68rem;color:var(--gray-400);text-transform:uppercase">Asignado</span><div id="tk-det-asignado"></div></div>
+        <div><span style="font-size:.68rem;color:var(--gray-400);text-transform:uppercase">Norma</span><div id="tk-det-norma"></div></div>
+        <div><span style="font-size:.68rem;color:var(--gray-400);text-transform:uppercase">Control ISO</span><div id="tk-det-control"></div></div>
+      </div>
+      <div style="margin-bottom:.75rem">
+        <span style="font-size:.68rem;color:var(--gray-400);text-transform:uppercase">Descripción</span>
+        <p id="tk-det-desc" style="margin-top:.2rem;line-height:1.5;color:var(--gray-700)"></p>
+      </div>
+      <div style="font-size:.72rem;color:var(--gray-400);margin-bottom:1rem">Creado: <span id="tk-det-creado"></span></div>
+
+      <!-- Acciones de seguimiento -->
+      <div style="border-top:1px solid var(--gray-200);padding-top:.75rem;margin-bottom:.75rem">
+        <p style="font-family:'Poppins',sans-serif;font-weight:600;font-size:.78rem;color:var(--gray-700);margin-bottom:.5rem">&#9654; Acciones de Seguimiento</p>
+        <div id="tk-det-acciones"></div>
+      </div>
+
+      <!-- Historial -->
+      <div style="border-top:1px solid var(--gray-200);padding-top:.75rem;margin-bottom:.75rem">
+        <p style="font-family:'Poppins',sans-serif;font-weight:600;font-size:.78rem;color:var(--gray-700);margin-bottom:.5rem">Historial de cambios</p>
+        <div id="tk-det-hist"></div>
+      </div>
+
+      <!-- Comentarios -->
+      <div style="border-top:1px solid var(--gray-200);padding-top:.75rem">
+        <p style="font-family:'Poppins',sans-serif;font-weight:600;font-size:.78rem;color:var(--gray-700);margin-bottom:.5rem">Comentarios</p>
+        <div id="tk-det-coments" style="margin-bottom:.75rem"></div>
+        <div style="display:flex;gap:.4rem">
+          <input id="tk-coment-txt" type="text" placeholder="Añadir comentario..."
+            style="flex:1;border:1px solid var(--gray-200);border-radius:6px;padding:.3rem .6rem;font-size:.78rem;font-family:'Nunito Sans',sans-serif"
+            onkeydown="if(event.key==='Enter'){tkComentar(document.getElementById('tk-det-id').textContent,document.getElementById('tk-coment-txt').value,'usuario');document.getElementById('tk-coment-txt').value=''}">
+          <button onclick="tkComentar(document.getElementById('tk-det-id').textContent,document.getElementById('tk-coment-txt').value,'usuario');document.getElementById('tk-coment-txt').value=''"
+            style="background:var(--primary);color:var(--white);border:none;border-radius:6px;padding:.3rem .7rem;font-size:.78rem;cursor:pointer">Enviar</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /layout tabla+detalle -->
+</div><!-- /page-tickets -->
+
+<!-- ===== MODAL CREAR/EDITAR TIQUET ===== -->
+<div id="tk-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:500;align-items:center;justify-content:center">
+  <div style="background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow-lg);width:100%;max-width:520px;max-height:90vh;overflow-y:auto;padding:1.75rem">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem">
+      <span id="tk-modal-titulo" style="font-family:'Poppins',sans-serif;font-weight:600;font-size:1rem;color:var(--gray-900)">Nuevo Tiquet</span>
+      <button onclick="tkCerrarModal()" style="background:none;border:none;cursor:pointer;color:var(--gray-400);font-size:1.2rem">&#x2715;</button>
+    </div>
+    <input type="hidden" id="tk-f-id">
+    <div style="display:flex;flex-direction:column;gap:.85rem">
+      <div>
+        <label style="font-size:.78rem;font-weight:600;color:var(--gray-700);display:block;margin-bottom:.3rem">Título *</label>
+        <input id="tk-f-titulo" type="text" placeholder="Descripción breve del tiquet"
+          style="width:100%;border:1px solid var(--gray-200);border-radius:6px;padding:.5rem .75rem;font-size:.88rem;font-family:'Nunito Sans',sans-serif">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+        <div>
+          <label style="font-size:.78rem;font-weight:600;color:var(--gray-700);display:block;margin-bottom:.3rem">Tipo *</label>
+          <select id="tk-f-tipo" style="width:100%;border:1px solid var(--gray-200);border-radius:6px;padding:.5rem .65rem;font-size:.88rem;font-family:'Nunito Sans',sans-serif">
+            <option value="incidencia">Incidencia</option>
+            <option value="peticion">Petición</option>
+            <option value="cambio">Cambio</option>
+            <option value="problema">Problema</option>
+            <option value="vulnerabilidad">Vulnerabilidad</option>
+            <option value="ciberincidente">Ciberincidente</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:.78rem;font-weight:600;color:var(--gray-700);display:block;margin-bottom:.3rem">Prioridad *</label>
+          <select id="tk-f-prioridad" style="width:100%;border:1px solid var(--gray-200);border-radius:6px;padding:.5rem .65rem;font-size:.88rem;font-family:'Nunito Sans',sans-serif">
+            <option value="critica">Crítica</option>
+            <option value="alta">Alta</option>
+            <option value="media" selected>Media</option>
+            <option value="baja">Baja</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+        <div>
+          <label style="font-size:.78rem;font-weight:600;color:var(--gray-700);display:block;margin-bottom:.3rem">Estado</label>
+          <select id="tk-f-estado" style="width:100%;border:1px solid var(--gray-200);border-radius:6px;padding:.5rem .65rem;font-size:.88rem;font-family:'Nunito Sans',sans-serif">
+            <option value="nuevo">Nuevo</option>
+            <option value="asignado">Asignado</option>
+            <option value="en_progreso">En Progreso</option>
+            <option value="pendiente">Pendiente</option>
+            <option value="resuelto">Resuelto</option>
+            <option value="cerrado">Cerrado</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:.78rem;font-weight:600;color:var(--gray-700);display:block;margin-bottom:.3rem">Asignado a</label>
+          <input id="tk-f-asignado" type="text" placeholder="Nombre del técnico"
+            style="width:100%;border:1px solid var(--gray-200);border-radius:6px;padding:.5rem .75rem;font-size:.88rem;font-family:'Nunito Sans',sans-serif">
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+        <div>
+          <label style="font-size:.78rem;font-weight:600;color:var(--gray-700);display:block;margin-bottom:.3rem">Solicitante</label>
+          <input id="tk-f-solicitante" type="text" placeholder="Nombre del solicitante"
+            style="width:100%;border:1px solid var(--gray-200);border-radius:6px;padding:.5rem .75rem;font-size:.88rem;font-family:'Nunito Sans',sans-serif">
+        </div>
+      <div>
+        <label style="font-size:.78rem;font-weight:600;color:var(--gray-700);display:block;margin-bottom:.3rem">Control ISO</label>
+        <input id="tk-f-control" type="text" placeholder="Ej: A.16.1.1"
+          style="width:100%;border:1px solid var(--gray-200);border-radius:6px;padding:.5rem .75rem;font-size:.88rem;font-family:'Nunito Sans',sans-serif">
+      </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+        <div>
+          <label style="font-size:.78rem;font-weight:600;color:var(--gray-700);display:block;margin-bottom:.3rem">Normas afectadas</label>
+          <input id="tk-f-normas" type="text" placeholder="iso27001, ens, rgpd..."
+            style="width:100%;border:1px solid var(--gray-200);border-radius:6px;padding:.5rem .75rem;font-size:.88rem;font-family:'Nunito Sans',sans-serif">
+        </div>
+        <div id="tk-f-cvss-wrap">
+          <label style="font-size:.78rem;font-weight:600;color:var(--gray-700);display:block;margin-bottom:.3rem">CVSS Score (0–10)</label>
+          <input id="tk-f-cvss" type="number" min="0" max="10" step="0.1" placeholder="Solo VUL / CIB"
+            style="width:100%;border:1px solid var(--gray-200);border-radius:6px;padding:.5rem .75rem;font-size:.88rem;font-family:'Nunito Sans',sans-serif">
+        </div>
+      </div>
+      <div>
+        <label style="font-size:.78rem;font-weight:600;color:var(--gray-700);display:block;margin-bottom:.3rem">Descripción</label>
+        <textarea id="tk-f-desc" rows="3" placeholder="Detalle del tiquet..."
+          style="width:100%;border:1px solid var(--gray-200);border-radius:6px;padding:.5rem .75rem;font-size:.88rem;font-family:'Nunito Sans',sans-serif;resize:vertical"></textarea>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;gap:.6rem;margin-top:1.25rem">
+      <button onclick="tkCerrarModal()" style="background:none;border:1px solid var(--gray-200);border-radius:6px;padding:.5rem 1.1rem;font-size:.88rem;cursor:pointer;color:var(--gray-700)">Cancelar</button>
+      <button onclick="tkGuardarModal()" class="btn btn-primary" style="font-size:.88rem;padding:.5rem 1.25rem">Guardar</button>
+    </div>
+  </div>
+</div>
+
 <!-- ===== MODAL: Nueva Incidencia ===== -->
 <div class="modal-overlay" id="ticketModal">
   <div class="modal">
@@ -1248,14 +1477,26 @@
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
 
-    document.getElementById('page-' + pageId).classList.add('active');
+    // Ocultar/mostrar la página de tiquets (está fuera del contenedor SPA)
+    const tkPage = document.getElementById('page-tickets');
+    const mainContent = document.querySelector('.content');
+    if (pageId === 'tickets') {
+      if (tkPage)      tkPage.style.display = 'block';
+      if (mainContent) mainContent.style.visibility = 'hidden';
+    } else {
+      if (tkPage)      tkPage.style.display = 'none';
+      if (mainContent) mainContent.style.visibility = 'visible';
+      document.getElementById('page-' + pageId).classList.add('active');
+    }
+
     document.querySelector(`.nav-item[data-page="${pageId}"]`).classList.add('active');
 
     const titles = {
       dashboard: 'Dashboard',
       kanban: 'Gestor de Incidencias',
       docs: 'Centro de Documentacion',
-      changelog: 'Changelog'
+      changelog: 'Changelog',
+      tickets: 'Gestor de Tiquets'
     };
     document.getElementById('pageTitle').textContent = titles[pageId] || pageId;
 
@@ -1264,6 +1505,7 @@
 
     if (pageId === 'kanban') renderKanban();
     if (pageId === 'dashboard') renderDashboard();
+    if (pageId === 'tickets') initTickets();
   }
 
   // ============================================================
@@ -1727,6 +1969,571 @@
   seedData();
   renderDashboard();
   updateBadge();
+</script>
+
+<!-- ===== PÁGINA GESTOR DE TIQUETS ===== -->
+<script>
+// ============================================================
+// HERRAMIENTA DE TIQUETS — integración con plataforma.db
+// Backend: Plataforma_Seguimiento_Proyectos/servidor/ puerto 5001
+// Fallback offline: localStorage 'codanor_tiquets_v2'
+// ============================================================
+
+const TK_API   = (() => {
+  const h = window.location.hostname;
+  const host = (!h || h === 'localhost' || h === '127.0.0.1') ? 'localhost' : h;
+  return `http://${host}:5001/api/tiquets`;
+})();
+const TK_STORE = 'codanor_tiquets_v2';
+let   tkOnline = false;
+let   tkClientes = [];
+let   tkProyectos = [];
+let   tkTiquets  = [];
+let   tkFiltros  = { client_id:'', app_id:'', tipo:'', estado:'', prioridad:'', q:'' };
+let   tkDetalle  = null;
+
+// ── Detección online/offline ──────────────────────────────────
+async function tkDetectarModo() {
+  try {
+    const r = await fetch(TK_API + '/clientes', { signal: AbortSignal.timeout(2000) });
+    tkOnline = r.ok;
+  } catch { tkOnline = false; }
+  const ind = document.getElementById('tk-modo-ind');
+  if (ind) {
+    ind.textContent = tkOnline ? '● Online' : '● Offline';
+    ind.style.color = tkOnline ? 'var(--accent)' : 'var(--warning)';
+  }
+  return tkOnline;
+}
+
+// ── LocalStorage helpers ──────────────────────────────────────
+function tkLoadLocal() {
+  try { return JSON.parse(localStorage.getItem(TK_STORE) || '[]'); }
+  catch { return []; }
+}
+function tkSaveLocal(arr) {
+  localStorage.setItem(TK_STORE, JSON.stringify(arr));
+}
+
+// ── Cargar clientes y proyectos para selectores ───────────────
+async function tkCargarClientes() {
+  if (!tkOnline) return;
+  try {
+    const r = await fetch(TK_API + '/clientes');
+    const j = await r.json();
+    tkClientes = j.ok ? j.data : [];
+  } catch { tkClientes = []; }
+  tkRenderSelectores();
+}
+
+async function tkCargarProyectos(clientId) {
+  if (!tkOnline) return;
+  try {
+    const url = TK_API + '/proyectos' + (clientId ? '?client_id=' + encodeURIComponent(clientId) : '');
+    const r = await fetch(url);
+    const j = await r.json();
+    tkProyectos = j.ok ? j.data : [];
+  } catch { tkProyectos = []; }
+  tkRenderSelectorProyecto();
+}
+
+// ── Cargar tiquets ────────────────────────────────────────────
+async function tkCargarTiquets() {
+  if (tkOnline) {
+    try {
+      const params = new URLSearchParams();
+      Object.entries(tkFiltros).forEach(([k,v]) => { if(v) params.set(k,v); });
+      const r = await fetch(TK_API + '?' + params.toString());
+      const j = await r.json();
+      tkTiquets = j.ok ? j.data.tiquets : [];
+    } catch { tkTiquets = tkLoadLocal(); }
+  } else {
+    let local = tkLoadLocal();
+    // Aplicar filtros localmente
+    if (tkFiltros.tipo)      local = local.filter(t => t.tipo === tkFiltros.tipo);
+    if (tkFiltros.estado)    local = local.filter(t => t.estado === tkFiltros.estado);
+    if (tkFiltros.prioridad) local = local.filter(t => t.prioridad === tkFiltros.prioridad);
+    if (tkFiltros.q) {
+      const q = tkFiltros.q.toLowerCase();
+      local = local.filter(t => (t.titulo||'').toLowerCase().includes(q) ||
+                                (t.tiquet_id||'').toLowerCase().includes(q));
+    }
+    tkTiquets = local;
+  }
+  tkRenderTabla();
+  tkActualizarBadge();
+}
+
+// ── Crear tiquet ──────────────────────────────────────────────
+async function tkCrear(datos) {
+  const ts = new Date().toISOString();
+  if (tkOnline) {
+    try {
+      const r = await fetch(TK_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(datos)
+      });
+      const j = await r.json();
+      if (!j.ok) { showToast('Error: ' + j.error, 'error'); return null; }
+      // Guardar copia local
+      const local = tkLoadLocal();
+      local.unshift(j.data);
+      tkSaveLocal(local);
+      return j.data;
+    } catch(e) { showToast('Sin conexión: guardado en modo offline', 'warning'); }
+  }
+  // Offline: generar ID local temporal
+  const nnn = (tkLoadLocal().length + 1).toString().padStart(3,'0');
+  const fecha = new Date().toLocaleDateString('es-ES', {day:'2-digit',month:'2-digit',year:'numeric'}).replace(/\//g,'-');
+  const tiquet = {
+    tiquet_id: `TIK-${nnn}-${datos.client_id||'local'}-${datos.app_id||'sin-norma'}-${fecha}`,
+    nnn: parseInt(nnn), ...datos,
+    estado: 'nuevo', creado_en: ts, actualizado_en: ts,
+    _offline: true
+  };
+  const local = tkLoadLocal();
+  local.unshift(tiquet);
+  tkSaveLocal(local);
+  return tiquet;
+}
+
+// ── Actualizar tiquet ─────────────────────────────────────────
+async function tkActualizar(tiquetId, datos) {
+  if (tkOnline) {
+    try {
+      const r = await fetch(TK_API + '/' + encodeURIComponent(tiquetId), {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(datos)
+      });
+      const j = await r.json();
+      if (!j.ok) { showToast('Error: ' + j.error, 'error'); return null; }
+      // Actualizar copia local
+      const local = tkLoadLocal().map(t => t.tiquet_id === tiquetId ? j.data : t);
+      tkSaveLocal(local);
+      return j.data;
+    } catch {}
+  }
+  // Offline
+  const local = tkLoadLocal().map(t => {
+    if (t.tiquet_id !== tiquetId) return t;
+    return { ...t, ...datos, actualizado_en: new Date().toISOString() };
+  });
+  tkSaveLocal(local);
+  return local.find(t => t.tiquet_id === tiquetId);
+}
+
+// ── Añadir comentario ─────────────────────────────────────────
+async function tkComentar(tiquetId, texto, usuario) {
+  if (!tkOnline) { showToast('Comentarios requieren conexión al servidor', 'warning'); return; }
+  try {
+    const r = await fetch(TK_API + '/' + encodeURIComponent(tiquetId) + '/comentarios', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ texto, usuario: usuario || 'usuario' })
+    });
+    const j = await r.json();
+    if (j.ok) { await tkCargarDetalle(tiquetId); }
+    else { showToast('Error: ' + j.error, 'error'); }
+  } catch { showToast('Error de conexión', 'error'); }
+}
+
+// ── Cargar detalle ────────────────────────────────────────────
+async function tkCargarDetalle(tiquetId) {
+  if (!tkOnline) {
+    const t = tkLoadLocal().find(x => x.tiquet_id === tiquetId);
+    tkDetalle = t ? { tiquet: t, historial: [], comentarios: [], acciones: [] } : null;
+  } else {
+    try {
+      const r = await fetch(TK_API + '/' + encodeURIComponent(tiquetId));
+      const j = await r.json();
+      tkDetalle = j.ok ? j.data : null;
+    } catch { tkDetalle = null; }
+  }
+  tkRenderDetalle();
+}
+
+// ── Badge contador ────────────────────────────────────────────
+function tkActualizarBadge() {
+  const activos = tkTiquets.filter(t => t.estado !== 'cerrado' && t.estado !== 'resuelto').length;
+  const badge = document.getElementById('ticketsBadge');
+  if (!badge) return;
+  if (activos > 0) { badge.textContent = activos; badge.style.display = 'inline-block'; }
+  else { badge.style.display = 'none'; }
+}
+
+// ── Sincronizar offline → online ─────────────────────────────
+async function tkSincronizar() {
+  const pendientes = tkLoadLocal().filter(t => t._offline);
+  if (!pendientes.length || !tkOnline) return;
+  let ok = 0;
+  for (const t of pendientes) {
+    try {
+      const { _offline, tiquet_id, nnn, creado_en, actualizado_en, estado, ...datos } = t;
+      const r = await fetch(TK_API, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(datos)
+      });
+      const j = await r.json();
+      if (j.ok) ok++;
+    } catch {}
+  }
+  if (ok > 0) { showToast(`${ok} tiquet(s) sincronizados con el servidor`, 'success'); }
+  await tkCargarTiquets();
+}
+
+// ── RENDER: Selectores ────────────────────────────────────────
+function tkRenderSelectores() {
+  const sel = document.getElementById('tk-sel-cliente');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">Todos los clientes</option>' +
+    tkClientes.map(c => `<option value="${escapeHtml(c.id)}">${escapeHtml(c.nombre)}${c.numero ? ' ('+c.numero+')' : ''}</option>`).join('');
+  sel.value = tkFiltros.client_id;
+}
+
+function tkRenderSelectorProyecto() {
+  const sel = document.getElementById('tk-sel-norma');
+  if (!sel) return;
+  // Obtener app_ids únicos de proyectos
+  const normas = [...new Set(tkProyectos.map(p => p.app_id))].sort();
+  sel.innerHTML = '<option value="">Todas las normas</option>' +
+    normas.map(n => `<option value="${escapeHtml(n)}">${escapeHtml(n.toUpperCase())}</option>`).join('');
+  sel.value = tkFiltros.app_id;
+}
+
+// ── RENDER: Tabla de tiquets ──────────────────────────────────
+const TK_TIPO_BADGE = {
+  incidencia:'badge-danger', peticion:'badge-primary', cambio:'badge-warning',
+  problema:'badge-accent', vulnerabilidad:'badge-purple', ciberincidente:'badge-danger'
+};
+const TK_TIPO_LABEL = {
+  incidencia:'INC', peticion:'PET', cambio:'CAM',
+  problema:'PRO', vulnerabilidad:'VUL', ciberincidente:'CIB'
+};
+const TK_PRIO_COLOR = { critica:'#e74c3c', alta:'#e67e22', media:'#f39c12', baja:'#12A79D' };
+const TK_EST_LABEL  = {
+  nuevo:'Nuevo', asignado:'Asignado', en_progreso:'En Progreso',
+  pendiente:'Pendiente', resuelto:'Resuelto', cerrado:'Cerrado'
+};
+
+function tkRenderTabla() {
+  const tbody = document.getElementById('tk-tbody');
+  if (!tbody) return;
+  if (!tkTiquets.length) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--gray-500)">No hay tiquets que mostrar</td></tr>';
+    return;
+  }
+  tbody.innerHTML = tkTiquets.map(t => {
+    const tipo = TK_TIPO_LABEL[t.tipo] || t.tipo;
+    const tipoCls = TK_TIPO_BADGE[t.tipo] || 'badge-dark';
+    const prioColor = TK_PRIO_COLOR[t.prioridad] || '#999';
+    const estado = TK_EST_LABEL[t.estado] || t.estado;
+    const slaVenc = t.sla_vencimiento ? new Date(t.sla_vencimiento) : null;
+    const slaVencido = slaVenc && slaVenc < new Date() && !['resuelto','cerrado'].includes(t.estado);
+    const slaHtml = slaVenc
+      ? `<span style="font-size:.72rem;color:${slaVencido?'var(--danger)':'var(--gray-500)'}">${slaVencido?'⚠ ':''}${slaVenc.toLocaleDateString('es-ES')}</span>`
+      : '<span style="color:var(--gray-400)">—</span>';
+    return `<tr class="tk-row" onclick="tkCargarDetalle('${escapeHtml(t.tiquet_id)}')" style="cursor:pointer">
+      <td style="font-family:monospace;font-size:.75rem;color:var(--primary-dark)">${escapeHtml(t.tiquet_id)}</td>
+      <td><span style="font-weight:600">${escapeHtml(t.titulo)}</span></td>
+      <td><span class="badge ${tipoCls}" style="font-size:.7rem">${tipo}</span></td>
+      <td><span style="display:inline-block;padding:.15rem .55rem;border-radius:10px;font-size:.72rem;font-weight:700;background:${prioColor}22;color:${prioColor}">${t.prioridad}</span></td>
+      <td><span style="font-size:.78rem">${estado}</span></td>
+      <td style="font-size:.78rem">${escapeHtml(t.asignado_a||'—')}</td>
+      <td>${slaHtml}</td>
+      <td>
+        <button onclick="event.stopPropagation();tkAbrirModal('${escapeHtml(t.tiquet_id)}')"
+          style="background:none;border:1px solid var(--gray-200);border-radius:5px;padding:.2rem .5rem;cursor:pointer;font-size:.75rem">Editar</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ── RENDER: Panel detalle ─────────────────────────────────────
+function tkRenderDetalle() {
+  const panel = document.getElementById('tk-detalle');
+  if (!panel) return;
+  if (!tkDetalle) { panel.style.display = 'none'; return; }
+  panel.style.display = 'block';
+  const { tiquet: t, historial, comentarios, acciones = [] } = tkDetalle;
+  const tipoCls = TK_TIPO_BADGE[t.tipo] || 'badge-dark';
+  const prioColor = TK_PRIO_COLOR[t.prioridad] || '#999';
+
+  document.getElementById('tk-det-id').textContent    = t.tiquet_id;
+  document.getElementById('tk-det-titulo').textContent = t.titulo;
+  document.getElementById('tk-det-tipo').innerHTML =
+    `<span class="badge ${tipoCls}" style="font-size:.72rem">${TK_TIPO_LABEL[t.tipo]||t.tipo}</span>`;
+  document.getElementById('tk-det-prio').innerHTML =
+    `<span style="color:${prioColor};font-weight:700">${t.prioridad}</span>`;
+  document.getElementById('tk-det-estado').textContent  = TK_EST_LABEL[t.estado] || t.estado;
+  document.getElementById('tk-det-asignado').textContent = t.asignado_a || '—';
+  document.getElementById('tk-det-norma').textContent    = t.app_id || '—';
+  document.getElementById('tk-det-control').textContent  = t.control_iso || '—';
+  document.getElementById('tk-det-desc').textContent     = t.descripcion || '—';
+  document.getElementById('tk-det-creado').textContent   = t.creado_en ? new Date(t.creado_en).toLocaleString('es-ES') : '—';
+
+  // ── Acciones de seguimiento ──────────────────────────────────
+  const aDiv = document.getElementById('tk-det-acciones');
+  if (aDiv) {
+    const total     = acciones.length;
+    const resueltas = acciones.filter(a => a.estado === 'resuelta').length;
+    const pct       = total > 0 ? Math.round((resueltas / total) * 100) : 0;
+    const _CACC     = { pendiente:'#f39c12', en_curso:'#178DC2', resuelta:'#12A79D' };
+    const _LACC     = { pendiente:'✗ Pendiente', en_curso:'→ En curso', resuelta:'✓ Resuelta' };
+
+    const barraHtml = total > 0 ? `
+      <div style="margin-bottom:.75rem">
+        <div style="display:flex;justify-content:space-between;font-size:.72rem;
+                    color:var(--gray-500);margin-bottom:.3rem">
+          <span>Progreso</span>
+          <span style="font-weight:700;color:${pct===100?'var(--accent)':'var(--primary)'}">${resueltas}/${total} resueltas</span>
+        </div>
+        <div style="background:var(--gray-200);border-radius:10px;height:6px;overflow:hidden">
+          <div style="background:${pct===100?'var(--accent)':'var(--primary)'};height:100%;width:${pct}%;
+                      border-radius:10px;transition:width .3s"></div>
+        </div>
+      </div>` : '';
+
+    const accionesHtml = acciones.map(a => {
+      const col = _CACC[a.estado] || '#999';
+      const bts = a.estado === 'pendiente'
+        ? `<button onclick="tkActualizarAccion('${escapeHtml(t.tiquet_id)}',${a.id},'en_curso')"
+             style="background:var(--primary-light);color:var(--primary-dark);border:1px solid var(--primary-light);
+                    border-radius:5px;padding:.2rem .5rem;font-size:.68rem;cursor:pointer;margin-right:.25rem">En curso</button>
+           <button onclick="tkActualizarAccion('${escapeHtml(t.tiquet_id)}',${a.id},'resuelta')"
+             style="background:var(--accent-light);color:#0d7a71;border:1px solid var(--accent-light);
+                    border-radius:5px;padding:.2rem .5rem;font-size:.68rem;cursor:pointer">Resolver</button>`
+        : a.estado === 'en_curso'
+        ? `<button onclick="tkActualizarAccion('${escapeHtml(t.tiquet_id)}',${a.id},'resuelta')"
+             style="background:var(--accent-light);color:#0d7a71;border:1px solid var(--accent-light);
+                    border-radius:5px;padding:.2rem .5rem;font-size:.68rem;cursor:pointer">Resolver</button>`
+        : `<span style="font-size:.68rem;color:var(--gray-400)">${a.fecha_resolucion ? new Date(a.fecha_resolucion).toLocaleDateString('es-ES') : ''}</span>`;
+      return `<div style="border-left:3px solid ${col};padding:.45rem .65rem;margin-bottom:.35rem;
+                          background:var(--gray-100);border-radius:0 6px 6px 0;font-size:.8rem">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:.4rem">
+          <div style="flex:1;min-width:0">
+            <span style="font-size:.69rem;font-weight:700;color:${col}">${_LACC[a.estado]||a.estado}</span>
+            <p style="margin:.1rem 0 0;color:var(--gray-900);line-height:1.35;word-break:break-word">${escapeHtml(a.descripcion)}</p>
+            ${a.responsable ? `<span style="font-size:.68rem;color:var(--gray-400)">· ${escapeHtml(a.responsable)}</span>` : ''}
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:.25rem;flex-shrink:0">
+            ${bts}
+            <button onclick="tkEliminarAccion('${escapeHtml(t.tiquet_id)}',${a.id})"
+              style="background:none;border:none;cursor:pointer;color:var(--gray-300);font-size:.75rem;padding:0;line-height:1" title="Eliminar">✕</button>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+
+    const infoTxt = total > 0
+      ? `<p style="font-size:.71rem;color:var(--gray-400);font-style:italic;margin-top:.4rem">Cuando todas las acciones estén resueltas, el tiquet pasará automáticamente a <strong>Resuelto</strong>.</p>`
+      : '';
+
+    const uid   = t.tiquet_id.replace(/[^a-z0-9]/gi,'_');
+    const fldId = 'tk_acc_d_' + uid;
+    const fldRp = 'tk_acc_r_' + uid;
+
+    aDiv.innerHTML = barraHtml + accionesHtml + infoTxt + `
+      <div style="display:flex;gap:.35rem;margin-top:.5rem;flex-wrap:wrap">
+        <input id="${fldId}" type="text" placeholder="Nueva acción..."
+          style="flex:1;min-width:90px;border:1px solid var(--gray-200);border-radius:6px;
+                 padding:.3rem .6rem;font-size:.78rem;font-family:'Nunito Sans',sans-serif"
+          onkeydown="if(event.key==='Enter'){tkCrearAccion('${escapeHtml(t.tiquet_id)}',document.getElementById('${fldId}').value,document.getElementById('${fldRp}').value);document.getElementById('${fldId}').value='';document.getElementById('${fldRp}').value=''}">
+        <input id="${fldRp}" type="text" placeholder="Responsable"
+          style="width:95px;border:1px solid var(--gray-200);border-radius:6px;
+                 padding:.3rem .6rem;font-size:.78rem;font-family:'Nunito Sans',sans-serif">
+        <button onclick="tkCrearAccion('${escapeHtml(t.tiquet_id)}',document.getElementById('${fldId}').value,document.getElementById('${fldRp}').value);document.getElementById('${fldId}').value='';document.getElementById('${fldRp}').value=''"
+          style="background:var(--primary);color:#fff;border:none;border-radius:6px;
+                 padding:.3rem .65rem;font-size:.78rem;font-weight:600;cursor:pointer">+ Añadir</button>
+      </div>`;
+  }
+
+  // Historial
+  const hDiv = document.getElementById('tk-det-hist');
+  hDiv.innerHTML = historial.length
+    ? historial.map(h => `<div style="border-left:3px solid var(--primary-light);padding:.3rem .6rem;margin-bottom:.4rem;font-size:.78rem">
+        <strong>${escapeHtml(h.campo)}</strong>:
+        <span style="color:var(--gray-500)">${escapeHtml(h.valor_antes||'—')}</span> →
+        <span style="color:var(--primary-dark)">${escapeHtml(h.valor_des||'—')}</span>
+        <span style="float:right;color:var(--gray-400)">${new Date(h.fecha).toLocaleString('es-ES')}</span>
+      </div>`).join('')
+    : '<p style="font-size:.8rem;color:var(--gray-400)">Sin historial registrado</p>';
+
+  // Comentarios
+  const cDiv = document.getElementById('tk-det-coments');
+  cDiv.innerHTML = comentarios.length
+    ? comentarios.map(c => `<div style="background:var(--gray-100);border-radius:6px;padding:.5rem .75rem;margin-bottom:.4rem;font-size:.8rem">
+        <strong>${escapeHtml(c.usuario||'?')}</strong>
+        <span style="float:right;color:var(--gray-400)">${new Date(c.fecha).toLocaleString('es-ES')}</span>
+        <p style="margin-top:.25rem">${escapeHtml(c.texto)}</p>
+      </div>`).join('')
+    : '<p style="font-size:.8rem;color:var(--gray-400)">Sin comentarios</p>';
+}
+
+// ── Acciones de seguimiento ────────────────────────────────────
+async function tkCrearAccion(tiquetId, descripcion, responsable) {
+  if (!tkOnline) { showToast('Las acciones requieren conexión al servidor', 'warning'); return; }
+  if (!descripcion || !descripcion.trim()) { showToast('La descripción es obligatoria', 'error'); return; }
+  try {
+    const r = await fetch(TK_API + '/' + encodeURIComponent(tiquetId) + '/acciones', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ descripcion: descripcion.trim(), responsable: (responsable||'').trim() })
+    });
+    const j = await r.json();
+    if (j.ok) { await tkCargarDetalle(tiquetId); }
+    else { showToast('Error: ' + j.error, 'error'); }
+  } catch { showToast('Error de conexión', 'error'); }
+}
+
+async function tkActualizarAccion(tiquetId, accionId, nuevoEstado) {
+  if (!tkOnline) { showToast('Las acciones requieren conexión al servidor', 'warning'); return; }
+  try {
+    const r = await fetch(TK_API + '/' + encodeURIComponent(tiquetId) + '/acciones/' + accionId, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ estado: nuevoEstado })
+    });
+    const j = await r.json();
+    if (j.ok) {
+      if (j.data && j.data.tiquet_auto_resuelto) {
+        showToast('¡Todas las acciones resueltas! Tiquet marcado como Resuelto automáticamente.', 'success');
+        await tkCargarTiquets();
+      }
+      await tkCargarDetalle(tiquetId);
+    } else { showToast('Error: ' + j.error, 'error'); }
+  } catch { showToast('Error de conexión', 'error'); }
+}
+
+async function tkEliminarAccion(tiquetId, accionId) {
+  if (!tkOnline) { showToast('Las acciones requieren conexión al servidor', 'warning'); return; }
+  if (!confirm('¿Eliminar esta acción?')) return;
+  try {
+    const r = await fetch(TK_API + '/' + encodeURIComponent(tiquetId) + '/acciones/' + accionId, {
+      method: 'DELETE'
+    });
+    const j = await r.json();
+    if (j.ok) { await tkCargarDetalle(tiquetId); }
+    else { showToast('Error: ' + j.error, 'error'); }
+  } catch { showToast('Error de conexión', 'error'); }
+}
+
+// ── Modal crear/editar tiquet ─────────────────────────────────
+function tkAbrirModal(tiquetIdONull) {
+  const modal = document.getElementById('tk-modal');
+  if (!modal) return;
+  const t = tiquetIdONull ? tkTiquets.find(x => x.tiquet_id === tiquetIdONull) : null;
+  document.getElementById('tk-modal-titulo').textContent = t ? 'Editar Tiquet' : 'Nuevo Tiquet';
+  document.getElementById('tk-f-id').value        = t ? t.tiquet_id : '';
+  document.getElementById('tk-f-titulo').value    = t ? t.titulo : '';
+  document.getElementById('tk-f-desc').value      = t ? (t.descripcion||'') : '';
+  document.getElementById('tk-f-tipo').value      = t ? t.tipo : 'incidencia';
+  document.getElementById('tk-f-prioridad').value = t ? t.prioridad : 'media';
+  document.getElementById('tk-f-estado').value    = t ? t.estado : 'nuevo';
+  document.getElementById('tk-f-asignado').value  = t ? (t.asignado_a||'') : '';
+  document.getElementById('tk-f-control').value   = t ? (t.control_iso||'') : '';
+  document.getElementById('tk-f-solicitante').value = t ? (t.solicitante||'') : '';
+  // Nuevos campos v1.2
+  const normas = t && t.normas_afectadas
+    ? (Array.isArray(t.normas_afectadas) ? t.normas_afectadas.join(', ') : t.normas_afectadas)
+    : '';
+  document.getElementById('tk-f-normas').value = normas;
+  document.getElementById('tk-f-cvss').value   = t ? (t.cvss_score || '') : '';
+  // Mostrar CVSS solo para VUL y CIB
+  const tipo = t ? t.tipo : 'incidencia';
+  document.getElementById('tk-f-cvss-wrap').style.opacity =
+    ['vulnerabilidad','ciberincidente'].includes(tipo) ? '1' : '0.4';
+  // Actualizar visibilidad CVSS al cambiar tipo
+  document.getElementById('tk-f-tipo').onchange = function() {
+    document.getElementById('tk-f-cvss-wrap').style.opacity =
+      ['vulnerabilidad','ciberincidente'].includes(this.value) ? '1' : '0.4';
+  };
+  modal.style.display = 'flex';
+  document.getElementById('tk-f-titulo').focus();
+}
+
+function tkCerrarModal() {
+  const modal = document.getElementById('tk-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+async function tkGuardarModal() {
+  const tiquetId  = document.getElementById('tk-f-id').value.trim();
+  const titulo    = document.getElementById('tk-f-titulo').value.trim();
+  const clientId  = document.getElementById('tk-sel-cliente').value;
+  const appId     = document.getElementById('tk-sel-norma').value;
+
+  if (!titulo) { showToast('El título es obligatorio', 'error'); return; }
+
+  const datos = {
+    titulo,
+    descripcion:       document.getElementById('tk-f-desc').value.trim(),
+    tipo:              document.getElementById('tk-f-tipo').value,
+    prioridad:         document.getElementById('tk-f-prioridad').value,
+    estado:            document.getElementById('tk-f-estado').value,
+    asignado_a:        document.getElementById('tk-f-asignado').value.trim(),
+    control_iso:       document.getElementById('tk-f-control').value.trim(),
+    solicitante:       document.getElementById('tk-f-solicitante').value.trim(),
+    // Nuevos campos v1.2
+    normas_afectadas:  document.getElementById('tk-f-normas').value.trim()
+      ? document.getElementById('tk-f-normas').value.split(',').map(s => s.trim()).filter(Boolean)
+      : [],
+    cvss_score:        document.getElementById('tk-f-cvss').value !== ''
+      ? parseFloat(document.getElementById('tk-f-cvss').value)
+      : null,
+  };
+
+  let resultado;
+  if (tiquetId) {
+    // Actualizar
+    resultado = await tkActualizar(tiquetId, datos);
+    if (resultado) showToast('Tiquet actualizado', 'success');
+  } else {
+    // Crear
+    if (!clientId) { showToast('Selecciona un cliente', 'error'); return; }
+    if (!appId)    { showToast('Selecciona una norma', 'error');  return; }
+    datos.client_id = clientId;
+    datos.app_id    = appId;
+    resultado = await tkCrear(datos);
+    if (resultado) showToast('Tiquet ' + resultado.tiquet_id + ' creado', 'success');
+  }
+  if (resultado) {
+    tkCerrarModal();
+    await tkCargarTiquets();
+    if (tkDetalle && tkDetalle.tiquet.tiquet_id === (tiquetId || resultado.tiquet_id)) {
+      await tkCargarDetalle(tiquetId || resultado.tiquet_id);
+    }
+  }
+}
+
+// ── Exportar CSV ──────────────────────────────────────────────
+function tkExportar() {
+  if (!tkOnline) { showToast('Exportación requiere conexión al servidor', 'warning'); return; }
+  const params = new URLSearchParams();
+  if (tkFiltros.client_id) params.set('client_id', tkFiltros.client_id);
+  if (tkFiltros.app_id)    params.set('app_id', tkFiltros.app_id);
+  window.open(TK_API + '/exportar?' + params.toString(), '_blank');
+}
+
+// ── Inicialización de la página ───────────────────────────────
+async function initTickets() {
+  await tkDetectarModo();
+  if (tkOnline) {
+    await tkCargarClientes();
+    await tkCargarProyectos('');
+    await tkSincronizar();
+  } else {
+    tkRenderSelectores();
+    tkRenderSelectorProyecto();
+  }
+  await tkCargarTiquets();
+}
+
+// Detectar reconexión automática
+window.addEventListener('online', async () => {
+  if (await tkDetectarModo()) { await tkSincronizar(); await tkCargarTiquets(); }
+});
 </script>
 
 </body>

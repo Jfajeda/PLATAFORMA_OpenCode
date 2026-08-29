@@ -343,7 +343,7 @@
       proyectos, datos y configuracion de OpenCode, con enfasis en el almacenamiento
       en NAS Synology.
     </p>
-    <span class="cover-badge">Version 1.0 &bull; Junio 2026</span>
+    <span class="cover-badge">Version 1.1 &bull; Junio 2026</span>
   </div>
   <div class="cover-footer">
     <p>Jafa, S.L. &mdash; CODANOR &bull; Barcelona, Catalunya</p>
@@ -657,6 +657,138 @@ sqlite3 ~/.local/share/opencode/opencode.db "PRAGMA integrity_check;"</code></pr
     </div>
   </section>
 
+  <!-- ================================================================== -->
+  <!-- 8. PUBLICACION Y RESPALDO EN GITHUB                                 -->
+  <!-- ================================================================== -->
+  <section class="block">
+    <h2>8. Publicacion y respaldo en GitHub</h2>
+    <p>
+      Ademas del respaldo en el NAS, el codigo de los proyectos se versiona y
+      respalda en <strong>GitHub</strong> (repositorios privados de la
+      organizacion). Esta seccion describe como publicar un proyecto por primera
+      vez y como mantenerlo actualizado de forma recurrente.
+    </p>
+
+    <h3>8.1. Requisitos previos</h3>
+    <ul>
+      <li><strong>Cuenta de GitHub</strong> con acceso a la organizacion CODANOR.</li>
+      <li><strong>Personal Access Token (PAT) classic</strong> con permiso
+        <code>repo</code>. GitHub ya no admite la contrasena para operaciones git.</li>
+      <li><strong>git</strong> instalado (incluido en macOS).</li>
+    </ul>
+    <div class="alert alert-info">
+      <div class="alert-title">Generar el Personal Access Token</div>
+      <p>
+        En GitHub: <strong>Settings &rarr; Developer settings &rarr; Personal
+        access tokens &rarr; Tokens (classic) &rarr; Generate new token</strong>.
+        Marca el scope <code>repo</code> y copia el token (empieza por
+        <code>ghp_</code>); solo se muestra una vez.
+      </p>
+    </div>
+
+    <h3>8.2. Guardar las credenciales en el llavero (una sola vez)</h3>
+    <p>
+      Para no introducir el token en cada operacion, se configura el llavero de
+      macOS como almacen seguro de credenciales:
+    </p>
+    <pre><code>git config --global credential.helper osxkeychain</code></pre>
+    <p>
+      En el primer <code>git push</code>, introduce el usuario de GitHub y, como
+      contrasena, <strong>pega el PAT</strong>. macOS lo recordara de forma segura
+      para los siguientes push.
+    </p>
+
+    <h3>8.3. Publicacion inicial de un proyecto</h3>
+    <ol class="step-list">
+      <li><strong>Crear el repositorio</strong> vacio y <strong>privado</strong> en
+        github.com (sin README ni licencia).</li>
+      <li><strong>Revisar archivos grandes</strong>: GitHub rechaza ficheros de
+        mas de 100 MB. Localizarlos antes de subir.</li>
+      <li><strong>Excluir datos sensibles y binarios grandes</strong> via
+        <code>.gitignore</code> (p. ej. <code>clientes_codanor.json</code>,
+        <code>*.mov</code>, hojas de calculo voluminosas).</li>
+      <li><strong>Confirmar los cambios</strong> con un commit.</li>
+      <li><strong>Conectar el remoto</strong> y subir la rama principal.</li>
+    </ol>
+    <pre><code># Excluir datos sensibles / binarios grandes
+echo "clientes_codanor.json" &gt;&gt; .gitignore
+echo "*.mov" &gt;&gt; .gitignore
+
+# Confirmar el estado actual
+git add -A
+git commit -m "Preparar repositorio para GitHub"
+
+# Conectar el remoto y subir
+git remote add origin https://github.com/&lt;usuario&gt;/&lt;repo&gt;.git
+git push -u origin main</code></pre>
+
+    <div class="alert alert-warning">
+      <div class="alert-title">Archivos grandes ya incluidos en el historial</div>
+      <p>
+        Si un binario grande se incluyo en commits anteriores, no basta con
+        borrarlo: hay que <strong>reescribir el historial</strong> con
+        <code>git filter-repo</code>. Esta operacion es <strong>irreversible</strong>;
+        haz una copia del directorio <code>.git</code> antes de ejecutarla.
+      </p>
+    </div>
+    <pre><code># Instalar la herramienta (una sola vez)
+python3 -m pip install --user git-filter-repo
+
+# Copia de seguridad del historial (irreversible)
+cp -R .git ../copia-git-seguridad
+
+# Purgar del historial completo los archivos no deseados
+git filter-repo --force \
+  --path-glob '*clientes_codanor.json' \
+  --path-glob '*.mov' \
+  --invert-paths
+
+# Reconectar el remoto (filter-repo lo elimina por seguridad) y subir
+git remote add origin https://github.com/&lt;usuario&gt;/&lt;repo&gt;.git
+git push -u origin main</code></pre>
+    <div class="alert alert-danger">
+      <div class="alert-title">Atencion</div>
+      <p>
+        <code>git filter-repo --invert-paths</code> elimina los archivos tanto del
+        historial como del <strong>arbol de trabajo</strong> (disco). Si necesitas
+        conservar en local los datos purgados (p. ej. <code>clientes_codanor.json</code>),
+        recuperalos despues desde la copia del <code>.git</code>. La aplicacion
+        funciona sin ese fichero: solo se pierde el pre-rellenado automatico de clientes.
+      </p>
+    </div>
+
+    <h3>8.4. Commits recurrentes (mantenimiento)</h3>
+    <p>
+      Tras cada unidad de trabajo conviene confirmar y subir los cambios para
+      mantener el respaldo en GitHub al dia:
+    </p>
+    <pre><code># Revisar el estado
+git status
+
+# Confirmar y subir
+git add -A
+git commit -m "Descripcion breve del cambio"
+git push</code></pre>
+    <div class="alert alert-success">
+      <div class="alert-title">Buenas practicas</div>
+      <p>
+        Mensajes de commit en modo imperativo y concisos (max. 72 caracteres),
+        commits atomicos (un cambio logico cada uno) y nunca subir credenciales,
+        ficheros <code>.env</code> ni datos de clientes. Verifica siempre con
+        <code>git status</code> antes de confirmar.
+      </p>
+    </div>
+
+    <h3>8.5. Verificacion tras subir</h3>
+    <ul>
+      <li>Comprobar que <code>git status</code> muestra <code>main...origin/main</code>
+        sin divergencias.</li>
+      <li>Confirmar en github.com que el contenido esperado esta presente.</li>
+      <li>Verificar que los datos sensibles y binarios grandes <strong>no</strong>
+        aparecen en el repositorio.</li>
+    </ul>
+  </section>
+
 </div>
 
 <!-- ======================================================================
@@ -666,7 +798,7 @@ sqlite3 ~/.local/share/opencode/opencode.db "PRAGMA integrity_check;"</code></pr
   <img src="https://codanor.com/assets/img/logo_web-50.png" alt="Logo corporativo CODANOR">
   <p class="brand">CODANOR &mdash; Jafa, S.L.</p>
   <p>Barcelona, Catalunya</p>
-  <p>Documento interno &bull; Copias de Seguridad de OpenCode &bull; Version 1.0 &mdash; Junio 2026</p>
+  <p>Documento interno &bull; Copias de Seguridad de OpenCode &bull; Version 1.1 &mdash; Junio 2026</p>
 </footer>
 
 <button class="btn-print" onclick="window.print()">Imprimir / Guardar PDF</button>
