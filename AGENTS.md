@@ -140,6 +140,57 @@ _abrirModal(), _cerrarModal(), _guardarModal(), _recargar()
 - Category `resolved_ticket` "BD de Tiquets Resueltos" added to `wiki-categories.js` in all 9 apps
 - **IMPORTANT**: `wiki_article_id` balance in `wiki-categories.js` WIKI_CATEGORIES array must be 0. The `resolved_ticket` item must be inserted INSIDE the array with proper `,` separator.
 
+## Módulo Mapa de Procesos (v1.0 — 2026-09-04)
+
+### Arquitectura
+
+- **Archivo**: `js/modules/mapa-procesos.js` en cada una de las 9 apps (commit `eb628fe`)
+- **Origen**: motor visual portado de `~/Proyectos/Mapa_Procesos/mapa_procesos.html` v1.0.0
+- **Persistencia**: Flask SQLite via `phase_data` — **NO usar IndexedDB** (local al navegador, no funciona en LAN multiusuario)
+  - Clave: `(project_id, app_id, 'mapa_procesos')`
+  - Endpoint: `GET/POST /api/{appId}/phase/{projectId}/mapa_procesos`
+  - El servidor ya lo soporta sin cambios — `phase_data` acepta clave libre
+- **Versión en index.html**: `mapa-procesos.js?v=20260903a`
+
+### appId por app
+
+| App | appId | Módulo phase2 |
+|---|---|---|
+| ISO27001-SGSI | `iso27001` | phase2-consulting.js |
+| ENS-RD311-2022 | `ens` | phase2-consulting.js |
+| ISO27701-SGP | `iso27701` | phase2-consulting.js |
+| ISO42001-SGIA | `iso42001` | phase2-consulting.js |
+| RGPD-LOPD-GDD | `rgpd` | phase2-consulting.js |
+| ISO14001-SGMA_2015 | `iso14001` | phase2-implementation.js (IIFE) |
+| ISO14001-SGMA_2026_NEW | `iso14001-2026` | phase2-implementation.js (IIFE) |
+| ISO9001-SGQ_2015 | `iso9001` | phase2-implementation.js (IIFE) |
+| TISAX | `tisax` | phase2-isms.js (sin tabs, sección independiente) |
+
+### Reglas críticas
+
+1. **Nunca usar IndexedDB** para el mapa — siempre Flask/SQLite via `phase_data`.
+2. Al modificar `mapa-procesos.js`, propagar a las 9 apps cambiando solo `appId`:
+   ```bash
+   sed "s/appId:     'iso27001'/appId:     '$AID'/" ISO27001-SGSI/js/modules/mapa-procesos.js > $APP/js/modules/mapa-procesos.js
+   ```
+3. Bump versión en `index.html` de todas las apps afectadas: `?v=20260903a` → letra siguiente.
+4. El CSS del módulo está **embebido** en el JS (IIFE al final del archivo) con prefijo `mp-`. No editar `styles.css` para estilos del mapa.
+5. La plantilla por defecto para cada app se determina en `_normaParaPlantilla()` dentro del módulo.
+
+### Bug conocido (evitar repetirlo)
+
+**`SyntaxError` por `\'` en expresiones JS**: el escape `\'` SOLO es válido dentro de un string delimitado por `'`. En expresiones ternarias JS (`a === \'b\'`) fuera de un string produce `SyntaxError` que rompe todo el script → pantalla "Cargando..." infinita.
+
+```javascript
+// INCORRECTO — rompe app.js completo:
+(this.currentPhase === \'tiquets\' ? \'active\' : \'\')
+
+// CORRECTO:
+(this.currentPhase === 'tiquets' ? 'active' : '')
+```
+
+Este bug estaba en `ISO14001-SGMA_2015/js/app.js` L203 e `ISO9001-SGQ_2015/js/app.js` L205. Corregido en `eb628fe`.
+
 ## Code Style Guidelines
 
 ### Language & Encoding
@@ -246,6 +297,38 @@ _abrirModal(), _cerrarModal(), _guardarModal(), _recargar()
 - Use `/compact` if the session history causes slowness or API errors.
 - For large tasks, break work into smaller steps using a todo list.
 
+## Sintetización IA — Fase 2 (fix 2026-09-04, commit `95f0e86`)
+
+### Bugs corregidos en phase2-consulting.js (5 apps: ISO27001, ISO27701, ENS, RGPD, ISO42001)
+
+1. **Botón "Generar Resumen IA" siempre visible** cuando hay fichero subido.
+   - Antes: `${hasFile && LLMUtil.hasApiKey() ? ...}` → botón no existía sin API Key.
+   - Ahora: `${hasFile ? ...}` — el botón siempre existe y deriva al flujo manual si no hay key.
+
+2. **Fallback manual en `generateActaSummary()` y `generateGlobalSummary()`**:
+   ```javascript
+   if (!LLMUtil.hasApiKey()) {
+     try { await LLMUtil.copyToClipboard(prompt); } catch (e) { /* ignore */ }
+     this.showPromptModal(prompt);
+     return;
+   }
+   ```
+
+3. **`showPromptModal` + `showErrorModal` + `closePromptModal` + `openLLMConfigFromError`
+   añadidos a RGPD-LOPD-GDD** (no estaban definidos).
+
+4. **`showErrorModal` + `openLLMConfigFromError` añadidos a ISO42001-SGIA**.
+
+5. **Guard `typeof LLMUtil` movido antes del primer uso** en `synthesizeMeeting()`.
+
+### Versión tras el fix
+Todos los `phase2-consulting.js` actualizados a `?v=20260904a` en sus respectivos `index.html`.
+
+### Documentación generada
+`DOCS/informes/Manual_Configuracion_IA_LLM.docx` — manual Word corporativo (44 KB, 13 capítulos):
+API Keys gratuitas (OpenRouter/Groq/Google), de pago (OpenAI/Anthropic), presets, fallback chain,
+flujo manual sin API Key, errores frecuentes y FAQ.
+
 ## External Rules
 
 No `.cursor/rules/`, `.cursorrules`, or `.github/copilot-instructions.md`
@@ -254,4 +337,4 @@ contents into this section.
 
 ---
 
-*Last updated: 2026-08-29*
+*Last updated: 2026-09-04*
