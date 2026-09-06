@@ -2,7 +2,7 @@
 
 > Instructions for AI coding agents operating in this repository.
 > Maintained by Jafa, S.L. (CODANOR), Barcelona, Catalunya.
-> Last updated: 2026-08-29
+> Last updated: 2026-09-06
 
 ## Project Overview
 
@@ -297,7 +297,80 @@ Este bug estaba en `ISO14001-SGMA_2015/js/app.js` L203 e `ISO9001-SGQ_2015/js/ap
 - Use `/compact` if the session history causes slowness or API errors.
 - For large tasks, break work into smaller steps using a todo list.
 
-## Sintetización IA — Fase 2 (fix 2026-09-04, commit `95f0e86`)
+## Módulo Seguimiento de Tareas (v2.0 — 2026-09-06, commit `e0c1a08`)
+
+### Mejoras implementadas
+
+- **Modelo de tarea ampliado**: campo `acciones[]` por tarea. Cada acción tiene:
+  `id`, `descripcion`, `responsable`, `estado` (pendiente|en_curso|resuelta),
+  `fechaCreacion`, `fechaCierre`.
+- **Nuevos métodos en phase2-*.js** (9 apps):
+  `addTaskAction`, `updateTaskAction`, `removeTaskAction`,
+  `toggleTaskActions`, `_renderTaskActionsRow`, `_normalizeAccion`
+- **UI mejorada**: inputs inline editables para `responsable` y `fechaLimite`
+  directamente en la tabla del panel "Seguimiento de tareas". Botón 📋 por fila
+  con contador de acciones pendientes (amarillo) o resueltas (verde).
+- **Exportación Word** (`report-builders.js`): 8ª columna "Acciones de resolución"
+  con resumen de pendientes/resueltas. `meetingNotesToList` incluye acciones con
+  estado, responsable y fecha de cierre. Anchos: `[1800,900,2600,1200,900,900,1000,2100]`
+  (12400 twips total, sin cambiar ancho de página).
+
+### Reglas críticas para el módulo de tareas
+
+1. **`acciones[]` es solo lectura cuando la tarea está cerrada** (`completada`
+   o `desestimada`). No permitir añadir ni editar acciones en ese estado.
+2. Al modificar `phase2-consulting.js` (ISO27001 como base), propagar a las
+   4 apps consulting restantes con `sed` cambiando solo `MapaProcesosModule.init()`.
+3. **ISO9001 y ISO14001 tienen `phase2-implementation.js` propio** — no sobrescribir
+   con el de la otra app: usan `ACTIVITY_GROUPS` (ISO9001) o `CLAUSE_GROUPS`
+   (ISO14001) como variables globales distintas.
+4. Verificar siempre métodos duplicados tras cualquier edición:
+   ```python
+   python3 -c "import re; from collections import Counter; src=open('phase2-consulting.js').read(); print({k:v for k,v in Counter([m[1] for m in re.findall(r'^\s{2}(async\s+)?(\w+)\s*\(',src,re.MULTILINE)]).items() if v>1})"
+   ```
+
+## Fix LAN — Persistencia desde BD (v2.0 — 2026-09-06, commit `e0c1a08`)
+
+### Problema corregido
+
+`store.js` usaba `localhost:5001` como fallback de URL y `'_phase2'` como sonda
+de caché para TODAS las apps, incluyendo ISO9001 e ISO14001 que usan la clave
+`'implementation'` (no `'phase2'`). Resultado: en cualquier PC de la LAN distinto
+del servidor, la Consultoría de ISO9001/ISO14001 aparecía vacía.
+
+### Cambios aplicados (store.js × 9 apps)
+
+1. **`_apiBase()`**: `localhost:5001` → `window.location.hostname + ':5001'`
+2. **`PHASE_KEYS`**: nueva constante en cada `store.js` con las fases reales de la norma:
+
+| App | PHASE_KEYS |
+|---|---|
+| ISO27001, ENS, ISO27701, ISO42001 | `phase1-5, soa, norma, documents, formacion, mapa_procesos` |
+| RGPD | ídem + `rat, eipd, brechas, derechos` |
+| ISO14001-2015, ISO14001-2026, ISO9001 | `gap, implementation, audit, certification, evidence, documents, formacion, mapa_procesos` |
+| TISAX | `phase2, documents, formacion, mapa_procesos` |
+
+3. **`_preloadProject`, `exportProject`, `importProject`**: usan `this.PHASE_KEYS`
+   en lugar de lista hardcoded.
+4. **`app.js` × 9 apps**: `hasLocalData` y `_cacheHasData` usan `Store.PHASE_KEYS[0]`
+   (primera fase real de la app) en lugar de `'_phase2'` hardcoded.
+
+### Reglas críticas
+
+- **`PHASE_KEYS[0]`** es la clave de sonda de caché en `app.js`. Debe ser la primera
+  fase que el proyecto realmente usa. Para ISO9001/ISO14001 es `'gap'`.
+- Al añadir una nueva norma/app: definir `PHASE_KEYS` en su `store.js` con todas
+  las fases que usa. El GET al servidor de fases vacías devuelve `{}` — sin coste.
+- `mapa_procesos` está en `PHASE_KEYS` aunque el módulo hace fetch directo a Flask
+  (no pasa por `Store.getPhaseData`). Se incluye para que `exportProject` e
+  `importProject` cubran esta clave.
+- **Versiones bumpeadas**: `store.js` y `app.js` → `?v=20260904c` en los 9 `index.html`.
+
+### Documento generado
+
+`DOCS/informes/Estructura_Funcional_Fases_Plataforma.docx` (135 KB, A4 landscape):
+mapa funcional completo de las 9 apps con todas las fases, subtabs y diferencias.
+Portada + índice + cabecera/pie corporativos CODANOR. 7 secciones, 18 tablas.
 
 ### Bugs corregidos en phase2-consulting.js (5 apps: ISO27001, ISO27701, ENS, RGPD, ISO42001)
 
@@ -337,4 +410,4 @@ contents into this section.
 
 ---
 
-*Last updated: 2026-09-04*
+*Last updated: 2026-09-06*

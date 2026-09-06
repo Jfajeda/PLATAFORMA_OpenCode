@@ -1,11 +1,11 @@
 # Memory.md — PLATAFORMA_OpenCode
-> Ultima actualizacion: 2026-09-04
+> Ultima actualizacion: 2026-09-06
 
 ## Estado actual
 
 - **Fase**: Produccion / mantenimiento activo
 - **Version**: Manual v3.0 (20 capitulos)
-- **Ultimo cambio significativo**: Fix sintetización actas Fase-2 en 5 apps (botón siempre visible + fallback manual sin API Key) + Manual Configuración IA Word (2026-09-04, commit `95f0e86`)
+- **Ultimo cambio significativo**: Mejora Seguimiento de Tareas (acciones[], inputs inline, exportación Word) + fix LAN persistencia BD (PHASE_KEYS en store.js × 9 apps) + doc Estructura Funcional Fases (2026-09-06, commit `e0c1a08`)
 - **Issues abiertos**: 72 bugs de reliability + 3 security hotspots detectados por SonarCloud
 
 ## Infraestructura
@@ -16,10 +16,10 @@
 | GitHub | Si | github.com/Jfajeda/PLATAFORMA_OpenCode |
 | SonarCloud | Si | Security A, Reliability B, Maintainability A, 3.5% duplications |
 | .gitignore | Si | Excluye .DS_Store, backups, __pycache__ |
-| AGENTS.md | Si | Actualizado 2026-09-04 — sección Mapa de Procesos v1.0 + fix sintetización actas Fase-2 |
+| AGENTS.md | Si | Actualizado 2026-09-06 — Seguimiento Tareas v2.0 + fix LAN PHASE_KEYS + Sintetización IA |
 | opencode.json | Si | MCP SonarQube configurado |
 | Memory.md | Si | Este archivo |
-| plataforma.db | Activa | 10 tablas, WAL mode, 298 clientes, 32 proyectos |
+| plataforma.db | Activa | 10 tablas, WAL mode, 298 clientes, 32 proyectos, 11 reuniones ISO9001 |
 | server.py | Activo | Puerto 5001, HOST 0.0.0.0, 2559 lineas, 19 endpoints tiquets |
 
 ## Componentes del proyecto
@@ -47,20 +47,21 @@
 | ARQUITECTURA_DB_SQLITE.html | Documentacion BD **unificada v1.4** — portada + TOC + 16 secciones + branding CODANOR | 116 KB |
 | requirements.txt | flask>=3.0.0, flask-cors>=4.0.0, python-docx>=1.0.0, openpyxl>=3.0.0 | — |
 | DOCS/informes/Manual_Configuracion_IA_LLM.docx | Manual Word configuración IA v1.0 (13 caps, 44 KB) | — |
+| DOCS/informes/Estructura_Funcional_Fases_Plataforma.docx | Mapa funcional 9 apps — fases, subtabs, PHASE_KEYS (135 KB, A4 landscape, 18 tablas) | — |
 
 ### Plataforma_Seguimiento_Proyectos — 9 apps ISO/ENS
 
-| App | app_id | tiquets.js version | mapa-procesos.js version |
-|-----|--------|--------------------|--------------------------|
-| ISO27001-SGSI | iso27001 | v=20260829f | v=20260903a |
-| ISO27701-SGP | iso27701 | v=20260829f | v=20260903a |
-| ISO42001-SGIA | iso42001 | v=20260829f | v=20260903a |
-| TISAX | tisax | v=20260829f | v=20260903a |
-| RGPD-LOPD-GDD | rgpd | v=20260829f | v=20260903a |
-| ENS-RD311-2022 | ens | v=20260829f | v=20260903a |
-| ISO9001-SGQ_2015 | iso9001 | v=20260829f | v=20260903a |
-| ISO14001-SGMA_2015 | iso14001 | v=20260829f | v=20260903a |
-| ISO14001-SGMA_2026_NEW | iso14001-2026 | v=20260829f | v=20260903a |
+| App | app_id | tiquets.js version | phase2-*.js version | store.js / app.js version |
+|-----|--------|--------------------|--------------------|---------------------------|
+| ISO27001-SGSI | iso27001 | v=20260829f | v=20260904c | v=20260904c |
+| ISO27701-SGP | iso27701 | v=20260829f | v=20260904c | v=20260904c |
+| ISO42001-SGIA | iso42001 | v=20260829f | v=20260904c | v=20260904c |
+| TISAX | tisax | v=20260829f | v=20260904c | v=20260904c |
+| RGPD-LOPD-GDD | rgpd | v=20260829f | v=20260904c | v=20260904c |
+| ENS-RD311-2022 | ens | v=20260829f | v=20260904c | v=20260904c |
+| ISO9001-SGQ_2015 | iso9001 | v=20260829f | v=20260904c | v=20260904c |
+| ISO14001-SGMA_2015 | iso14001 | v=20260829f | v=20260904c | v=20260904c |
+| ISO14001-SGMA_2026_NEW | iso14001-2026 | v=20260829f | v=20260904c | v=20260904c |
 
 ## Herramienta de Tiquets — Arquitectura completa (v1.0→v1.4)
 
@@ -185,6 +186,11 @@
 | 2026-09-04 | Fallback modal manual en generateActaSummary/generateGlobalSummary | Sin API Key derivar a showPromptModal() igual que synthesizeMeeting — mismo patrón consistente |
 | 2026-09-04 | showPromptModal + showErrorModal añadidos a RGPD e ISO42001 | Métodos llamados pero no definidos en esas dos apps — ReferenceError silencioso |
 | 2026-09-04 | guardia typeof LLMUtil movida antes de su primer uso en synthesizeMeeting | La comprobación era imposible (línea 2842 ya usaba LLMUtil antes del typeof check) |
+| 2026-09-06 | acciones[] en modelo de tarea (phase2-*.js) | Necesidad de registrar pasos concretos de resolución por tarea, más allá del historial de estados |
+| 2026-09-06 | PHASE_KEYS constante en store.js × 9 apps | Lista hardcoded de fases era genérica — ISO9001/ISO14001 usan gap/implementation/audit, no phase1-5. Sin PHASE_KEYS los datos del servidor nunca se precargaban en LAN |
+| 2026-09-06 | Store.PHASE_KEYS[0] como sonda de caché en app.js | '_phase2' hardcoded nunca tenía datos en ISO9001/ISO14001 — shortcut de navegación siempre fallaba y _preloadProject se llamaba innecesariamente en cada clic |
+| 2026-09-06 | ISO9001 phase2-implementation.js restaurado desde HEAD y modificado quirúrgicamente | Propagación directa desde ISO14001 sobreescribía ACTIVITY_GROUPS → Error: No se encontraron datos de actividades |
+| 2026-09-06 | Documento Estructura_Funcional_Fases_Plataforma.docx | Referencia completa de arquitectura funcional de las 9 apps — necesaria para onboarding y nuevas normas |
 
 ## Bugs criticos corregidos (2026-08-29)
 
@@ -224,6 +230,15 @@
 | showErrorModal no definido | ISO42001-SGIA | phase2-consulting.js | Ídem | Añadir showErrorModal + openLLMConfigFromError | 95f0e86 |
 | typeof LLMUtil check imposible | ISO27001, ISO27701, ENS | phase2-consulting.js synthesizeMeeting | Guard en línea 2845 cuando LLMUtil ya se había usado en 2842 | Mover guard antes del primer uso | 95f0e86 |
 
+## Bugs criticos corregidos (2026-09-06, commit `e0c1a08`)
+
+| Bug | App | Archivo | Causa | Solucion |
+|-----|-----|---------|-------|----------|
+| "Sin datos" en Consultoría al abrir desde otro PC LAN | ISO9001, ISO14001-2015, ISO14001-2026 | store.js + app.js | store.js precargaba `phase2` pero los datos reales están en `implementation`. app.js usaba `'_phase2'` como sonda de caché → siempre vacío → datos nunca sincronizados del servidor | PHASE_KEYS por norma + Store.PHASE_KEYS[0] en app.js |
+| "Sin datos" en módulos RGPD desde otro PC LAN | RGPD-LOPD-GDD | store.js | rat, eipd, brechas, derechos no estaban en la lista de preload | Añadir a PHASE_KEYS de RGPD |
+| "Error: No se encontraron datos de actividades" | ISO9001-SGQ_2015 | phase2-implementation.js | Propagación desde ISO14001 sobreescribió `ACTIVITY_GROUPS` por `CLAUSE_GROUPS` | Restaurar desde HEAD y aplicar cambios quirúrgicamente |
+| Datos de Consultoría ISO9001 vacíos tras cambio localhost→127.0.0.1 | ISO9001-SGQ_2015 | store.js | localStorage es por origen — `localhost:5001` ≠ `127.0.0.1:5001`. Sin PHASE_KEYS el servidor tampoco se consultaba | Fix _apiBase + PHASE_KEYS carga siempre del servidor |
+
 ## Pendiente
 
 - [x] ~~Corregir bugs de reliability de SonarCloud~~ (37 de ~55 corregidos)
@@ -243,6 +258,11 @@
 - [x] ~~Módulo Mapa de Procesos v1.0~~ (tab Fase 2 Consultoría, persistencia LAN Flask/SQLite, 9 apps — commit eb628fe 2026-09-04)
 - [ ] Probar Mapa de Procesos en LAN desde segundo PC
 - [ ] Verificar exportación PDF del mapa (jsPDF CDN) en cada app
+- [x] ~~Mejora Seguimiento de Tareas v2.0~~ (acciones[], inputs inline, exportación Word — commit e0c1a08 2026-09-06)
+- [x] ~~Fix LAN persistencia BD~~ (PHASE_KEYS en store.js × 9 apps, app.js sonda correcta — commit e0c1a08 2026-09-06)
+- [x] ~~Documento Estructura Funcional Fases~~ (DOCS/informes/Estructura_Funcional_Fases_Plataforma.docx — commit e0c1a08 2026-09-06)
+- [ ] Probar acciones de tarea desde segundo PC LAN
+- [ ] Verificar exportación Word con columna Acciones en proyectos con datos reales
 
 ## Herramienta Homogeneizacion de Proyectos (2026-07-05)
 
@@ -280,3 +300,6 @@ TCC de macOS impide escribir en NAS. Solucion: **Ajustes del Sistema → Privaci
 - **LAN**: el servidor Flask sirve en HOST 0.0.0.0:5001. IP actual: 192.168.0.81. tiquets.js usa window.location.hostname para auto-detectar la IP correcta desde cualquier equipo de la red.
 - **Mapa de Procesos**: el módulo usa `phase_data` (clave `'mapa_procesos'`) para persistir en plataforma.db. `phase_data` es un store clave-valor JSON libre — el servidor no valida su contenido. El mapa original (`mapa_procesos.html`) usaba IndexedDB (local al navegador), incompatible con LAN multiusuario.
 - **SyntaxError con \'**: el escape `\'` solo es válido dentro de strings JS. En expresiones ternarias `(a === \'b\')` produce SyntaxError silencioso que descarta todo el script. Siempre usar comillas simples sin escape en expresiones: `(a === 'b')`.
+- **localStorage es por origen**: `localhost:5001` y `127.0.0.1:5001` son orígenes distintos para el navegador. Los datos guardados en uno NO son visibles desde el otro. Con PHASE_KEYS el servidor Flask es siempre la fuente de verdad independientemente del origen.
+- **PHASE_KEYS[0] como sonda de caché**: la primera fase de PHASE_KEYS determina si hay datos en caché al abrir un proyecto. Para ISO9001/ISO14001 es `'gap'`; para consulting es `'phase1'`; para TISAX es `'phase2'`. Si se añade una nueva norma, asegurarse de que PHASE_KEYS[0] sea una fase que tenga datos desde el principio del proyecto.
+- **ISO9001 ≠ ISO14001 en phase2-implementation.js**: ISO9001 usa `window.ACTIVITY_GROUPS`; ISO14001 usa `window.CLAUSE_GROUPS`. NUNCA propagar un archivo completo de uno al otro con cp/sed — siempre aplicar cambios quirúrgicos.
