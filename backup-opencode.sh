@@ -13,7 +13,11 @@
 #   ./backup-opencode.sh --export     # Exportar sesiones a JSON individual
 #   ./backup-opencode.sh --restore <archivo.tar.gz>  # Restaurar backup
 #
-# DESTINO POR DEFECTO: NAS CODANOR (/Volumes/CODANOR/opencode-backups)
+# DESTINO PRINCIPAL: NAS CODANOR (/Volumes/CODANOR/opencode-backups)
+# DESTINO REDUNDANTE: Disco externo Transcend (/Volumes/Transcend/opencode-backups)
+#   Tras cada backup principal se sincroniza automaticamente al Transcend
+#   (rsync). Si Transcend no esta montado, se avisa pero NO se interrumpe.
+#
 #   Los snapshots internos (~19 GB), cache, log y bin se EXCLUYEN del backup.
 #   La base de datos opencode.db se copia de forma CONSISTENTE con sqlite3.
 #
@@ -33,6 +37,7 @@ set -euo pipefail
 
 # --- CONFIGURACION ---
 BACKUP_DIR="${OPENCODE_BACKUP_DIR:-/Volumes/CODANOR/opencode-backups}"
+BACKUP_DIR_REDUNDANT="${OPENCODE_BACKUP_DIR_REDUNDANT:-/Volumes/Transcend/opencode-backups}"
 PROYECTOS_DIR="${OPENCODE_PROYECTOS_DIR:-$HOME/Proyectos}"
 DATA_DIR="$HOME/.local/share/opencode"
 CONFIG_DIR="$HOME/.config/opencode"
@@ -70,11 +75,13 @@ show_help() {
   echo "    ./backup-opencode.sh --help       Mostrar esta ayuda"
   echo ""
   echo "  NOTA: los snapshots internos (~19 GB), cache, log y bin se EXCLUYEN."
+  echo "  REDUNDANCIA: tras cada backup se sincroniza a Transcend (si montado)."
   echo ""
   echo "  Variables de entorno:"
-  echo "    OPENCODE_BACKUP_DIR   Directorio destino (default: /Volumes/CODANOR/opencode-backups)"
-  echo "    OPENCODE_PROYECTOS_DIR Directorio de proyectos (default: ~/Proyectos)"
-  echo "    OPENCODE_MIN_FREE_MB  Espacio libre minimo en MB (default: 8000)"
+  echo "    OPENCODE_BACKUP_DIR            Directorio destino principal (default: /Volumes/CODANOR/opencode-backups)"
+  echo "    OPENCODE_BACKUP_DIR_REDUNDANT  Directorio redundante (default: /Volumes/Transcend/opencode-backups)"
+  echo "    OPENCODE_PROYECTOS_DIR         Directorio de proyectos (default: ~/Proyectos)"
+  echo "    OPENCODE_MIN_FREE_MB           Espacio libre minimo en MB (default: 8000)"
   echo ""
 }
 
@@ -150,6 +157,45 @@ get_size() {
   fi
 }
 
+# --- REDUNDANCIA A DISCO EXTERNO (Transcend) ---
+# Sincroniza el directorio de backups principal al Transcend.
+# Si Transcend no esta montado, avisa y continua sin error.
+backup_redundant() {
+  # Detectar si el volumen Transcend está montado
+  local VOLUME
+  VOLUME=$(echo "$BACKUP_DIR_REDUNDANT" | awk -F/ '{print "/"$2"/"$3}')
+  if [ ! -d "$VOLUME" ]; then
+    warn "Transcend no montado ($VOLUME) — redundancia omitida."
+    return 0
+  fi
+
+  # Verificar que el origen (NAS principal) existe y tiene contenido
+  if [ ! -d "$BACKUP_DIR" ] || [ -z "$(ls -A "$BACKUP_DIR" 2>/dev/null)" ]; then
+    warn "Directorio principal vacío o inexistente — redundancia omitida."
+    return 0
+  fi
+
+  info "Sincronizando redundancia → $BACKUP_DIR_REDUNDANT ..."
+  mkdir -p "$BACKUP_DIR_REDUNDANT" 2>/dev/null || {
+    warn "No se pudo crear $BACKUP_DIR_REDUNDANT — redundancia omitida."
+    return 0
+  }
+
+  # rsync: sincronización incremental, elimina en destino lo que ya no está en origen
+  if rsync -a --delete \
+      --exclude='.DS_Store' \
+      --exclude='Thumbs.db' \
+      "$BACKUP_DIR/" "$BACKUP_DIR_REDUNDANT/" 2>/dev/null; then
+    local COUNT
+    COUNT=$(ls "$BACKUP_DIR_REDUNDANT"/*.tar.gz 2>/dev/null | wc -l | tr -d ' ')
+    local SIZE
+    SIZE=$(du -sh "$BACKUP_DIR_REDUNDANT" 2>/dev/null | cut -f1)
+    ok "Redundancia sincronizada: $COUNT archivos · $SIZE → $BACKUP_DIR_REDUNDANT"
+  else
+    warn "rsync falló — redundancia en Transcend puede estar incompleta."
+  fi
+}
+
 # --- BACKUP COMPLETO ---
 # Respalda, en archivos SEPARADOS, los tres bloques relevantes:
 #   1) proyectos   2) datos OpenCode (storage + DB consistente)   3) config
@@ -165,6 +211,7 @@ backup_full() {
   backup_config
 
   ok "Backup completo finalizado en: $BACKUP_DIR"
+  backup_redundant
   show_summary
 }
 
@@ -216,6 +263,7 @@ backup_sessions() {
   info "Sesiones encontradas: $SESSION_COUNT"
 
   cleanup_old_backups "opencode_data_"
+  backup_redundant
 }
 
 # --- BACKUP SOLO CONFIG ---
@@ -235,6 +283,7 @@ backup_config() {
   ok "Backup de configuracion creado: $BACKUP_FILE ($SIZE)"
 
   cleanup_old_backups "opencode_config_"
+  backup_redundant
 }
 
 # --- EXPORTAR SESIONES A JSON ---
@@ -392,6 +441,7 @@ backup_proyectos() {
   info "Proyectos incluidos: $PROJECT_COUNT"
 
   cleanup_old_backups "proyectos_"
+  backup_redundant
 }
 
 # --- RESUMEN ---
