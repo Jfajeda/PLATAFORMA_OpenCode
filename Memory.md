@@ -1,11 +1,11 @@
 # Memory.md — PLATAFORMA_OpenCode
-> Ultima actualizacion: 2026-09-06
+> Ultima actualizacion: 2026-09-17
 
 ## Estado actual
 
 - **Fase**: Produccion / mantenimiento activo
 - **Version**: Manual v3.0 (20 capitulos)
-- **Ultimo cambio significativo**: Mejora Seguimiento de Tareas (acciones[], inputs inline, exportación Word) + fix LAN persistencia BD (PHASE_KEYS en store.js × 9 apps) + doc Estructura Funcional Fases (2026-09-06, commit `e0c1a08`)
+- **Ultimo cambio significativo**: Botón NotebookLM en toolbar de Conocimiento (wiki.js × 9 apps, URL específica por norma — commit `dd0a215` 2026-09-17)
 - **Issues abiertos**: 72 bugs de reliability + 3 security hotspots detectados por SonarCloud
 
 ## Infraestructura
@@ -53,15 +53,15 @@
 
 | App | app_id | tiquets.js version | phase2-*.js version | store.js / app.js version |
 |-----|--------|--------------------|--------------------|---------------------------|
-| ISO27001-SGSI | iso27001 | v=20260829f | v=20260904c | v=20260904c |
-| ISO27701-SGP | iso27701 | v=20260829f | v=20260904c | v=20260904c |
-| ISO42001-SGIA | iso42001 | v=20260829f | v=20260904c | v=20260904c |
-| TISAX | tisax | v=20260829f | v=20260904c | v=20260904c |
-| RGPD-LOPD-GDD | rgpd | v=20260829f | v=20260904c | v=20260904c |
-| ENS-RD311-2022 | ens | v=20260829f | v=20260904c | v=20260904c |
-| ISO9001-SGQ_2015 | iso9001 | v=20260829f | v=20260904c | v=20260904c |
-| ISO14001-SGMA_2015 | iso14001 | v=20260829f | v=20260904c | v=20260904c |
-| ISO14001-SGMA_2026_NEW | iso14001-2026 | v=20260829f | v=20260904c | v=20260904c |
+| ISO27001-SGSI | iso27001 | v=20260829f | v=20260904c | v=20260904c | wiki: 08a653c8 |
+| ISO27701-SGP | iso27701 | v=20260829f | v=20260904c | v=20260904c | wiki: 712c0d43 |
+| ISO42001-SGIA | iso42001 | v=20260829f | v=20260904c | v=20260904c | wiki: 5aa74c2f |
+| TISAX | tisax | v=20260829f | v=20260904c | v=20260904c | wiki: cc0bc464 |
+| RGPD-LOPD-GDD | rgpd | v=20260829f | v=20260904c | v=20260904c | wiki: c29543b1 |
+| ENS-RD311-2022 | ens | v=20260829f | v=20260904c | v=20260904c | wiki: cc64cac9 |
+| ISO9001-SGQ_2015 | iso9001 | v=20260829f | v=20260904c | v=20260904c | wiki: 9acf987b |
+| ISO14001-SGMA_2015 | iso14001 | v=20260829f | v=20260904c | v=20260904c | wiki: aee7844a |
+| ISO14001-SGMA_2026_NEW | iso14001-2026 | v=20260829f | v=20260904c | v=20260904c | wiki: 1ffdd2cc |
 
 ## Herramienta de Tiquets — Arquitectura completa (v1.0→v1.4)
 
@@ -192,7 +192,8 @@
 | 2026-09-06 | ISO9001 phase2-implementation.js restaurado desde HEAD y modificado quirúrgicamente | Propagación directa desde ISO14001 sobreescribía ACTIVITY_GROUPS → Error: No se encontraron datos de actividades |
 | 2026-09-06 | Documento Estructura_Funcional_Fases_Plataforma.docx | Referencia completa de arquitectura funcional de las 9 apps — necesaria para onboarding y nuevas normas |
 
-## Bugs criticos corregidos (2026-08-29)
+| 2026-09-17 | Botón NotebookLM dentro de la toolbar de Conocimiento (wiki.js) | El botón en el sidebar raíz era incorrecto — el acceso a NotebookLM es contextual al módulo Conocimiento |
+| 2026-09-17 | URL NotebookLM específica por norma | Cada norma tiene su propio Notebook en Google NotebookLM con documentación especializada; ISO14001-2015 usa el notebook genérico CODANOR |
 
 | Bug | Causa | Solucion |
 |-----|-------|----------|

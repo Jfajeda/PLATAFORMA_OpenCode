@@ -2,7 +2,7 @@
 
 > Instructions for AI coding agents operating in this repository.
 > Maintained by Jafa, S.L. (CODANOR), Barcelona, Catalunya.
-> Last updated: 2026-09-06
+> Last updated: 2026-09-17
 
 ## Project Overview
 
@@ -402,7 +402,38 @@ Todos los `phase2-consulting.js` actualizados a `?v=20260904a` en sus respectivo
 API Keys gratuitas (OpenRouter/Groq/Google), de pago (OpenAI/Anthropic), presets, fallback chain,
 flujo manual sin API Key, errores frecuentes y FAQ.
 
-## External Rules
+## Módulo NotebookLM (v1.0 — 2026-09-17)
+
+### Arquitectura
+
+- **Ubicación**: botón `🤖 NotebookLM` en la toolbar de la vista **Conocimiento** (`wiki.js`) de cada app, al final de la barra junto a "Importar Wiki".
+- **Implementación**: `window.open('<URL>','_blank')` — enlace externo a Google NotebookLM, sin integración programática.
+- **Archivo modificado**: `js/modules/wiki.js` en cada app (línea ~195, tras el botón `importWikiAll`).
+
+### URLs por app
+
+| App | Notebook ID |
+|---|---|
+| ISO27001-SGSI | `08a653c8-a16a-4e44-b137-597e9fd8a495` |
+| RGPD-LOPD-GDD | `c29543b1-d6af-4885-bc93-e0de44b1d692` |
+| ENS-RD311-2022 | `cc64cac9-f7d9-46bd-a37a-23ce7b074a8c` |
+| ISO27701-SGP | `712c0d43-711a-4667-9c29-33a62fefa5aa` |
+| ISO42001-SGIA | `5aa74c2f-138d-4a17-bd54-274df893f3bb` |
+| ISO14001-SGMA_2026_NEW | `1ffdd2cc-52b7-496a-97fc-943c5e732cbf` |
+| ISO9001-SGQ_2015 | `9acf987b-d7f3-4d45-80dc-0ca8483f82eb` |
+| TISAX | `cc0bc464-5651-4d05-b996-73f9574cbb91` |
+| ISO14001-SGMA_2015 | `aee7844a-021b-4519-aa9d-d020ae27bc53` *(notebook genérico CODANOR)* |
+
+### Reglas críticas
+
+1. El botón está **dentro de `wiki.js`**, NO en `app.js` (sidebar). No volver a añadirlo al sidebar raíz.
+2. Al actualizar una URL, modificar únicamente `js/modules/wiki.js` de la app correspondiente — buscar `notebook.google.com/notebook/` en ese archivo.
+3. `ISO14001-SGMA_2015` usa el notebook genérico hasta que se cree uno específico para esa norma.
+4. `ISO9001-SGQ_2026` (en preparación) usará la misma URL que `ISO9001-SGQ_2015` cuando se implemente.
+
+---
+
+
 
 No `.cursor/rules/`, `.cursorrules`, or `.github/copilot-instructions.md`
 files exist in this repository. When any are added, incorporate their
@@ -410,4 +441,4 @@ contents into this section.
 
 ---
 
-*Last updated: 2026-09-06*
+*Last updated: 2026-09-17*
