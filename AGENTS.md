@@ -2,7 +2,7 @@
 
 > Instructions for AI coding agents operating in this repository.
 > Maintained by Jafa, S.L. (CODANOR), Barcelona, Catalunya.
-> Last updated: 2026-09-17
+> Last updated: 2026-09-21
 
 ## Project Overview
 
@@ -328,6 +328,52 @@ Este bug estaba en `ISO14001-SGMA_2015/js/app.js` L203 e `ISO9001-SGQ_2015/js/ap
    ```python
    python3 -c "import re; from collections import Counter; src=open('phase2-consulting.js').read(); print({k:v for k,v in Counter([m[1] for m in re.findall(r'^\s{2}(async\s+)?(\w+)\s*\(',src,re.MULTILINE)]).items() if v>1})"
    ```
+5. **`updateTaskAction` y `_refreshTasksPanel`**: el refresco del DOM solo debe
+   ocurrir para los campos `estado`, `tipo` y `prioridad`. Para campos de texto
+   libre (`titulo`, `descripcion`, `responsable`, `notaCierre`, `verificadoPor`,
+   `fechaLimite`) solo ejecutar `save()` — si se llama `_refreshTasksPanel()` el
+   subpanel se cierra y el usuario pierde el foco y lo que estaba escribiendo.
+   ```javascript
+   // CORRECTO:
+   this.save();
+   if (['estado', 'tipo', 'prioridad'].includes(field)) {
+     this._refreshTasksPanel();
+   }
+   ```
+6. **Badge CODANOR**: las tareas generadas por LLM tienen `origen: 'ia'` en BD.
+   El badge visible es `>C<` con `title="CODANOR"` (no `>IA<`). El campo `origen`
+   en BD NO debe cambiarse — solo la presentación visual. En exportación Word: `[C]`.
+
+## Pantalla de inicio del servidor Flask (2026-09-21)
+
+### Arquitectura
+
+- **Función**: `index()` en `servidor/server.py` — ruta `GET /`
+- **Genera**: HTML completo con grid de tarjetas por app (no usa templates Jinja2)
+- **Tarjetas**: definidas en `APPS_META` (lista de dicts) + función `make_card()`
+- **Iconos**: bloque CSS puro con `icon_line1` (número grande) + `icon_line2` (sigla)
+- **Tooltip**: `data-tooltip` en cada `<a class="card">` + JS global `#global-tooltip`
+  en `<body>` (fuera del DOM de tarjetas para evitar bug `position:fixed` con `transform`)
+
+### Bug conocido — `position:fixed` dentro de `transform`
+
+Si el ancestro tiene `transform` (`.card:hover` tiene `transform: translateY(-4px)`),
+un `position:fixed` hijo queda contenido en ese contexto — no se posiciona respecto
+al viewport. Solución: mover el tooltip a `<body>` y controlarlo con JS
+(`mouseenter`/`mouseleave` en `document.querySelectorAll('.card[data-tooltip]')`).
+
+### APPS_META — campos por app
+
+| Campo | Descripción |
+|---|---|
+| `id` | app_id (ens, iso27001, iso14001, etc.) |
+| `label` | Nombre completo para accesibilidad |
+| `sublabel` | Descripción corta visible en la zona blanca |
+| `icon_line1` | Texto grande en el bloque de color (ISO 27001, E.N.S., RGPD...) |
+| `icon_line2` | Texto pequeño secundario (SGSI, RD 311/2022, LOPD-GDD...) |
+| `color` | Color corporativo HEX del fondo del bloque |
+| `tooltip` | Descripción extendida (aparece al hover, panel flotante inferior) |
+   ```
 
 ## Fix LAN — Persistencia desde BD (v2.0 — 2026-09-06, commit `e0c1a08`)
 
@@ -441,4 +487,4 @@ contents into this section.
 
 ---
 
-*Last updated: 2026-09-17*
+*Last updated: 2026-09-21*

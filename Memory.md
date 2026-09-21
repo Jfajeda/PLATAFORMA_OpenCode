@@ -1,11 +1,11 @@
 # Memory.md — PLATAFORMA_OpenCode
-> Ultima actualizacion: 2026-09-17
+> Ultima actualizacion: 2026-09-21
 
 ## Estado actual
 
 - **Fase**: Produccion / mantenimiento activo
 - **Version**: Manual v3.0 (20 capitulos)
-- **Ultimo cambio significativo**: Botón NotebookLM en toolbar de Conocimiento (wiki.js × 9 apps, URL específica por norma — commit `dd0a215` 2026-09-17)
+- **Ultimo cambio significativo**: Fix navegabilidad Acciones de Resolución + badge IA→C (CODANOR) en phase2-*.js + report-builders.js × 9 apps + rediseño pantalla de inicio servidor (commit `688fead` 2026-09-21)
 - **Issues abiertos**: 72 bugs de reliability + 3 security hotspots detectados por SonarCloud
 
 ## Infraestructura
@@ -16,7 +16,7 @@
 | GitHub | Si | github.com/Jfajeda/PLATAFORMA_OpenCode |
 | SonarCloud | Si | Security A, Reliability B, Maintainability A, 3.5% duplications |
 | .gitignore | Si | Excluye .DS_Store, backups, __pycache__ |
-| AGENTS.md | Si | Actualizado 2026-09-06 — Seguimiento Tareas v2.0 + fix LAN PHASE_KEYS + Sintetización IA |
+| AGENTS.md | Si | Actualizado 2026-09-21 — fix navegabilidad acciones + badge IA→C + diseño inicio |
 | opencode.json | Si | MCP SonarQube configurado |
 | Memory.md | Si | Este archivo |
 | plataforma.db | Activa | 10 tablas, WAL mode, 298 clientes, 32 proyectos, 11 reuniones ISO9001 |
@@ -53,15 +53,15 @@
 
 | App | app_id | tiquets.js version | phase2-*.js version | store.js / app.js version |
 |-----|--------|--------------------|--------------------|---------------------------|
-| ISO27001-SGSI | iso27001 | v=20260829f | v=20260904c | v=20260904c | wiki: 08a653c8 |
-| ISO27701-SGP | iso27701 | v=20260829f | v=20260904c | v=20260904c | wiki: 712c0d43 |
-| ISO42001-SGIA | iso42001 | v=20260829f | v=20260904c | v=20260904c | wiki: 5aa74c2f |
-| TISAX | tisax | v=20260829f | v=20260904c | v=20260904c | wiki: cc0bc464 |
-| RGPD-LOPD-GDD | rgpd | v=20260829f | v=20260904c | v=20260904c | wiki: c29543b1 |
-| ENS-RD311-2022 | ens | v=20260829f | v=20260904c | v=20260904c | wiki: cc64cac9 |
-| ISO9001-SGQ_2015 | iso9001 | v=20260829f | v=20260904c | v=20260904c | wiki: 9acf987b |
-| ISO14001-SGMA_2015 | iso14001 | v=20260829f | v=20260904c | v=20260904c | wiki: aee7844a |
-| ISO14001-SGMA_2026_NEW | iso14001-2026 | v=20260829f | v=20260904c | v=20260904c | wiki: 1ffdd2cc |
+| ISO27001-SGSI | iso27001 | v=20260829f | v=20260904d | v=20260904c | wiki: 08a653c8 |
+| ISO27701-SGP | iso27701 | v=20260829f | v=20260904d | v=20260904c | wiki: 712c0d43 |
+| ISO42001-SGIA | iso42001 | v=20260829f | v=20260904d | v=20260904c | wiki: 5aa74c2f |
+| TISAX | tisax | v=20260829f | v=20260904d | v=20260904c | wiki: cc0bc464 |
+| RGPD-LOPD-GDD | rgpd | v=20260829f | v=20260904d | v=20260904c | wiki: c29543b1 |
+| ENS-RD311-2022 | ens | v=20260829f | v=20260904d | v=20260904c | wiki: cc64cac9 |
+| ISO9001-SGQ_2015 | iso9001 | v=20260829f | v=20260904d | v=20260904c | wiki: 9acf987b |
+| ISO14001-SGMA_2015 | iso14001 | v=20260829f | v=20260904d | v=20260904c | wiki: aee7844a |
+| ISO14001-SGMA_2026_NEW | iso14001-2026 | v=20260829f | v=20260904d | v=20260904c | wiki: 1ffdd2cc |
 
 ## Herramienta de Tiquets — Arquitectura completa (v1.0→v1.4)
 
@@ -240,6 +240,13 @@
 | "Error: No se encontraron datos de actividades" | ISO9001-SGQ_2015 | phase2-implementation.js | Propagación desde ISO14001 sobreescribió `ACTIVITY_GROUPS` por `CLAUSE_GROUPS` | Restaurar desde HEAD y aplicar cambios quirúrgicamente |
 | Datos de Consultoría ISO9001 vacíos tras cambio localhost→127.0.0.1 | ISO9001-SGQ_2015 | store.js | localStorage es por origen — `localhost:5001` ≠ `127.0.0.1:5001`. Sin PHASE_KEYS el servidor tampoco se consultaba | Fix _apiBase + PHASE_KEYS carga siempre del servidor |
 
+## Bugs criticos corregidos (2026-09-21, commit `688fead`)
+
+| Bug | App | Archivo | Causa | Solucion |
+|-----|-----|---------|-------|----------|
+| Subpanel "Acciones de resolución" se cierra al editar | Todas × 9 | phase2-*.js `updateTaskAction` | `_refreshTasksPanel()` se llamaba para CUALQUIER campo incluyendo texto libre → DOM reconstruido → subpanel vuelve a `display:none` → usuario pierde foco y datos en edición | Condicionar refresco a `['estado','tipo','prioridad']`. Para texto libre (`titulo`, `descripcion`, `responsable`, `notaCierre`, `verificadoPor`, `fechaLimite`) solo `save()` — sin refresco DOM |
+| Badge "IA" visible para clientes (imagen corporativa) | Todas × 9 | phase2-*.js + report-builders.js | El badge mostraba "IA" (Inteligencia Artificial) junto al título de tareas extraídas por LLM — algunos clientes no ven con buenos ojos la intervención de IA | Cambiar badge `>IA<` → `>C<` con `title="CODANOR"` en todos los archivos. En exportación Word: `[IA]` → `[C]` |
+
 ## Pendiente
 
 - [x] ~~Corregir bugs de reliability de SonarCloud~~ (37 de ~55 corregidos)
@@ -264,6 +271,9 @@
 - [x] ~~Documento Estructura Funcional Fases~~ (DOCS/informes/Estructura_Funcional_Fases_Plataforma.docx — commit e0c1a08 2026-09-06)
 - [ ] Probar acciones de tarea desde segundo PC LAN
 - [ ] Verificar exportación Word con columna Acciones en proyectos con datos reales
+- [x] ~~Fix navegabilidad Acciones de Resolución~~ (subpanel no se cierra al editar — commit 688fead 2026-09-21)
+- [x] ~~Badge IA→C (CODANOR) en phase2-*.js + report-builders.js × 9 apps~~ (commit 688fead 2026-09-21)
+- [x] ~~Rediseño tarjetas pantalla de inicio servidor~~ (tooltip flotante JS, iconos texto corporativos — commits 8b12a42 5e2c70a 32c43cd b2486c5 e1272bf 2026-09-21)
 
 ## Herramienta Homogeneizacion de Proyectos (2026-07-05)
 
@@ -304,3 +314,5 @@ TCC de macOS impide escribir en NAS. Solucion: **Ajustes del Sistema → Privaci
 - **localStorage es por origen**: `localhost:5001` y `127.0.0.1:5001` son orígenes distintos para el navegador. Los datos guardados en uno NO son visibles desde el otro. Con PHASE_KEYS el servidor Flask es siempre la fuente de verdad independientemente del origen.
 - **PHASE_KEYS[0] como sonda de caché**: la primera fase de PHASE_KEYS determina si hay datos en caché al abrir un proyecto. Para ISO9001/ISO14001 es `'gap'`; para consulting es `'phase1'`; para TISAX es `'phase2'`. Si se añade una nueva norma, asegurarse de que PHASE_KEYS[0] sea una fase que tenga datos desde el principio del proyecto.
 - **ISO9001 ≠ ISO14001 en phase2-implementation.js**: ISO9001 usa `window.ACTIVITY_GROUPS`; ISO14001 usa `window.CLAUSE_GROUPS`. NUNCA propagar un archivo completo de uno al otro con cp/sed — siempre aplicar cambios quirúrgicos.
+- **updateTaskAction y _refreshTasksPanel**: el refresco del DOM solo debe ocurrir para los campos `estado`, `tipo` y `prioridad` (cambian elementos visibles en la tabla exterior). Para campos de texto libre (`titulo`, `descripcion`, `responsable`, `notaCierre`, `verificadoPor`, `fechaLimite`) solo ejecutar `save()` — si se llama `_refreshTasksPanel()` el subpanel se inicializa con `display:none` y el usuario pierde el foco y lo que estaba escribiendo.
+- **Badge IA→C**: el campo `origen: 'ia'` en las tareas se conserva intacto en la BD. Solo cambia la presentación visual del badge (texto y tooltip). Al exportar Word: `[C]` en lugar de `[IA]`.
