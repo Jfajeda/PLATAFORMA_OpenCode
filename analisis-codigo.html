@@ -1228,7 +1228,7 @@ sonar</code></pre>
     // Setup section
     document.getElementById('setupOrg').textContent = SONAR_CONFIG.organization;
 
-    _migrateOldHistory();
+    _migrateOldHistory(); // async — no se espera, se ejecuta en background
     switchProject(0);
 
     // Capa 2: iniciar scanner tab
@@ -1410,48 +1410,132 @@ sonar</code></pre>
   }
 
   // ============================================================
-  // CAPA 3: HISTORIAL MULTI-PROYECTO
+  // CAPA 3: HISTORIAL MULTI-PROYECTO — BD (plataforma.db via Flask)
+  // localStorage solo como caché offline cuando el servidor no está disponible
   // ============================================================
 
-  function _migrateOldHistory() {
-    // Migra datos del formato antiguo (por proyecto) al nuevo (global)
-    const existing = _loadAllHistory();
-    if (existing.length > 0) return; // ya migrado
-    const migrated = [];
-    SONAR_CONFIG.projects.forEach(p => {
-      const old = localStorage.getItem(STORAGE_PREFIX + p.key);
-      if (old) {
+  // Caché en memoria para evitar llamadas repetidas en la misma sesión
+  let _historyCache = null;
+
+  async function _migrateOldHistory() {
+    // Migra datos de localStorage al servidor (solo si hay datos locales y no hay BD)
+    try {
+      const res = await fetch(`${SONAR_CONFIG.flaskBase}/api/sonar/history`,
+        { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+      if (!res.ok) return; // servidor no disponible
+      const remote = await res.json();
+      if (remote.entries && remote.entries.length > 0) return; // ya hay datos en BD
+
+      // Recoger datos del formato antiguo (localStorage por proyecto)
+      const migrated = [];
+      SONAR_CONFIG.projects.forEach(p => {
+        const old = localStorage.getItem(STORAGE_PREFIX + p.key);
+        if (old) {
+          try {
+            JSON.parse(old).forEach(e => migrated.push({
+              project_key: p.key,
+              fecha:       e.date || new Date().toISOString(),
+              qg:          e.qg   || 'NONE',
+              bugs:        e.bugs || 0, vulns: e.vulns || 0,
+              smells:      e.smells || 0, lines: e.lines || 0,
+              sec_rating:  e.sec_rating || '-',
+              rel_rating:  e.rel_rating || '-',
+              mnt_rating:  e.mnt_rating || '-',
+            }));
+          } catch (_) {}
+        }
+      });
+      // Recoger también del formato v2 (localStorage unificado)
+      const v2 = localStorage.getItem(STORAGE_KEY_ALL);
+      if (v2) {
         try {
-          const entries = JSON.parse(old) || [];
-          entries.forEach(e => migrated.push({ ...e, project: p.key }));
+          JSON.parse(v2).forEach(e => {
+            if (!migrated.find(m => m.fecha === (e.date || e.fecha))) {
+              migrated.push({
+                project_key: e.project || e.project_key || SONAR_CONFIG.projects[0].key,
+                fecha:       e.date || e.fecha || new Date().toISOString(),
+                qg:          e.qg || 'NONE',
+                bugs:        e.bugs || 0, vulns: e.vulns || 0,
+                smells:      e.smells || 0, lines: e.lines || 0,
+                sec_rating:  e.sec_rating || '-',
+                rel_rating:  e.rel_rating || '-',
+                mnt_rating:  e.mnt_rating || '-',
+              });
+            }
+          });
         } catch (_) {}
       }
-    });
-    if (migrated.length > 0) {
-      _saveAllHistory(migrated);
-      showToast(`Migrados ${migrated.length} registros al nuevo formato`, 'info');
+
+      if (migrated.length === 0) return;
+
+      // Subir al servidor
+      let ok = 0;
+      for (const entry of migrated) {
+        try {
+          const r = await fetch(`${SONAR_CONFIG.flaskBase}/api/sonar/history`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+            body: JSON.stringify(entry),
+          });
+          if (r.ok) ok++;
+        } catch (_) {}
+      }
+      if (ok > 0) {
+        showToast(`✅ ${ok} registros migrados a la base de datos`, 'success');
+        // Limpiar localStorage solo si todos subieron
+        if (ok === migrated.length) {
+          localStorage.removeItem(STORAGE_KEY_ALL);
+          SONAR_CONFIG.projects.forEach(p =>
+            localStorage.removeItem(STORAGE_PREFIX + p.key)
+          );
+        }
+        _historyCache = null; // forzar recarga
+      }
+    } catch (_) {}
+  }
+
+  async function _loadAllHistory() {
+    try {
+      const res = await fetch(`${SONAR_CONFIG.flaskBase}/api/sonar/history`,
+        { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const d = await res.json();
+      const entries = d.entries || [];
+      // Guardar caché offline — campo unificado 'date' para compatibilidad render
+      const normalized = entries.map(e => ({ ...e, date: e.fecha, project: e.project_key }));
+      localStorage.setItem(STORAGE_KEY_ALL, JSON.stringify(normalized));
+      _historyCache = normalized;
+      return normalized;
+    } catch (_) {
+      // Fallback offline: leer caché local
+      if (_historyCache) return _historyCache;
+      try {
+        const local = JSON.parse(localStorage.getItem(STORAGE_KEY_ALL)) || [];
+        _historyCache = local;
+        return local;
+      } catch { return []; }
     }
   }
 
-  function _loadAllHistory() {
-    try { return JSON.parse(localStorage.getItem(STORAGE_KEY_ALL)) || []; }
-    catch { return []; }
+  async function _postHistory(entry) {
+    // Guarda en BD via Flask
+    const res = await fetch(`${SONAR_CONFIG.flaskBase}/api/sonar/history`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+      body: JSON.stringify(entry),
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    _historyCache = null; // invalidar caché
+    return await res.json();
   }
 
-  function _saveAllHistory(data) {
-    localStorage.setItem(STORAGE_KEY_ALL, JSON.stringify(data));
-  }
-
-  function loadHistory() {
-    // Compatibilidad: carga solo del proyecto actual
-    return _loadAllHistory().filter(d => d.project === currentProject.key);
-  }
-
-  function saveHistory(data) {
-    // Compatibilidad: guarda mezclando con el resto
-    const all     = _loadAllHistory().filter(d => d.project !== currentProject.key);
-    const updated = all.concat(data.map(d => ({ ...d, project: d.project || currentProject.key })));
-    _saveAllHistory(updated);
+  async function _deleteHistoryEntry(id) {
+    const res = await fetch(`${SONAR_CONFIG.flaskBase}/api/sonar/history/${id}`, {
+      method: 'DELETE',
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    _historyCache = null;
   }
 
   // Sub-tabs del historial
@@ -1468,15 +1552,16 @@ sonar</code></pre>
     if (tab === 'compare')   loadComparativa();
   }
 
-  function renderHistory() {
-    const filter  = document.getElementById('historyProjectFilter');
+  async function renderHistory() {
+    const filter    = document.getElementById('historyProjectFilter');
     const filterVal = filter ? filter.value : 'all';
-    const all     = _loadAllHistory();
-    const data    = filterVal === 'all' ? all : all.filter(d => d.project === filterVal);
+    const all       = await _loadAllHistory();
+    const data      = filterVal === 'all' ? all
+                    : all.filter(d => (d.project_key || d.project) === filterVal);
 
-    const tbody = document.getElementById('historyBody');
-    const empty = document.getElementById('historyEmpty');
-    const chartEl = document.getElementById('historyChart');
+    const tbody  = document.getElementById('historyBody');
+    const empty  = document.getElementById('historyEmpty');
+    const chartEl= document.getElementById('historyChart');
     if (!tbody) return;
 
     if (data.length === 0) {
@@ -1489,10 +1574,16 @@ sonar</code></pre>
 
     const projName = (key) => (SONAR_CONFIG.projects.find(p => p.key === key) || {}).name || key;
 
-    tbody.innerHTML = data.slice().reverse().map(d => ` // NOSONAR — localStorage propio, valores escapados
-      <tr>
-        <td style="white-space:nowrap;">${escHtml(new Date(d.date).toLocaleDateString('es-ES'))} ${escHtml(new Date(d.date).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'}))}</td>
-        <td style="font-size:0.8rem;color:var(--gray-500);">${escHtml(projName(d.project || currentProject.key))}</td>
+    tbody.innerHTML = data.slice().reverse().map(d => { // NOSONAR — datos propios de BD via Flask
+      const pk   = d.project_key || d.project || '';
+      const fecha = d.fecha || d.date || '';
+      const entryId = d.id != null ? d.id : escHtml(fecha); // ID numérico BD o fecha legacy
+      return `<tr>
+        <td style="white-space:nowrap;font-size:0.82rem;">
+          ${escHtml(fecha ? new Date(fecha).toLocaleDateString('es-ES') : '—')}
+          ${escHtml(fecha ? new Date(fecha).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'}) : '')}
+        </td>
+        <td style="font-size:0.8rem;color:var(--gray-500);">${escHtml(projName(pk))}</td>
         <td><span style="color:${d.qg==='PASSED'?'var(--success)':'var(--danger)'};font-weight:700;">${escHtml(d.qg||'-')}</span></td>
         <td>${parseInt(d.bugs)||0}</td>
         <td>${parseInt(d.vulns)||0}</td>
@@ -1500,21 +1591,32 @@ sonar</code></pre>
         <td>${escHtml(String(d.lines||0))}</td>
         <td><span style="font-weight:700;color:${_ratingColor(d.sec_rating)}">${escHtml(d.sec_rating||'-')}</span></td>
         <td><span style="font-weight:700;color:${_ratingColor(d.rel_rating)}">${escHtml(d.rel_rating||'-')}</span></td>
-        <td><button class="btn-ghost" onclick="deleteLog('${escHtml(d.date)}')" title="Eliminar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button></td>
-      </tr>
-    `).join(''); // NOSONAR
+        <td>
+          <button class="btn-ghost" onclick="deleteLog(${parseInt(entryId)||0})" title="Eliminar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+              <polyline points="3 6 5 6 21 6"/>
+              <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+            </svg>
+          </button>
+        </td>
+      </tr>`;
+    }).join(''); // NOSONAR
 
     // Gráfico del proyecto actual
-    const projData = data.filter(d => (d.project || currentProject.key) === currentProject.key);
+    const projData = data.filter(d =>
+      (d.project_key || d.project || '') === currentProject.key
+    ).sort((a,b) => new Date(a.fecha||a.date) - new Date(b.fecha||b.date));
+
     if (chartEl && projData.length > 1) {
-      const last15   = projData.slice(-15);
+      const last15    = projData.slice(-15);
       const globalMax = Math.max(...last15.map(d => Math.max(d.bugs||0, d.vulns||0, d.smells||0)), 1);
-      chartEl.innerHTML = // NOSONAR — valores numéricos de localStorage
+      chartEl.innerHTML = // NOSONAR — valores numéricos de BD
         `<div class="chart-bars">
           ${last15.map(d => {
-            const hB = Math.max(((d.bugs||0)/globalMax)*100,2);
-            const hV = Math.max(((d.vulns||0)/globalMax)*100,2);
-            const hS = Math.max(((d.smells||0)/globalMax)*100,2);
+            const hB = Math.max(((d.bugs||0)/globalMax)*100, 2);
+            const hV = Math.max(((d.vulns||0)/globalMax)*100, 2);
+            const hS = Math.max(((d.smells||0)/globalMax)*100, 2);
+            const f  = d.fecha || d.date || '';
             return `<div class="chart-bar-group">
               <div class="chart-bar smells" style="height:${hS}%" title="Smells: ${parseInt(d.smells||0)}"></div>
               <div class="chart-bar bugs"   style="height:${hB}%" title="Bugs: ${parseInt(d.bugs||0)}"></div>
@@ -1523,8 +1625,8 @@ sonar</code></pre>
           }).join('')}
         </div>
         <div style="display:flex;justify-content:space-between;padding:0.25rem 0;font-size:0.65rem;color:var(--gray-400);">
-          <span>${escHtml(new Date(last15[0].date).toLocaleDateString('es-ES'))}</span>
-          <span>${escHtml(new Date(last15[last15.length-1].date).toLocaleDateString('es-ES'))}</span>
+          <span>${escHtml(new Date(last15[0].fecha||last15[0].date||'').toLocaleDateString('es-ES'))}</span>
+          <span>${escHtml(new Date(last15[last15.length-1].fecha||last15[last15.length-1].date||'').toLocaleDateString('es-ES'))}</span>
         </div>
         <div class="chart-legend">
           <div class="chart-legend-item"><div class="legend-dot" style="background:var(--danger);"></div> Vulnerabilidades</div>
@@ -1536,26 +1638,26 @@ sonar</code></pre>
     }
   }
 
-  function renderEvolution() {
-    const filter  = document.getElementById('evolutionFilter');
+  async function renderEvolution() {
+    const filter    = document.getElementById('evolutionFilter');
     const filterVal = filter ? filter.value : 'all';
-    const all = _loadAllHistory();
-    const empty = document.getElementById('evolutionEmpty');
-    const chart = document.getElementById('evolutionChart');
+    const all       = await _loadAllHistory();
+    const empty     = document.getElementById('evolutionEmpty');
+    const chart     = document.getElementById('evolutionChart');
     if (!chart) return;
 
     const COLORS = ['#178DC2','#e74c3c','#27ae60','#f39c12','#8e44ad','#12A79D','#e67e22'];
-    const projs  = filterVal === 'all'
+    const projs   = filterVal === 'all'
       ? SONAR_CONFIG.projects.map(p => p.key)
       : [filterVal];
 
-    // Construir dataset por proyecto
     const datasets = projs.map((key, ci) => ({
       key,
-      name: (SONAR_CONFIG.projects.find(p => p.key === key) || {}).name || key,
+      name:  (SONAR_CONFIG.projects.find(p => p.key === key) || {}).name || key,
       color: COLORS[ci % COLORS.length],
-      data: all.filter(d => (d.project || SONAR_CONFIG.projects[0].key) === key)
-                .sort((a,b) => new Date(a.date) - new Date(b.date)),
+      data:  all
+        .filter(d => (d.project_key || d.project || '') === key)
+        .sort((a,b) => new Date(a.fecha||a.date) - new Date(b.fecha||b.date)),
     })).filter(ds => ds.data.length >= 2);
 
     if (datasets.length === 0) {
@@ -1565,37 +1667,39 @@ sonar</code></pre>
     }
     if (empty) empty.style.display = 'none';
 
-    // Gráfico CSS de líneas simplificado (barras por proyecto)
     let html = `<div style="display:flex;gap:1.5rem;flex-wrap:wrap;margin-bottom:1rem;">`;
     datasets.forEach(ds => {
-      const last = ds.data[ds.data.length - 1];
-      const prev = ds.data[ds.data.length - 2] || last;
+      const last  = ds.data[ds.data.length - 1];
+      const prev  = ds.data[ds.data.length - 2] || last;
       const delta = (last.bugs||0) - (prev.bugs||0);
       const arrow = delta < 0 ? '↓' : delta > 0 ? '↑' : '=';
       const arrowColor = delta < 0 ? 'var(--success)' : delta > 0 ? 'var(--danger)' : 'var(--gray-400)';
+      const lastFecha  = last.fecha || last.date || '';
       html += `<div style="background:white;border:1px solid var(--gray-200);border-radius:8px;padding:0.75rem 1rem;min-width:180px;">
         <div style="font-size:0.8rem;font-weight:700;color:${escHtml(ds.color)};margin-bottom:0.35rem;">${escHtml(ds.name)}</div>
         <div style="font-size:1.4rem;font-weight:700;color:var(--gray-700);">${parseInt(last.bugs||0)} bugs <span style="font-size:1rem;color:${arrowColor}">${arrow}</span></div>
-        <div style="font-size:0.75rem;color:var(--gray-400);">${parseInt(last.vulns||0)} vulns · ${escHtml(new Date(last.date).toLocaleDateString('es-ES'))}</div>
+        <div style="font-size:0.75rem;color:var(--gray-400);">${parseInt(last.vulns||0)} vulns · ${escHtml(lastFecha ? new Date(lastFecha).toLocaleDateString('es-ES') : '—')}</div>
         <div style="margin-top:0.5rem;display:flex;gap:2px;align-items:flex-end;height:40px;">
           ${ds.data.slice(-10).map(pt => {
-            const maxB = Math.max(...ds.data.map(x=>x.bugs||0),1);
-            const h = Math.max(((pt.bugs||0)/maxB)*100,4);
-            return `<div style="flex:1;background:${escHtml(ds.color)};opacity:0.7;height:${h}%;border-radius:2px 2px 0 0;" title="Bugs: ${parseInt(pt.bugs||0)} · ${escHtml(new Date(pt.date).toLocaleDateString('es-ES'))}"></div>`;
+            const maxB = Math.max(...ds.data.map(x => x.bugs||0), 1);
+            const h    = Math.max(((pt.bugs||0)/maxB)*100, 4);
+            const ptF  = pt.fecha || pt.date || '';
+            return `<div style="flex:1;background:${escHtml(ds.color)};opacity:0.7;height:${h}%;border-radius:2px 2px 0 0;"
+              title="Bugs: ${parseInt(pt.bugs||0)} · ${escHtml(ptF ? new Date(ptF).toLocaleDateString('es-ES') : '')}"></div>`;
           }).join('')}
         </div>
         <div style="font-size:0.65rem;color:var(--gray-300);margin-top:0.2rem;">${ds.data.length} análisis</div>
       </div>`;
     });
     html += '</div>';
-    chart.innerHTML = html; // NOSONAR — datos propios de localStorage
+    chart.innerHTML = html; // NOSONAR — datos de BD via Flask
   }
 
   function _ratingColor(r) {
     return { A:'var(--success)', B:'#8bc34a', C:'var(--warning)', D:'var(--danger)', E:'#c0392b' }[r] || 'var(--gray-400)';
   }
 
-  // Comparativa multi-proyecto desde SonarCloud (proxy Flask)
+  // Comparativa multi-proyecto — usa historial de BD para calcular Δ
   async function loadComparativa() {
     const loading = document.getElementById('comparativaLoading');
     const table   = document.getElementById('comparativaTable');
@@ -1607,7 +1711,7 @@ sonar</code></pre>
     if (table) table.style.display = 'none';
     if (empty) empty.style.display = 'none';
 
-    const all = _loadAllHistory();
+    const allHistory = await _loadAllHistory();
     const results = [];
 
     for (const p of SONAR_CONFIG.projects) {
@@ -1618,9 +1722,11 @@ sonar</code></pre>
         );
         if (!res.ok) { results.push({ key: p.key, name: p.name, ok: false }); continue; }
         const d = await res.json();
-        // Calcular delta vs último registro en historial
-        const prev = all.filter(h => (h.project||'') === p.key).sort((a,b)=>new Date(a.date)-new Date(b.date));
-        const lastPrev = prev[prev.length - 1];
+        // Δ Bugs vs. último registro en BD
+        const prevEntries = allHistory
+          .filter(h => (h.project_key || h.project || '') === p.key)
+          .sort((a,b) => new Date(a.fecha||a.date) - new Date(b.fecha||b.date));
+        const lastPrev = prevEntries[prevEntries.length - 1];
         const delta = lastPrev ? (d.bugs - (lastPrev.bugs||0)) : null;
         results.push({ ...d, name: p.name, delta });
       } catch (_) {
@@ -1634,7 +1740,7 @@ sonar</code></pre>
     if (!anyOk) {
       if (empty) {
         empty.style.display = 'block';
-        empty.innerHTML = '<p>⚠️ No se puede conectar al servidor Flask. Asegúrate de que está corriendo en :5001.</p>';
+        empty.innerHTML = '<p>⚠️ No se puede conectar al servidor Flask en :5001.</p>';
       }
       return;
     }
@@ -1644,10 +1750,13 @@ sonar</code></pre>
       if (r.ok === false) {
         return `<tr><td><strong>${escHtml(r.name)}</strong></td><td colspan="9" style="color:var(--gray-400);font-style:italic;">Sin datos</td></tr>`;
       }
-      const deltaHtml = r.delta === null ? '<span style="color:var(--gray-300)">—</span>'
-        : r.delta < 0 ? `<span style="color:var(--success);font-weight:700;">↓${Math.abs(r.delta)}</span>`
-        : r.delta > 0 ? `<span style="color:var(--danger);font-weight:700;">↑${r.delta}</span>`
-        : `<span style="color:var(--gray-400);">=</span>`;
+      const deltaHtml = r.delta === null
+        ? '<span style="color:var(--gray-300)">—</span>'
+        : r.delta < 0
+          ? `<span style="color:var(--success);font-weight:700;">↓${Math.abs(r.delta)}</span>`
+          : r.delta > 0
+            ? `<span style="color:var(--danger);font-weight:700;">↑${r.delta}</span>`
+            : `<span style="color:var(--gray-400);">=</span>`;
       const qgColor = r.qg === 'OK' ? 'var(--success)' : r.qg === 'ERROR' ? 'var(--danger)' : 'var(--gray-400)';
       const qgLabel = r.qg === 'OK' ? 'PASSED' : r.qg === 'ERROR' ? 'FAILED' : r.qg || '—';
       return `<tr>
@@ -1661,8 +1770,11 @@ sonar</code></pre>
         <td style="font-weight:700;color:${_ratingColor(r.rel_rating)}">${escHtml(r.rel_rating||'-')}</td>
         <td style="font-weight:700;color:${qgColor}">${escHtml(qgLabel)}</td>
         <td>
-          <a href="${escHtml(SONAR_CONFIG.sonarUrl)}/dashboard?id=${escHtml(r.project_key||'')}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline" style="font-size:0.75rem;">↗</a>
-          <button class="btn btn-sm btn-accent" style="font-size:0.75rem;margin-left:0.25rem;" onclick="registrarDesdeComparativa('${escHtml(r.project_key||'')}')">💾</button>
+          <a href="${escHtml(SONAR_CONFIG.sonarUrl)}/dashboard?id=${escHtml(r.project_key||'')}"
+             target="_blank" rel="noopener noreferrer"
+             class="btn btn-sm btn-outline" style="font-size:0.75rem;">↗</a>
+          <button class="btn btn-sm btn-accent" style="font-size:0.75rem;margin-left:0.25rem;"
+            onclick="registrarDesdeComparativa('${escHtml(r.project_key||'')}')">💾</button>
         </td>
       </tr>`;
     }).join(''); // NOSONAR
@@ -1677,17 +1789,14 @@ sonar</code></pre>
       if (!res.ok) throw new Error('HTTP ' + res.status);
       const d = await res.json();
       if (!d.ok) throw new Error(d.error || 'Error');
-      const entry = {
-        date: new Date().toISOString(),
-        project: projectKey,
-        qg: d.qg === 'OK' ? 'PASSED' : d.qg === 'ERROR' ? 'FAILED' : 'NONE',
+      await _postHistory({
+        project_key: projectKey,
+        fecha:       new Date().toISOString(),
+        qg:          d.qg === 'OK' ? 'PASSED' : d.qg === 'ERROR' ? 'FAILED' : 'NONE',
         bugs: d.bugs, vulns: d.vulns, smells: d.smells, lines: d.lines,
-        sec_rating: d.sec_rating, rel_rating: d.rel_rating,
-      };
-      const all = _loadAllHistory();
-      all.push(entry);
-      _saveAllHistory(all);
-      showToast('✅ Análisis registrado en el historial', 'success');
+        sec_rating: d.sec_rating, rel_rating: d.rel_rating, mnt_rating: d.mnt_rating || '-',
+      });
+      showToast('✅ Análisis registrado en la base de datos', 'success');
       renderHistory();
     } catch (e) {
       showToast('Error al registrar: ' + e.message, 'error');
@@ -1740,33 +1849,42 @@ sonar</code></pre>
     }
   }
 
-  function saveLog() {
-    const entry = {
-      date:       new Date().toISOString(),
-      project:    document.getElementById('logProject').value || currentProject.key,
-      qg:         document.getElementById('logQG').value,
-      bugs:       parseInt(document.getElementById('logBugs').value)   || 0,
-      vulns:      parseInt(document.getElementById('logVulns').value)  || 0,
-      smells:     parseInt(document.getElementById('logSmells').value) || 0,
-      lines:      parseInt(document.getElementById('logLines').value)  || 0,
-      sec_rating: document.getElementById('logSecRating').value,
-      rel_rating: document.getElementById('logRelRating').value,
-    };
-    const all = _loadAllHistory();
-    all.push(entry);
-    _saveAllHistory(all);
-    closeLogModal();
-    renderHistory();
-    showToast('Análisis registrado', 'success');
+  async function saveLog() {
+    const btn = document.querySelector('#logModal .btn-primary');
+    if (btn) { btn.disabled = true; btn.textContent = '⏳ Guardando...'; }
+    try {
+      await _postHistory({
+        project_key: document.getElementById('logProject').value || currentProject.key,
+        fecha:       new Date().toISOString(),
+        qg:          document.getElementById('logQG').value,
+        bugs:        parseInt(document.getElementById('logBugs').value)   || 0,
+        vulns:       parseInt(document.getElementById('logVulns').value)  || 0,
+        smells:      parseInt(document.getElementById('logSmells').value) || 0,
+        lines:       parseInt(document.getElementById('logLines').value)  || 0,
+        sec_rating:  document.getElementById('logSecRating').value || '-',
+        rel_rating:  document.getElementById('logRelRating').value || '-',
+        mnt_rating:  '-',
+      });
+      closeLogModal();
+      renderHistory();
+      showToast('✅ Análisis guardado en la base de datos', 'success');
+    } catch (e) {
+      showToast('Error al guardar: ' + e.message, 'error');
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = 'Guardar'; }
+    }
   }
 
-  function deleteLog(date) {
-    if (!confirm('¿Eliminar este registro?')) return;
-    const all = _loadAllHistory().filter(d => d.date !== date);
-    _saveAllHistory(all);
-    renderHistory();
-    renderEvolution();
-    showToast('Registro eliminado', 'info');
+  async function deleteLog(id) {
+    if (!confirm('¿Eliminar este registro de la base de datos?')) return;
+    try {
+      await _deleteHistoryEntry(id);
+      renderHistory();
+      renderEvolution();
+      showToast('Registro eliminado', 'info');
+    } catch (e) {
+      showToast('Error al eliminar: ' + e.message, 'error');
+    }
   }
 
   // ============================================================
@@ -1978,17 +2096,14 @@ sonar</code></pre>
       );
       const d = await res.json();
       if (!d.ok) throw new Error(d.error || 'Error');
-      const entry = {
-        date:       new Date().toISOString(),
-        project:    projectKey,
-        qg:         d.qg === 'OK' ? 'PASSED' : d.qg === 'ERROR' ? 'FAILED' : 'NONE',
-        bugs:       d.bugs, vulns: d.vulns, smells: d.smells, lines: d.lines,
-        sec_rating: d.sec_rating, rel_rating: d.rel_rating,
-      };
-      const all = _loadAllHistory();
-      all.push(entry);
-      _saveAllHistory(all);
-      showToast('✅ Guardado en historial', 'success');
+      await _postHistory({
+        project_key: projectKey,
+        fecha:       new Date().toISOString(),
+        qg:          d.qg === 'OK' ? 'PASSED' : d.qg === 'ERROR' ? 'FAILED' : 'NONE',
+        bugs: d.bugs, vulns: d.vulns, smells: d.smells, lines: d.lines,
+        sec_rating: d.sec_rating, rel_rating: d.rel_rating, mnt_rating: d.mnt_rating || '-',
+      });
+      showToast('✅ Guardado en la base de datos', 'success');
     } catch (e) {
       showToast('Error: ' + e.message, 'error');
     }
