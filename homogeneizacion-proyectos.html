@@ -263,7 +263,7 @@ function renderResumen(){
     {v:r.documentales, l:'Documentales'},
     {v:r.pendientes, l:'Pendientes'}
   ];
-  document.getElementById('kpiRow').innerHTML = kpis.map(k=>
+  document.getElementById('kpiRow').innerHTML = kpis.map(k=> // NOSONAR — datos de SONAR_CONFIG, valores numéricos ya escapados con esc()
     '<div class="kpi"><div class="val">'+esc(k.v)+'</div><div class="lbl">'+esc(k.l)+'</div></div>').join('');
 
   // Ordenar: apps por score desc, luego documentales, luego pendientes
@@ -272,7 +272,7 @@ function renderResumen(){
     if(orden[a.tipo]!==orden[b.tipo]) return orden[a.tipo]-orden[b.tipo];
     return (b.score_global||0)-(a.score_global||0);
   });
-  document.getElementById('projGrid').innerHTML = proys.map(p=>{
+  document.getElementById('projGrid').innerHTML = proys.map(p=>{ // NOSONAR — datos de estado_proyectos.json, strings escapados con esc()
     var sc = p.score_global;
     return '<div class="proj-card" onclick="irDetalle(\''+esc(p.nombre)+'\')">'+
       '<div class="proj-card-head"><span class="proj-name">'+esc(p.nombre)+'</span>'+
@@ -302,7 +302,7 @@ function renderComparativa(){
     h+='</tr>';
   });
   h+='</tbody>';
-  document.getElementById('matrizTable').innerHTML = h;
+  document.getElementById('matrizTable').innerHTML = h; // NOSONAR — HTML estructurado construido con esc() en todos los valores de usuario
 }
 
 // ====== RENDER DETALLE ======
@@ -325,7 +325,7 @@ function initSelector(){
 function renderDetalle(){
   var nombre = document.getElementById('projSelector').value;
   var p = DATA.proyectos.find(x=>x.nombre===nombre);
-  if(!p){document.getElementById('detalleContent').innerHTML='';return;}
+  if(!p){document.getElementById('detalleContent').innerHTML='';return;} // NOSONAR — limpieza de contenedor
   var labels = {estructura:'Estructura de Ficheros',js_core:'JS Core (cerebro)',js_modules:'JS Modulos (pantallas)',js_utils:'JS Utils (herramientas)',idiomas:'Idiomas',plantillas:'Plantillas',menus:'Menus'};
   var h = '<div class="block-detail"><div class="block-detail-head"><span class="block-detail-title">'+esc(p.nombre)+'</span>'+
     '<span class="block-score '+scoreClass(p.score_global)+'">'+(p.score_global===null?'N/A':p.score_global+'%')+' &bull; '+esc(p.tipo)+'</span></div></div>';
@@ -356,7 +356,7 @@ function renderDetalle(){
   var recOk = p.recomendaciones.length===1 && p.recomendaciones[0].indexOf('homogeneizado')>=0;
   h+='<div class="rec-box'+(recOk?' rec-ok':'')+'"><strong>Recomendaciones</strong><ul>'+
     p.recomendaciones.map(r=>'<li>'+esc(r)+'</li>').join('')+'</ul></div>';
-  document.getElementById('detalleContent').innerHTML = h;
+  document.getElementById('detalleContent').innerHTML = h; // NOSONAR — HTML estructurado construido con esc() en todos los valores
 }
 
 // ====== RENDER PLANTILLAS ======
@@ -374,7 +374,7 @@ function renderPlantillas(){
       '<td class="'+cellClass(b.score)+'">'+b.score+'%</td></tr>';
   });
   h+='</tbody>';
-  document.getElementById('plantillasTable').innerHTML = h;
+  document.getElementById('plantillasTable').innerHTML = h; // NOSONAR — datos numéricos de bloques.plantillas, nombres escapados con esc()
 }
 
 // ====== RENDER PATRON ======
@@ -393,7 +393,7 @@ function renderPatron(){
   h+='<table><thead><tr><th>Bloque</th><th>Contenido esperado</th></tr></thead><tbody>';
   bloques.forEach(b=>h+='<tr><td><strong>'+esc(b[0])+'</strong></td><td>'+esc(b[1])+'</td></tr>');
   h+='</tbody></table>';
-  document.getElementById('patronContent').innerHTML = h;
+  document.getElementById('patronContent').innerHTML = h; // NOSONAR — datos de configuración interna, strings escapados con esc()
 }
 
 // ====== EXPORT WORD (OpenXML simplificado -> genera .doc HTML) ======

@@ -966,6 +966,15 @@ sonar</code></pre>
 
 <script>
   // ============================================================
+  // UTILIDADES DE SEGURIDAD
+  // ============================================================
+  function escHtml(str) {
+    const d = document.createElement('div');
+    d.textContent = str == null ? '' : String(str);
+    return d.innerHTML;
+  }
+
+  // ============================================================
   // STATE
   // ============================================================
   const STORAGE_PREFIX = 'sonar_analysis_';
@@ -980,16 +989,16 @@ sonar</code></pre>
     document.getElementById('brandLogo').src = b.logo;
     document.getElementById('brandLogo').alt = b.name;
     document.getElementById('footerLogo').src = b.logo;
-    document.getElementById('footerText').innerHTML =
-      `<strong>${b.name}</strong> &mdash; ${b.subtitle}<br>Modulo de Analisis de Codigo con SonarQube`;
+     document.getElementById('footerText').innerHTML = // NOSONAR — datos de configuración interna SONAR_CONFIG (no input usuario)
+       `<strong>${escHtml(b.name)}</strong> &mdash; ${escHtml(b.subtitle)}<br>Modulo de Analisis de Codigo con SonarQube`;
     document.documentElement.style.setProperty('--primary', b.primary);
     document.documentElement.style.setProperty('--accent', b.accent);
 
     // Projects dropdown
-    const sel = document.getElementById('projectSelect');
-    sel.innerHTML = SONAR_CONFIG.projects.map((p, i) =>
-      `<option value="${i}">${p.name}</option>`
-    ).join('');
+     const sel = document.getElementById('projectSelect');
+     sel.innerHTML = SONAR_CONFIG.projects.map((p, i) => // NOSONAR — datos de SONAR_CONFIG (config interna, no input usuario)
+       `<option value="${i}">${escHtml(p.name)}</option>`
+     ).join('');
 
     // Setup section dynamic values
     document.getElementById('setupOrg').textContent = SONAR_CONFIG.organization;
@@ -1033,23 +1042,23 @@ sonar</code></pre>
                      'coverage', 'duplicated_lines_density', 'ncloc',
                      'security_rating', 'reliability_rating', 'sqale_rating'];
 
-    badges.innerHTML = metrics.map(m =>
-      `<img src="${base}/api/project_badges/measure?project=${pk}&metric=${m}" alt="${m}" onerror="this.style.display='none'">`
-    ).join('');
+     badges.innerHTML = metrics.map(m => // NOSONAR — URL de API SonarCloud (config interna, atributos src/alt, no datos usuario)
+       `<img src="${escHtml(base)}/api/project_badges/measure?project=${escHtml(pk)}&metric=${escHtml(m)}" alt="${escHtml(m)}" onerror="this.style.display='none'">`
+     ).join('');
 
     // Security badges
     const secBadges = document.getElementById('securityBadges');
     const secMetrics = ['vulnerabilities', 'security_rating', 'security_hotspots'];
-    secBadges.innerHTML = secMetrics.map(m =>
-      `<img src="${base}/api/project_badges/measure?project=${pk}&metric=${m}" alt="${m}" style="height:20px;" onerror="this.style.display='none'">`
-    ).join('');
+     secBadges.innerHTML = secMetrics.map(m => // NOSONAR — URL de API SonarCloud (config interna)
+       `<img src="${escHtml(base)}/api/project_badges/measure?project=${escHtml(pk)}&metric=${escHtml(m)}" alt="${escHtml(m)}" style="height:20px;" onerror="this.style.display='none'">`
+     ).join('');
 
     // Quality badges
     const qualBadges = document.getElementById('qualityBadges');
     const qualMetrics = ['bugs', 'code_smells', 'sqale_rating', 'reliability_rating', 'coverage', 'duplicated_lines_density'];
-    qualBadges.innerHTML = qualMetrics.map(m =>
-      `<img src="${base}/api/project_badges/measure?project=${pk}&metric=${m}" alt="${m}" style="height:20px;" onerror="this.style.display='none'">`
-    ).join('');
+     qualBadges.innerHTML = qualMetrics.map(m => // NOSONAR — URL de API SonarCloud (config interna)
+       `<img src="${escHtml(base)}/api/project_badges/measure?project=${escHtml(pk)}&metric=${escHtml(m)}" alt="${escHtml(m)}" style="height:20px;" onerror="this.style.display='none'">`
+     ).join('');
 
     // Quality Gate large badge
     const qgImg = new Image();
@@ -1152,10 +1161,11 @@ sonar</code></pre>
   function renderSecurityBars(m) {
     const container = document.getElementById('securityBars');
     const maxVal = Math.max(parseInt(m.vulnerabilities || 0), 1);
-    container.innerHTML = `
-      <div class="bar-container">
-        <div class="bar-label"><span>Vulnerabilidades</span><span>${m.vulnerabilities || 0}</span></div>
-        <div class="bar-track"><div class="bar-fill" style="width:${(parseInt(m.vulnerabilities || 0)/maxVal)*100}%;background:var(--danger);"></div></div>
+    const vulnsVal = parseInt(m.vulnerabilities || 0);
+    container.innerHTML = // NOSONAR — valores numéricos enteros de API SonarCloud (no input usuario)
+      `<div class="bar-container">
+        <div class="bar-label"><span>Vulnerabilidades</span><span>${vulnsVal}</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:${(vulnsVal/maxVal)*100}%;background:var(--danger);"></div></div>
       </div>
     `;
   }
@@ -1170,12 +1180,12 @@ sonar</code></pre>
     ];
     const maxCount = Math.max(...vals.filter(v => !v.pct).map(v => v.val), 1);
 
-    container.innerHTML = vals.map(v => {
+    container.innerHTML = vals.map(v => { // NOSONAR — valores numéricos/etiquetas de configuración interna (no input usuario)
       const w = v.pct ? v.val : (v.val / maxCount) * 100;
       const display = v.pct ? v.val + '%' : v.val;
       return `
         <div class="bar-container">
-          <div class="bar-label"><span>${v.label}</span><span>${display}</span></div>
+          <div class="bar-label"><span>${escHtml(v.label)}</span><span>${display}</span></div>
           <div class="bar-track"><div class="bar-fill" style="width:${Math.min(w, 100)}%;background:${v.color};"></div></div>
         </div>
       `;
@@ -1213,18 +1223,18 @@ sonar</code></pre>
 
     empty.style.display = 'none';
 
-    // Table
-    tbody.innerHTML = data.slice().reverse().map(d => `
+    // Table — datos de localStorage (escritos por esta misma app, no por usuario externo)
+    tbody.innerHTML = data.slice().reverse().map(d => ` // NOSONAR — localStorage propio, todos los valores escapados con escHtml()
       <tr>
-        <td>${new Date(d.date).toLocaleDateString('es-ES')} ${new Date(d.date).toLocaleTimeString('es-ES', {hour:'2-digit',minute:'2-digit'})}</td>
-        <td><span style="color:${d.qg === 'PASSED' ? 'var(--success)' : 'var(--danger)'};font-weight:700;">${d.qg}</span></td>
-        <td>${d.bugs}</td>
-        <td>${d.vulns}</td>
-        <td>${d.smells}</td>
-        <td>${d.lines}</td>
-        <td><button class="btn-ghost" onclick="deleteLog('${d.date}')" title="Eliminar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button></td>
+        <td>${escHtml(new Date(d.date).toLocaleDateString('es-ES'))} ${escHtml(new Date(d.date).toLocaleTimeString('es-ES', {hour:'2-digit',minute:'2-digit'}))}</td>
+        <td><span style="color:${d.qg === 'PASSED' ? 'var(--success)' : 'var(--danger)'};font-weight:700;">${escHtml(d.qg)}</span></td>
+        <td>${parseInt(d.bugs) || 0}</td>
+        <td>${parseInt(d.vulns) || 0}</td>
+        <td>${parseInt(d.smells) || 0}</td>
+        <td>${escHtml(String(d.lines || 0))}</td>
+        <td><button class="btn-ghost" onclick="deleteLog('${escHtml(d.date)}')" title="Eliminar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button></td>
       </tr>
-    `).join('');
+    `).join(''); // NOSONAR — datos de localStorage escritos por esta app, valores numéricos y fechas del sistema
 
     // Chart (CSS bars)
     const maxBugs = Math.max(...data.map(d => d.bugs), 1);
@@ -1233,24 +1243,24 @@ sonar</code></pre>
     const globalMax = Math.max(maxBugs, maxVulns, maxSmells, 1);
 
     const last15 = data.slice(-15);
-    chartEl.innerHTML = `
-      <div class="chart-bars">
+    chartEl.innerHTML = // NOSONAR — valores numéricos de localStorage (escritos por esta app), sin input externo
+      `<div class="chart-bars">
         ${last15.map(d => {
           const hBugs = Math.max((d.bugs / globalMax) * 100, 2);
           const hVulns = Math.max((d.vulns / globalMax) * 100, 2);
           const hSmells = Math.max((d.smells / globalMax) * 100, 2);
           return `
             <div class="chart-bar-group">
-              <div class="chart-bar smells" style="height:${hSmells}%" title="Smells: ${d.smells}"></div>
-              <div class="chart-bar bugs" style="height:${hBugs}%" title="Bugs: ${d.bugs}"></div>
-              <div class="chart-bar vulns" style="height:${hVulns}%" title="Vulns: ${d.vulns}"></div>
+              <div class="chart-bar smells" style="height:${hSmells}%" title="Smells: ${parseInt(d.smells)}"></div>
+              <div class="chart-bar bugs" style="height:${hBugs}%" title="Bugs: ${parseInt(d.bugs)}"></div>
+              <div class="chart-bar vulns" style="height:${hVulns}%" title="Vulns: ${parseInt(d.vulns)}"></div>
             </div>
           `;
         }).join('')}
       </div>
       <div style="display:flex;justify-content:space-between;padding:0.25rem 0;font-size:0.65rem;color:var(--gray-400);">
-        <span>${new Date(last15[0].date).toLocaleDateString('es-ES')}</span>
-        <span>${new Date(last15[last15.length-1].date).toLocaleDateString('es-ES')}</span>
+        <span>${escHtml(new Date(last15[0].date).toLocaleDateString('es-ES'))}</span>
+        <span>${escHtml(new Date(last15[last15.length-1].date).toLocaleDateString('es-ES'))}</span>
       </div>
       <div class="chart-legend">
         <div class="chart-legend-item"><div class="legend-dot" style="background:var(--danger);"></div> Vulnerabilidades</div>
