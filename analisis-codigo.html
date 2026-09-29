@@ -639,22 +639,25 @@
     // --- SonarCloud ---
     organization: 'Jfajeda',
     sonarUrl: 'https://sonarcloud.io',
-    // Token: dejar vacio para modo badges publicos.
-    // Para API privada, establecer el token aqui o usar un proxy.
-    // AVISO: NO exponer tokens en codigo publico.
+    // Token: NUNCA poner aquí — el token vive en $SONAR_TOKEN del servidor Flask.
+    // El panel obtiene las métricas via /api/scanner/metrics/<key> (proxy seguro).
     token: '',
 
-    // --- Proyectos (anadir tantos como necesites) ---
+    // --- URL base del servidor Flask (para llamadas proxy seguras) ---
+    flaskBase: `http://${window.location.hostname}:5001`,
+
+    // --- Proyectos analizados en SonarCloud ---
     projects: [
-      {
-        key: 'Jfajeda_PLATAFORMA_OpenCode',
-        name: 'Plataforma OpenCode',
-      },
-      // Ejemplo: anadir mas proyectos descomentando:
-      // { key: 'jfajeda_otro-proyecto', name: 'Otro Proyecto' },
+      { key: 'Jfajeda_PLATAFORMA_OpenCode',      name: 'Plataforma OpenCode'       },
+      { key: 'Jfajeda_Planificacion-Diaria',      name: 'Planificacion Diaria'      },
+      { key: 'Jfajeda_Gestion-Riesgos-ENS',       name: 'Gestion Riesgos ENS'       },
+      { key: 'Jfajeda_OSSINT',                    name: 'OSSINT'                    },
+      { key: 'Jfajeda_Seguimiento-licitaciones',  name: 'Seguimiento Licitaciones'  },
+      { key: 'Jfajeda_legislacion-monitor',       name: 'Legislacion Monitor'       },
+      { key: 'Jfajeda_Plataforma_Seguimiento',    name: 'Plataforma Seguimiento PSP'},
     ],
 
-    // --- Branding (configurable para exportar) ---
+    // --- Branding ---
     brand: {
       name: 'CODANOR',
       subtitle: 'Jafa, S.L. - Barcelona, Catalunya',
@@ -706,6 +709,10 @@
   <div class="tab" data-tab="history" onclick="showTab('history')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
     Historial
+  </div>
+  <div class="tab" data-tab="scanner" onclick="showTab('scanner')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+    Scanner
   </div>
   <div class="tab" data-tab="setup" onclick="showTab('setup')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
@@ -791,37 +798,200 @@
     </div>
   </div>
 
-  <!-- PAGE: HISTORY -->
+  <!-- PAGE: HISTORY — Capa 3: multi-proyecto, comparativa, evolución -->
   <div class="page" id="page-history">
-    <div class="panel">
-      <div class="panel-header">
-        <span class="panel-title">Historial de Analisis</span>
-        <button class="btn btn-sm btn-primary" onclick="openLogModal()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          Registrar analisis
-        </button>
-      </div>
-      <div class="panel-body">
-        <div id="historyChart"></div>
-        <table>
-          <thead>
-            <tr>
-              <th>Fecha</th>
-              <th>Quality Gate</th>
-              <th>Bugs</th>
-              <th>Vulns</th>
-              <th>Smells</th>
-              <th>Lineas</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="historyBody"></tbody>
-        </table>
-        <div id="historyEmpty" style="text-align:center;padding:2rem;color:var(--gray-400);display:none;">
-          <p>Sin analisis registrados. Ejecuta <code>npx @sonar/scan</code> y registra los resultados.</p>
+
+    <!-- Sub-tabs historial -->
+    <div style="display:flex;gap:0.5rem;margin-bottom:1rem;flex-wrap:wrap;">
+      <button class="btn btn-sm btn-primary"   id="htab-evolution" onclick="switchHTab('evolution')">📈 Evolución</button>
+      <button class="btn btn-sm btn-outline"    id="htab-byproject" onclick="switchHTab('byproject')">📋 Por proyecto</button>
+      <button class="btn btn-sm btn-outline"    id="htab-compare"  onclick="switchHTab('compare')">⚖️ Comparativa</button>
+      <button class="btn btn-sm btn-accent" style="margin-left:auto;" onclick="openLogModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Registrar análisis
+      </button>
+    </div>
+
+    <!-- Sub-tab: Evolución -->
+    <div id="hpage-evolution">
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Evolución temporal — Bugs y Vulnerabilidades</span>
+          <div style="display:flex;gap:0.5rem;align-items:center;">
+            <label style="font-size:0.8rem;color:var(--gray-500);">Proyecto:</label>
+            <select id="evolutionFilter" onchange="renderEvolution()"
+              style="font-size:0.8rem;padding:0.3rem 0.6rem;border:1px solid var(--gray-300);border-radius:6px;">
+              <option value="all">Todos</option>
+            </select>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div id="evolutionChart" style="min-height:140px;"></div>
+          <div id="evolutionEmpty" style="text-align:center;padding:2rem;color:var(--gray-400);">
+            <p>Sin datos de evolución. Registra al menos 2 análisis del mismo proyecto.</p>
+          </div>
         </div>
       </div>
     </div>
+
+    <!-- Sub-tab: Por proyecto -->
+    <div id="hpage-byproject" style="display:none;">
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Historial por proyecto</span>
+          <select id="historyProjectFilter" onchange="renderHistory()"
+            style="font-size:0.8rem;padding:0.3rem 0.6rem;border:1px solid var(--gray-300);border-radius:6px;">
+            <option value="all">Todos los proyectos</option>
+          </select>
+        </div>
+        <div class="panel-body">
+          <div id="historyChart"></div>
+          <table>
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Proyecto</th>
+                <th>Quality Gate</th>
+                <th>Bugs</th>
+                <th>Vulns</th>
+                <th>Smells</th>
+                <th>Líneas</th>
+                <th>Seg</th>
+                <th>Fib</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="historyBody"></tbody>
+          </table>
+          <div id="historyEmpty" style="text-align:center;padding:2rem;color:var(--gray-400);display:none;">
+            <p>Sin análisis registrados. Usa el Scanner o registra manualmente.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sub-tab: Comparativa -->
+    <div id="hpage-compare" style="display:none;">
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Comparativa — Estado actual por proyecto</span>
+          <button class="btn btn-sm btn-primary" onclick="loadComparativa()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+            Actualizar desde SonarCloud
+          </button>
+        </div>
+        <div class="panel-body">
+          <div id="comparativaLoading" style="display:none;text-align:center;padding:1.5rem;color:var(--gray-400);">
+            <p>⏳ Cargando métricas desde SonarCloud...</p>
+          </div>
+          <table id="comparativaTable" style="display:none;">
+            <thead>
+              <tr>
+                <th>Proyecto</th>
+                <th>Bugs</th>
+                <th>Δ Bugs</th>
+                <th>Vulns</th>
+                <th>Smells</th>
+                <th>Líneas</th>
+                <th>Seg</th>
+                <th>Fib</th>
+                <th>QG</th>
+                <th>Acción</th>
+              </tr>
+            </thead>
+            <tbody id="comparativaBody"></tbody>
+          </table>
+          <div id="comparativaEmpty" style="text-align:center;padding:2rem;color:var(--gray-400);">
+            <p>Haz clic en "Actualizar desde SonarCloud" para cargar el estado actual de todos los proyectos.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- PAGE: SCANNER — Capa 2: lanzar análisis desde el panel -->
+  <div class="page" id="page-scanner">
+
+    <!-- Estado del token -->
+    <div class="panel" id="tokenStatusPanel">
+      <div class="panel-header"><span class="panel-title">Estado del sistema</span></div>
+      <div class="panel-body">
+        <div id="tokenStatus" style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem;border-radius:8px;background:var(--gray-100);">
+          <span id="tokenDot" style="width:10px;height:10px;border-radius:50%;background:var(--gray-300);flex-shrink:0;"></span>
+          <span id="tokenMsg" style="font-size:0.9rem;color:var(--gray-500);">Comprobando token...</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Selección de proyectos -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Seleccionar proyectos a analizar</span>
+        <div style="display:flex;gap:0.5rem;">
+          <button class="btn btn-sm btn-outline" onclick="selectAllProjects(true)">Seleccionar todos</button>
+          <button class="btn btn-sm btn-outline" onclick="selectAllProjects(false)">Ninguno</button>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div id="projectCheckboxes" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:0.75rem;"></div>
+        <div style="margin-top:1.25rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+          <button class="btn btn-primary" id="btnLanzar" onclick="lanzarScanner()" disabled>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Lanzar Scanner
+          </button>
+          <button class="btn btn-outline" id="btnCancelar" style="display:none;" onclick="cancelarScanner()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+            Detener
+          </button>
+          <span id="scannerResumen" style="font-size:0.85rem;color:var(--gray-500);"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel de progreso (oculto hasta lanzar) -->
+    <div class="panel" id="scannerProgressPanel" style="display:none;">
+      <div class="panel-header">
+        <span class="panel-title">Progreso del análisis</span>
+        <span id="scannerPct" style="font-weight:700;color:var(--primary);">0%</span>
+      </div>
+      <div class="panel-body">
+        <!-- Barra de progreso -->
+        <div style="background:var(--gray-200);border-radius:8px;height:10px;margin-bottom:1rem;overflow:hidden;">
+          <div id="scannerBar" style="height:100%;width:0%;background:var(--primary);border-radius:8px;transition:width 0.5s ease;"></div>
+        </div>
+        <div id="scannerCurrentProject" style="font-size:0.85rem;color:var(--gray-500);margin-bottom:0.75rem;"></div>
+        <!-- Log terminal -->
+        <div id="scannerLog" style="
+          background:#1a1a2e;color:#a8d8ea;font-family:monospace;font-size:0.78rem;
+          padding:1rem;border-radius:8px;height:220px;overflow-y:auto;
+          line-height:1.5;white-space:pre-wrap;word-break:break-all;"></div>
+      </div>
+    </div>
+
+    <!-- Resultados (oculto hasta terminar) -->
+    <div class="panel" id="scannerResultsPanel" style="display:none;">
+      <div class="panel-header"><span class="panel-title">Resultados del análisis</span></div>
+      <div class="panel-body">
+        <table>
+          <thead>
+            <tr>
+              <th>Proyecto</th>
+              <th>Estado</th>
+              <th>Bugs</th>
+              <th>Vulns</th>
+              <th>Smells</th>
+              <th>Líneas</th>
+              <th>Seg</th>
+              <th>Fib</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+          <tbody id="scannerResultsBody"></tbody>
+        </table>
+      </div>
+    </div>
+
   </div>
 
   <!-- PAGE: SETUP -->
@@ -921,17 +1091,22 @@ sonar</code></pre>
 <div class="modal-overlay" id="logModal">
   <div class="modal">
     <div class="modal-header">
-      <span class="modal-title">Registrar Analisis</span>
+      <span class="modal-title">Registrar Análisis</span>
       <button class="btn-ghost" onclick="closeLogModal()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
     <div class="modal-body">
       <div class="form-group">
+        <label class="form-label">Proyecto</label>
+        <select class="form-select" id="logProject"></select>
+      </div>
+      <div class="form-group">
         <label class="form-label">Quality Gate</label>
         <select class="form-select" id="logQG">
           <option value="PASSED">PASSED</option>
           <option value="FAILED">FAILED</option>
+          <option value="NONE">Sin datos</option>
         </select>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
@@ -950,12 +1125,43 @@ sonar</code></pre>
           <input type="number" class="form-input" id="logSmells" value="0" min="0">
         </div>
         <div class="form-group">
-          <label class="form-label">Lineas de codigo</label>
+          <label class="form-label">Líneas de código</label>
           <input type="number" class="form-input" id="logLines" value="0" min="0">
         </div>
       </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div class="form-group">
+          <label class="form-label">Rating Seguridad</label>
+          <select class="form-select" id="logSecRating">
+            <option value="-">-</option>
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+            <option value="D">D</option>
+            <option value="E">E</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Rating Fiabilidad</label>
+          <select class="form-select" id="logRelRating">
+            <option value="-">-</option>
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+            <option value="D">D</option>
+            <option value="E">E</option>
+          </select>
+        </div>
+      </div>
+      <div id="logAutoFillMsg" style="display:none;font-size:0.82rem;color:var(--success);margin-top:0.5rem;">
+        ✓ Datos auto-rellenados desde SonarCloud
+      </div>
     </div>
     <div class="modal-footer">
+      <button class="btn btn-outline" id="btnAutoFill" onclick="autoFillFromSonar()" style="margin-right:auto;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+        Auto-rellenar desde SonarCloud
+      </button>
       <button class="btn btn-outline" onclick="closeLogModal()" style="color:var(--gray-700);">Cancelar</button>
       <button class="btn btn-primary" onclick="saveLog()">Guardar</button>
     </div>
@@ -977,44 +1183,67 @@ sonar</code></pre>
   // ============================================================
   // STATE
   // ============================================================
-  const STORAGE_PREFIX = 'sonar_analysis_';
-  let currentProject = SONAR_CONFIG.projects[0];
+  const STORAGE_KEY_ALL = 'sonar_history_v2';   // Capa 3: historial unificado multi-proyecto
+  const STORAGE_PREFIX  = 'sonar_analysis_';     // Legacy (migración automática)
+  let currentProject    = SONAR_CONFIG.projects[0];
+  let _scannerJobId     = null;
+  let _scannerInterval  = null;
 
   // ============================================================
   // INIT
   // ============================================================
   function init() {
-    // Branding
     const b = SONAR_CONFIG.brand;
     document.getElementById('brandLogo').src = b.logo;
     document.getElementById('brandLogo').alt = b.name;
     document.getElementById('footerLogo').src = b.logo;
-     document.getElementById('footerText').innerHTML = // NOSONAR — datos de configuración interna SONAR_CONFIG (no input usuario)
-       `<strong>${escHtml(b.name)}</strong> &mdash; ${escHtml(b.subtitle)}<br>Modulo de Analisis de Codigo con SonarQube`;
+    document.getElementById('footerText').innerHTML = // NOSONAR — datos de SONAR_CONFIG (config interna, no input usuario)
+      `<strong>${escHtml(b.name)}</strong> &mdash; ${escHtml(b.subtitle)}<br>Modulo de Analisis de Codigo con SonarQube`;
     document.documentElement.style.setProperty('--primary', b.primary);
     document.documentElement.style.setProperty('--accent', b.accent);
 
-    // Projects dropdown
-     const sel = document.getElementById('projectSelect');
-     sel.innerHTML = SONAR_CONFIG.projects.map((p, i) => // NOSONAR — datos de SONAR_CONFIG (config interna, no input usuario)
-       `<option value="${i}">${escHtml(p.name)}</option>`
-     ).join('');
+    // Dropdown de proyectos (cabecera)
+    const sel = document.getElementById('projectSelect');
+    sel.innerHTML = SONAR_CONFIG.projects.map((p, i) => // NOSONAR — datos de SONAR_CONFIG
+      `<option value="${i}">${escHtml(p.name)}</option>`
+    ).join('');
 
-    // Setup section dynamic values
+    // Selector de proyecto en modal
+    const logProj = document.getElementById('logProject');
+    logProj.innerHTML = SONAR_CONFIG.projects.map(p =>
+      `<option value="${escHtml(p.key)}">${escHtml(p.name)}</option>`
+    ).join('');
+
+    // Filtros historial
+    const hFilter = document.getElementById('historyProjectFilter');
+    const eFilter = document.getElementById('evolutionFilter');
+    if (hFilter) {
+      const opts = SONAR_CONFIG.projects.map(p =>
+        `<option value="${escHtml(p.key)}">${escHtml(p.name)}</option>`
+      ).join('');
+      hFilter.innerHTML = '<option value="all">Todos los proyectos</option>' + opts;
+      eFilter.innerHTML = '<option value="all">Todos</option>' + opts;
+    }
+
+    // Setup section
     document.getElementById('setupOrg').textContent = SONAR_CONFIG.organization;
 
+    _migrateOldHistory();
     switchProject(0);
+
+    // Capa 2: iniciar scanner tab
+    initScannerTab();
   }
 
   function switchProject(idx) {
-    currentProject = SONAR_CONFIG.projects[idx];
+    currentProject = SONAR_CONFIG.projects[parseInt(idx)];
     const url = `${SONAR_CONFIG.sonarUrl}/dashboard?id=${currentProject.key}`;
     document.getElementById('dashboardLink').href = url;
-
-    // Update setup properties
     document.getElementById('setupProperties').textContent =
       `sonar.projectKey=${currentProject.key}\nsonar.organization=${SONAR_CONFIG.organization}\nsonar.projectName=${currentProject.name}\nsonar.sources=.\nsonar.sourceEncoding=UTF-8\nsonar.exclusions=**/node_modules/**,**/dist/**,**/.git/**\nsonar.qualitygate.wait=true`;
-
+    // Actualizar modal proyecto
+    const lp = document.getElementById('logProject');
+    if (lp) lp.value = currentProject.key;
     refreshData();
     renderHistory();
   }
@@ -1027,44 +1256,40 @@ sonar</code></pre>
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     document.getElementById('page-' + tabId).classList.add('active');
     document.querySelector(`.tab[data-tab="${tabId}"]`).classList.add('active');
+    if (tabId === 'history') { renderHistory(); renderEvolution(); }
+    if (tabId === 'scanner') { checkTokenStatus(); }
   }
 
   // ============================================================
-  // DATA: Badges (no auth needed for public projects)
+  // DATA: Badges (sin token, proyectos públicos)
   // ============================================================
   function refreshData() {
-    const pk = currentProject.key;
+    const pk   = currentProject.key;
     const base = SONAR_CONFIG.sonarUrl;
 
-    // Quality Gate badges
     const badges = document.getElementById('qgBadges');
-    const metrics = ['alert_status', 'bugs', 'vulnerabilities', 'code_smells',
-                     'coverage', 'duplicated_lines_density', 'ncloc',
-                     'security_rating', 'reliability_rating', 'sqale_rating'];
+    const metrics = ['alert_status','bugs','vulnerabilities','code_smells',
+                     'coverage','duplicated_lines_density','ncloc',
+                     'security_rating','reliability_rating','sqale_rating'];
+    badges.innerHTML = metrics.map(m => // NOSONAR — URL de API SonarCloud (config interna)
+      `<img src="${escHtml(base)}/api/project_badges/measure?project=${escHtml(pk)}&metric=${escHtml(m)}" alt="${escHtml(m)}" onerror="this.style.display='none'">`
+    ).join('');
 
-     badges.innerHTML = metrics.map(m => // NOSONAR — URL de API SonarCloud (config interna, atributos src/alt, no datos usuario)
-       `<img src="${escHtml(base)}/api/project_badges/measure?project=${escHtml(pk)}&metric=${escHtml(m)}" alt="${escHtml(m)}" onerror="this.style.display='none'">`
-     ).join('');
+    const secBadges  = document.getElementById('securityBadges');
+    const secMetrics = ['vulnerabilities','security_rating','security_hotspots'];
+    secBadges.innerHTML = secMetrics.map(m => // NOSONAR
+      `<img src="${escHtml(base)}/api/project_badges/measure?project=${escHtml(pk)}&metric=${escHtml(m)}" alt="${escHtml(m)}" style="height:20px;" onerror="this.style.display='none'">`
+    ).join('');
 
-    // Security badges
-    const secBadges = document.getElementById('securityBadges');
-    const secMetrics = ['vulnerabilities', 'security_rating', 'security_hotspots'];
-     secBadges.innerHTML = secMetrics.map(m => // NOSONAR — URL de API SonarCloud (config interna)
-       `<img src="${escHtml(base)}/api/project_badges/measure?project=${escHtml(pk)}&metric=${escHtml(m)}" alt="${escHtml(m)}" style="height:20px;" onerror="this.style.display='none'">`
-     ).join('');
+    const qualBadges  = document.getElementById('qualityBadges');
+    const qualMetrics = ['bugs','code_smells','sqale_rating','reliability_rating','coverage','duplicated_lines_density'];
+    qualBadges.innerHTML = qualMetrics.map(m => // NOSONAR
+      `<img src="${escHtml(base)}/api/project_badges/measure?project=${escHtml(pk)}&metric=${escHtml(m)}" alt="${escHtml(m)}" style="height:20px;" onerror="this.style.display='none'">`
+    ).join('');
 
-    // Quality badges
-    const qualBadges = document.getElementById('qualityBadges');
-    const qualMetrics = ['bugs', 'code_smells', 'sqale_rating', 'reliability_rating', 'coverage', 'duplicated_lines_density'];
-     qualBadges.innerHTML = qualMetrics.map(m => // NOSONAR — URL de API SonarCloud (config interna)
-       `<img src="${escHtml(base)}/api/project_badges/measure?project=${escHtml(pk)}&metric=${escHtml(m)}" alt="${escHtml(m)}" style="height:20px;" onerror="this.style.display='none'">`
-     ).join('');
-
-    // Quality Gate large badge
     const qgImg = new Image();
     qgImg.src = `${base}/api/project_badges/quality_gate?project=${pk}`;
     qgImg.onload = function() {
-      // Badge loaded = project exists in SonarCloud
       const banner = document.getElementById('qgBanner');
       banner.className = 'qg-banner passed';
       document.getElementById('qgStatus').textContent = 'Quality Gate';
@@ -1076,75 +1301,69 @@ sonar</code></pre>
       const banner = document.getElementById('qgBanner');
       banner.className = 'qg-banner unknown';
       document.getElementById('qgStatus').textContent = 'Sin datos';
-      document.getElementById('qgSubtitle').textContent = 'Configura tu proyecto en SonarCloud. Ve a la pestana Configuracion.';
+      document.getElementById('qgSubtitle').textContent = 'Configura tu proyecto en SonarCloud.';
       document.getElementById('qgLink').style.display = 'none';
     };
 
-    // If token available, try API
-    if (SONAR_CONFIG.token) {
-      fetchAPIMetrics();
-    }
-
+    // Intentar via proxy Flask (token en servidor, seguro)
+    fetchAPIMetricsProxy(pk);
     showToast('Datos actualizados', 'info');
   }
 
   // ============================================================
-  // DATA: API (requires token)
+  // DATA: API via proxy Flask (token nunca sale al navegador)
   // ============================================================
-  async function fetchAPIMetrics() {
-    const pk = currentProject.key;
-    const metricsStr = 'bugs,vulnerabilities,code_smells,coverage,ncloc,duplicated_lines_density,security_rating,reliability_rating,sqale_rating,alert_status';
-
+  async function fetchAPIMetricsProxy(pk) {
     try {
       const res = await fetch(
-        `${SONAR_CONFIG.sonarUrl}/api/measures/component?component=${pk}&metricKeys=${metricsStr}`,
-        { headers: { 'Authorization': `Bearer ${SONAR_CONFIG.token}` } }
+        `${SONAR_CONFIG.flaskBase}/api/scanner/metrics/${encodeURIComponent(pk)}`,
+        { headers: { 'X-Requested-With': 'XMLHttpRequest' } }
       );
+      if (!res.ok) return;
+      const d = await res.json();
+      if (!d.ok) return;
+      applyMetricsToDom(d);
+    } catch (_) { /* servidor no disponible — modo badges */ }
+  }
 
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      const measures = {};
-      data.component.measures.forEach(m => { measures[m.metric] = m.value; });
-
-      // Update cards
-      document.getElementById('mVulns').textContent = measures.vulnerabilities || '0';
-      document.getElementById('mBugs').textContent = measures.bugs || '0';
-      document.getElementById('mSmells').textContent = measures.code_smells || '0';
-      document.getElementById('mCoverage').textContent = (measures.coverage || '0') + '%';
-      document.getElementById('mDuplications').textContent = (measures.duplicated_lines_density || '0') + '%';
-      document.getElementById('mLines').textContent = formatNumber(measures.ncloc || '0');
-
-      // Ratings
-      setRating('rSecurity', measures.security_rating);
-      setRating('rReliability', measures.reliability_rating);
-      setRating('rMaintainability', measures.sqale_rating);
-
-      // Quality Gate
-      const banner = document.getElementById('qgBanner');
-      if (measures.alert_status === 'OK') {
-        banner.className = 'qg-banner passed';
-        document.getElementById('qgStatus').textContent = 'PASSED';
-        document.getElementById('qgSubtitle').textContent = 'El codigo cumple los estandares de calidad y seguridad';
-      } else if (measures.alert_status === 'ERROR') {
-        banner.className = 'qg-banner failed';
-        document.getElementById('qgStatus').textContent = 'FAILED';
-        document.getElementById('qgSubtitle').textContent = 'El codigo NO cumple los estandares. Revisa los issues.';
-      }
-
-      document.getElementById('qgLink').style.display = 'inline-flex';
-      document.getElementById('qgLink').href = `${SONAR_CONFIG.sonarUrl}/dashboard?id=${pk}`;
-
-      // Security bars
-      renderSecurityBars(measures);
-      renderQualityBars(measures);
-
-    } catch (err) {
-      console.info('SonarCloud API no disponible:', err.message);
+  function applyMetricsToDom(d) {
+    const safeSet = (id, val) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = val;
+    };
+    safeSet('mVulns', d.vulns);
+    safeSet('mBugs',  d.bugs);
+    safeSet('mSmells', d.smells);
+    safeSet('mCoverage', (d.coverage || '0') + '%');
+    safeSet('mDuplications', (d.duplications || '0') + '%');
+    safeSet('mLines', formatNumber(d.lines));
+    setRating('rSecurity',       _ratingKey(d.sec_rating));
+    setRating('rReliability',    _ratingKey(d.rel_rating));
+    setRating('rMaintainability',_ratingKey(d.mnt_rating));
+    const banner = document.getElementById('qgBanner');
+    if (d.qg === 'OK') {
+      banner.className = 'qg-banner passed';
+      document.getElementById('qgStatus').textContent = 'PASSED';
+      document.getElementById('qgSubtitle').textContent = 'El código cumple los estándares de calidad y seguridad';
+    } else if (d.qg === 'ERROR') {
+      banner.className = 'qg-banner failed';
+      document.getElementById('qgStatus').textContent = 'FAILED';
+      document.getElementById('qgSubtitle').textContent = 'El código NO cumple los estándares. Revisa los issues.';
     }
+    document.getElementById('qgLink').style.display = 'inline-flex';
+    document.getElementById('qgLink').href = `${SONAR_CONFIG.sonarUrl}/dashboard?id=${currentProject.key}`;
+    renderSecurityBars({ vulnerabilities: d.vulns });
+    renderQualityBars({ bugs: d.bugs, code_smells: d.smells, coverage: d.coverage, duplicated_lines_density: d.duplications });
+  }
+
+  function _ratingKey(letter) {
+    const m = { 'A': '1.0', 'B': '2.0', 'C': '3.0', 'D': '4.0', 'E': '5.0' };
+    return m[letter] || '';
   }
 
   function setRating(elId, value) {
     const el = document.getElementById(elId);
+    if (!el) return;
     const ratings = { '1.0': 'A', '2.0': 'B', '3.0': 'C', '4.0': 'D', '5.0': 'E' };
     const letter = ratings[value] || '-';
     el.textContent = letter;
@@ -1155,154 +1374,641 @@ sonar</code></pre>
     const num = parseInt(n);
     if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
     if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
-    return n;
+    return String(n);
   }
 
   function renderSecurityBars(m) {
     const container = document.getElementById('securityBars');
-    const maxVal = Math.max(parseInt(m.vulnerabilities || 0), 1);
+    if (!container) return;
+    const maxVal  = Math.max(parseInt(m.vulnerabilities || 0), 1);
     const vulnsVal = parseInt(m.vulnerabilities || 0);
-    container.innerHTML = // NOSONAR — valores numéricos enteros de API SonarCloud (no input usuario)
+    container.innerHTML = // NOSONAR — valores numéricos enteros de API SonarCloud
       `<div class="bar-container">
         <div class="bar-label"><span>Vulnerabilidades</span><span>${vulnsVal}</span></div>
         <div class="bar-track"><div class="bar-fill" style="width:${(vulnsVal/maxVal)*100}%;background:var(--danger);"></div></div>
-      </div>
-    `;
+      </div>`;
   }
 
   function renderQualityBars(m) {
     const container = document.getElementById('qualityBars');
+    if (!container) return;
     const vals = [
-      { label: 'Bugs', val: parseInt(m.bugs || 0), color: 'var(--warning)' },
-      { label: 'Code Smells', val: parseInt(m.code_smells || 0), color: 'var(--primary)' },
-      { label: 'Cobertura', val: parseFloat(m.coverage || 0), color: 'var(--accent)', pct: true },
-      { label: 'Duplicaciones', val: parseFloat(m.duplicated_lines_density || 0), color: 'var(--gray-400)', pct: true },
+      { label: 'Bugs',         val: parseInt(m.bugs || 0),                       color: 'var(--warning)' },
+      { label: 'Code Smells',  val: parseInt(m.code_smells || 0),                color: 'var(--primary)' },
+      { label: 'Cobertura',    val: parseFloat(m.coverage || 0),                 color: 'var(--accent)',  pct: true },
+      { label: 'Duplicaciones',val: parseFloat(m.duplicated_lines_density || 0), color: 'var(--gray-400)',pct: true },
     ];
     const maxCount = Math.max(...vals.filter(v => !v.pct).map(v => v.val), 1);
-
-    container.innerHTML = vals.map(v => { // NOSONAR — valores numéricos/etiquetas de configuración interna (no input usuario)
-      const w = v.pct ? v.val : (v.val / maxCount) * 100;
+    container.innerHTML = vals.map(v => { // NOSONAR — valores numéricos/etiquetas de configuración interna
+      const w       = v.pct ? v.val : (v.val / maxCount) * 100;
       const display = v.pct ? v.val + '%' : v.val;
-      return `
-        <div class="bar-container">
-          <div class="bar-label"><span>${escHtml(v.label)}</span><span>${display}</span></div>
-          <div class="bar-track"><div class="bar-fill" style="width:${Math.min(w, 100)}%;background:${v.color};"></div></div>
-        </div>
-      `;
+      return `<div class="bar-container">
+        <div class="bar-label"><span>${escHtml(v.label)}</span><span>${display}</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:${Math.min(w, 100)}%;background:${v.color};"></div></div>
+      </div>`;
     }).join('');
   }
 
   // ============================================================
-  // HISTORY (localStorage)
+  // CAPA 3: HISTORIAL MULTI-PROYECTO
   // ============================================================
-  function getStorageKey() {
-    return STORAGE_PREFIX + currentProject.key;
+
+  function _migrateOldHistory() {
+    // Migra datos del formato antiguo (por proyecto) al nuevo (global)
+    const existing = _loadAllHistory();
+    if (existing.length > 0) return; // ya migrado
+    const migrated = [];
+    SONAR_CONFIG.projects.forEach(p => {
+      const old = localStorage.getItem(STORAGE_PREFIX + p.key);
+      if (old) {
+        try {
+          const entries = JSON.parse(old) || [];
+          entries.forEach(e => migrated.push({ ...e, project: p.key }));
+        } catch (_) {}
+      }
+    });
+    if (migrated.length > 0) {
+      _saveAllHistory(migrated);
+      showToast(`Migrados ${migrated.length} registros al nuevo formato`, 'info');
+    }
   }
 
-  function loadHistory() {
-    try { return JSON.parse(localStorage.getItem(getStorageKey())) || []; }
+  function _loadAllHistory() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY_ALL)) || []; }
     catch { return []; }
   }
 
+  function _saveAllHistory(data) {
+    localStorage.setItem(STORAGE_KEY_ALL, JSON.stringify(data));
+  }
+
+  function loadHistory() {
+    // Compatibilidad: carga solo del proyecto actual
+    return _loadAllHistory().filter(d => d.project === currentProject.key);
+  }
+
   function saveHistory(data) {
-    localStorage.setItem(getStorageKey(), JSON.stringify(data));
+    // Compatibilidad: guarda mezclando con el resto
+    const all     = _loadAllHistory().filter(d => d.project !== currentProject.key);
+    const updated = all.concat(data.map(d => ({ ...d, project: d.project || currentProject.key })));
+    _saveAllHistory(updated);
+  }
+
+  // Sub-tabs del historial
+  function switchHTab(tab) {
+    ['evolution','byproject','compare'].forEach(t => {
+      const el = document.getElementById('hpage-' + t);
+      const btn = document.getElementById('htab-' + t);
+      if (!el || !btn) return;
+      el.style.display   = t === tab ? '' : 'none';
+      btn.className      = t === tab ? 'btn btn-sm btn-primary' : 'btn btn-sm btn-outline';
+    });
+    if (tab === 'evolution') renderEvolution();
+    if (tab === 'byproject') renderHistory();
+    if (tab === 'compare')   loadComparativa();
   }
 
   function renderHistory() {
-    const data = loadHistory();
+    const filter  = document.getElementById('historyProjectFilter');
+    const filterVal = filter ? filter.value : 'all';
+    const all     = _loadAllHistory();
+    const data    = filterVal === 'all' ? all : all.filter(d => d.project === filterVal);
+
     const tbody = document.getElementById('historyBody');
     const empty = document.getElementById('historyEmpty');
     const chartEl = document.getElementById('historyChart');
+    if (!tbody) return;
 
     if (data.length === 0) {
       tbody.innerHTML = '';
-      empty.style.display = 'block';
+      if (empty) empty.style.display = 'block';
+      if (chartEl) chartEl.innerHTML = '';
+      return;
+    }
+    if (empty) empty.style.display = 'none';
+
+    const projName = (key) => (SONAR_CONFIG.projects.find(p => p.key === key) || {}).name || key;
+
+    tbody.innerHTML = data.slice().reverse().map(d => ` // NOSONAR — localStorage propio, valores escapados
+      <tr>
+        <td style="white-space:nowrap;">${escHtml(new Date(d.date).toLocaleDateString('es-ES'))} ${escHtml(new Date(d.date).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'}))}</td>
+        <td style="font-size:0.8rem;color:var(--gray-500);">${escHtml(projName(d.project || currentProject.key))}</td>
+        <td><span style="color:${d.qg==='PASSED'?'var(--success)':'var(--danger)'};font-weight:700;">${escHtml(d.qg||'-')}</span></td>
+        <td>${parseInt(d.bugs)||0}</td>
+        <td>${parseInt(d.vulns)||0}</td>
+        <td>${parseInt(d.smells)||0}</td>
+        <td>${escHtml(String(d.lines||0))}</td>
+        <td><span style="font-weight:700;color:${_ratingColor(d.sec_rating)}">${escHtml(d.sec_rating||'-')}</span></td>
+        <td><span style="font-weight:700;color:${_ratingColor(d.rel_rating)}">${escHtml(d.rel_rating||'-')}</span></td>
+        <td><button class="btn-ghost" onclick="deleteLog('${escHtml(d.date)}')" title="Eliminar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button></td>
+      </tr>
+    `).join(''); // NOSONAR
+
+    // Gráfico del proyecto actual
+    const projData = data.filter(d => (d.project || currentProject.key) === currentProject.key);
+    if (chartEl && projData.length > 1) {
+      const last15   = projData.slice(-15);
+      const globalMax = Math.max(...last15.map(d => Math.max(d.bugs||0, d.vulns||0, d.smells||0)), 1);
+      chartEl.innerHTML = // NOSONAR — valores numéricos de localStorage
+        `<div class="chart-bars">
+          ${last15.map(d => {
+            const hB = Math.max(((d.bugs||0)/globalMax)*100,2);
+            const hV = Math.max(((d.vulns||0)/globalMax)*100,2);
+            const hS = Math.max(((d.smells||0)/globalMax)*100,2);
+            return `<div class="chart-bar-group">
+              <div class="chart-bar smells" style="height:${hS}%" title="Smells: ${parseInt(d.smells||0)}"></div>
+              <div class="chart-bar bugs"   style="height:${hB}%" title="Bugs: ${parseInt(d.bugs||0)}"></div>
+              <div class="chart-bar vulns"  style="height:${hV}%" title="Vulns: ${parseInt(d.vulns||0)}"></div>
+            </div>`;
+          }).join('')}
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:0.25rem 0;font-size:0.65rem;color:var(--gray-400);">
+          <span>${escHtml(new Date(last15[0].date).toLocaleDateString('es-ES'))}</span>
+          <span>${escHtml(new Date(last15[last15.length-1].date).toLocaleDateString('es-ES'))}</span>
+        </div>
+        <div class="chart-legend">
+          <div class="chart-legend-item"><div class="legend-dot" style="background:var(--danger);"></div> Vulnerabilidades</div>
+          <div class="chart-legend-item"><div class="legend-dot" style="background:var(--warning);"></div> Bugs</div>
+          <div class="chart-legend-item"><div class="legend-dot" style="background:var(--primary);"></div> Code Smells</div>
+        </div>`;
+    } else if (chartEl) {
       chartEl.innerHTML = '';
+    }
+  }
+
+  function renderEvolution() {
+    const filter  = document.getElementById('evolutionFilter');
+    const filterVal = filter ? filter.value : 'all';
+    const all = _loadAllHistory();
+    const empty = document.getElementById('evolutionEmpty');
+    const chart = document.getElementById('evolutionChart');
+    if (!chart) return;
+
+    const COLORS = ['#178DC2','#e74c3c','#27ae60','#f39c12','#8e44ad','#12A79D','#e67e22'];
+    const projs  = filterVal === 'all'
+      ? SONAR_CONFIG.projects.map(p => p.key)
+      : [filterVal];
+
+    // Construir dataset por proyecto
+    const datasets = projs.map((key, ci) => ({
+      key,
+      name: (SONAR_CONFIG.projects.find(p => p.key === key) || {}).name || key,
+      color: COLORS[ci % COLORS.length],
+      data: all.filter(d => (d.project || SONAR_CONFIG.projects[0].key) === key)
+                .sort((a,b) => new Date(a.date) - new Date(b.date)),
+    })).filter(ds => ds.data.length >= 2);
+
+    if (datasets.length === 0) {
+      if (empty) empty.style.display = 'block';
+      chart.innerHTML = '';
+      return;
+    }
+    if (empty) empty.style.display = 'none';
+
+    // Gráfico CSS de líneas simplificado (barras por proyecto)
+    let html = `<div style="display:flex;gap:1.5rem;flex-wrap:wrap;margin-bottom:1rem;">`;
+    datasets.forEach(ds => {
+      const last = ds.data[ds.data.length - 1];
+      const prev = ds.data[ds.data.length - 2] || last;
+      const delta = (last.bugs||0) - (prev.bugs||0);
+      const arrow = delta < 0 ? '↓' : delta > 0 ? '↑' : '=';
+      const arrowColor = delta < 0 ? 'var(--success)' : delta > 0 ? 'var(--danger)' : 'var(--gray-400)';
+      html += `<div style="background:white;border:1px solid var(--gray-200);border-radius:8px;padding:0.75rem 1rem;min-width:180px;">
+        <div style="font-size:0.8rem;font-weight:700;color:${escHtml(ds.color)};margin-bottom:0.35rem;">${escHtml(ds.name)}</div>
+        <div style="font-size:1.4rem;font-weight:700;color:var(--gray-700);">${parseInt(last.bugs||0)} bugs <span style="font-size:1rem;color:${arrowColor}">${arrow}</span></div>
+        <div style="font-size:0.75rem;color:var(--gray-400);">${parseInt(last.vulns||0)} vulns · ${escHtml(new Date(last.date).toLocaleDateString('es-ES'))}</div>
+        <div style="margin-top:0.5rem;display:flex;gap:2px;align-items:flex-end;height:40px;">
+          ${ds.data.slice(-10).map(pt => {
+            const maxB = Math.max(...ds.data.map(x=>x.bugs||0),1);
+            const h = Math.max(((pt.bugs||0)/maxB)*100,4);
+            return `<div style="flex:1;background:${escHtml(ds.color)};opacity:0.7;height:${h}%;border-radius:2px 2px 0 0;" title="Bugs: ${parseInt(pt.bugs||0)} · ${escHtml(new Date(pt.date).toLocaleDateString('es-ES'))}"></div>`;
+          }).join('')}
+        </div>
+        <div style="font-size:0.65rem;color:var(--gray-300);margin-top:0.2rem;">${ds.data.length} análisis</div>
+      </div>`;
+    });
+    html += '</div>';
+    chart.innerHTML = html; // NOSONAR — datos propios de localStorage
+  }
+
+  function _ratingColor(r) {
+    return { A:'var(--success)', B:'#8bc34a', C:'var(--warning)', D:'var(--danger)', E:'#c0392b' }[r] || 'var(--gray-400)';
+  }
+
+  // Comparativa multi-proyecto desde SonarCloud (proxy Flask)
+  async function loadComparativa() {
+    const loading = document.getElementById('comparativaLoading');
+    const table   = document.getElementById('comparativaTable');
+    const empty   = document.getElementById('comparativaEmpty');
+    const tbody   = document.getElementById('comparativaBody');
+    if (!tbody) return;
+
+    if (loading) loading.style.display = 'block';
+    if (table) table.style.display = 'none';
+    if (empty) empty.style.display = 'none';
+
+    const all = _loadAllHistory();
+    const results = [];
+
+    for (const p of SONAR_CONFIG.projects) {
+      try {
+        const res = await fetch(
+          `${SONAR_CONFIG.flaskBase}/api/scanner/metrics/${encodeURIComponent(p.key)}`,
+          { headers: { 'X-Requested-With': 'XMLHttpRequest' } }
+        );
+        if (!res.ok) { results.push({ key: p.key, name: p.name, ok: false }); continue; }
+        const d = await res.json();
+        // Calcular delta vs último registro en historial
+        const prev = all.filter(h => (h.project||'') === p.key).sort((a,b)=>new Date(a.date)-new Date(b.date));
+        const lastPrev = prev[prev.length - 1];
+        const delta = lastPrev ? (d.bugs - (lastPrev.bugs||0)) : null;
+        results.push({ ...d, name: p.name, delta });
+      } catch (_) {
+        results.push({ key: p.key, name: p.name, ok: false });
+      }
+    }
+
+    if (loading) loading.style.display = 'none';
+
+    const anyOk = results.some(r => r.ok !== false);
+    if (!anyOk) {
+      if (empty) {
+        empty.style.display = 'block';
+        empty.innerHTML = '<p>⚠️ No se puede conectar al servidor Flask. Asegúrate de que está corriendo en :5001.</p>';
+      }
       return;
     }
 
-    empty.style.display = 'none';
-
-    // Table — datos de localStorage (escritos por esta misma app, no por usuario externo)
-    tbody.innerHTML = data.slice().reverse().map(d => ` // NOSONAR — localStorage propio, todos los valores escapados con escHtml()
-      <tr>
-        <td>${escHtml(new Date(d.date).toLocaleDateString('es-ES'))} ${escHtml(new Date(d.date).toLocaleTimeString('es-ES', {hour:'2-digit',minute:'2-digit'}))}</td>
-        <td><span style="color:${d.qg === 'PASSED' ? 'var(--success)' : 'var(--danger)'};font-weight:700;">${escHtml(d.qg)}</span></td>
-        <td>${parseInt(d.bugs) || 0}</td>
-        <td>${parseInt(d.vulns) || 0}</td>
-        <td>${parseInt(d.smells) || 0}</td>
-        <td>${escHtml(String(d.lines || 0))}</td>
-        <td><button class="btn-ghost" onclick="deleteLog('${escHtml(d.date)}')" title="Eliminar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button></td>
-      </tr>
-    `).join(''); // NOSONAR — datos de localStorage escritos por esta app, valores numéricos y fechas del sistema
-
-    // Chart (CSS bars)
-    const maxBugs = Math.max(...data.map(d => d.bugs), 1);
-    const maxVulns = Math.max(...data.map(d => d.vulns), 1);
-    const maxSmells = Math.max(...data.map(d => d.smells), 1);
-    const globalMax = Math.max(maxBugs, maxVulns, maxSmells, 1);
-
-    const last15 = data.slice(-15);
-    chartEl.innerHTML = // NOSONAR — valores numéricos de localStorage (escritos por esta app), sin input externo
-      `<div class="chart-bars">
-        ${last15.map(d => {
-          const hBugs = Math.max((d.bugs / globalMax) * 100, 2);
-          const hVulns = Math.max((d.vulns / globalMax) * 100, 2);
-          const hSmells = Math.max((d.smells / globalMax) * 100, 2);
-          return `
-            <div class="chart-bar-group">
-              <div class="chart-bar smells" style="height:${hSmells}%" title="Smells: ${parseInt(d.smells)}"></div>
-              <div class="chart-bar bugs" style="height:${hBugs}%" title="Bugs: ${parseInt(d.bugs)}"></div>
-              <div class="chart-bar vulns" style="height:${hVulns}%" title="Vulns: ${parseInt(d.vulns)}"></div>
-            </div>
-          `;
-        }).join('')}
-      </div>
-      <div style="display:flex;justify-content:space-between;padding:0.25rem 0;font-size:0.65rem;color:var(--gray-400);">
-        <span>${escHtml(new Date(last15[0].date).toLocaleDateString('es-ES'))}</span>
-        <span>${escHtml(new Date(last15[last15.length-1].date).toLocaleDateString('es-ES'))}</span>
-      </div>
-      <div class="chart-legend">
-        <div class="chart-legend-item"><div class="legend-dot" style="background:var(--danger);"></div> Vulnerabilidades</div>
-        <div class="chart-legend-item"><div class="legend-dot" style="background:var(--warning);"></div> Bugs</div>
-        <div class="chart-legend-item"><div class="legend-dot" style="background:var(--primary);"></div> Code Smells</div>
-      </div>
-    `;
+    if (table) table.style.display = '';
+    tbody.innerHTML = results.map(r => { // NOSONAR — datos de API SonarCloud vía proxy Flask
+      if (r.ok === false) {
+        return `<tr><td><strong>${escHtml(r.name)}</strong></td><td colspan="9" style="color:var(--gray-400);font-style:italic;">Sin datos</td></tr>`;
+      }
+      const deltaHtml = r.delta === null ? '<span style="color:var(--gray-300)">—</span>'
+        : r.delta < 0 ? `<span style="color:var(--success);font-weight:700;">↓${Math.abs(r.delta)}</span>`
+        : r.delta > 0 ? `<span style="color:var(--danger);font-weight:700;">↑${r.delta}</span>`
+        : `<span style="color:var(--gray-400);">=</span>`;
+      const qgColor = r.qg === 'OK' ? 'var(--success)' : r.qg === 'ERROR' ? 'var(--danger)' : 'var(--gray-400)';
+      const qgLabel = r.qg === 'OK' ? 'PASSED' : r.qg === 'ERROR' ? 'FAILED' : r.qg || '—';
+      return `<tr>
+        <td><strong>${escHtml(r.name)}</strong></td>
+        <td>${parseInt(r.bugs)||0}</td>
+        <td>${deltaHtml}</td>
+        <td>${parseInt(r.vulns)||0}</td>
+        <td>${parseInt(r.smells)||0}</td>
+        <td>${formatNumber(r.lines)}</td>
+        <td style="font-weight:700;color:${_ratingColor(r.sec_rating)}">${escHtml(r.sec_rating||'-')}</td>
+        <td style="font-weight:700;color:${_ratingColor(r.rel_rating)}">${escHtml(r.rel_rating||'-')}</td>
+        <td style="font-weight:700;color:${qgColor}">${escHtml(qgLabel)}</td>
+        <td>
+          <a href="${escHtml(SONAR_CONFIG.sonarUrl)}/dashboard?id=${escHtml(r.project_key||'')}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline" style="font-size:0.75rem;">↗</a>
+          <button class="btn btn-sm btn-accent" style="font-size:0.75rem;margin-left:0.25rem;" onclick="registrarDesdeComparativa('${escHtml(r.project_key||'')}')">💾</button>
+        </td>
+      </tr>`;
+    }).join(''); // NOSONAR
   }
 
-  function openLogModal() {
+  async function registrarDesdeComparativa(projectKey) {
+    try {
+      const res = await fetch(
+        `${SONAR_CONFIG.flaskBase}/api/scanner/metrics/${encodeURIComponent(projectKey)}`,
+        { headers: { 'X-Requested-With': 'XMLHttpRequest' } }
+      );
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const d = await res.json();
+      if (!d.ok) throw new Error(d.error || 'Error');
+      const entry = {
+        date: new Date().toISOString(),
+        project: projectKey,
+        qg: d.qg === 'OK' ? 'PASSED' : d.qg === 'ERROR' ? 'FAILED' : 'NONE',
+        bugs: d.bugs, vulns: d.vulns, smells: d.smells, lines: d.lines,
+        sec_rating: d.sec_rating, rel_rating: d.rel_rating,
+      };
+      const all = _loadAllHistory();
+      all.push(entry);
+      _saveAllHistory(all);
+      showToast('✅ Análisis registrado en el historial', 'success');
+      renderHistory();
+    } catch (e) {
+      showToast('Error al registrar: ' + e.message, 'error');
+    }
+  }
+
+  // ============================================================
+  // MODAL HISTORIAL
+  // ============================================================
+  function openLogModal(prefillProjectKey) {
     document.getElementById('logModal').classList.add('show');
+    document.getElementById('logAutoFillMsg').style.display = 'none';
+    if (prefillProjectKey) {
+      const sel = document.getElementById('logProject');
+      if (sel) sel.value = prefillProjectKey;
+    }
   }
 
   function closeLogModal() {
     document.getElementById('logModal').classList.remove('show');
   }
 
+  async function autoFillFromSonar() {
+    const pk  = document.getElementById('logProject').value;
+    const btn = document.getElementById('btnAutoFill');
+    btn.disabled = true;
+    btn.textContent = '⏳ Cargando...';
+    try {
+      const res = await fetch(
+        `${SONAR_CONFIG.flaskBase}/api/scanner/metrics/${encodeURIComponent(pk)}`,
+        { headers: { 'X-Requested-With': 'XMLHttpRequest' } }
+      );
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const d = await res.json();
+      if (!d.ok) throw new Error(d.error || 'Error');
+      document.getElementById('logQG').value        = d.qg === 'OK' ? 'PASSED' : d.qg === 'ERROR' ? 'FAILED' : 'NONE';
+      document.getElementById('logBugs').value      = d.bugs;
+      document.getElementById('logVulns').value     = d.vulns;
+      document.getElementById('logSmells').value    = d.smells;
+      document.getElementById('logLines').value     = d.lines;
+      document.getElementById('logSecRating').value = d.sec_rating || '-';
+      document.getElementById('logRelRating').value = d.rel_rating || '-';
+      document.getElementById('logAutoFillMsg').style.display = 'block';
+      showToast('Datos cargados desde SonarCloud', 'success');
+    } catch (e) {
+      showToast('Error: ' + e.message + ' — ¿Servidor Flask activo?', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg> Auto-rellenar desde SonarCloud';
+    }
+  }
+
   function saveLog() {
     const entry = {
-      date: new Date().toISOString(),
-      qg: document.getElementById('logQG').value,
-      bugs: parseInt(document.getElementById('logBugs').value) || 0,
-      vulns: parseInt(document.getElementById('logVulns').value) || 0,
-      smells: parseInt(document.getElementById('logSmells').value) || 0,
-      lines: parseInt(document.getElementById('logLines').value) || 0,
+      date:       new Date().toISOString(),
+      project:    document.getElementById('logProject').value || currentProject.key,
+      qg:         document.getElementById('logQG').value,
+      bugs:       parseInt(document.getElementById('logBugs').value)   || 0,
+      vulns:      parseInt(document.getElementById('logVulns').value)  || 0,
+      smells:     parseInt(document.getElementById('logSmells').value) || 0,
+      lines:      parseInt(document.getElementById('logLines').value)  || 0,
+      sec_rating: document.getElementById('logSecRating').value,
+      rel_rating: document.getElementById('logRelRating').value,
     };
-
-    const data = loadHistory();
-    data.push(entry);
-    saveHistory(data);
+    const all = _loadAllHistory();
+    all.push(entry);
+    _saveAllHistory(all);
     closeLogModal();
     renderHistory();
-    showToast('Analisis registrado', 'success');
+    showToast('Análisis registrado', 'success');
   }
 
   function deleteLog(date) {
-    if (!confirm('Eliminar este registro?')) return;
-    let data = loadHistory();
-    data = data.filter(d => d.date !== date);
-    saveHistory(data);
+    if (!confirm('¿Eliminar este registro?')) return;
+    const all = _loadAllHistory().filter(d => d.date !== date);
+    _saveAllHistory(all);
     renderHistory();
+    renderEvolution();
     showToast('Registro eliminado', 'info');
+  }
+
+  // ============================================================
+  // CAPA 2: SCANNER
+  // ============================================================
+
+  async function checkTokenStatus() {
+    const dot = document.getElementById('tokenDot');
+    const msg = document.getElementById('tokenMsg');
+    const btn = document.getElementById('btnLanzar');
+    try {
+      const res = await fetch(
+        `${SONAR_CONFIG.flaskBase}/api/scanner/token-status`,
+        { headers: { 'X-Requested-With': 'XMLHttpRequest' } }
+      );
+      const d = await res.json();
+      if (d.available) {
+        dot.style.background = 'var(--success)';
+        msg.textContent = `Token SONAR_TOKEN disponible en el servidor (${escHtml(d.hint)}...)`;
+        msg.style.color = 'var(--success)';
+        if (btn) btn.disabled = false;
+      } else {
+        dot.style.background = 'var(--danger)';
+        msg.textContent = 'Token no disponible. Ejecuta: source ~/.bash_profile y reinicia el servidor Flask.';
+        msg.style.color = 'var(--danger)';
+        if (btn) btn.disabled = true;
+      }
+    } catch (_) {
+      dot.style.background = 'var(--warning)';
+      msg.textContent = 'No se puede conectar al servidor Flask en :5001.';
+      msg.style.color = 'var(--warning)';
+      if (btn) btn.disabled = true;
+    }
+  }
+
+  function initScannerTab() {
+    const container = document.getElementById('projectCheckboxes');
+    if (!container) return;
+    container.innerHTML = SONAR_CONFIG.projects.map(p => `
+      <label style="display:flex;align-items:center;gap:0.5rem;padding:0.6rem 0.75rem;background:white;border:1px solid var(--gray-200);border-radius:8px;cursor:pointer;transition:border-color 0.2s;">
+        <input type="checkbox" value="${escHtml(p.key)}" onchange="updateScannerResumen()"
+          style="width:16px;height:16px;accent-color:var(--primary);">
+        <span style="font-size:0.875rem;font-weight:600;color:var(--gray-700);">${escHtml(p.name)}</span>
+      </label>
+    `).join(''); // NOSONAR — datos de SONAR_CONFIG
+  }
+
+  function selectAllProjects(select) {
+    document.querySelectorAll('#projectCheckboxes input[type="checkbox"]').forEach(cb => {
+      cb.checked = select;
+    });
+    updateScannerResumen();
+  }
+
+  function updateScannerResumen() {
+    const checked = document.querySelectorAll('#projectCheckboxes input[type="checkbox"]:checked');
+    const resumen = document.getElementById('scannerResumen');
+    if (resumen) resumen.textContent = checked.length > 0
+      ? `${checked.length} proyecto${checked.length > 1 ? 's' : ''} seleccionado${checked.length > 1 ? 's' : ''}`
+      : 'Selecciona al menos un proyecto';
+  }
+
+  async function lanzarScanner() {
+    const checked = Array.from(
+      document.querySelectorAll('#projectCheckboxes input[type="checkbox"]:checked')
+    ).map(cb => cb.value);
+
+    if (checked.length === 0) {
+      showToast('Selecciona al menos un proyecto', 'error');
+      return;
+    }
+
+    // Mostrar panel progreso
+    document.getElementById('scannerProgressPanel').style.display = '';
+    document.getElementById('scannerResultsPanel').style.display = 'none';
+    document.getElementById('btnLanzar').style.display = 'none';
+    document.getElementById('btnCancelar').style.display = '';
+    document.getElementById('scannerBar').style.width = '0%';
+    document.getElementById('scannerPct').textContent = '0%';
+    document.getElementById('scannerLog').textContent = '';
+    document.getElementById('scannerCurrentProject').textContent = 'Iniciando...';
+
+    try {
+      const res = await fetch(`${SONAR_CONFIG.flaskBase}/api/scanner/run`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+        body: JSON.stringify({ projects: checked }),
+      });
+      const d = await res.json();
+      if (!res.ok || d.error) {
+        showToast(d.error || 'Error al lanzar el scanner', 'error');
+        _resetScannerUI();
+        return;
+      }
+      _scannerJobId = d.job_id;
+      _scannerInterval = setInterval(_pollScanner, 2000);
+      showToast(`Scanner iniciado — ${checked.length} proyecto${checked.length>1?'s':''}`, 'info');
+    } catch (e) {
+      showToast('Error: ' + e.message, 'error');
+      _resetScannerUI();
+    }
+  }
+
+  async function _pollScanner() {
+    if (!_scannerJobId) return;
+    try {
+      const res = await fetch(
+        `${SONAR_CONFIG.flaskBase}/api/scanner/status/${_scannerJobId}`,
+        { headers: { 'X-Requested-With': 'XMLHttpRequest' } }
+      );
+      const d = await res.json();
+
+      // Actualizar barra y estado
+      const pct = d.pct || 0;
+      document.getElementById('scannerBar').style.width = pct + '%';
+      document.getElementById('scannerPct').textContent = pct + '%';
+
+      if (d.current) {
+        const name = (SONAR_CONFIG.projects.find(p => p.key === d.current) || {}).name || d.current;
+        document.getElementById('scannerCurrentProject').textContent =
+          `Analizando: ${name} (${d.done}/${d.total})`;
+      }
+
+      // Log terminal
+      const logEl = document.getElementById('scannerLog');
+      if (d.output && d.output.length) {
+        logEl.textContent = d.output.join('\n');
+        logEl.scrollTop = logEl.scrollHeight;
+      }
+
+      if (d.status === 'done') {
+        clearInterval(_scannerInterval);
+        _scannerInterval = null;
+        document.getElementById('scannerBar').style.width = '100%';
+        document.getElementById('scannerPct').textContent = '100%';
+        document.getElementById('scannerCurrentProject').textContent = '✅ Análisis completado';
+        _mostrarResultadosScanner(d);
+        showToast('Scanner completado', 'success');
+        _resetScannerBtns();
+      }
+    } catch (e) {
+      console.warn('Error polling scanner:', e.message);
+    }
+  }
+
+  async function _mostrarResultadosScanner(jobData) {
+    const panel = document.getElementById('scannerResultsPanel');
+    const tbody = document.getElementById('scannerResultsBody');
+    if (!panel || !tbody) return;
+    panel.style.display = '';
+
+    // Cargar métricas actuales de cada proyecto vía proxy
+    const rows = [];
+    for (const pk of jobData.projects) {
+      const result = jobData.results[pk] || {};
+      const name   = (SONAR_CONFIG.projects.find(p => p.key === pk) || {}).name || pk;
+      if (!result.success) {
+        rows.push({ pk, name, ok: false });
+        continue;
+      }
+      try {
+        const res = await fetch(
+          `${SONAR_CONFIG.flaskBase}/api/scanner/metrics/${encodeURIComponent(pk)}`,
+          { headers: { 'X-Requested-With': 'XMLHttpRequest' } }
+        );
+        const d = await res.json();
+        rows.push({ pk, name, ok: d.ok, ...d });
+      } catch (_) {
+        rows.push({ pk, name, ok: false });
+      }
+    }
+
+    tbody.innerHTML = rows.map(r => { // NOSONAR
+      if (!r.ok) {
+        return `<tr>
+          <td><strong>${escHtml(r.name)}</strong></td>
+          <td colspan="7" style="color:var(--danger);">❌ Análisis fallido</td>
+          <td>—</td>
+        </tr>`;
+      }
+      const qgLabel = r.qg === 'OK' ? 'PASSED' : r.qg === 'ERROR' ? 'FAILED' : r.qg || '—';
+      const qgColor = r.qg === 'OK' ? 'var(--success)' : 'var(--danger)';
+      return `<tr>
+        <td><strong>${escHtml(r.name)}</strong></td>
+        <td style="color:${qgColor};font-weight:700;">${escHtml(qgLabel)}</td>
+        <td>${parseInt(r.bugs)||0}</td>
+        <td>${parseInt(r.vulns)||0}</td>
+        <td>${parseInt(r.smells)||0}</td>
+        <td>${formatNumber(r.lines)}</td>
+        <td style="font-weight:700;color:${_ratingColor(r.sec_rating)}">${escHtml(r.sec_rating||'-')}</td>
+        <td style="font-weight:700;color:${_ratingColor(r.rel_rating)}">${escHtml(r.rel_rating||'-')}</td>
+        <td>
+          <button class="btn btn-sm btn-accent" onclick="registrarDesdeScanner('${escHtml(r.pk)}')">
+            💾 Guardar
+          </button>
+        </td>
+      </tr>`;
+    }).join(''); // NOSONAR
+  }
+
+  async function registrarDesdeScanner(projectKey) {
+    try {
+      const res = await fetch(
+        `${SONAR_CONFIG.flaskBase}/api/scanner/metrics/${encodeURIComponent(projectKey)}`,
+        { headers: { 'X-Requested-With': 'XMLHttpRequest' } }
+      );
+      const d = await res.json();
+      if (!d.ok) throw new Error(d.error || 'Error');
+      const entry = {
+        date:       new Date().toISOString(),
+        project:    projectKey,
+        qg:         d.qg === 'OK' ? 'PASSED' : d.qg === 'ERROR' ? 'FAILED' : 'NONE',
+        bugs:       d.bugs, vulns: d.vulns, smells: d.smells, lines: d.lines,
+        sec_rating: d.sec_rating, rel_rating: d.rel_rating,
+      };
+      const all = _loadAllHistory();
+      all.push(entry);
+      _saveAllHistory(all);
+      showToast('✅ Guardado en historial', 'success');
+    } catch (e) {
+      showToast('Error: ' + e.message, 'error');
+    }
+  }
+
+  function cancelarScanner() {
+    if (_scannerInterval) { clearInterval(_scannerInterval); _scannerInterval = null; }
+    _scannerJobId = null;
+    _resetScannerUI();
+    showToast('Scanner detenido', 'info');
+  }
+
+  function _resetScannerUI() {
+    _resetScannerBtns();
+    document.getElementById('scannerProgressPanel').style.display = 'none';
+  }
+
+  function _resetScannerBtns() {
+    document.getElementById('btnLanzar').style.display = '';
+    document.getElementById('btnCancelar').style.display = 'none';
   }
 
   // ============================================================
