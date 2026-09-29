@@ -802,6 +802,11 @@
         Gestor de Tiquets
         <span class="badge-count" id="ticketsBadge" style="display:none">0</span>
       </div>
+      <div class="nav-item" data-page="llm-admin" onclick="showPage('llm-admin')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/><path d="M15.54 8.46a5 5 0 010 7.07M8.46 8.46a5 5 0 000 7.07"/></svg>
+        Configuracion IA
+        <span id="llmCorpBadge" style="display:none;font-size:0.65rem;background:#12A79D;color:#fff;padding:0.1rem 0.45rem;border-radius:50px;margin-left:auto;font-weight:700">Corp</span>
+      </div>
 
       <div class="nav-label">Herramientas</div>
       <a class="nav-item" href="analisis-codigo.html" target="_blank" rel="noopener noreferrer" style="text-decoration:none;">
@@ -1279,6 +1284,95 @@
   </div><!-- /layout tabla+detalle -->
 </div><!-- /page-tickets -->
 
+<!-- ===== PANEL ADMIN — CONFIGURACIÓN IA CORPORATIVA ===== -->
+<div class="page" id="page-llm-admin" style="display:none;position:fixed;top:var(--header-h);left:var(--sidebar-w);right:0;bottom:0;overflow-y:auto;background:var(--gray-100);padding:1.5rem;z-index:10">
+  <div style="max-width:720px;margin:0 auto">
+    <div style="margin-bottom:1.5rem">
+      <h2 style="font-family:'Poppins',sans-serif;font-size:1.2rem;font-weight:700;color:var(--gray-900);margin-bottom:0.25rem">
+        &#x1F916; Configuración IA Corporativa
+      </h2>
+      <p style="font-size:0.84rem;color:var(--gray-500)">
+        La clave corporativa se comparte automáticamente con todos los ordenadores de la LAN.
+        Cualquier consultor que abra la plataforma la usará sin necesidad de configurar nada.
+        Los consultores con clave personal propia tienen prioridad sobre la corporativa.
+      </p>
+    </div>
+
+    <!-- Estado actual -->
+    <div id="llmCorpStatus" style="background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:1.25rem;margin-bottom:1.25rem">
+      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem">
+        <span id="llmCorpStatusIcon" style="font-size:1.4rem">&#x23F3;</span>
+        <div>
+          <div style="font-family:'Poppins',sans-serif;font-size:0.9rem;font-weight:600;color:var(--gray-900)" id="llmCorpStatusTitle">Comprobando...</div>
+          <div style="font-size:0.78rem;color:var(--gray-500)" id="llmCorpStatusDetail"></div>
+        </div>
+      </div>
+      <div id="llmCorpCurrentCfg" style="display:none;background:var(--gray-100);border-radius:6px;padding:0.65rem 0.85rem;font-size:0.8rem;font-family:monospace;color:var(--gray-700)"></div>
+    </div>
+
+    <!-- Formulario de configuración -->
+    <div style="background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:1.5rem;margin-bottom:1.25rem">
+      <h3 style="font-family:'Poppins',sans-serif;font-size:0.95rem;font-weight:600;color:var(--primary);margin-bottom:1rem;padding-bottom:0.5rem;border-bottom:2px solid var(--primary-light)">
+        &#x1F4DD; Establecer clave corporativa
+      </h3>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.85rem;margin-bottom:0.85rem">
+        <div>
+          <label style="display:block;font-size:0.78rem;font-weight:600;color:var(--gray-700);margin-bottom:0.3rem">Proveedor</label>
+          <select id="corpProvider" style="width:100%;padding:0.45rem 0.7rem;border:1px solid var(--gray-300);border-radius:6px;font-size:0.84rem" onchange="corpUpdateModelSuggestions()">
+            <option value="openrouter">OpenRouter (Gratis)</option>
+            <option value="groq">Groq (Gratis)</option>
+            <option value="google">Google Gemini (Gratis)</option>
+            <option value="openai">OpenAI (GPT)</option>
+            <option value="anthropic">Anthropic (Claude)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-size:0.78rem;font-weight:600;color:var(--gray-700);margin-bottom:0.3rem">Modelo</label>
+          <input id="corpModel" type="text" list="corpModelList" style="width:100%;padding:0.45rem 0.7rem;border:1px solid var(--gray-300);border-radius:6px;font-size:0.84rem;font-family:monospace" placeholder="openrouter/free">
+          <datalist id="corpModelList"></datalist>
+        </div>
+      </div>
+
+      <div style="margin-bottom:0.85rem">
+        <label style="display:block;font-size:0.78rem;font-weight:600;color:var(--gray-700);margin-bottom:0.3rem">&#x1F511; API Key corporativa</label>
+        <input id="corpApiKey" type="password" style="width:100%;padding:0.45rem 0.7rem;border:1px solid var(--primary-light);border-radius:6px;font-size:0.84rem;background:#fff" placeholder="sk-or-... / gsk_... / sk-...">
+        <p style="font-size:0.74rem;color:var(--gray-500);margin-top:0.25rem">
+          La clave se guardará ofuscada en la base de datos del servidor. No se almacena en texto plano.
+        </p>
+      </div>
+
+      <div style="margin-bottom:1rem">
+        <label style="display:block;font-size:0.78rem;font-weight:600;color:var(--gray-700);margin-bottom:0.3rem">Configurado por (opcional)</label>
+        <input id="corpSetBy" type="text" style="width:100%;padding:0.45rem 0.7rem;border:1px solid var(--gray-300);border-radius:6px;font-size:0.84rem" placeholder="Nombre del administrador">
+      </div>
+
+      <div style="display:flex;gap:0.65rem;flex-wrap:wrap">
+        <button onclick="corpSaveConfig()" style="background:var(--accent);color:#fff;border:none;padding:0.5rem 1.25rem;border-radius:6px;font-size:0.84rem;font-weight:600;cursor:pointer">
+          &#x2714; Guardar configuración corporativa
+        </button>
+        <button onclick="corpTestConfig()" style="background:var(--primary);color:#fff;border:none;padding:0.5rem 1.25rem;border-radius:6px;font-size:0.84rem;font-weight:600;cursor:pointer">
+          &#x26A1; Probar conexión
+        </button>
+        <button onclick="corpDeleteConfig()" style="background:#fff;color:var(--danger);border:1px solid var(--danger);padding:0.5rem 1.25rem;border-radius:6px;font-size:0.84rem;font-weight:600;cursor:pointer">
+          &#x1F5D1; Eliminar corporativa
+        </button>
+      </div>
+      <div id="corpTestResult" style="margin-top:0.75rem;font-size:0.84rem"></div>
+    </div>
+
+    <!-- Explicación de prioridades -->
+    <div style="background:var(--primary-light);border-left:4px solid var(--primary);border-radius:0 8px 8px 0;padding:1rem 1.25rem;font-size:0.83rem;color:var(--gray-700)">
+      <strong style="display:block;color:var(--primary-dark);margin-bottom:0.4rem">&#x2139;&#xFE0F; Cómo funciona la prioridad de claves</strong>
+      <ol style="padding-left:1.25rem;line-height:2">
+        <li><strong>Clave personal</strong> (localStorage del navegador) — máxima prioridad. El consultor la configura desde la app ISO/ENS.</li>
+        <li><strong>Clave corporativa</strong> (este panel) — se usa si no hay clave personal. Compartida en toda la LAN.</li>
+        <li><strong>Sin clave</strong> — la plataforma muestra el prompt para copiar manualmente a ChatGPT/Claude.</li>
+      </ol>
+    </div>
+  </div>
+</div><!-- /page-llm-admin -->
+
 <!-- ===== MODAL CREAR/EDITAR TIQUET ===== -->
 <div id="tk-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:500;align-items:center;justify-content:center">
   <div style="background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow-lg);width:100%;max-width:520px;max-height:90vh;overflow-y:auto;padding:1.75rem">
@@ -1477,15 +1571,24 @@
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
 
-    // Ocultar/mostrar la página de tiquets (está fuera del contenedor SPA)
-    const tkPage = document.getElementById('page-tickets');
+    // Ocultar/mostrar páginas fuera del contenedor SPA (tiquets y llm-admin)
+    const tkPage      = document.getElementById('page-tickets');
+    const llmAdminPage = document.getElementById('page-llm-admin');
     const mainContent = document.querySelector('.content');
+
     if (pageId === 'tickets') {
-      if (tkPage)      tkPage.style.display = 'block';
-      if (mainContent) mainContent.style.visibility = 'hidden';
+      if (tkPage)       tkPage.style.display = 'block';
+      if (llmAdminPage) llmAdminPage.style.display = 'none';
+      if (mainContent)  mainContent.style.visibility = 'hidden';
+    } else if (pageId === 'llm-admin') {
+      if (tkPage)       tkPage.style.display = 'none';
+      if (llmAdminPage) llmAdminPage.style.display = 'block';
+      if (mainContent)  mainContent.style.visibility = 'hidden';
+      corpLoadStatus();
     } else {
-      if (tkPage)      tkPage.style.display = 'none';
-      if (mainContent) mainContent.style.visibility = 'visible';
+      if (tkPage)       tkPage.style.display = 'none';
+      if (llmAdminPage) llmAdminPage.style.display = 'none';
+      if (mainContent)  mainContent.style.visibility = 'visible';
       document.getElementById('page-' + pageId).classList.add('active');
     }
 
@@ -2534,6 +2637,185 @@ async function initTickets() {
 window.addEventListener('online', async () => {
   if (await tkDetectarModo()) { await tkSincronizar(); await tkCargarTiquets(); }
 });
+</script>
+
+<!-- ===== CONFIGURACIÓN IA CORPORATIVA — Scripts ===== -->
+<script>
+const CORP_API = `http://${window.location.hostname}:5001/api/corp/llm-config`;
+
+// Modelos sugeridos por proveedor (mismos que llm-models.js)
+const CORP_MODELS = {
+  openrouter: ['openrouter/free','meta-llama/llama-3.3-70b-instruct:free','openai/gpt-oss-20b:free','openai/gpt-oss-120b:free'],
+  groq:       ['openai/gpt-oss-20b','openai/gpt-oss-120b','llama-3.3-70b-versatile','llama-3.1-8b-instant'],
+  google:     ['gemini-2.0-flash','gemini-1.5-flash'],
+  openai:     ['gpt-4o-mini','gpt-4o','gpt-3.5-turbo'],
+  anthropic:  ['claude-3-5-haiku-20241022','claude-3-5-sonnet-20241022','claude-3-opus-20240229']
+};
+
+const CORP_DEFAULTS = {
+  openrouter: 'openrouter/free',
+  groq:       'openai/gpt-oss-20b',
+  google:     'gemini-2.0-flash',
+  openai:     'gpt-4o-mini',
+  anthropic:  'claude-3-5-haiku-20241022'
+};
+
+function corpUpdateModelSuggestions() {
+  const provider = document.getElementById('corpProvider').value;
+  const dl = document.getElementById('corpModelList');
+  dl.innerHTML = (CORP_MODELS[provider] || []).map(m => `<option value="${m}">`).join('');
+  // Sugerir modelo por defecto si el campo está vacío
+  const modelInput = document.getElementById('corpModel');
+  if (!modelInput.value) modelInput.value = CORP_DEFAULTS[provider] || '';
+}
+
+async function corpLoadStatus() {
+  const icon  = document.getElementById('llmCorpStatusIcon');
+  const title = document.getElementById('llmCorpStatusTitle');
+  const detail = document.getElementById('llmCorpStatusDetail');
+  const cfgBox = document.getElementById('llmCorpCurrentCfg');
+  const badge  = document.getElementById('llmCorpBadge');
+
+  icon.textContent = '⏳';
+  title.textContent = 'Comprobando configuración corporativa...';
+  detail.textContent = '';
+
+  try {
+    const resp = await fetch(CORP_API);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const data = await resp.json();
+
+    if (!data.exists) {
+      icon.textContent = '⚪';
+      title.textContent = 'Sin configuración corporativa';
+      detail.textContent = 'Cada consultor necesita configurar su propia API Key en la app ISO/ENS.';
+      cfgBox.style.display = 'none';
+      if (badge) badge.style.display = 'none';
+    } else {
+      icon.textContent = '✅';
+      title.textContent = 'Configuración corporativa activa';
+      const setAt = data.setAt ? new Date(data.setAt).toLocaleString('es-ES') : '';
+      detail.textContent = `Configurada por: ${data.setBy || 'admin'} · ${setAt}`;
+      cfgBox.style.display = 'block';
+      cfgBox.innerHTML = `Proveedor: <strong>${data.provider}</strong> &nbsp;·&nbsp; Modelo: <strong>${data.model}</strong> &nbsp;·&nbsp; API Key: ••••••••••••`;
+      if (badge) badge.style.display = 'inline';
+      // Rellenar el formulario con los datos actuales
+      document.getElementById('corpProvider').value = data.provider || 'openrouter';
+      document.getElementById('corpModel').value    = data.model    || '';
+      document.getElementById('corpSetBy').value    = data.setBy    || '';
+      corpUpdateModelSuggestions();
+    }
+  } catch (e) {
+    icon.textContent = '❌';
+    title.textContent = 'Error al conectar con el servidor';
+    detail.textContent = `Asegúrate de que el servidor Flask está en marcha (puerto 5001). ${e.message}`;
+    cfgBox.style.display = 'none';
+  }
+}
+
+async function corpSaveConfig() {
+  const provider = document.getElementById('corpProvider').value;
+  const model    = document.getElementById('corpModel').value.trim();
+  const apiKey   = document.getElementById('corpApiKey').value.trim();
+  const setBy    = document.getElementById('corpSetBy').value.trim() || 'admin';
+  const resultEl = document.getElementById('corpTestResult');
+
+  if (!apiKey) {
+    resultEl.innerHTML = '<span style="color:var(--danger)">⚠ Introduce la API Key antes de guardar.</span>';
+    return;
+  }
+  if (!model) {
+    resultEl.innerHTML = '<span style="color:var(--danger)">⚠ Introduce el modelo antes de guardar.</span>';
+    return;
+  }
+
+  resultEl.innerHTML = '<span style="color:var(--gray-500)">Guardando...</span>';
+  try {
+    const resp = await fetch(CORP_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ provider, model, apiKey, setBy })
+    });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    resultEl.innerHTML = '<span style="color:var(--accent)">✔ Configuración corporativa guardada correctamente. Todos los PCs de la LAN la usarán automáticamente.</span>';
+    document.getElementById('corpApiKey').value = '';
+    await corpLoadStatus();
+  } catch (e) {
+    resultEl.innerHTML = `<span style="color:var(--danger)">✗ Error al guardar: ${e.message}</span>`;
+  }
+}
+
+async function corpTestConfig() {
+  const provider = document.getElementById('corpProvider').value;
+  const model    = document.getElementById('corpModel').value.trim();
+  const apiKey   = document.getElementById('corpApiKey').value.trim();
+  const resultEl = document.getElementById('corpTestResult');
+
+  if (!apiKey) {
+    resultEl.innerHTML = '<span style="color:var(--danger)">⚠ Introduce la API Key para probar.</span>';
+    return;
+  }
+
+  resultEl.innerHTML = '<span style="color:var(--gray-500)">⏳ Probando conexión...</span>';
+
+  // Resolver baseUrl según proveedor
+  const baseUrls = {
+    openrouter: 'https://openrouter.ai/api/v1',
+    groq:       'https://api.groq.com/openai/v1',
+    google:     'https://generativelanguage.googleapis.com/v1beta/openai',
+    openai:     'https://api.openai.com/v1',
+    anthropic:  'https://api.anthropic.com'
+  };
+  const baseUrl = baseUrls[provider] || '';
+  const effectiveModel = model || CORP_DEFAULTS[provider];
+
+  try {
+    const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` };
+    if (provider === 'openrouter') {
+      headers['HTTP-Referer'] = 'https://codanor.com';
+      headers['X-Title'] = 'CODANOR Plataforma';
+    }
+    const body = JSON.stringify({
+      model: effectiveModel,
+      messages: [{ role: 'user', content: 'Responde solo con: OK' }],
+      max_tokens: 10
+    });
+    const resp = await fetch(`${baseUrl}/chat/completions`, { method: 'POST', headers, body });
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      throw new Error(`HTTP ${resp.status}: ${err.error?.message || resp.statusText}`);
+    }
+    const data = await resp.json();
+    const content = data.choices?.[0]?.message?.content?.trim() || '(respuesta vacía)';
+    resultEl.innerHTML = `<span style="color:var(--accent)">✔ Conexión correcta · ${content}</span>`;
+  } catch (e) {
+    resultEl.innerHTML = `<span style="color:var(--danger)">✗ ${e.message}</span>`;
+  }
+}
+
+async function corpDeleteConfig() {
+  if (!confirm('¿Eliminar la configuración corporativa? Los consultores sin clave personal dejarán de tener acceso a la IA.')) return;
+  const resultEl = document.getElementById('corpTestResult');
+  try {
+    await fetch(CORP_API, { method: 'DELETE' });
+    resultEl.innerHTML = '<span style="color:var(--accent)">✔ Configuración corporativa eliminada.</span>';
+    await corpLoadStatus();
+  } catch (e) {
+    resultEl.innerHTML = `<span style="color:var(--danger)">✗ Error: ${e.message}</span>`;
+  }
+}
+
+// Al cargar la página, comprobar si hay config corporativa para mostrar el badge
+(async () => {
+  try {
+    const resp = await fetch(CORP_API);
+    if (resp.ok) {
+      const data = await resp.json();
+      const badge = document.getElementById('llmCorpBadge');
+      if (badge && data.exists) badge.style.display = 'inline';
+    }
+  } catch (e) { /* servidor no disponible, ignorar */ }
+})();
 </script>
 
 </body>

@@ -1,0 +1,2254 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Propuesta Herramienta de Tiquets — CODANOR</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Nunito+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #178DC2;
+      --primary-dark: #1275A3;
+      --primary-light: #e8f4fa;
+      --accent: #12A79D;
+      --accent-light: #e6f7f6;
+      --dark: #1a1a2e;
+      --gray-900: #2d2d44;
+      --gray-700: #4a4a5a;
+      --gray-500: #7a7a8a;
+      --gray-400: #9a9aaa;
+      --gray-300: #c4c4d0;
+      --gray-200: #dddde5;
+      --gray-100: #f0f0f5;
+      --white: #ffffff;
+      --danger: #e74c3c;
+      --danger-light: #fdedec;
+      --warning: #f39c12;
+      --warning-light: #fef9e7;
+      --success: #12A79D;
+      --success-light: #e6f7f6;
+      --purple: #8e44ad;
+      --purple-light: #f3e8f9;
+      --toc-w: 260px;
+      --radius: 10px;
+      --shadow: 0 2px 8px rgba(0,0,0,0.06);
+      --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Nunito Sans', sans-serif;
+      background: var(--gray-100);
+      color: var(--gray-700);
+      line-height: 1.7;
+    }
+
+    /* ===== PORTADA ===== */
+    .cover {
+      background: linear-gradient(135deg, var(--dark) 0%, #0f3460 60%, var(--primary-dark) 100%);
+      color: var(--white);
+      padding: 4rem 3rem;
+      min-height: 340px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .cover-top {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .cover-top img {
+      height: 44px;
+      filter: brightness(0) invert(1);
+    }
+
+    .cover-top .brand-name {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      opacity: 0.9;
+    }
+
+    .cover-main { margin-top: 2.5rem; }
+
+    .cover-badge {
+      display: inline-block;
+      background: rgba(23,141,194,0.35);
+      border: 1px solid rgba(23,141,194,0.6);
+      color: #7fd3f5;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 0.3rem 0.9rem;
+      border-radius: 20px;
+      margin-bottom: 1rem;
+    }
+
+    .cover h1 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 2.4rem;
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 0.75rem;
+    }
+
+    .cover h1 span { color: #7fd3f5; }
+
+    .cover-subtitle {
+      font-size: 1.05rem;
+      opacity: 0.75;
+      max-width: 620px;
+    }
+
+    .cover-meta {
+      display: flex;
+      gap: 2.5rem;
+      margin-top: 2.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .cover-meta-item { font-size: 0.82rem; }
+    .cover-meta-item .label { opacity: 0.55; text-transform: uppercase; letter-spacing: 1px; font-size: 0.68rem; margin-bottom: 0.2rem; }
+    .cover-meta-item .value { font-weight: 600; }
+
+    /* ===== LAYOUT PRINCIPAL ===== */
+    .layout {
+      display: flex;
+      align-items: flex-start;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+      gap: 2rem;
+    }
+
+    /* ===== ÍNDICE LATERAL ===== */
+    .toc {
+      width: var(--toc-w);
+      flex-shrink: 0;
+      position: sticky;
+      top: 1.5rem;
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 1.25rem 0;
+      max-height: calc(100vh - 3rem);
+      overflow-y: auto;
+    }
+
+    .toc-title {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--gray-500);
+      padding: 0 1.25rem 0.75rem;
+      border-bottom: 1px solid var(--gray-200);
+      margin-bottom: 0.5rem;
+    }
+
+    .toc a {
+      display: block;
+      padding: 0.38rem 1.25rem;
+      font-size: 0.82rem;
+      color: var(--gray-700);
+      text-decoration: none;
+      transition: all 0.15s;
+      border-left: 3px solid transparent;
+      line-height: 1.4;
+    }
+
+    .toc a:hover { background: var(--gray-100); color: var(--primary); }
+
+    .toc a.active {
+      color: var(--primary);
+      border-left-color: var(--primary);
+      background: var(--primary-light);
+      font-weight: 600;
+    }
+
+    .toc a.toc-sub {
+      padding-left: 2.25rem;
+      font-size: 0.78rem;
+      color: var(--gray-500);
+    }
+
+    .toc a.toc-sub.active { color: var(--primary); background: var(--primary-light); }
+
+    .toc-section-label {
+      font-size: 0.63rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--gray-400);
+      padding: 0.75rem 1.25rem 0.25rem;
+    }
+
+    /* ===== CONTENIDO PRINCIPAL ===== */
+    .content { flex: 1; min-width: 0; }
+
+    /* ===== SECCIONES ===== */
+    .section {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 1.75rem;
+      overflow: hidden;
+    }
+
+    .section-header {
+      background: linear-gradient(135deg, var(--dark) 0%, #0f3460 100%);
+      padding: 1.25rem 1.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+    }
+
+    .section-num {
+      background: var(--primary);
+      color: var(--white);
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: 0.82rem;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .section-header h2 {
+      font-family: 'Poppins', sans-serif;
+      color: var(--white);
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .section-body { padding: 1.75rem; }
+
+    .subsection { margin-top: 1.75rem; }
+    .subsection:first-child { margin-top: 0; }
+
+    .subsection h3 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--primary-dark);
+      margin-bottom: 1rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 2px solid var(--primary-light);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    p { margin-bottom: 0.85rem; font-size: 0.92rem; }
+    p:last-child { margin-bottom: 0; }
+
+    /* ===== TABLAS ===== */
+    .table-wrap { overflow-x: auto; margin: 1rem 0; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+
+    thead tr { background: var(--dark); }
+
+    thead th {
+      padding: 0.7rem 1rem;
+      text-align: left;
+      color: var(--white);
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+
+    tbody tr { border-bottom: 1px solid var(--gray-200); transition: background 0.1s; }
+    tbody tr:hover { background: var(--gray-100); }
+    tbody tr:last-child { border-bottom: none; }
+
+    td {
+      padding: 0.65rem 1rem;
+      vertical-align: top;
+      line-height: 1.5;
+    }
+
+    td code {
+      background: var(--gray-100);
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      font-family: 'Courier New', monospace;
+      color: var(--primary-dark);
+    }
+
+    /* ===== BADGES ===== */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.2rem 0.65rem;
+      border-radius: 20px;
+      font-size: 0.73rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .badge-primary { background: var(--primary-light); color: var(--primary-dark); }
+    .badge-accent  { background: var(--accent-light);  color: #0d7a71; }
+    .badge-danger  { background: var(--danger-light);  color: #c0392b; }
+    .badge-warning { background: var(--warning-light); color: #d68910; }
+    .badge-purple  { background: var(--purple-light);  color: #7d3c98; }
+    .badge-dark    { background: var(--gray-100);      color: var(--gray-700); }
+    .badge-success { background: var(--success-light); color: #0d7a71; }
+
+    /* ===== BLOQUES DE CÓDIGO ===== */
+    .code-block {
+      background: #1e1e2e;
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin: 1rem 0;
+    }
+
+    .code-block-header {
+      background: #2a2a3e;
+      padding: 0.5rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .code-block-header .lang {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #7fd3f5;
+    }
+
+    .code-block-header .fname {
+      font-size: 0.72rem;
+      color: #888;
+      font-family: 'Courier New', monospace;
+    }
+
+    .code-block pre {
+      padding: 1.25rem 1.5rem;
+      overflow-x: auto;
+      font-family: 'Courier New', monospace;
+      font-size: 0.8rem;
+      line-height: 1.65;
+      color: #cdd6f4;
+    }
+
+    .code-block pre .kw  { color: #cba6f7; }
+    .code-block pre .str { color: #a6e3a1; }
+    .code-block pre .cm  { color: #6c7086; font-style: italic; }
+    .code-block pre .fn  { color: #89b4fa; }
+    .code-block pre .num { color: #fab387; }
+
+    /* ===== ID EJEMPLO ===== */
+    .id-example {
+      background: linear-gradient(135deg, var(--dark), #0f3460);
+      border-radius: var(--radius);
+      padding: 1.5rem 2rem;
+      text-align: center;
+      margin: 1rem 0;
+    }
+
+    .id-example .id-text {
+      font-family: 'Courier New', monospace;
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #7fd3f5;
+      letter-spacing: 2px;
+      display: block;
+      margin-bottom: 0.75rem;
+    }
+
+    .id-parts {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .id-part {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      padding: 0.3rem 0.8rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.75);
+    }
+
+    .id-part span { color: #7fd3f5; font-weight: 700; display: block; font-size: 0.68rem; margin-bottom: 0.15rem; }
+
+    /* ===== DIAGRAMA CICLO DE VIDA ===== */
+    .lifecycle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0;
+      padding: 1.5rem 0;
+      overflow-x: auto;
+    }
+
+    .lc-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .lc-box {
+      background: var(--primary-light);
+      border: 2px solid var(--primary);
+      border-radius: 8px;
+      padding: 0.55rem 1.1rem;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--primary-dark);
+      white-space: nowrap;
+    }
+
+    .lc-box.lc-start { background: var(--dark); border-color: var(--dark); color: var(--white); }
+    .lc-box.lc-end   { background: var(--accent); border-color: var(--accent); color: var(--white); }
+    .lc-box.lc-warn  { background: var(--warning-light); border-color: var(--warning); color: #d68910; }
+
+    .lc-arrow {
+      display: flex;
+      align-items: center;
+      padding: 0 0.4rem;
+      color: var(--gray-400);
+      font-size: 1.1rem;
+    }
+
+    .lc-label {
+      font-size: 0.65rem;
+      color: var(--gray-500);
+      margin-top: 0.25rem;
+      text-align: center;
+      max-width: 80px;
+    }
+
+    .lc-reopen {
+      text-align: center;
+      margin-top: 0.75rem;
+      font-size: 0.78rem;
+      color: var(--warning);
+      font-style: italic;
+    }
+
+    /* ===== DIAGRAMA ARQUITECTURA ===== */
+    .arch-diagram {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      align-items: center;
+      margin: 1rem 0;
+    }
+
+    .arch-layer {
+      width: 100%;
+      max-width: 560px;
+      border-radius: var(--radius);
+      padding: 1.1rem 1.5rem;
+      position: relative;
+    }
+
+    .arch-layer-title {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: 0.82rem;
+      margin-bottom: 0.35rem;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .arch-layer-desc { font-size: 0.82rem; line-height: 1.5; }
+
+    .arch-layer.layer-frontend { background: var(--primary-light); border: 2px solid var(--primary); }
+    .arch-layer.layer-frontend .arch-layer-title { color: var(--primary-dark); }
+
+    .arch-layer.layer-backend { background: var(--accent-light); border: 2px solid var(--accent); }
+    .arch-layer.layer-backend .arch-layer-title { color: #0d7a71; }
+
+    .arch-layer.layer-db { background: var(--warning-light); border: 2px solid var(--warning); }
+    .arch-layer.layer-db .arch-layer-title { color: #b7770d; }
+
+    .arch-connector {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0.25rem 0;
+    }
+
+    .arch-connector .line {
+      width: 2px;
+      height: 24px;
+      background: var(--gray-300);
+    }
+
+    .arch-connector .protocol {
+      background: var(--gray-700);
+      color: var(--white);
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      padding: 0.2rem 0.7rem;
+      border-radius: 10px;
+      margin: 0.2rem 0;
+    }
+
+    /* ===== ALERTA / NOTA ===== */
+    .callout {
+      display: flex;
+      gap: 0.9rem;
+      padding: 1rem 1.25rem;
+      border-radius: var(--radius);
+      margin: 1rem 0;
+      font-size: 0.87rem;
+    }
+
+    .callout-info { background: var(--primary-light); border-left: 4px solid var(--primary); }
+    .callout-warn { background: var(--warning-light); border-left: 4px solid var(--warning); }
+    .callout-ok   { background: var(--accent-light);  border-left: 4px solid var(--accent); }
+
+    .callout-icon { font-size: 1.1rem; flex-shrink: 0; line-height: 1.6; }
+    .callout-body { line-height: 1.5; }
+    .callout-body strong { display: block; margin-bottom: 0.2rem; }
+
+    /* ===== CHECKLIST ===== */
+    .checklist { list-style: none; padding: 0; }
+    .checklist li {
+      display: flex;
+      gap: 0.65rem;
+      align-items: flex-start;
+      padding: 0.35rem 0;
+      font-size: 0.88rem;
+      border-bottom: 1px solid var(--gray-100);
+    }
+    .checklist li:last-child { border-bottom: none; }
+    .checklist li .icon { color: var(--accent); font-size: 1rem; margin-top: 0.05rem; }
+
+    /* ===== HOJA DE RUTA ===== */
+    .roadmap { display: flex; flex-direction: column; gap: 0; }
+
+    .roadmap-item {
+      display: flex;
+      gap: 1.25rem;
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--gray-200);
+    }
+    .roadmap-item:last-child { border-bottom: none; }
+
+    .roadmap-phase {
+      flex-shrink: 0;
+      width: 72px;
+      height: 72px;
+      background: var(--dark);
+      border-radius: var(--radius);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--white);
+    }
+
+    .roadmap-phase .phase-label { font-size: 0.58rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.6; }
+    .roadmap-phase .phase-num { font-family: 'Poppins', sans-serif; font-size: 1.6rem; font-weight: 700; line-height: 1; color: #7fd3f5; }
+
+    .roadmap-info { flex: 1; }
+    .roadmap-info h4 { font-family: 'Poppins', sans-serif; font-size: 0.9rem; font-weight: 600; color: var(--gray-900); margin-bottom: 0.3rem; }
+    .roadmap-info p { font-size: 0.83rem; color: var(--gray-500); margin-bottom: 0.4rem; }
+    .roadmap-info .entregable { font-size: 0.78rem; }
+    .roadmap-info .entregable code { background: var(--gray-100); padding: 0.1rem 0.4rem; border-radius: 4px; font-family: 'Courier New', monospace; color: var(--primary-dark); }
+
+    /* ===== MOCKUP ===== */
+    .mockup-frame {
+      border: 2px solid var(--gray-200);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+      margin: 1rem 0;
+    }
+
+    .mockup-bar {
+      background: #e5e5ea;
+      padding: 0.5rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .mockup-dot { width: 12px; height: 12px; border-radius: 50%; }
+    .mockup-dot.red    { background: #ff5f57; }
+    .mockup-dot.yellow { background: #febc2e; }
+    .mockup-dot.green  { background: #28c840; }
+
+    .mockup-url {
+      flex: 1;
+      background: var(--white);
+      border-radius: 6px;
+      padding: 0.2rem 0.75rem;
+      font-size: 0.75rem;
+      color: var(--gray-500);
+      font-family: 'Courier New', monospace;
+      margin: 0 0.75rem;
+    }
+
+    .mockup-app {
+      display: flex;
+      height: 520px;
+      overflow: hidden;
+    }
+
+    /* Sidebar del mockup */
+    .m-sidebar {
+      width: 220px;
+      background: var(--dark);
+      color: var(--white);
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    .m-brand {
+      padding: 1rem 1.1rem;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .m-brand img { height: 24px; filter: brightness(0) invert(1); }
+    .m-brand span { font-family: 'Poppins', sans-serif; font-size: 0.78rem; font-weight: 600; }
+
+    .m-nav { flex: 1; padding: 0.75rem 0; }
+
+    .m-nav-label {
+      font-size: 0.58rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--gray-500);
+      padding: 0.75rem 1rem 0.3rem;
+    }
+
+    .m-nav-item {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.5rem 1rem;
+      color: var(--gray-400);
+      font-size: 0.78rem;
+      cursor: pointer;
+      border-left: 3px solid transparent;
+      transition: all 0.15s;
+    }
+
+    .m-nav-item:hover { background: rgba(255,255,255,0.05); color: var(--white); }
+
+    .m-nav-item.m-active {
+      background: rgba(23,141,194,0.15);
+      color: var(--primary);
+      border-left-color: var(--primary);
+      font-weight: 600;
+    }
+
+    .m-badge {
+      margin-left: auto;
+      background: var(--danger);
+      color: var(--white);
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 0.1rem 0.45rem;
+      border-radius: 10px;
+      min-width: 18px;
+      text-align: center;
+    }
+
+    .m-badge-accent { background: var(--accent); }
+
+    /* Área de contenido del mockup */
+    .m-content {
+      flex: 1;
+      overflow-y: auto;
+      background: var(--gray-100);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .m-topbar {
+      background: var(--white);
+      padding: 0.75rem 1.25rem;
+      border-bottom: 1px solid var(--gray-200);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .m-topbar h3 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--gray-900);
+    }
+
+    .m-btn {
+      background: var(--primary);
+      color: var(--white);
+      border: none;
+      border-radius: 6px;
+      padding: 0.4rem 0.9rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      font-family: 'Nunito Sans', sans-serif;
+      cursor: pointer;
+    }
+
+    .m-filters {
+      display: flex;
+      gap: 0.5rem;
+      padding: 0.75rem 1.25rem;
+      background: var(--white);
+      border-bottom: 1px solid var(--gray-200);
+      flex-wrap: wrap;
+      flex-shrink: 0;
+    }
+
+    .m-filter-select {
+      background: var(--gray-100);
+      border: 1px solid var(--gray-200);
+      border-radius: 6px;
+      padding: 0.3rem 0.65rem;
+      font-size: 0.73rem;
+      color: var(--gray-700);
+      font-family: 'Nunito Sans', sans-serif;
+    }
+
+    .m-ticket-list { padding: 0.75rem 1.25rem; flex: 1; overflow-y: auto; }
+
+    .m-ticket-card {
+      background: var(--white);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      margin-bottom: 0.5rem;
+      border-left: 4px solid var(--gray-300);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.78rem;
+      box-shadow: var(--shadow);
+    }
+
+    .m-ticket-card.tc-inc   { border-left-color: var(--danger); }
+    .m-ticket-card.tc-vul   { border-left-color: var(--purple); }
+    .m-ticket-card.tc-cib   { border-left-color: #c0392b; }
+    .m-ticket-card.tc-cam   { border-left-color: var(--warning); }
+    .m-ticket-card.tc-pet   { border-left-color: var(--primary); }
+    .m-ticket-card.tc-pro   { border-left-color: var(--accent); }
+
+    .m-tc-id { font-family: 'Courier New', monospace; font-size: 0.68rem; color: var(--gray-500); white-space: nowrap; }
+    .m-tc-title { flex: 1; font-weight: 600; color: var(--gray-900); }
+    .m-tc-badges { display: flex; gap: 0.3rem; flex-shrink: 0; flex-wrap: wrap; justify-content: flex-end; }
+
+    .m-tc-badge {
+      padding: 0.15rem 0.5rem;
+      border-radius: 10px;
+      font-size: 0.65rem;
+      font-weight: 700;
+    }
+
+    .m-badge-inc   { background: var(--danger-light);  color: #c0392b; }
+    .m-badge-vul   { background: var(--purple-light);  color: #7d3c98; }
+    .m-badge-cib   { background: #fdedec;              color: #a93226; }
+    .m-badge-cam   { background: var(--warning-light); color: #d68910; }
+    .m-badge-pet   { background: var(--primary-light); color: var(--primary-dark); }
+    .m-badge-pro   { background: var(--accent-light);  color: #0d7a71; }
+    .m-badge-critica { background: #c0392b; color: var(--white); }
+    .m-badge-alta    { background: var(--danger-light); color: #c0392b; }
+    .m-badge-media   { background: var(--warning-light); color: #d68910; }
+    .m-badge-baja    { background: var(--success-light); color: #0d7a71; }
+    .m-badge-nuevo      { background: var(--primary-light); color: var(--primary-dark); }
+    .m-badge-progreso   { background: var(--accent-light); color: #0d7a71; }
+    .m-badge-pendiente  { background: var(--warning-light); color: #d68910; }
+    .m-badge-resuelto   { background: var(--success-light); color: #0d7a71; }
+
+    /* ===== ARCHIVOS TABLA ===== */
+    .file-table td:first-child { font-family: 'Courier New', monospace; font-size: 0.78rem; color: var(--primary-dark); white-space: nowrap; }
+
+    .file-new { color: var(--accent); font-weight: 700; font-size: 0.73rem; }
+    .file-mod { color: var(--warning); font-weight: 700; font-size: 0.73rem; }
+
+    /* ===== BOTÓN SCROLL TOP ===== */
+    #scrollTop {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      background: var(--primary);
+      color: var(--white);
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      font-size: 1.1rem;
+      cursor: pointer;
+      box-shadow: var(--shadow-lg);
+      display: none;
+      z-index: 1000;
+      transition: all 0.2s;
+    }
+    #scrollTop:hover { background: var(--primary-dark); }
+
+    /* ===== FOOTER ===== */
+    .doc-footer {
+      background: var(--dark);
+      color: rgba(255,255,255,0.5);
+      text-align: center;
+      padding: 1.5rem;
+      font-size: 0.78rem;
+    }
+
+    .doc-footer strong { color: var(--white); }
+
+    /* ===== PRINT ===== */
+    @media print {
+      .toc { display: none !important; }
+      .content { margin-left: 0 !important; }
+      .layout { display: block !important; padding: 0 !important; }
+      .section { break-inside: avoid; box-shadow: none !important; }
+      #scrollTop { display: none !important; }
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 900px) {
+      .toc { display: none; }
+      .layout { padding: 1rem; }
+      .cover { padding: 2.5rem 1.5rem; }
+      .cover h1 { font-size: 1.7rem; }
+      .cover-meta { flex-wrap: wrap; gap: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ===== PORTADA ===== -->
+<div class="cover">
+  <div class="cover-top">
+    <img src="https://codanor.com/assets/img/logo_web-50.png" alt="CODANOR">
+    <span class="brand-name">CODANOR — Jafa, S.L.</span>
+  </div>
+  <div class="cover-main">
+    <div class="cover-badge">Propuesta Técnica · Versión 1.2 · Confidencial</div>
+    <h1>Herramienta de <span>Tiquets</span> Multiplataforma</h1>
+    <p class="cover-subtitle">
+      Gestión de incidencias, peticiones, cambios, problemas, vulnerabilidades y ciberincidentes
+      para sistemas de gestión ISO 27001, ISO 27701, ISO 42001, ISO 9001, ISO 14001, TISAX,
+      RGPD-LOPD-GDD y ENS RD311-2022.
+    </p>
+  </div>
+  <div class="cover-meta">
+    <div class="cover-meta-item">
+      <div class="label">Fecha</div>
+      <div class="value">27 agosto 2026</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="label">Versión</div>
+      <div class="value">1.2 — Seguimiento de Acciones</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="label">Autor</div>
+      <div class="value">Arq. Ciberseguridad — CODANOR</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="label">Estado</div>
+      <div class="value">Pendiente de revisión</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== LAYOUT ===== -->
+<div class="layout">
+
+  <!-- ===== ÍNDICE LATERAL ===== -->
+  <nav class="toc" id="toc">
+    <div class="toc-title">Índice</div>
+
+    <div class="toc-section-label">Introducción</div>
+    <a href="#sec1" class="toc-link">1. Contexto y Objetivo</a>
+    <a href="#sec2" class="toc-link">2. Requisitos Funcionales</a>
+
+    <div class="toc-section-label">Especificación</div>
+    <a href="#sec3" class="toc-link">3. Tipos de Tiquet</a>
+    <a href="#sec4" class="toc-link">4. Perfiles y Permisos</a>
+    <a href="#sec5" class="toc-link">5. Formato del ID</a>
+    <a href="#sec6" class="toc-link">6. Ciclo de Vida</a>
+    <a href="#sec7" class="toc-link">7. SLA por Prioridad</a>
+    <a href="#sec8" class="toc-link">8. Campos del Tiquet</a>
+
+    <div class="toc-section-label">Arquitectura</div>
+    <a href="#sec9" class="toc-link">9. Integración con SQLite</a>
+    <a href="#sec9-1" class="toc-link toc-sub">9.1 Diagrama de capas</a>
+    <a href="#sec9-2" class="toc-link toc-sub">9.2 Esquema de base de datos</a>
+    <a href="#sec9-3" class="toc-link toc-sub">9.3 Generación del ID</a>
+    <a href="#sec9-4" class="toc-link toc-sub">9.4 API REST Flask</a>
+    <a href="#sec9-5" class="toc-link toc-sub">9.5 Modo offline</a>
+    <a href="#sec9-6" class="toc-link toc-sub">9.6 Backup e integridad</a>
+
+    <div class="toc-section-label">Interfaz</div>
+    <a href="#sec10" class="toc-link">10. Mockup Visual</a>
+
+    <div class="toc-section-label">Implementación</div>
+    <a href="#sec11" class="toc-link">11. Hoja de Ruta</a>
+    <a href="#sec12" class="toc-link">12. Archivos</a>
+  </nav>
+
+  <!-- ===== CONTENIDO ===== -->
+  <main class="content">
+
+    <!-- ===== SECCIÓN 1 — CONTEXTO ===== -->
+    <div class="section" id="sec1">
+      <div class="section-header">
+        <div class="section-num">1</div>
+        <h2>Contexto y Objetivo</h2>
+      </div>
+      <div class="section-body">
+        <p>
+          CODANOR actúa como responsable de Sistema de Gestión especializado en arquitectura de
+          ciberseguridad y analista funcional senior, responsable de los proyectos de las diferentes
+          normas ISO y marcos regulatorios aplicables a sus clientes. El portfolio actual cubre:
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Norma / Marco</th>
+                <th>Ámbito</th>
+                <th>Clasificación</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>ISO 27001 — SGSI</td><td>Seguridad de la Información</td><td><span class="badge badge-danger">Ciberseguridad</span></td></tr>
+              <tr><td>ISO 27701 — SGP</td><td>Privacidad de la Información</td><td><span class="badge badge-danger">Ciberseguridad</span></td></tr>
+              <tr><td>ISO 42001 — SGIA</td><td>Gestión de Inteligencia Artificial</td><td><span class="badge badge-purple">IA / Riesgo</span></td></tr>
+              <tr><td>TISAX</td><td>Seguridad Automotive</td><td><span class="badge badge-danger">Ciberseguridad</span></td></tr>
+              <tr><td>RGPD-LOPD-GDD</td><td>Protección de Datos</td><td><span class="badge badge-primary">Legal</span></td></tr>
+              <tr><td>ISO 9001 — SGC</td><td>Calidad</td><td><span class="badge badge-accent">Calidad</span></td></tr>
+              <tr><td>ISO 14001 — SGMA 2015/2026</td><td>Medioambiente</td><td><span class="badge badge-accent">Medioambiente</span></td></tr>
+              <tr><td>ENS — RD311-2022</td><td>Esquema Nacional de Seguridad</td><td><span class="badge badge-danger">Ciberseguridad</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          <strong>Objetivo:</strong> diseñar e implementar una herramienta de ticketing multiplataforma
+          que sirva para todas las normas anteriores, poniendo el foco en la ciberseguridad como
+          disciplina más exigente. La herramienta deberá gestionar de forma unificada:
+          incidencias, peticiones, cambios, problemas, vulnerabilidades y ciberincidentes,
+          manteniendo la trazabilidad y las evidencias requeridas por cada marco normativo.
+        </p>
+      </div>
+    </div>
+
+    <!-- ===== SECCIÓN 2 — REQUISITOS ===== -->
+    <div class="section" id="sec2">
+      <div class="section-header">
+        <div class="section-num">2</div>
+        <h2>Requisitos Funcionales Obligatorios</h2>
+      </div>
+      <div class="section-body">
+        <ul class="checklist">
+          <li><span class="icon">&#10003;</span>Permitir crear, clasificar, priorizar, asignar, escalar, resolver y cerrar tiquets.</li>
+          <li><span class="icon">&#10003;</span>Soportar distintos perfiles de usuario: solicitante, operador, técnico, responsable de servicio, responsable de seguridad, auditor y administrador.</li>
+          <li><span class="icon">&#10003;</span><strong>ENS:</strong> aplicar principios básicos y requisitos mínimos del Esquema Nacional de Seguridad (integridad, trazabilidad, disponibilidad).</li>
+          <li><span class="icon">&#10003;</span><strong>CCN-CERT:</strong> seguir criterios y buenas prácticas para gestión de ciberincidentes y herramientas de seguridad.</li>
+          <li><span class="icon">&#10003;</span><strong>ISO/IEC 27001:</strong> controles de registro de actividad, control de accesos, gestión de incidentes, continuidad y mejora continua (controles A.16, A.12.1.2, A.5.25–A.5.28).</li>
+          <li><span class="icon">&#10003;</span><strong>ISO 9001:</strong> trazabilidad de requisitos, gestión de no conformidades, acciones correctivas, control documental y satisfacción del cliente/usuario.</li>
+          <li><span class="icon">&#10003;</span>ID único, numérico incremental, ligado al cliente y al proyecto/norma.</li>
+          <li><span class="icon">&#10003;</span>Integración con base de datos SQLite con API REST Python/Flask como backend.</li>
+          <li><span class="icon">&#10003;</span>Modo offline con fallback a localStorage para uso sin servidor activo.</li>
+          <li><span class="icon">&#10003;</span>Historial de cambios auditable y exportación de evidencias para auditoría.</li>
+          <li><span class="icon">&#10003;</span>Integración en el menú ACCIONES de la plataforma existente (<code>plataforma-seguimiento.html</code>).</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ===== SECCIÓN 3 — TIPOS ===== -->
+    <div class="section" id="sec3">
+      <div class="section-header">
+        <div class="section-num">3</div>
+        <h2>Tipos de Tiquet</h2>
+      </div>
+      <div class="section-body">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Código</th>
+                <th>Tipo</th>
+                <th>Norma principal</th>
+                <th>Descripción</th>
+                <th>SLA por defecto</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="badge badge-danger">INC</span></td>
+                <td>Incidencia</td>
+                <td>ISO 27001 A.16 · ENS</td>
+                <td>Evento no planificado que afecta la seguridad, calidad o continuidad del servicio.</td>
+                <td>Alta — 4h respuesta / 24h resolución</td>
+              </tr>
+              <tr>
+                <td><span class="badge badge-primary">PET</span></td>
+                <td>Petición</td>
+                <td>ISO 9001 8.2</td>
+                <td>Solicitud de servicio, información, acceso o recurso por parte del cliente/usuario.</td>
+                <td>Media — 8h respuesta / 72h resolución</td>
+              </tr>
+              <tr>
+                <td><span class="badge badge-warning">CAM</span></td>
+                <td>Cambio</td>
+                <td>ISO 27001 A.12.1.2 · ENS</td>
+                <td>Modificación controlada de sistemas, procesos o configuraciones con evaluación de impacto.</td>
+                <td>Media — 8h respuesta / planificado</td>
+              </tr>
+              <tr>
+                <td><span class="badge badge-accent">PRO</span></td>
+                <td>Problema</td>
+                <td>ISO 9001 10.2 · ISO 27001</td>
+                <td>Causa raíz de incidencias recurrentes. Requiere análisis de causa raíz (RCA) y acción correctiva.</td>
+                <td>Media — 8h respuesta / 72h resolución</td>
+              </tr>
+              <tr>
+                <td><span class="badge badge-purple">VUL</span></td>
+                <td>Vulnerabilidad</td>
+                <td>ENS · CCN-CERT · TISAX</td>
+                <td>Debilidad técnica identificada en sistemas, aplicaciones o infraestructura que puede ser explotada.</td>
+                <td>Alta/Crítica — según severidad CVSS</td>
+              </tr>
+              <tr>
+                <td><span class="badge badge-danger" style="background:#fdedec;color:#a93226;">CIB</span></td>
+                <td>Ciberincidente</td>
+                <td>ENS · CCN-CERT · ISO 27001 A.16</td>
+                <td>Incidente de ciberseguridad activo o potencial. Protocolo de respuesta inmediata, notificación y evidencias forenses.</td>
+                <td>Crítica — 1h respuesta / 4h resolución</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="callout callout-warn">
+          <div class="callout-icon">&#9888;</div>
+          <div class="callout-body">
+            <strong>Prioridad en ciberincidentes y vulnerabilidades críticas</strong>
+            Los tipos CIB y VUL con severidad crítica activan automáticamente el protocolo de escalado urgente
+            al Responsable de Seguridad, independientemente del horario laboral.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== SECCIÓN 4 — PERFILES ===== -->
+    <div class="section" id="sec4">
+      <div class="section-header">
+        <div class="section-num">4</div>
+        <h2>Perfiles de Usuario y Permisos</h2>
+      </div>
+      <div class="section-body">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Perfil</th>
+                <th>Crear</th>
+                <th>Ver todos</th>
+                <th>Editar</th>
+                <th>Asignar</th>
+                <th>Escalar</th>
+                <th>Cerrar</th>
+                <th>Exportar</th>
+                <th>Administrar</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Solicitante</strong></td>
+                <td>&#10003; propios</td><td>&#10007;</td><td>&#10007;</td><td>&#10007;</td><td>&#10007;</td><td>&#10007;</td><td>&#10007;</td><td>&#10007;</td>
+              </tr>
+              <tr>
+                <td><strong>Operador</strong></td>
+                <td>&#10003;</td><td>&#10003;</td><td>parcial</td><td>&#10003;</td><td>&#10007;</td><td>&#10007;</td><td>&#10007;</td><td>&#10007;</td>
+              </tr>
+              <tr>
+                <td><strong>Técnico</strong></td>
+                <td>&#10003;</td><td>&#10003;</td><td>&#10003;</td><td>&#10003;</td><td>&#10007;</td><td>&#10007;</td><td>&#10007;</td><td>&#10007;</td>
+              </tr>
+              <tr>
+                <td><strong>Resp. Servicio</strong></td>
+                <td>&#10003;</td><td>&#10003;</td><td>&#10003;</td><td>&#10003;</td><td>&#10003;</td><td>&#10003;</td><td>&#10007;</td><td>&#10007;</td>
+              </tr>
+              <tr>
+                <td><strong>Resp. Seguridad</strong></td>
+                <td>&#10003;</td><td>&#10003;</td><td>&#10003;</td><td>&#10003;</td><td>&#10003;</td><td>&#10003;</td><td>&#10003;</td><td>&#10007;</td>
+              </tr>
+              <tr>
+                <td><strong>Auditor</strong></td>
+                <td>&#10007;</td><td>&#10003;</td><td>&#10007;</td><td>&#10007;</td><td>&#10007;</td><td>&#10007;</td><td>&#10003;</td><td>&#10007;</td>
+              </tr>
+              <tr>
+                <td><strong>Administrador</strong></td>
+                <td>&#10003;</td><td>&#10003;</td><td>&#10003;</td><td>&#10003;</td><td>&#10003;</td><td>&#10003;</td><td>&#10003;</td><td>&#10003;</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== SECCIÓN 5 — ID ===== -->
+    <div class="section" id="sec5">
+      <div class="section-header">
+        <div class="section-num">5</div>
+        <h2>Formato del ID de Tiquet</h2>
+      </div>
+      <div class="section-body">
+        <div class="id-example">
+          <span class="id-text">TIK-001-cli_703-iso27001-27-08-2026</span>
+          <div class="id-parts">
+            <div class="id-part"><span>Prefijo fijo</span>TIK</div>
+            <div class="id-part"><span>Contador NNN</span>001</div>
+            <div class="id-part"><span>clients.id</span>cli_703</div>
+            <div class="id-part"><span>projects.app_id</span>iso27001</div>
+            <div class="id-part"><span>Fecha creación</span>27-08-2026</div>
+          </div>
+        </div>
+        <div class="callout callout-info" style="margin-top:1rem;">
+          <div class="callout-icon">&#8505;</div>
+          <div class="callout-body">
+            <strong>Origen de los datos en plataforma.db</strong>
+            Los segmentos <strong>client_id</strong> y <strong>app_id</strong> se toman directamente de las tablas
+            <code>clients</code> y <code>projects</code> ya existentes en
+            <code>Plataforma_Seguimiento_Proyectos/servidor/plataforma.db</code>
+            (298 clientes · 32 proyectos · 9 normas activas). No se crean tablas nuevas para estos datos.
+          </div>
+        </div>
+        <div class="table-wrap" style="margin-top:1.25rem;">
+          <table>
+            <thead>
+              <tr><th>Segmento</th><th>Origen en plataforma.db</th><th>Regla</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>TIK</code></td>
+                <td>Literal fijo</td>
+                <td>Prefijo global que identifica el sistema de tiquets CODANOR.</td>
+              </tr>
+              <tr>
+                <td><code>NNN</code></td>
+                <td>Tabla <code>contadores_tiquets</code> (nueva)</td>
+                <td>Contador incremental <strong>por par client_id + app_id</strong>. Generación atómica con <code>ON CONFLICT DO UPDATE</code>. Nunca se reutiliza ni se reinicia.</td>
+              </tr>
+              <tr>
+                <td><code>client_id</code></td>
+                <td><code>clients.id</code> (existente, 298 filas)</td>
+                <td>Identificador único del cliente en <code>plataforma.db</code>. Ejemplos reales: <code>cli_703</code>, <code>cli_845</code>. También disponible <code>numero_cliente_externo</code> (ej: <code>703</code>).</td>
+              </tr>
+              <tr>
+                <td><code>app_id</code></td>
+                <td><code>projects.app_id</code> (existente, 9 valores)</td>
+                <td>Código de la norma/proyecto en <code>plataforma.db</code>. Valores reales: <code>iso27001</code>, <code>rgpd</code>, <code>ens</code>, <code>tisax</code>, <code>iso9001</code>, <code>iso14001</code>, <code>iso42001</code>, <code>iso27701</code>, <code>iso14001-2026</code>.</td>
+              </tr>
+              <tr>
+                <td><code>DD-MM-AAAA</code></td>
+                <td>Generado en el momento de creación</td>
+                <td>Fecha local en formato <code>DD-MM-AAAA</code>. Se fija al crear el tiquet y no cambia.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="callout callout-ok" style="margin-top:1rem;">
+          <div class="callout-icon">&#10003;</div>
+          <div class="callout-body">
+            <strong>Ejemplos de IDs con datos reales de plataforma.db</strong>
+            <code>TIK-001-cli_703-iso27001-27-08-2026</code> &nbsp;·&nbsp;
+            <code>TIK-015-cli_845-rgpd-01-09-2026</code> &nbsp;·&nbsp;
+            <code>TIK-003-cli_703-ens-15-10-2026</code>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== SECCIÓN 6 — CICLO DE VIDA ===== -->
+    <div class="section" id="sec6">
+      <div class="section-header">
+        <div class="section-num">6</div>
+        <h2>Ciclo de Vida y Estados</h2>
+      </div>
+      <div class="section-body">
+        <div class="lifecycle">
+          <div class="lc-step">
+            <div class="lc-box lc-start">NUEVO</div>
+            <div class="lc-label">Creación</div>
+          </div>
+          <div class="lc-arrow">&#8594;</div>
+          <div class="lc-step">
+            <div class="lc-box">ASIGNADO</div>
+            <div class="lc-label">Operador/Admin</div>
+          </div>
+          <div class="lc-arrow">&#8594;</div>
+          <div class="lc-step">
+            <div class="lc-box">EN PROGRESO</div>
+            <div class="lc-label">Técnico</div>
+          </div>
+          <div class="lc-arrow">&#8594;</div>
+          <div class="lc-step">
+            <div class="lc-box lc-warn">PENDIENTE</div>
+            <div class="lc-label">Bloqueado/espera</div>
+          </div>
+          <div class="lc-arrow">&#8594;</div>
+          <div class="lc-step">
+            <div class="lc-box">RESUELTO</div>
+            <div class="lc-label">Técnico</div>
+          </div>
+          <div class="lc-arrow">&#8594;</div>
+          <div class="lc-step">
+            <div class="lc-box lc-end">CERRADO</div>
+            <div class="lc-label">Resp. Servicio</div>
+          </div>
+        </div>
+        <p class="lc-reopen">&#8593; Reapertura posible desde RESUELTO o CERRADO (requiere justificación registrada en historial)</p>
+        <div class="table-wrap" style="margin-top:1.25rem;">
+          <table>
+            <thead>
+              <tr><th>Estado</th><th>Quién lo activa</th><th>Acción requerida</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>Nuevo</strong></td><td>Sistema (al crear)</td><td>Notificación a Operadores / Resp. Seguridad (CIB/VUL).</td></tr>
+              <tr><td><strong>Asignado</strong></td><td>Operador, Admin</td><td>Selección del técnico responsable. Se fija el SLA.</td></tr>
+              <tr><td><strong>En Progreso</strong></td><td>Técnico</td><td>El técnico acepta y comienza el trabajo. Registro en historial.</td></tr>
+              <tr><td><strong>Pendiente</strong></td><td>Técnico, Resp. Servicio</td><td>Bloqueo externo (espera cliente, tercero). Se documenta el motivo.</td></tr>
+              <tr><td><strong>Resuelto</strong></td><td>Técnico</td><td>Solución aplicada. Se documenta la resolución y las evidencias.</td></tr>
+              <tr><td><strong>Cerrado</strong></td><td>Resp. Servicio, Admin</td><td>Validación de la resolución. Cierre definitivo. Genera evidencia de cierre.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== SECCIÓN 7 — SLA ===== -->
+    <div class="section" id="sec7">
+      <div class="section-header">
+        <div class="section-num">7</div>
+        <h2>SLA por Prioridad y Tipo</h2>
+      </div>
+      <div class="section-body">
+        <p>Los tiempos de respuesta y resolución se ajustan a los requerimientos del ENS, CCN-CERT e ISO 27001 A.16.</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Prioridad</th>
+                <th>Tipos aplicables</th>
+                <th>Tiempo de respuesta</th>
+                <th>Tiempo de resolución</th>
+                <th>Escalado automático</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="badge badge-danger">Crítica</span></td>
+                <td>CIB · VUL (CVSS ≥ 9)</td>
+                <td><strong>1 hora</strong></td>
+                <td><strong>4 horas</strong></td>
+                <td>Resp. Seguridad + Dirección</td>
+              </tr>
+              <tr>
+                <td><span class="badge badge-warning" style="background:#fdedec;color:#c0392b;">Alta</span></td>
+                <td>INC · CAM urgente · VUL (CVSS 7–8.9)</td>
+                <td><strong>4 horas</strong></td>
+                <td><strong>24 horas</strong></td>
+                <td>Resp. Servicio</td>
+              </tr>
+              <tr>
+                <td><span class="badge badge-warning">Media</span></td>
+                <td>INC · PET · PRO · CAM planificado</td>
+                <td><strong>8 horas</strong></td>
+                <td><strong>72 horas</strong></td>
+                <td>Operador / Técnico senior</td>
+              </tr>
+              <tr>
+                <td><span class="badge badge-accent">Baja</span></td>
+                <td>PET · CAM planificado · mejoras</td>
+                <td><strong>24 horas</strong></td>
+                <td><strong>10 días hábiles</strong></td>
+                <td>No aplica</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="callout callout-ok" style="margin-top:1rem;">
+          <div class="callout-icon">&#10003;</div>
+          <div class="callout-body">
+            <strong>Cálculo del SLA</strong>
+            El sistema calcula automáticamente la fecha/hora de vencimiento del SLA en el momento de asignación
+            del tiquet, aplicando los tiempos definidos en horario laboral (L-V 8:00–20:00) excepto para
+            prioridad Crítica, que opera 24/7.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== SECCIÓN 8 — CAMPOS ===== -->
+    <div class="section" id="sec8">
+      <div class="section-header">
+        <div class="section-num">8</div>
+        <h2>Campos del Tiquet — Matriz Completa</h2>
+      </div>
+      <div class="section-body">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Campo</th>
+                <th>Tipo</th>
+                <th>Obligatorio</th>
+                <th>Quién lo rellena</th>
+                <th>Descripción</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td><code>tiquet_id</code></td><td>Texto</td><td>Auto</td><td>Sistema</td><td>ID único <code>TIK-NNN-{clients.id}-{projects.app_id}-DD-MM-AAAA</code>. Generado atómicamente.</td></tr>
+              <tr><td><code>titulo</code></td><td>Texto corto</td><td>&#10003;</td><td>Solicitante</td><td>Descripción breve, max. 200 caracteres.</td></tr>
+              <tr><td><code>descripcion</code></td><td>Texto largo</td><td>&#10003;</td><td>Solicitante</td><td>Detalle completo del tiquet. Admite markdown.</td></tr>
+              <tr><td><code>tipo</code></td><td>Enum</td><td>&#10003;</td><td>Solicitante</td><td>INC / PET / CAM / PRO / VUL / CIB.</td></tr>
+              <tr><td><code>prioridad</code></td><td>Enum</td><td>&#10003;</td><td>Solicitante / Operador</td><td>Crítica / Alta / Media / Baja.</td></tr>
+              <tr><td><code>estado</code></td><td>Enum</td><td>Auto</td><td>Sistema / Técnico</td><td>Nuevo → Asignado → En Progreso → Pendiente → Resuelto → Cerrado.</td></tr>
+              <tr><td><code>client_id</code></td><td>TEXT (FK lógica)</td><td>&#10003;</td><td>Sistema</td><td>Referencia a <code>clients.id</code> en <code>plataforma.db</code> (existente, 298 clientes). Ej: <code>cli_703</code>.</td></tr>
+              <tr><td><code>app_id</code></td><td>TEXT (FK lógica)</td><td>&#10003;</td><td>Sistema</td><td>Referencia a <code>projects.app_id</code> en <code>plataforma.db</code> (existente, 9 normas). Ej: <code>iso27001</code>, <code>rgpd</code>, <code>ens</code>.</td></tr>
+              <tr><td><code>project_id</code></td><td>TEXT (FK lógica)</td><td>&#10007;</td><td>Sistema</td><td>Referencia a <code>projects.id</code> en <code>plataforma.db</code> para identificar el proyecto concreto. Ej: <code>PRJ-001-ESADE</code>.</td></tr>
+              <tr><td><code>solicitante</code></td><td>Texto</td><td>Auto</td><td>Sistema</td><td>Nombre o identificador del usuario que crea el tiquet (texto libre, sin tabla de usuarios en v1).</td></tr>
+              <tr><td><code>asignado_a</code></td><td>Texto</td><td>&#10007;</td><td>Operador / Admin</td><td>Nombre o identificador del técnico responsable (texto libre en v1).</td></tr>
+              <tr><td><code>normas_afectadas</code></td><td>JSON Array</td><td>&#10007;</td><td>Técnico / Resp. Seguridad</td><td>Lista de normas afectadas. Ej: <code>["iso27001","ens","rgpd"]</code>.</td></tr>
+              <tr><td><code>control_iso</code></td><td>Texto</td><td>&#10007;</td><td>Técnico / Resp. Seguridad</td><td>Control ISO 27001 afectado. Ej: <code>A.16.1.1</code>, <code>A.12.1.2</code>.</td></tr>
+              <tr><td><code>cvss_score</code></td><td>Decimal</td><td>&#10007; (VUL/CIB)</td><td>Resp. Seguridad</td><td>Puntuación CVSS 3.1 para vulnerabilidades (0–10).</td></tr>
+              <tr><td><code>sla_vencimiento</code></td><td>DateTime</td><td>Auto</td><td>Sistema</td><td>Calculado al asignar el tiquet según prioridad + tipo.</td></tr>
+              <tr><td><code>fecha_resolucion</code></td><td>DateTime</td><td>Auto</td><td>Sistema</td><td>Timestamp automático al pasar al estado Resuelto.</td></tr>
+              <tr><td><code>evidencias</code></td><td>Texto / rutas</td><td>&#10007;</td><td>Técnico</td><td>Referencias a documentos o ficheros de evidencia (ruta o URL).</td></tr>
+              <tr><td><code>creado_en</code></td><td>DateTime</td><td>Auto</td><td>Sistema</td><td>Timestamp de creación. ISO 8601 en UTC.</td></tr>
+              <tr><td><code>actualizado_en</code></td><td>DateTime</td><td>Auto</td><td>Sistema</td><td>Timestamp de última modificación. Actualizado en cada cambio.</td></tr>
+              <tr><td><code>tiquets_historial</code></td><td>Tabla propia (nueva)</td><td>Auto</td><td>Sistema</td><td>Registro auditable de todos los cambios de campo, usuario y timestamp en <code>plataforma.db</code>.</td></tr>
+              <tr><td><code>tiquets_comentarios</code></td><td>Tabla propia (nueva)</td><td>&#10007;</td><td>Cualquier perfil con acceso</td><td>Log de seguimiento con entradas de texto, usuario y timestamp en <code>plataforma.db</code>.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== SECCIÓN 9 — SQLITE ===== -->
+    <div class="section" id="sec9">
+      <div class="section-header">
+        <div class="section-num">9</div>
+        <h2>Arquitectura de Integración con SQLite</h2>
+      </div>
+      <div class="section-body">
+
+        <!-- 9.1 Diagrama -->
+        <div class="subsection" id="sec9-1">
+          <h3>&#9998; 9.1 — Diagrama de Capas</h3>
+          <div class="callout callout-warn" style="margin-bottom:1rem;">
+            <div class="callout-icon">&#9888;</div>
+            <div class="callout-body">
+              <strong>Decisión de arquitectura (v1.2)</strong>
+              Las tablas de tiquets se integran directamente en <code>plataforma.db</code> del proyecto
+              <code>Plataforma_Seguimiento_Proyectos</code>. No se crea una base de datos nueva.
+              Los datos de clientes y proyectos (<code>clients</code>, <code>projects</code>) ya existen
+              y se reutilizan sin duplicar. En v1.2 se añade la tabla <code>tiquets_acciones</code>
+              para el seguimiento estructurado de acciones dentro de cada tiquet.
+            </div>
+          </div>
+          <div class="arch-diagram">
+            <div class="arch-layer layer-frontend">
+              <div class="arch-layer-title">&#128196; Capa Presentación — Frontend HTML/JS</div>
+              <div class="arch-layer-desc">
+                <code>PLATAFORMA_OpenCode-NEW/plataforma-seguimiento.html</code> — SPA estática.<br>
+                Fetch API hacia el servidor existente de <code>Plataforma_Seguimiento_Proyectos</code> para modo online.<br>
+                Caché offline con <code>localStorage</code> (fallback automático si el servidor no está activo).<br>
+                Sin dependencias de framework. Vanilla JS + CSS corporativo CODANOR.
+              </div>
+            </div>
+            <div class="arch-connector">
+              <div class="line"></div>
+              <div class="protocol">HTTP/JSON · REST · /api/tiquets/*</div>
+              <div class="line"></div>
+            </div>
+            <div class="arch-layer layer-backend">
+              <div class="arch-layer-title">&#9881; Capa Lógica — Backend Python/Flask (servidor existente)</div>
+              <div class="arch-layer-desc">
+                <code>Plataforma_Seguimiento_Proyectos/servidor/</code> — servidor Flask ya en producción.<br>
+                Se añade el módulo <code>routes_tiquets.py</code> con los 9 endpoints <code>/api/tiquets/*</code>.<br>
+                Genera el ID atómico usando <code>clients.id</code> + <code>projects.app_id</code> existentes.<br>
+                Registra historial automáticamente en cada cambio. Sin instalaciones adicionales.
+              </div>
+            </div>
+            <div class="arch-connector">
+              <div class="line"></div>
+              <div class="protocol">sqlite3 · misma conexión · WAL mode</div>
+              <div class="line"></div>
+            </div>
+            <div class="arch-layer layer-db">
+              <div class="arch-layer-title">&#128452; Capa Datos — plataforma.db (base de datos existente)</div>
+              <div class="arch-layer-desc">
+                <code>Plataforma_Seguimiento_Proyectos/servidor/plataforma.db</code> — ya en producción.<br>
+                <strong>Tablas existentes (no se tocan):</strong> <code>clients</code> (298 filas) · <code>projects</code> (32 filas) · <code>phase_data</code> (35 filas) · <code>settings</code>.<br>
+                <strong>Tablas nuevas a añadir (migración):</strong> <code>tiquets</code> · <code>tiquets_historial</code> · <code>tiquets_comentarios</code> · <code>contadores_tiquets</code> · <code>tiquets_acciones</code> (v1.2).<br>
+                Backup consistente ya operativo en <code>Plataforma_Seguimiento_Proyectos/servidor/backups/</code>.
+              </div>
+            </div>
+          </div>
+          <div class="table-wrap" style="margin-top:1.25rem;">
+            <table>
+              <thead>
+                <tr><th>Elemento</th><th>Proyecto</th><th>Ruta real en disco</th><th>Estado</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code>plataforma.db</code></td><td>Plataforma_Seguimiento_Proyectos</td><td><code>…/servidor/plataforma.db</code></td><td><span class="badge badge-accent">Activa · 298+32 filas</span></td></tr>
+                <tr><td><code>clients</code></td><td>plataforma.db</td><td>Tabla existente</td><td><span class="badge badge-accent">298 clientes</span></td></tr>
+                <tr><td><code>projects</code></td><td>plataforma.db</td><td>Tabla existente</td><td><span class="badge badge-accent">32 proyectos · 9 normas</span></td></tr>
+                <tr><td><code>tiquets</code></td><td>plataforma.db</td><td>Tabla nueva (migración)</td><td><span class="badge badge-warning">Pendiente crear</span></td></tr>
+                <tr><td><code>tiquets_historial</code></td><td>plataforma.db</td><td>Tabla nueva (migración)</td><td><span class="badge badge-warning">Pendiente crear</span></td></tr>
+                <tr><td><code>tiquets_comentarios</code></td><td>plataforma.db</td><td>Tabla nueva (migración)</td><td><span class="badge badge-accent">Creada</span></td></tr>
+                <tr><td><code>tiquets_acciones</code></td><td>plataforma.db</td><td>Tabla nueva v1.2 (migración)</td><td><span class="badge badge-accent">Creada</span></td></tr>
+                <tr><td><code>contadores_tiquets</code></td><td>plataforma.db</td><td>Tabla nueva (migración)</td><td><span class="badge badge-warning">Pendiente crear</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 9.2 Schema -->
+        <div class="subsection" id="sec9-2">
+          <h3>&#128452; 9.2 — Esquema de Base de Datos (DDL — migración sobre plataforma.db)</h3>
+          <p>
+            Fichero: <code>Plataforma_Seguimiento_Proyectos/servidor/migration_tiquets.sql</code><br>
+            Se ejecuta <strong>una sola vez</strong> sobre la base de datos existente, con backup previo garantizado.
+            Las tablas <code>clients</code> y <code>projects</code> ya existen con datos reales — <strong>no se tocan</strong>.
+          </p>
+          <div class="callout callout-ok" style="margin-bottom:1rem;">
+            <div class="callout-icon">&#10003;</div>
+            <div class="callout-body">
+              <strong>Patrón de FK lógicas (consistente con plataforma.db)</strong>
+              La BD existente usa referencias lógicas por convención, sin <code>FOREIGN KEY</code> explícitos
+              (el schema actual no tiene <code>PRAGMA foreign_keys = ON</code>). Se mantiene el mismo patrón
+              para no romper la compatibilidad.
+            </div>
+          </div>
+          <div class="code-block">
+            <div class="code-block-header">
+              <span class="lang">SQL — SQLite · Migración</span>
+              <span class="fname">servidor/migration_tiquets.sql</span>
+            </div>
+            <pre><span class="cm">-- ============================================================
+-- MIGRACIÓN: Sistema de Tiquets CODANOR
+-- Sobre: Plataforma_Seguimiento_Proyectos/servidor/plataforma.db
+-- Ejecución: sqlite3 plataforma.db &lt; migration_tiquets.sql
+--
+-- PRECONDICIÓN: hacer backup antes de ejecutar:
+--   sqlite3 plataforma.db ".backup 'backups/plataforma_pre_tiquets.db'"
+--
+-- Tablas existentes que NO se modifican:
+--   clients (298 filas)  →  client_id en tiquets = clients.id (TEXT)
+--   projects (32 filas)  →  app_id en tiquets    = projects.app_id (TEXT)
+--   phase_data, settings
+-- ============================================================</span>
+
+<span class="cm">-- ── TABLA NUEVA 1: contadores NNN por client + app_id ────────</span>
+<span class="kw">CREATE TABLE IF NOT EXISTS</span> <span class="fn">contadores_tiquets</span> (
+  client_id   <span class="kw">TEXT NOT NULL</span>,   <span class="cm">-- FK lógica → clients.id</span>
+  app_id      <span class="kw">TEXT NOT NULL</span>,   <span class="cm">-- FK lógica → projects.app_id</span>
+  ultimo_nnn  <span class="kw">INTEGER DEFAULT</span> <span class="num">0</span>,
+  <span class="kw">PRIMARY KEY</span>(client_id, app_id)
+);
+
+<span class="cm">-- ── TABLA NUEVA 2: tiquets (principal) ───────────────────────</span>
+<span class="kw">CREATE TABLE IF NOT EXISTS</span> <span class="fn">tiquets</span> (
+  id               <span class="kw">INTEGER PRIMARY KEY AUTOINCREMENT</span>,
+  tiquet_id        <span class="kw">TEXT NOT NULL UNIQUE</span>,
+                   <span class="cm">-- Formato: TIK-{NNN:03d}-{client_id}-{app_id}-{DD-MM-AAAA}</span>
+                   <span class="cm">-- Ej:      TIK-001-cli_703-iso27001-27-08-2026</span>
+  nnn              <span class="kw">INTEGER NOT NULL</span>,
+  client_id        <span class="kw">TEXT NOT NULL</span>,    <span class="cm">-- → clients.id  (ej: "cli_703")</span>
+  app_id           <span class="kw">TEXT NOT NULL</span>,    <span class="cm">-- → projects.app_id (ej: "iso27001")</span>
+  project_id       <span class="kw">TEXT</span>,             <span class="cm">-- → projects.id (ej: "PRJ-001-ESADE")</span>
+  titulo           <span class="kw">TEXT NOT NULL</span>,
+  descripcion      <span class="kw">TEXT</span>,
+  tipo             <span class="kw">TEXT NOT NULL CHECK</span>(tipo <span class="kw">IN</span> (
+                     <span class="str">'incidencia'</span>, <span class="str">'peticion'</span>, <span class="str">'cambio'</span>,
+                     <span class="str">'problema'</span>, <span class="str">'vulnerabilidad'</span>, <span class="str">'ciberincidente'</span>)),
+  prioridad        <span class="kw">TEXT NOT NULL CHECK</span>(prioridad <span class="kw">IN</span> (
+                     <span class="str">'critica'</span>, <span class="str">'alta'</span>, <span class="str">'media'</span>, <span class="str">'baja'</span>)),
+  estado           <span class="kw">TEXT NOT NULL DEFAULT</span> <span class="str">'nuevo'</span> <span class="kw">CHECK</span>(estado <span class="kw">IN</span> (
+                     <span class="str">'nuevo'</span>, <span class="str">'asignado'</span>, <span class="str">'en_progreso'</span>,
+                     <span class="str">'pendiente'</span>, <span class="str">'resuelto'</span>, <span class="str">'cerrado'</span>)),
+  solicitante      <span class="kw">TEXT</span>,             <span class="cm">-- nombre libre (sin tabla usuarios en v1)</span>
+  asignado_a       <span class="kw">TEXT</span>,             <span class="cm">-- nombre libre (sin tabla usuarios en v1)</span>
+  normas_afectadas <span class="kw">TEXT</span>,             <span class="cm">-- JSON: ["iso27001","ens"]</span>
+  control_iso      <span class="kw">TEXT</span>,             <span class="cm">-- Ej: A.16.1.1</span>
+  cvss_score       <span class="kw">REAL</span>,             <span class="cm">-- Para VUL/CIB (0.0–10.0)</span>
+  sla_vencimiento  <span class="kw">TEXT</span>,             <span class="cm">-- datetime ISO calculado al asignar</span>
+  fecha_resolucion <span class="kw">TEXT</span>,
+  evidencias       <span class="kw">TEXT</span>,             <span class="cm">-- rutas o referencias a documentos</span>
+  creado_en        <span class="kw">TEXT DEFAULT</span> (datetime(<span class="str">'now'</span>)),
+  actualizado_en   <span class="kw">TEXT DEFAULT</span> (datetime(<span class="str">'now'</span>))
+);
+
+<span class="cm">-- ── TABLA NUEVA 3: historial de cambios (auditoría) ──────────</span>
+<span class="kw">CREATE TABLE IF NOT EXISTS</span> <span class="fn">tiquets_historial</span> (
+  id          <span class="kw">INTEGER PRIMARY KEY AUTOINCREMENT</span>,
+  tiquet_id   <span class="kw">TEXT NOT NULL</span>,   <span class="cm">-- → tiquets.tiquet_id</span>
+  usuario     <span class="kw">TEXT</span>,            <span class="cm">-- nombre libre</span>
+  campo       <span class="kw">TEXT NOT NULL</span>,   <span class="cm">-- campo que cambió</span>
+  valor_antes <span class="kw">TEXT</span>,
+  valor_des   <span class="kw">TEXT</span>,
+  fecha       <span class="kw">TEXT DEFAULT</span> (datetime(<span class="str">'now'</span>))
+);
+
+<span class="cm">-- ── TABLA NUEVA 4: comentarios de seguimiento ────────────────</span>
+<span class="kw">CREATE TABLE IF NOT EXISTS</span> <span class="fn">tiquets_comentarios</span> (
+  id        <span class="kw">INTEGER PRIMARY KEY AUTOINCREMENT</span>,
+  tiquet_id <span class="kw">TEXT NOT NULL</span>,   <span class="cm">-- → tiquets.tiquet_id</span>
+  usuario   <span class="kw">TEXT</span>,            <span class="cm">-- nombre libre</span>
+  texto     <span class="kw">TEXT NOT NULL</span>,
+  fecha     <span class="kw">TEXT DEFAULT</span> (datetime(<span class="str">'now'</span>))
+);
+
+<span class="cm">-- ── ÍNDICES para rendimiento ──────────────────────────────────</span>
+<span class="kw">CREATE INDEX IF NOT EXISTS</span> idx_tiquets_client    <span class="kw">ON</span> tiquets(client_id);
+<span class="kw">CREATE INDEX IF NOT EXISTS</span> idx_tiquets_app       <span class="kw">ON</span> tiquets(app_id);
+<span class="kw">CREATE INDEX IF NOT EXISTS</span> idx_tiquets_estado    <span class="kw">ON</span> tiquets(estado);
+<span class="kw">CREATE INDEX IF NOT EXISTS</span> idx_tiquets_tipo      <span class="kw">ON</span> tiquets(tipo);
+<span class="kw">CREATE INDEX IF NOT EXISTS</span> idx_historial_tiquet  <span class="kw">ON</span> tiquets_historial(tiquet_id);
+<span class="kw">CREATE INDEX IF NOT EXISTS</span> idx_comentarios_tiquet <span class="kw">ON</span> tiquets_comentarios(tiquet_id);
+
+<span class="cm">-- ── TABLA NUEVA 5: acciones de seguimiento (v1.2) ─────────────
+-- Acciones concretas dentro de un tiquet EN PROGRESO.
+-- Estados: pendiente → en_curso → resuelta
+-- Lógica automática: cuando TODAS las acciones del tiquet
+-- están 'resuelta', el servidor actualiza el tiquet a 'resuelto'.</span>
+<span class="kw">CREATE TABLE IF NOT EXISTS</span> <span class="fn">tiquets_acciones</span> (
+  id               <span class="kw">INTEGER PRIMARY KEY AUTOINCREMENT</span>,
+  tiquet_id        <span class="kw">TEXT NOT NULL</span>,    <span class="cm">-- → tiquets.tiquet_id</span>
+  descripcion      <span class="kw">TEXT NOT NULL</span>,
+  responsable      <span class="kw">TEXT</span>,
+  estado           <span class="kw">TEXT NOT NULL DEFAULT</span> <span class="str">'pendiente'</span>
+                   <span class="kw">CHECK</span>(estado <span class="kw">IN</span> (<span class="str">'pendiente'</span>,<span class="str">'en_curso'</span>,<span class="str">'resuelta'</span>)),
+  fecha_limite     <span class="kw">TEXT</span>,
+  fecha_resolucion <span class="kw">TEXT</span>,
+  creado_en        <span class="kw">TEXT NOT NULL</span>,
+  actualizado_en   <span class="kw">TEXT NOT NULL</span>
+);
+
+<span class="kw">CREATE INDEX IF NOT EXISTS</span> idx_acc_tiquet <span class="kw">ON</span> tiquets_acciones(tiquet_id);
+
+<span class="cm">-- ── VERIFICACIÓN post-migración ───────────────────────────────</span>
+<span class="cm">-- Ejecutar para confirmar que las tablas se crearon correctamente:</span>
+<span class="cm">-- SELECT name FROM sqlite_master WHERE type='table' ORDER BY name;</span>
+<span class="cm">-- Resultado esperado: clients, contadores_tiquets, phase_data,</span>
+<span class="cm">--   projects, settings, tiquets, tiquets_acciones,
+--   tiquets_comentarios, tiquets_historial</span></pre>
+          </div>
+        </div>
+
+        <!-- 9.3 Generación ID -->
+        <div class="subsection" id="sec9-3">
+          <h3>&#9889; 9.3 — Lógica de Generación del ID (transacción atómica)</h3>
+          <p>
+            La función usa <code>client_id</code> (TEXT, de <code>clients.id</code>) y
+            <code>app_id</code> (TEXT, de <code>projects.app_id</code>) — ambos ya existentes en
+            <code>plataforma.db</code>. La transacción atómica garantiza que dos peticiones
+            concurrentes nunca generen el mismo NNN para el mismo par cliente+norma.
+          </p>
+          <div class="code-block">
+            <div class="code-block-header">
+              <span class="lang">Python</span>
+              <span class="fname">servidor/routes_tiquets.py — generar_tiquet_id()</span>
+            </div>
+            <pre><span class="kw">from</span> datetime <span class="kw">import</span> datetime
+
+<span class="kw">def</span> <span class="fn">generar_tiquet_id</span>(client_id: str, app_id: str, conn) -> tuple[str, int]:
+    <span class="str">"""
+    Genera ID único: TIK-{NNN:03d}-{client_id}-{app_id}-{DD-MM-AAAA}
+
+    Parámetros tomados directamente de plataforma.db (ya existen):
+      client_id : str  →  clients.id        (ej: "cli_703")
+      app_id    : str  →  projects.app_id   (ej: "iso27001")
+
+    Ejemplo de ID resultante:
+      TIK-001-cli_703-iso27001-27-08-2026
+
+    Garantía: transacción atómica ON CONFLICT DO UPDATE.
+    Nunca se reutiliza ni se reinicia el NNN por par client_id+app_id.
+    """</span>
+    <span class="kw">with</span> conn:  <span class="cm"># BEGIN / COMMIT automático (WAL mode)</span>
+        <span class="cm"># Paso 1 — Incrementar contador o crear si no existe (atómico)</span>
+        conn.execute(<span class="str">"""
+            INSERT INTO contadores_tiquets (client_id, app_id, ultimo_nnn)
+            VALUES (?, ?, 1)
+            ON CONFLICT(client_id, app_id)
+            DO UPDATE SET ultimo_nnn = ultimo_nnn + 1
+        """</span>, (client_id, app_id))
+
+        <span class="cm"># Paso 2 — Leer el NNN asignado en esta transacción</span>
+        row = conn.execute(<span class="str">"""
+            SELECT ultimo_nnn
+            FROM contadores_tiquets
+            WHERE client_id = ? AND app_id = ?
+        """</span>, (client_id, app_id)).fetchone()
+
+    nnn = row[<span class="num">0</span>]
+    fecha = datetime.now().strftime(<span class="str">'%d-%m-%Y'</span>)
+    tiquet_id = <span class="str">f"TIK-{nnn:03d}-{client_id}-{app_id}-{fecha}"</span>
+    <span class="kw">return</span> tiquet_id, nnn
+
+
+<span class="cm"># ── Uso en el endpoint POST /api/tiquets ─────────────────────</span>
+<span class="cm"># El frontend envía: { client_id: "cli_703", app_id: "iso27001", ... }</span>
+<span class="cm"># El backend obtiene client_id y app_id de clients y projects existentes</span>
+<span class="cm"># y genera el ID antes de insertar el tiquet:</span>
+
+<span class="cm"># tiquet_id, nnn = generar_tiquet_id(data['client_id'], data['app_id'], db)</span>
+<span class="cm"># → "TIK-001-cli_703-iso27001-27-08-2026"</span></pre>
+          </div>
+        </div>
+
+        <!-- 9.4 API REST -->
+        <div class="subsection" id="sec9-4">
+          <h3>&#127760; 9.4 — API REST (9 endpoints — módulo en servidor existente)</h3>
+          <div class="callout callout-info" style="margin-bottom:1rem;">
+            <div class="callout-icon">&#8505;</div>
+            <div class="callout-body">
+              <strong>Integración en el servidor existente</strong>
+              Los endpoints de tiquets se añaden como módulo <code>routes_tiquets.py</code> al servidor Flask
+              ya en producción en <code>Plataforma_Seguimiento_Proyectos/servidor/</code>.
+              <strong>No se crea un servidor nuevo.</strong> Los endpoints <code>/api/clients</code> y
+              <code>/api/projects</code> ya existen — los de tiquets los reutilizan para mostrar
+              los selectores de cliente y norma en el frontend.
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Método</th>
+                  <th>Endpoint</th>
+                  <th>Descripción</th>
+                  <th>Perfil mínimo</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td><span class="badge badge-accent">GET</span></td><td><code>/api/ping</code></td><td>Ya existe en el servidor. Usado por el JS de <code>plataforma-seguimiento.html</code> para detectar modo online/offline.</td><td>Público</td></tr>
+                <tr><td><span class="badge badge-accent">GET</span></td><td><code>/api/clients</code></td><td>Ya existe. Devuelve lista de clientes de <code>plataforma.db</code> para poblar el selector de cliente en el frontend.</td><td>Operador</td></tr>
+                <tr><td><span class="badge badge-accent">GET</span></td><td><code>/api/projects?client_id=X&amp;app_id=Y</code></td><td>Ya existe (adaptar). Proyectos/normas de un cliente filtrados por <code>app_id</code>.</td><td>Operador</td></tr>
+                <tr><td><span class="badge badge-accent">GET</span></td><td><code>/api/tiquets?client_id=X&amp;app_id=Y&amp;tipo=Z&amp;estado=W</code></td><td>NUEVO. Lista de tiquets con filtros opcionales. Paginada (limit/offset).</td><td>Técnico</td></tr>
+                <tr><td><span class="badge badge-primary">POST</span></td><td><code>/api/tiquets</code></td><td>NUEVO. Crear tiquet. Genera ID atómico con <code>generar_tiquet_id()</code>, fija SLA, registra primera entrada en <code>tiquets_historial</code>.</td><td>Solicitante</td></tr>
+                <tr><td><span class="badge badge-accent">GET</span></td><td><code>/api/tiquets/{tiquet_id}</code></td><td>NUEVO. Detalle completo del tiquet + historial de cambios + comentarios.</td><td>Técnico</td></tr>
+                <tr><td><span class="badge badge-warning">PUT</span></td><td><code>/api/tiquets/{tiquet_id}</code></td><td>NUEVO. Actualizar campos. Registra cada cambio de campo en <code>tiquets_historial</code> automáticamente.</td><td>Técnico</td></tr>
+                <tr><td><span class="badge badge-primary">POST</span></td><td><code>/api/tiquets/{tiquet_id}/comentarios</code></td><td>NUEVO. Añadir comentario al log de seguimiento del tiquet.</td><td>Operador</td></tr>
+                <tr><td><span class="badge badge-accent">GET</span></td><td><code>/api/tiquets/exportar?formato=csv&amp;client_id=X</code></td><td>NUEVO. Exportación CSV de tiquets para evidencias de auditoría (ISO 27001 A.16, ENS).</td><td>Auditor</td></tr>
+                <tr><td><span class="badge badge-accent" style="background:var(--accent-light);color:#0d7a71;">GET</span></td><td><code>/api/tiquets/{tiquet_id}/acciones</code></td><td>v1.2. Lista acciones de seguimiento de un tiquet.</td><td>Técnico</td></tr>
+                <tr><td><span class="badge badge-primary">POST</span></td><td><code>/api/tiquets/{tiquet_id}/acciones</code></td><td>v1.2. Crear acción. Lógica automática: si todas las acciones pasan a 'resuelta', el tiquet pasa a 'resuelto'.</td><td>Técnico</td></tr>
+                <tr><td><span class="badge badge-warning">PUT</span></td><td><code>/api/tiquets/{tiquet_id}/acciones/{id}</code></td><td>v1.2. Actualizar estado de acción (pendiente → en_curso → resuelta). Dispara resolución automática del tiquet.</td><td>Técnico</td></tr>
+                <tr><td><span class="badge badge-danger" style="background:var(--danger-light);color:var(--danger);">DEL</span></td><td><code>/api/tiquets/{tiquet_id}/acciones/{id}</code></td><td>v1.2. Eliminar acción de seguimiento.</td><td>Técnico</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="callout callout-ok" style="margin-top:1rem;">
+            <div class="callout-icon">&#10003;</div>
+            <div class="callout-body">
+              <strong>Sin arranque adicional</strong>
+              El servidor de <code>Plataforma_Seguimiento_Proyectos</code> ya está en marcha.
+              Solo hay que importar el nuevo módulo en el fichero principal de rutas:<br>
+              <code>from routes_tiquets import tiquets_bp</code><br>
+              <code>app.register_blueprint(tiquets_bp, url_prefix='/api')</code>
+            </div>
+          </div>
+        </div>
+
+        <!-- 9.5 Offline -->
+        <div class="subsection" id="sec9-5">
+          <h3>&#128246; 9.5 — Modo Offline / Fallback localStorage</h3>
+          <p>
+            La SPA detecta automáticamente si el servidor Flask está activo. Si no lo está
+            (apertura directa con <code>file://</code> o servidor detenido), opera en modo offline
+            usando <code>localStorage</code> con el mismo modelo de datos.
+          </p>
+          <div class="code-block">
+            <div class="code-block-header">
+              <span class="lang">JavaScript</span>
+              <span class="fname">plataforma-seguimiento.html — detección online/offline</span>
+            </div>
+            <pre><span class="kw">const</span> API_BASE = <span class="str">'http://localhost:5500/api'</span>;
+<span class="kw">let</span> modoOnline = <span class="kw">false</span>;
+
+<span class="kw">async function</span> <span class="fn">detectarModo</span>() {
+  <span class="kw">try</span> {
+    <span class="kw">const</span> res = <span class="kw">await</span> fetch(<span class="str">`${API_BASE}/ping`</span>, { signal: AbortSignal.timeout(<span class="num">1500</span>) });
+    modoOnline = res.ok;
+  } <span class="kw">catch</span> {
+    modoOnline = <span class="kw">false</span>;
+  }
+  <span class="fn">actualizarIndicadorModo</span>();
+  <span class="kw">return</span> modoOnline;
+}
+
+<span class="cm">// Carga de tiquets: API o localStorage según modo</span>
+<span class="kw">async function</span> <span class="fn">cargarTiquets</span>(filtros = {}) {
+  <span class="kw">if</span> (modoOnline) {
+    <span class="kw">const</span> params = <span class="kw">new</span> URLSearchParams(filtros);
+    <span class="kw">const</span> data = <span class="kw">await</span> fetch(<span class="str">`${API_BASE}/tiquets?${params}`</span>).then(r => r.json());
+    <span class="kw">return</span> data.tiquets;
+  } <span class="kw">else</span> {
+    <span class="cm">// Fallback: leer de localStorage (misma estructura JSON)</span>
+    <span class="kw">const</span> raw = localStorage.getItem(<span class="str">'codanor_tiquets_v2'</span>);
+    <span class="kw">return</span> raw ? JSON.parse(raw) : [];
+  }
+}
+
+<span class="cm">// Sincronización al recuperar conexión</span>
+window.addEventListener(<span class="str">'online'</span>, <span class="kw">async</span> () => {
+  <span class="kw">if</span> (<span class="kw">await</span> <span class="fn">detectarModo</span>()) <span class="fn">sincronizarLocalStorageConAPI</span>();
+});</pre>
+          </div>
+        </div>
+
+        <!-- 9.6 Backup -->
+        <div class="subsection" id="sec9-6">
+          <h3>&#128190; 9.6 — Backup e Integridad</h3>
+          <p>
+            Al integrarse en <code>plataforma.db</code>, las nuevas tablas de tiquets quedan
+            <strong>automáticamente cubiertas</strong> por el sistema de backup ya operativo
+            en <code>Plataforma_Seguimiento_Proyectos/servidor/backups/</code>.
+            No se requieren cambios en <code>backup-opencode.sh</code>.
+          </p>
+          <div class="table-wrap" style="margin-top:1rem;">
+            <table>
+              <thead>
+                <tr><th>Backup existente</th><th>Fecha</th><th>Cobertura tras migración</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>plataforma_post_6apps_COMPLETO_20260825_142010.db</code></td>
+                  <td>25-08-2026</td>
+                  <td>Pre-migración (sin tablas tiquets)</td>
+                </tr>
+                <tr>
+                  <td><code>plataforma_pre_6apps_20260825_134928.db</code></td>
+                  <td>25-08-2026</td>
+                  <td>Pre-migración (sin tablas tiquets)</td>
+                </tr>
+                <tr>
+                  <td><strong>plataforma_pre_tiquets_{TIMESTAMP}.db</strong></td>
+                  <td>Antes de migrar</td>
+                  <td><span class="badge badge-warning">Crear antes de ejecutar migration_tiquets.sql</span></td>
+                </tr>
+                <tr>
+                  <td>Backups futuros (automáticos)</td>
+                  <td>Continuo</td>
+                  <td><span class="badge badge-accent">Incluyen tiquets, historial y comentarios</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="code-block" style="margin-top:1rem;">
+            <div class="code-block-header">
+              <span class="lang">Bash</span>
+              <span class="fname">Backup obligatorio ANTES de ejecutar la migración</span>
+            </div>
+            <pre><span class="cm"># Ejecutar ANTES de migration_tiquets.sql — en el directorio del servidor</span>
+<span class="kw">cd</span> ~/Proyectos/Plataforma_Seguimiento_Proyectos/servidor
+
+TIMESTAMP=$(date +<span class="str">"%Y%m%d_%H%M%S"</span>)
+sqlite3 plataforma.db <span class="str">".backup 'backups/plataforma_pre_tiquets_${TIMESTAMP}.db'"</span>
+
+<span class="cm"># Validar integridad del backup antes de continuar</span>
+INTEGRITY=$(sqlite3 <span class="str">"backups/plataforma_pre_tiquets_${TIMESTAMP}.db"</span> <span class="str">"PRAGMA integrity_check;"</span>)
+<span class="kw">if</span> [ <span class="str">"${INTEGRITY}"</span> = <span class="str">"ok"</span> ]; <span class="kw">then</span>
+  echo <span class="str">"[OK] Backup validado. Procediendo con la migración..."</span>
+  sqlite3 plataforma.db <span class="str">"&lt; migration_tiquets.sql"</span>
+<span class="kw">else</span>
+  echo <span class="str">"[ERROR] integrity_check falló. NO ejecutar migración."</span>
+  <span class="kw">exit</span> 1
+<span class="kw">fi</span></pre>
+          </div>
+          <div class="callout callout-ok" style="margin-top:1rem;">
+            <div class="callout-icon">&#10003;</div>
+            <div class="callout-body">
+              <strong>Mismo patrón de backup ya validado</strong>
+              Se usa el mismo mecanismo <code>sqlite3 ".backup"</code> + <code>PRAGMA integrity_check</code>
+              ya documentado en <code>Memory.md</code> para <code>opencode.db</code> y confirmado en los
+              backups existentes de <code>plataforma.db</code>. No hay que inventar nada nuevo.
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /section-body sec9 -->
+    </div><!-- /sec9 -->
+
+    <!-- ===== SECCIÓN 10 — MOCKUP ===== -->
+    <div class="section" id="sec10">
+      <div class="section-header">
+        <div class="section-num">10</div>
+        <h2>Mockup Visual — Vista Previa de la Interfaz</h2>
+      </div>
+      <div class="section-body">
+        <p>Representación visual de cómo quedaría la herramienta integrada en <code>plataforma-seguimiento.html</code>.
+           El sidebar muestra la nueva sección <strong>ACCIONES</strong> con el ítem <strong>Gestor de Tiquets</strong> activo.</p>
+
+        <div class="mockup-frame">
+          <!-- Barra del navegador -->
+          <div class="mockup-bar">
+            <div class="mockup-dot red"></div>
+            <div class="mockup-dot yellow"></div>
+            <div class="mockup-dot green"></div>
+            <div class="mockup-url">http://localhost:5500 — Plataforma de Seguimiento OpenCode - CODANOR</div>
+          </div>
+
+          <!-- App simulada -->
+          <div class="mockup-app">
+
+            <!-- Sidebar simulado -->
+            <div class="m-sidebar">
+              <div class="m-brand">
+                <img src="https://codanor.com/assets/img/logo_web-50.png" alt="CODANOR">
+                <span>OpenCode Tracker</span>
+              </div>
+              <div class="m-nav">
+                <div class="m-nav-label">Principal</div>
+                <div class="m-nav-item">&#9632; Dashboard</div>
+                <div class="m-nav-item">&#9632; Incidencias <span class="m-badge">3</span></div>
+
+                <div class="m-nav-label">Recursos</div>
+                <div class="m-nav-item">&#9632; Documentación</div>
+                <div class="m-nav-item">&#9632; Changelog</div>
+
+                <div class="m-nav-label">Acciones</div>
+                <div class="m-nav-item m-active">&#127903; Gestor de Tiquets <span class="m-badge m-badge-accent">8</span></div>
+
+                <div class="m-nav-label">Herramientas</div>
+                <div class="m-nav-item">&#9632; Análisis de Código</div>
+                <div class="m-nav-item">&#9632; Homogeneización</div>
+              </div>
+            </div>
+
+            <!-- Contenido principal simulado -->
+            <div class="m-content">
+              <div class="m-topbar">
+                <h3>&#127903; Gestor de Tiquets</h3>
+                <button class="m-btn">+ Nuevo Tiquet</button>
+              </div>
+
+              <!-- Filtros -->
+              <div class="m-filters">
+                <select class="m-filter-select">
+                  <option>Cliente: CLI001</option>
+                  <option>CLI002</option>
+                  <option>Todos</option>
+                </select>
+                <select class="m-filter-select">
+                  <option>Proyecto: ISO27001</option>
+                  <option>RGPD</option>
+                  <option>ENS</option>
+                  <option>Todos</option>
+                </select>
+                <select class="m-filter-select">
+                  <option>Tipo: Todos</option>
+                  <option>Incidencia</option>
+                  <option>Vulnerabilidad</option>
+                  <option>Ciberincidente</option>
+                </select>
+                <select class="m-filter-select">
+                  <option>Estado: Activos</option>
+                  <option>Cerrados</option>
+                  <option>Todos</option>
+                </select>
+                <select class="m-filter-select">
+                  <option>Prioridad: Todas</option>
+                  <option>Crítica</option>
+                  <option>Alta</option>
+                </select>
+              </div>
+
+              <!-- Lista de tiquets demo -->
+              <div class="m-ticket-list">
+
+                <div class="m-ticket-card tc-cib">
+                  <div>
+                    <div class="m-tc-id">TIK-003-CLI001-ISO27001-27-08-2026</div>
+                    <div class="m-tc-title">Acceso no autorizado al servidor de ficheros</div>
+                  </div>
+                  <div class="m-tc-badges">
+                    <span class="m-tc-badge m-badge-cib">CIB</span>
+                    <span class="m-tc-badge m-badge-critica">Crítica</span>
+                    <span class="m-tc-badge m-badge-progreso">En Progreso</span>
+                  </div>
+                </div>
+
+                <div class="m-ticket-card tc-vul">
+                  <div>
+                    <div class="m-tc-id">TIK-007-CLI002-ISO27001-26-08-2026</div>
+                    <div class="m-tc-title">CVE-2024-1234 en componente de autenticación (CVSS 9.1)</div>
+                  </div>
+                  <div class="m-tc-badges">
+                    <span class="m-tc-badge m-badge-vul">VUL</span>
+                    <span class="m-tc-badge m-badge-critica">Crítica</span>
+                    <span class="m-tc-badge m-badge-nuevo">Nuevo</span>
+                  </div>
+                </div>
+
+                <div class="m-ticket-card tc-inc">
+                  <div>
+                    <div class="m-tc-id">TIK-015-CLI001-RGPD-25-08-2026</div>
+                    <div class="m-tc-title">Fallo en registro de consentimientos de usuarios</div>
+                  </div>
+                  <div class="m-tc-badges">
+                    <span class="m-tc-badge m-badge-inc">INC</span>
+                    <span class="m-tc-badge m-badge-alta">Alta</span>
+                    <span class="m-tc-badge m-badge-progreso">En Progreso</span>
+                  </div>
+                </div>
+
+                <div class="m-ticket-card tc-cam">
+                  <div>
+                    <div class="m-tc-id">TIK-002-CLI002-ENS-24-08-2026</div>
+                    <div class="m-tc-title">Actualización política de contraseñas — ENS medidas mínimas</div>
+                  </div>
+                  <div class="m-tc-badges">
+                    <span class="m-tc-badge m-badge-cam">CAM</span>
+                    <span class="m-tc-badge m-badge-media">Media</span>
+                    <span class="m-tc-badge m-badge-pendiente">Pendiente</span>
+                  </div>
+                </div>
+
+                <div class="m-ticket-card tc-pro">
+                  <div>
+                    <div class="m-tc-id">TIK-001-CLI001-ISO9001-22-08-2026</div>
+                    <div class="m-tc-title">No conformidad recurrente en control de documentos</div>
+                  </div>
+                  <div class="m-tc-badges">
+                    <span class="m-tc-badge m-badge-pro">PRO</span>
+                    <span class="m-tc-badge m-badge-media">Media</span>
+                    <span class="m-tc-badge m-badge-progreso">En Progreso</span>
+                  </div>
+                </div>
+
+                <div class="m-ticket-card tc-pet">
+                  <div>
+                    <div class="m-tc-id">TIK-009-CLI002-RGPD-20-08-2026</div>
+                    <div class="m-tc-title">Solicitud de informe de ejercicio de derechos ARCO</div>
+                  </div>
+                  <div class="m-tc-badges">
+                    <span class="m-tc-badge m-badge-pet">PET</span>
+                    <span class="m-tc-badge m-badge-baja">Baja</span>
+                    <span class="m-tc-badge m-badge-resuelto">Resuelto</span>
+                  </div>
+                </div>
+
+              </div><!-- /m-ticket-list -->
+            </div><!-- /m-content -->
+          </div><!-- /mockup-app -->
+        </div><!-- /mockup-frame -->
+
+        <p style="margin-top:1rem; font-size:0.83rem; color:var(--gray-500);">
+          <em>Nota: el mockup es una representación estática. La implementación real incluirá
+          modal de creación/edición, panel de detalle con historial de cambios, paginación,
+          indicador online/offline y exportación CSV para auditoría.</em>
+        </p>
+      </div>
+    </div>
+
+    <!-- ===== SECCIÓN 11 — HOJA DE RUTA ===== -->
+    <div class="section" id="sec11">
+      <div class="section-header">
+        <div class="section-num">11</div>
+        <h2>Hoja de Ruta de Implementación</h2>
+      </div>
+      <div class="section-body">
+        <div class="roadmap">
+
+          <div class="roadmap-item">
+            <div class="roadmap-phase">
+              <div class="phase-label">Fase</div>
+              <div class="phase-num">1</div>
+            </div>
+            <div class="roadmap-info">
+              <h4>Migración de base de datos — añadir tablas a plataforma.db</h4>
+              <p>Hacer backup previo de <code>plataforma.db</code>, ejecutar <code>migration_tiquets.sql</code> sobre la base de datos existente. Añade 4 tablas nuevas: <code>tiquets</code>, <code>tiquets_historial</code>, <code>tiquets_comentarios</code> y <code>contadores_tiquets</code>. Las tablas <code>clients</code> y <code>projects</code> no se modifican.</p>
+              <div class="entregable">Entregable: <code>servidor/migration_tiquets.sql</code> · <code>plataforma.db</code> con 8 tablas</div>
+            </div>
+          </div>
+
+          <div class="roadmap-item">
+            <div class="roadmap-phase">
+              <div class="phase-label">Fase</div>
+              <div class="phase-num">2</div>
+            </div>
+            <div class="roadmap-info">
+              <h4>Módulo Flask de tiquets — integrar en servidor existente</h4>
+              <p>Crear <code>servidor/routes_tiquets.py</code> con los 9 endpoints REST de tiquets y la función <code>generar_tiquet_id()</code>. Registrar el blueprint en el fichero principal del servidor. Aprovechar la conexión a <code>plataforma.db</code> ya existente.</p>
+              <div class="entregable">Entregable: <code>servidor/routes_tiquets.py</code> · endpoints <code>/api/tiquets/*</code> activos</div>
+            </div>
+          </div>
+
+          <div class="roadmap-item">
+            <div class="roadmap-phase">
+              <div class="phase-label">Fase</div>
+              <div class="phase-num">3</div>
+            </div>
+            <div class="roadmap-info">
+              <h4>Añadir sección ACCIONES al sidebar</h4>
+              <p>Modificar el sidebar de <code>plataforma-seguimiento.html</code> añadiendo el nuevo grupo <code>nav-label</code> ACCIONES con el ítem Gestor de Tiquets, badge de tiquets activos y función <code>showPage('tickets')</code>.</p>
+              <div class="entregable">Entregable: nuevo ítem visible en el menú lateral</div>
+            </div>
+          </div>
+
+          <div class="roadmap-item">
+            <div class="roadmap-phase">
+              <div class="phase-label">Fase</div>
+              <div class="phase-num">4</div>
+            </div>
+            <div class="roadmap-info">
+              <h4>Crear la página #page-tickets en la SPA</h4>
+              <p>Implementar el HTML de la nueva vista: selectores de cliente/proyecto, tabla de tiquets con filtros, modal de creación/edición con todos los campos del schema, panel de detalle con historial y comentarios.</p>
+              <div class="entregable">Entregable: <code>div#page-tickets</code> completo en la SPA</div>
+            </div>
+          </div>
+
+          <div class="roadmap-item">
+            <div class="roadmap-phase">
+              <div class="phase-label">Fase</div>
+              <div class="phase-num">5</div>
+            </div>
+            <div class="roadmap-info">
+              <h4>Integración JS — detección online/offline + Fetch API</h4>
+              <p>Implementar la capa de datos en JavaScript: <code>detectarModo()</code>, <code>cargarTiquets()</code>, <code>crearTiquet()</code>, <code>actualizarTiquet()</code>, sincronización localStorage ↔ API del servidor existente al recuperar conexión. El <code>API_BASE</code> apunta al servidor de <code>Plataforma_Seguimiento_Proyectos</code>.</p>
+              <div class="entregable">Entregable: SPA funcional tanto en modo online como offline</div>
+            </div>
+          </div>
+
+          <div class="roadmap-item">
+            <div class="roadmap-phase">
+              <div class="phase-label">Fase</div>
+              <div class="phase-num">6</div>
+            </div>
+            <div class="roadmap-info">
+              <h4>Sin cambios en backup-opencode.sh</h4>
+              <p>Las nuevas tablas de tiquets en <code>plataforma.db</code> quedan automáticamente cubiertas por el sistema de backup ya operativo en <code>Plataforma_Seguimiento_Proyectos/servidor/backups/</code>. Solo actualizar <code>Memory.md</code> con la nueva arquitectura.</p>
+              <div class="entregable">Entregable: <code>Memory.md</code> actualizado · backup automático ya cubierto</div>
+            </div>
+          </div>
+
+          <div class="roadmap-item">
+            <div class="roadmap-phase">
+              <div class="phase-label">Fase</div>
+              <div class="phase-num">7</div>
+            </div>
+            <div class="roadmap-info">
+              <h4>Actualización de Memory.md y documentación</h4>
+              <p>Registrar la nueva herramienta, arquitectura, rutas de archivos y decisiones técnicas en <code>Memory.md</code> para mantener el contexto del proyecto actualizado.</p>
+              <div class="entregable">Entregable: <code>Memory.md</code> actualizado</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== SECCIÓN 12 — ARCHIVOS ===== -->
+    <div class="section" id="sec12">
+      <div class="section-header">
+        <div class="section-num">12</div>
+        <h2>Archivos que se Crearán y Modificarán</h2>
+      </div>
+      <div class="section-body">
+
+        <div class="subsection">
+          <h3>&#10133; Archivos nuevos</h3>
+          <div class="table-wrap">
+            <table class="file-table">
+              <thead>
+                <tr><th>Archivo</th><th>Proyecto</th><th>Tipo</th><th>Descripción</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>propuesta-herramienta-tiquets.html</td>
+                  <td>PLATAFORMA_OpenCode-NEW</td>
+                  <td><span class="file-new">NUEVO</span></td>
+                  <td>Este documento de propuesta. Ya creado (v1.1).</td>
+                </tr>
+                <tr>
+                  <td>servidor/migration_tiquets.sql</td>
+                  <td>Plataforma_Seguimiento_Proyectos</td>
+                  <td><span class="file-new">NUEVO</span></td>
+                  <td>Script de migración DDL. Añade 4 tablas nuevas a <code>plataforma.db</code>. Se ejecuta una sola vez con backup previo garantizado. Versionable en Git (no contiene datos).</td>
+                </tr>
+                <tr>
+                  <td>servidor/routes_tiquets.py</td>
+                  <td>Plataforma_Seguimiento_Proyectos</td>
+                  <td><span class="file-new">NUEVO</span></td>
+                  <td>Blueprint Flask con 9 endpoints REST <code>/api/tiquets/*</code>. Incluye <code>generar_tiquet_id()</code> y registro automático de historial. Se importa en el servidor principal existente.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="subsection">
+          <h3>&#9999; Archivos modificados</h3>
+          <div class="table-wrap">
+            <table class="file-table">
+              <thead>
+                <tr><th>Archivo</th><th>Proyecto</th><th>Tipo</th><th>Cambios</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>plataforma-seguimiento.html</td>
+                  <td>PLATAFORMA_OpenCode-NEW</td>
+                  <td><span class="file-mod">MODIF.</span></td>
+                  <td>
+                    <strong>Sidebar:</strong> nuevo grupo ACCIONES + ítem Gestor de Tiquets + badge contador.<br>
+                    <strong>HTML:</strong> nuevo <code>div#page-tickets</code> con tabla filtrable, modal creación/edición y panel detalle.<br>
+                    <strong>JS:</strong> <code>detectarModo()</code>, <code>cargarTiquets()</code>, <code>crearTiquet()</code>, <code>actualizarTiquet()</code>, <code>renderTiquets()</code>, <code>sincronizarConAPI()</code>.<br>
+                    <strong>API_BASE:</strong> URL del servidor de <code>Plataforma_Seguimiento_Proyectos</code>.<br>
+                    <strong>localStorage:</strong> clave <code>codanor_tiquets_v2</code> para modo offline.
+                  </td>
+                </tr>
+                <tr>
+                  <td>servidor/app.py <em>(o equivalente)</em></td>
+                  <td>Plataforma_Seguimiento_Proyectos</td>
+                  <td><span class="file-mod">MODIF.</span></td>
+                  <td>Añadir <code>from routes_tiquets import tiquets_bp</code> y <code>app.register_blueprint(tiquets_bp, url_prefix='/api')</code>.</td>
+                </tr>
+                <tr>
+                  <td>Memory.md</td>
+                  <td>PLATAFORMA_OpenCode-NEW</td>
+                  <td><span class="file-mod">MODIF.</span></td>
+                  <td>Añadir sección "Herramienta de Tiquets" con arquitectura integrada, rutas reales, decisiones técnicas (integrar en plataforma.db) y estado de fases.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="subsection">
+          <h3>&#10007; Archivos que NO se crean (respecto a v1.0)</h3>
+          <div class="table-wrap">
+            <table class="file-table">
+              <thead>
+                <tr><th>Archivo descartado</th><th>Razón</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>data/tiquets.db</code></td>
+                  <td>No se crea una BD nueva. Los tiquets se almacenan en <code>plataforma.db</code> ya existente en <code>Plataforma_Seguimiento_Proyectos</code>.</td>
+                </tr>
+                <tr>
+                  <td><code>tools/api_tiquets.py</code></td>
+                  <td>No se crea un servidor Flask nuevo. Los endpoints se integran como blueprint en el servidor existente.</td>
+                </tr>
+                <tr>
+                  <td><code>tools/schema_tiquets.sql</code></td>
+                  <td>Renombrado y reubicado como <code>servidor/migration_tiquets.sql</code> en el proyecto correcto.</td>
+                </tr>
+                <tr>
+                  <td>Cambios en <code>.gitignore</code></td>
+                  <td>No aplica. <code>plataforma.db</code> ya está gestionada por el <code>.gitignore</code> de <code>Plataforma_Seguimiento_Proyectos</code>.</td>
+                </tr>
+                <tr>
+                  <td>Cambios en <code>backup-opencode.sh</code></td>
+                  <td>No necesario. Las nuevas tablas quedan cubiertas automáticamente por el backup existente de <code>plataforma.db</code>.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="callout callout-warn" style="margin-top:1.25rem;">
+          <div class="callout-icon">&#9888;</div>
+          <div class="callout-body">
+            <strong>Datos de clientes en Git</strong>
+            <code>plataforma.db</code> contiene datos reales de 298 clientes y ya debe estar excluida del
+            repositorio Git de <code>Plataforma_Seguimiento_Proyectos</code>.
+            El script de migración <code>migration_tiquets.sql</code> sí se versiona —
+            contiene solo DDL, sin datos personales.
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ===== FOOTER ===== -->
+<footer class="doc-footer">
+  <strong>CODANOR — Jafa, S.L.</strong> · Barcelona, Catalunya ·
+  <a href="https://codanor.com" style="color:var(--primary);">codanor.com</a> ·
+  Propuesta Herramienta de Tiquets v1.2 · 28 agosto 2026 · Documento confidencial
+</footer>
+
+<!-- Botón scroll top -->
+<button id="scrollTop" title="Volver arriba" onclick="window.scrollTo({top:0,behavior:'smooth'})">&#8679;</button>
+
+<script>
+  // ===== SCROLL TOP BUTTON =====
+  window.addEventListener('scroll', () => {
+    document.getElementById('scrollTop').style.display =
+      window.scrollY > 400 ? 'flex' : 'none';
+  });
+
+  // ===== TOC — resaltar sección activa con IntersectionObserver =====
+  const tocLinks = document.querySelectorAll('.toc-link');
+  const sections = document.querySelectorAll('.section, .subsection[id]');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        tocLinks.forEach(link => {
+          link.classList.toggle('active', link.getAttribute('href') === '#' + id);
+        });
+      }
+    });
+  }, { rootMargin: '-10% 0px -80% 0px', threshold: 0 });
+
+  sections.forEach(sec => {
+    if (sec.id) observer.observe(sec);
+  });
+
+  // ===== Scroll suave en el TOC =====
+  tocLinks.forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      const target = document.querySelector(link.getAttribute('href'));
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+</script>
+
+</body>
+</html>

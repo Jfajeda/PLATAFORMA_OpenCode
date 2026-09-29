@@ -1,5 +1,252 @@
 # Memory.md — PLATAFORMA_OpenCode
-> Ultima actualizacion: 2026-09-21
+> Ultima actualizacion: 2026-09-25
+
+## Estado actual
+
+- **Fase**: Produccion / mantenimiento activo
+- **Version**: Manual v3.0 (20 capitulos) + Manual IA Actas v1.0
+- **Ultimo cambio significativo**: Módulo IA/LLM v3.0 — Ollama local + Key corporativa LAN + fixes actas + Wiki consulta mejorada (2026-09-25)
+- **Issues abiertos**: 72 bugs de reliability + 3 security hotspots detectados por SonarCloud
+
+## Infraestructura
+
+| Elemento | Estado | Detalle |
+|----------|--------|---------|
+| Git | Si | rama principal |
+| GitHub | Si | github.com/Jfajeda/PLATAFORMA_OpenCode |
+| SonarCloud | Si | Security A, Reliability B, Maintainability A, 3.5% duplications |
+| .gitignore | Si | Excluye .DS_Store, backups, __pycache__ |
+| AGENTS.md | Si | Actualizado 2026-09-25 — módulo IA/LLM v3.0 completo |
+| opencode.json | Si | MCP SonarQube configurado |
+| Memory.md | Si | Este archivo |
+| plataforma.db | Activa | 10 tablas, WAL mode, 298 clientes, 32 proyectos |
+| server.py | Activo | Puerto 5001, HOST 0.0.0.0, ~3000 lineas, 19 endpoints tiquets + 3 endpoints corp LLM |
+| Ollama | Activo | localhost:11434, v0.34.0. Modelos: qwen2.5-coder:14b, qwen3:8b, llama3.1:latest, gemma3:4b |
+
+## Componentes del proyecto
+
+### PLATAFORMA_OpenCode-NEW
+
+| Archivo | Descripcion | Version |
+|---------|-------------|---------|
+| Manual_OpenCode_Codanor.html | Manual v3.0, 20 capitulos | ~137 KB |
+| Manual_IA_Actas_Codanor.html | Manual IA módulo actas v1.0, 10 secciones | ~99 KB |
+| plataforma-seguimiento.html | Dashboard + Kanban + Tiquets + Config IA Corp | ~98 KB |
+| analisis-codigo.html | Panel SonarCloud exportable, 5 pestanas | ~46 KB |
+| plan-homogeneizacion-modulos.html | Plan de homogeneizacion (14 caps) | ~72 KB |
+| homogeneizacion-proyectos.html | Dashboard homogeneizacion (5 pestanas) | ~46 KB |
+| propuesta-herramienta-tiquets.html | Propuesta tecnica tiquets **v1.2** | ~98 KB |
+| backup-opencode.sh | Script backup NAS CODANOR (8 modos) | ~14 KB |
+
+### Plataforma_Seguimiento_Proyectos/servidor/
+
+| Archivo | Descripcion | Estado |
+|---------|-------------|--------|
+| server.py | Flask app: motor proyectos + 19 endpoints tiquets + 3 endpoints corp LLM | ~3000 lineas |
+| plataforma.db | SQLite WAL: 10 tablas, 11 indices explícitos | Activa |
+| migration_tiquets.sql | DDL standalone v1.0→v1.4 con instrucciones backup | 147 lineas |
+| uploads/tiquets/ | Archivos adjuntos de tiquets (max 10 MB por fichero) | Excluido Git |
+| ARQUITECTURA_DB_SQLITE.html | Documentacion BD **unificada v1.4** — portada + TOC + 16 secciones + branding CODANOR | 116 KB |
+| Manual_IA_Actas_Codanor.html | Manual usuario módulo IA en actas v1.0 | ~99 KB |
+| requirements.txt | flask>=3.0.0, flask-cors>=4.0.0, python-docx>=1.0.0, openpyxl>=3.0.0 | — |
+
+### Plataforma_Seguimiento_Proyectos — 9 apps ISO/ENS
+
+| App | app_id | tiquets.js | phase2-*.js | llm.js | llm-models.js | phase3-audit.js |
+|-----|--------|------------|-------------|--------|---------------|-----------------|
+| ISO27001-SGSI | iso27001 | v=20260829f | v=20260925c | v=20260911h | v=20260911g | v=20260913a |
+| ISO27701-SGP | iso27701 | v=20260829f | v=20260925c | v=20260911h | v=20260911g | v=20260913a |
+| ISO42001-SGIA | iso42001 | v=20260829f | v=20260925c | v=20260911h | v=20260911g | v=20260913a |
+| TISAX | tisax | v=20260829f | v=20260925c | v=20260911h | v=20260911g | v=20260913a |
+| RGPD-LOPD-GDD | rgpd | v=20260829f | v=20260925c | v=20260911h | v=20260911g | v=20260913a |
+| ENS-RD311-2022 | ens | v=20260829f | v=20260925c | v=20260911h | v=20260911g | v=20260913a |
+| ISO9001-SGQ_2015 | iso9001 | v=20260829f | v=20260925c | v=20260911h | v=20260911g | v=20260913a |
+| ISO14001-SGMA_2015 | iso14001 | v=20260829f | v=20260925c | v=20260911h | v=20260911g | v=20260913a |
+| ISO14001-SGMA_2026_NEW | iso14001-2026 | v=20260829f | v=20260925c | v=20260911h | v=20260911g | v=20260913a |
+
+## Módulo IA/LLM — Arquitectura completa (v3.0 — 2026-09-25)
+
+### Proveedores y modelos activos
+
+| Proveedor | ID | Modelo por defecto | Gratuito | Key prefix |
+|---|---|---|---|---|
+| Groq | groq | openai/gpt-oss-20b | ✅ | gsk_... |
+| OpenRouter | openrouter | openrouter/free | ✅ | sk-or-... |
+| Google Gemini | google | gemini-2.0-flash | ✅ | AIza... |
+| OpenAI | openai | gpt-4o-mini | ❌ | sk-... |
+| Anthropic | anthropic | claude-3-5-haiku-20241022 | ❌ | sk-ant-... |
+| Ollama (Local) | ollama | qwen2.5-coder:14b | ✅ | ollama |
+
+### Config corporativa (server.py endpoints)
+
+```
+GET  /api/corp/llm-config   → config con key XOR+base64
+POST /api/corp/llm-config   → guarda (key ofuscada)
+DELETE /api/corp/llm-config → elimina
+```
+Panel admin: `plataforma-seguimiento.html` → sidebar "Configuración IA" → `#page-llm-admin`
+
+### Ollama local — modelos instalados
+
+| Modelo | Tamaño | Uso recomendado |
+|---|---|---|
+| qwen2.5-coder:14b | 8.5 GB | Análisis técnico ISO/ENS — modelo por defecto |
+| qwen3:8b | 5.0 GB | Uso general, resúmenes |
+| llama3.1:latest | 4.7 GB | Actas, síntesis general |
+| gemma3:4b | 3.2 GB | Rápido, bajo consumo RAM |
+
+Para LAN: `OLLAMA_HOST=0.0.0.0 ollama serve` (actualmente solo localhost)
+
+## Herramienta de Tiquets — Arquitectura completa (v1.0→v1.4)
+
+### BD: plataforma.db — 10 tablas
+
+**Tablas originales (4):**
+- `clients` (298 filas) — clientes CODANOR × 9 normas
+- `projects` (32 filas) — proyectos activos por norma
+- `phase_data` (35 filas) — datos de fases en JSON
+- `settings` — configuracion por app + config corp LLM (`app_id='_global'`, `key='corp_llm_config'`)
+
+**Tablas modulo tiquets (6):**
+
+| Tabla | Version | Filas | Descripcion |
+|-------|---------|-------|-------------|
+| `contadores_tiquets` | v1.0 | 2 | NNN atomico por (client_id, app_id) |
+| `tiquets` | v1.0+v1.4 | 2 | Tabla principal, 22 columnas, incl. wiki_article_id |
+| `tiquets_historial` | v1.0 | 9 | Auditoria campo a campo (ISO 27001 A.16) |
+| `tiquets_comentarios` | v1.0 | 1 | Log de seguimiento libre |
+| `tiquets_acciones` | v1.2 | 4 | Acciones: pendiente→en_curso→resuelta |
+| `tiquets_adjuntos` | v1.3 | 1 | Ficheros en uploads/tiquets/ |
+
+**Formato ID tiquet:** `TIK-{NNN:03d}-{client_id}-{app_id}-{DD-MM-AAAA}`
+
+### Endpoints API REST (22 en total, puerto 5001)
+
+19 endpoints tiquets (v1.0→v1.4) + 3 endpoints corp LLM (v3.0):
+
+| Metodo | URL | Version |
+|--------|-----|---------|
+| GET | /api/corp/llm-config | v3.0 |
+| POST | /api/corp/llm-config | v3.0 |
+| DELETE | /api/corp/llm-config | v3.0 |
+| GET | /api/tiquets/clientes | v1.0 |
+| GET | /api/tiquets | v1.0 |
+| POST | /api/tiquets | v1.0 |
+| PUT | /api/tiquets/\<id\> | v1.0 |
+| GET | /api/tiquets/\<id\>/acciones | v1.2 |
+| POST | /api/tiquets/\<id\>/acciones | v1.2 |
+| PUT | /api/tiquets/\<id\>/acciones/\<id\> | v1.2 |
+| DELETE | /api/tiquets/\<id\>/acciones/\<id\> | v1.2 |
+| GET | /api/tiquets/\<id\>/adjuntos | v1.3 |
+| POST | /api/tiquets/\<id\>/adjuntos | v1.3 |
+| DELETE | /api/tiquets/\<id\>/adjuntos/\<id\> | v1.3 |
+| GET | /api/tiquets/\<id\>/exportar/word | v1.3 |
+| GET | /api/tiquets/\<id\>/exportar/excel | v1.3 |
+| POST | /api/tiquets/\<id\>/enviar-wiki | v1.4 |
+
+## Historial de decisiones
+
+| Fecha | Decision | Razon |
+|-------|----------|-------|
+| 2026-04-26 | Mover proyectos a ~/Proyectos/ | iCloud causaba conflictos con Git |
+| 2026-08-28 | Integrar tiquets en plataforma.db (no BD nueva) | Reutilizar clients (298) y projects (32) |
+| 2026-08-29 | TK_API con window.location.hostname | localhost no funciona en equipos LAN remotos |
+| 2026-09-04 | Módulo Mapa de Procesos via phase_data (no IndexedDB) | IndexedDB es local al navegador |
+| 2026-09-06 | acciones[] en modelo de tarea | Registrar pasos concretos de resolución por tarea |
+| 2026-09-06 | PHASE_KEYS constante en store.js × 9 apps | ISO9001/ISO14001 usan gap/implementation, no phase1-5 |
+| 2026-09-11 | LLM: dos campos API Key → un solo campo | Campo duplicado desincronizado causaba "Missing Auth header" |
+| 2026-09-11 | llm.js: e.httpStatus preservado en callOpenAICompatible | _friendlyHttpError traduce antes del retry → regex no matchea |
+| 2026-09-11 | GROQ_FALLBACK_CHAIN con modelos disponibles sept-2026 | llama-3.3-70b-versatile retirado de plan gratuito Groq |
+| 2026-09-11 | Key corporativa LAN vía Flask settings | localStorage no se comparte entre PCs de la LAN |
+| 2026-09-11 | Ollama como 4º proveedor local | Sin internet, sin coste, modelos locales instalados |
+| 2026-09-11 | isOllamaKey guard en _syncLLMConfigFromForm | 'ollama' tiene 6 chars → length>10 bloqueaba el guardado |
+| 2026-09-13 | phase3-audit.js: prompt 10k→25k chars, maxTokens 1200→2000 | Las NC suelen estar en la segunda mitad del informe |
+| 2026-09-13 | phase3-audit.js: detección de intención NC (regex) | Prompt genérico devolvía respuestas vagas para preguntas sobre NC |
+| 2026-09-13 | phase3-audit.js: render Markdown en respuesta wiki | white-space:pre-wrap no formateaba listas ni negritas |
+| 2026-09-13 | checkOllamaLAN() en phase2-consulting.js | Verificar conectividad Ollama desde IP de LAN en tiempo real |
+| 2026-09-17 | Botón NotebookLM dentro de wiki.js (no sidebar) | El acceso a NotebookLM es contextual al módulo Conocimiento |
+| 2026-09-21 | Badge IA→C (CODANOR) en phase2-*.js | Imagen corporativa — no mostrar "IA" a clientes |
+| 2026-09-25 | isOllamaKey en _syncLLMConfigFromForm × 9 apps | Bug en actas ENS: synthesizeMeeting activaba flujo manual con Ollama |
+
+## Bugs criticos corregidos (2026-09-11 — Módulo LLM)
+
+| Bug | Apps | Archivo | Causa | Solucion |
+|-----|------|---------|-------|----------|
+| "Missing Authentication header" con Groq | 5 consulting | phase2-consulting.js | Dos campos API Key desincronizados — _syncLLMConfigFromForm leía el campo oculto (dentro de `<details>`) en lugar del visible | Fix `#llm-key-main` + `#llm-key-advanced` + querySelector prioriza `#llm-key-main` |
+| Retry automático nunca se activaba | 9 apps | llm.js | `_friendlyHttpError` traduce el mensaje antes del check `retryable` → la regex nunca matchea | Preservar `e.httpStatus` en el objeto Error + check numérico `[400,404,429].includes(e.httpStatus)` |
+| Modelo incompatible con proveedor | 9 apps | llm.js + phase2-*.js | localStorage tenía `{provider:'groq', model:'gpt-4o-mini'}` — modelo de OpenAI enviado a Groq | Auto-corrección en `callLLM()` y `renderLLMConfig()` con tabla de fallbacks por proveedor |
+| Groq retira modelos sin aviso | 9 apps | llm-models.js | llama-3.3-70b-versatile descomisionado; llama3-8b-8192 también retirado | GROQ_FALLBACK_CHAIN actualizada: openai/gpt-oss-20b (1º), openai/gpt-oss-120b (2º) |
+| Key corporativa no disponible en LAN | 9 apps | llm.js + server.py | Config LLM en localStorage — no se comparte entre PCs | 3 endpoints Flask + deofuscación XOR+base64 en cliente |
+
+## Bugs criticos corregidos (2026-09-11 — Ollama)
+
+| Bug | Apps | Archivo | Causa | Solucion |
+|-----|------|---------|-------|----------|
+| Ollama falla con "Missing Auth" | 9 apps | llm.js | `baseCfg.apiKey` enviaba key antigua de Groq aunque proveedor fuera ollama | `apiKey: effectiveProvider === 'ollama' ? 'ollama' : cfg.apiKey.trim()` |
+| Preset Ollama no borraba key anterior | 5+3 apps | phase2-consulting/implementation.js | `if (!cfg.apiKey || length <= 10)` no borraba keys largas de otros proveedores | `if (providerId === 'ollama') { cfg.apiKey = 'ollama'; }` siempre |
+| Claves i18n no traducidas en modal Ollama | 9 apps | lang/es.json | `llmTagLocal` y `llmDescOllama` no definidas | Añadir a es.json de las 9 apps |
+
+## Bugs criticos corregidos (2026-09-13 — Wiki consulta IA)
+
+| Bug | Apps | Archivo | Causa | Solucion |
+|-----|------|---------|-------|----------|
+| Respuesta vaga para "No Conformidades" | 9 apps | phase3-audit.js | Texto truncado a 10k chars (NC en segunda mitad); prompt genérico | Ampliar a 25k chars + detección intención NC + systemPrompt especializado |
+| Respuesta en texto plano sin formato | 9 apps | phase3-audit.js | `this._escape() + white-space:pre-wrap` ignoraba Markdown | `MarkdownUtil.toHtml()` + clase `markdown-body` |
+| Claves i18n del modal no traducidas | 9 apps | lang/es.json | 8 claves `phase3.wikiConsult*` sin definir en ningún JSON | Añadir 21 claves wiki a es.json de las 9 apps |
+
+## Bugs criticos corregidos (2026-09-25 — Actas con Ollama)
+
+| Bug | Apps | Archivo | Causa | Solucion |
+|-----|------|---------|-------|----------|
+| `synthesizeMeeting` activa flujo manual con Ollama | 9 apps | phase2-consulting/implementation/isms.js | `_syncLLMConfigFromForm` no guardaba `'ollama'` (6 chars) porque `length > 10` era false → `hasApiKey()` devolvía false | Guard `isOllamaKey` en la condición de guardado de apiKey |
+
+## Pendiente
+
+- [x] ~~Corregir bugs de reliability de SonarCloud~~ (37 de ~55 corregidos)
+- [ ] Corregir los 18 innerHTML restantes (security hotspots de SonarCloud)
+- [ ] Instalar Node.js en el Mac
+- [ ] Ejecutar /init en los 7 proyectos restantes para crear AGENTS.md
+- [ ] Subir los otros 7+ proyectos a GitHub
+- [ ] Conceder "Acceso total al disco" en Ajustes → Privacidad para backup NAS
+- [ ] Regenerar token SonarCloud
+- [x] ~~Herramienta de Tiquets v1.0→v1.4~~ (implementada 2026-08-28/29)
+- [x] ~~ARQUITECTURA_DB_SQLITE.html~~ (unificada v1.4 2026-09-03)
+- [x] ~~Módulo Mapa de Procesos v1.0~~ (commit eb628fe 2026-09-04)
+- [x] ~~Mejora Seguimiento de Tareas v2.0~~ (commit e0c1a08 2026-09-06)
+- [x] ~~Fix LAN persistencia BD~~ (commit e0c1a08 2026-09-06)
+- [x] ~~Fix navegabilidad Acciones de Resolución~~ (commit 688fead 2026-09-21)
+- [x] ~~Badge IA→C (CODANOR)~~ (commit 688fead 2026-09-21)
+- [x] ~~Módulo IA/LLM v1.0~~ (2026-09-04 — flujo manual + fallback)
+- [x] ~~Módulo IA/LLM v2.0~~ (2026-09-11 — fix retry + key corp + GROQ_FALLBACK_CHAIN)
+- [x] ~~Módulo IA/LLM v3.0~~ (2026-09-25 — Ollama local + isOllamaKey fix × 9 apps)
+- [x] ~~Key corporativa LAN~~ (2026-09-11 — servidor Flask + panel admin plataforma-seguimiento)
+- [x] ~~Manual IA Actas~~ (2026-09-10 — Manual_IA_Actas_Codanor.html en Plataforma_Seguimiento)
+- [x] ~~Mejora consulta Wiki con IA~~ (2026-09-13 — 25k chars, detección NC, Markdown, sugerencias)
+- [ ] Probar Mapa de Procesos en LAN desde segundo PC
+- [ ] Verificar exportación PDF del mapa (jsPDF CDN) en cada app
+- [ ] Activar Ollama en LAN (`OLLAMA_HOST=0.0.0.0 ollama serve`)
+- [ ] Configurar Key corporativa desde panel `plataforma-seguimiento.html` → "Configuración IA"
+- [ ] Probar acciones de tarea desde segundo PC LAN
+- [ ] Verificar exportación Word con columna Acciones en proyectos con datos reales
+
+## Notas y descubrimientos
+
+- **OpenCode queda bloqueado** si su directorio de trabajo se elimina o mueve.
+- **El usuario NO tiene Node.js, Homebrew ni GitHub CLI**. Git push requiere autenticacion manual.
+- **SonarCloud token**: regenerar desde sonarcloud.io > My Account > Security.
+- **Puerto 5000** en macOS puede estar ocupado por AirPlay Receiver. Usar 5001.
+- **python-docx 1.2.0 y openpyxl 3.1.5** instalados en el sistema.
+- **IndexedDB de la wiki** vive exclusivamente en el navegador — no se sincroniza con plataforma.db.
+- **LAN**: servidor Flask sirve en HOST 0.0.0.0:5001. IP actual: 192.168.3.168. Todos los módulos usan `window.location.hostname` para auto-detectar la IP.
+- **Ollama**: escucha en localhost:11434 por defecto. Para LAN requiere `OLLAMA_HOST=0.0.0.0`. Modelos instalados: qwen2.5-coder:14b (8.5GB), qwen3:8b (5GB), llama3.1:latest (4.7GB), gemma3:4b (3.2GB).
+- **Key corporativa LLM**: guardada ofuscada (XOR+base64) en `settings` WHERE `app_id='_global'` AND `key='corp_llm_config'`. La clave de ofuscación es el hostname del servidor (socket.gethostname()). El cliente JS deofusca usando `window.location.hostname`.
+- **`isOllamaKey` guard**: la key de Ollama es la cadena literal `'ollama'` (6 chars). Cualquier condición `length > 10` sin el guard `isOllamaKey` bloqueará el guardado → `hasApiKey()` devolverá false → flujo manual incorrecto. **Afecta a los 3 tipos de phase2**: consulting, implementation e isms.
+- **Groq sept-2026**: los modelos Llama (llama-3.3-70b-versatile, llama-3.1-8b-instant) pasaron a plan Enterprise. Los únicos modelos gratuitos ahora son `openai/gpt-oss-20b` y `openai/gpt-oss-120b`.
+- **phase3-audit.js**: el modal "Consultar documento con IA" usa 25.000 chars de contexto y detecta automáticamente preguntas sobre NC para activar un systemPrompt especializado. La respuesta se renderiza con MarkdownUtil.
+- **SyntaxError con \'**: el escape `\'` solo es válido dentro de strings JS. Siempre usar comillas simples sin escape en expresiones.
+- **localStorage es por origen**: `localhost:5001` y `127.0.0.1:5001` son orígenes distintos. Con PHASE_KEYS el servidor Flask es siempre la fuente de verdad.
+- **ISO9001 ≠ ISO14001 en phase2-implementation.js**: ISO9001 usa `window.ACTIVITY_GROUPS`; ISO14001 usa `window.CLAUSE_GROUPS`. NUNCA propagar con cp/sed entre ambas apps.
+
 
 ## Estado actual
 
