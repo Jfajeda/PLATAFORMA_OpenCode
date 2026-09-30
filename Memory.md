@@ -1,11 +1,11 @@
 # Memory.md — PLATAFORMA_OpenCode
-> Ultima actualizacion: 2026-09-25
+> Ultima actualizacion: 2026-09-30
 
 ## Estado actual
 
 - **Fase**: Produccion / mantenimiento activo
 - **Version**: Manual v3.0 (20 capitulos) + Manual IA Actas v1.0
-- **Ultimo cambio significativo**: Módulo IA/LLM v3.0 — Ollama local + Key corporativa LAN + fixes actas + Wiki consulta mejorada (2026-09-25)
+- **Ultimo cambio significativo**: Wiki_CODANOR v1.0 — Open WebUI + Ollama + ChromaDB + 10 KBs + RAG verificado + OpenRouter configurado (2026-09-30)
 - **Issues abiertos**: 72 bugs de reliability + 3 security hotspots detectados por SonarCloud
 
 ## Infraestructura
@@ -16,12 +16,14 @@
 | GitHub | Si | github.com/Jfajeda/PLATAFORMA_OpenCode |
 | SonarCloud | Si | Security A, Reliability B, Maintainability A, 3.5% duplications |
 | .gitignore | Si | Excluye .DS_Store, backups, __pycache__ |
-| AGENTS.md | Si | Actualizado 2026-09-25 — módulo IA/LLM v3.0 completo |
+| AGENTS.md | Si | Actualizado 2026-09-30 — Wiki_CODANOR v1.0 + Open WebUI + OpenRouter |
 | opencode.json | Si | MCP SonarQube configurado |
 | Memory.md | Si | Este archivo |
 | plataforma.db | Activa | 10 tablas, WAL mode, 298 clientes, 32 proyectos |
 | server.py | Activo | Puerto 5001, HOST 0.0.0.0, ~3000 lineas, 19 endpoints tiquets + 3 endpoints corp LLM |
-| Ollama | Activo | localhost:11434, v0.34.0. Modelos: qwen2.5-coder:14b, qwen3:8b, llama3.1:latest, gemma3:4b |
+| dashboard_server.py | Activo | Puerto 5003, HOST 0.0.0.0, Panel de Control Dashboard |
+| Ollama | Activo | localhost:11434, v0.34.4. Modelos: qwen2.5-coder:14b, qwen3:8b, llama3.1:latest, gemma3:4b |
+| Wiki_CODANOR | Activa | Open WebUI :3000 (Docker), ChromaDB vectordb/, 10 KBs, Ollama + OpenRouter conectados |
 
 ## Componentes del proyecto
 
@@ -37,6 +39,8 @@
 | homogeneizacion-proyectos.html | Dashboard homogeneizacion (5 pestanas) | ~46 KB |
 | propuesta-herramienta-tiquets.html | Propuesta tecnica tiquets **v1.2** | ~98 KB |
 | backup-opencode.sh | Script backup NAS CODANOR (8 modos) | ~14 KB |
+| Guia_Wiki_CODANOR_OpenWebUI.docx | Guia configuracion Wiki CODANOR + Open WebUI (13 secciones, 43 tablas) | 139 KB — commit `1195855` |
+| servidor/dashboard_server.py | Flask :5003 — Panel de Control Dashboard | ~4 KB |
 
 ### Plataforma_Seguimiento_Proyectos/servidor/
 
@@ -63,6 +67,77 @@
 | ISO9001-SGQ_2015 | iso9001 | v=20260829f | v=20260925c | v=20260911h | v=20260911g | v=20260913a |
 | ISO14001-SGMA_2015 | iso14001 | v=20260829f | v=20260925c | v=20260911h | v=20260911g | v=20260913a |
 | ISO14001-SGMA_2026_NEW | iso14001-2026 | v=20260829f | v=20260925c | v=20260911h | v=20260911g | v=20260913a |
+
+## Módulo Wiki_CODANOR (v1.0 — 2026-09-30)
+
+### Arquitectura
+
+```
+Usuarios
+   ↓
+Open WebUI :3000 (Docker — contenedor wiki-codanor)
+   ├── Ollama :11434 (macOS nativo — host.docker.internal:11434)
+   │     ├── qwen3:8b          ← chat general (PREDETERMINADO)
+   │     ├── qwen2.5-coder:14b ← análisis técnico
+   │     ├── llama3.1:latest   ← actas y redacción
+   │     ├── gemma3:4b         ← respuestas rápidas
+   │     └── nomic-embed-text  ← embeddings RAG (NO usar para chat)
+   ├── OpenRouter (nube — https://openrouter.ai/api/v1)
+   │     └── GPT-3.5/GPT-4, Claude, Gemini, Mistral, 100+ modelos
+   └── ChromaDB vectordb/ (embebido en Open WebUI)
+         └── 10 Knowledge Bases CODANOR
+```
+
+### Archivos clave
+
+| Archivo | Ruta | Descripcion |
+|---------|------|-------------|
+| `docker-compose.yml` | `~/Proyectos/Wiki_CODANOR/` | Compose: Open WebUI :3000, Ollama via host.docker.internal, nomic-embed-text embeddings |
+| `vectordb/` | `~/Proyectos/Wiki_CODANOR/vectordb/` | ChromaDB persistente — contiene las 10 KBs |
+| `webui.db` | `~/Proyectos/Wiki_CODANOR/vectordb/webui.db` | SQLite Open WebUI — usuarios, chats, configuracion |
+| `Guia_Wiki_CODANOR_OpenWebUI.docx` | `PLATAFORMA_OpenCode-NEW/` | Guia corporativa completa (13 secciones, 43 tablas, 139 KB) |
+
+### Arranque tras reinicio
+
+```bash
+# 1. Abrir Docker Desktop (Spotlight → Docker → esperar 🐳 estática)
+# 2. En Terminal:
+cd ~/Proyectos/Wiki_CODANOR && docker compose up -d
+# 3. Abrir http://localhost:3000
+```
+
+El contenedor tiene `restart: unless-stopped` — si Docker Desktop estaba abierto antes del reinicio, arranca automaticamente.
+
+### 10 Knowledge Bases
+
+| KB | ID | Descripcion | Docs ingestados |
+|----|-----|-------------|-----------------|
+| ENS | a7874ff0-d216-4015-bf98-aa6fa67240b5 | Normas ENS RD 311/2022 — CCN-STIC, medidas Anexo II | 3 (CCN-STIC 808, 809, 819) ✅ RAG verificado |
+| ISO27001 | — | ISO 27001 SGSI — controles, politicas, SOA | 0 |
+| LOPD-RGPD | — | LOPD, RGPD, DPIA, derechos de interesados | 0 |
+| NIS2 | — | Directiva NIS2, resiliencia cibernetica | 0 |
+| Legislacion | — | Normativa legal aplicable (LSSI, LOPDGDD...) | 0 |
+| Licitaciones | — | Pliegos, criterios adjudicacion, modelos | 0 |
+| Logs-SIEM | — | Informes ciberseguridad, analisis logs | 0 |
+| Actas | — | Actas de reunion, sintetizaciones IA | 0 |
+| Plantilles | — | Plantillas Word/Excel corporativas CODANOR | 0 |
+| OSINT | — | Informes OSINT, investigaciones | 0 |
+
+### Configuracion LLM en Open WebUI
+
+| Conexion | URL | Estado |
+|----------|-----|--------|
+| Ollama | `http://host.docker.internal:11434` | ✅ ON |
+| OpenRouter | `https://openrouter.ai/api/v1` | ✅ ON |
+| OpenAI default | `https://api.openai.com/v1` | ⚫ OFF (desactivado) |
+
+### Reglas criticas
+
+1. **RAG no es automatico** — hay que adjuntar la KB al chat: `+` → `Adjuntar coneixement` → seleccionar KB → ENTONCES escribir la pregunta. Sin este paso el modelo responde desde su conocimiento general.
+2. **`nomic-embed-text` es solo para embeddings** — NUNCA seleccionarlo como modelo de chat. Usar `qwen3:8b` (predeterminado) o cualquier otro.
+3. **Las KBs se conservan tras reinicio** — `vectordb/` es persistente en disco. Solo es necesario arrancar el contenedor.
+4. **No migrar a PostgreSQL+pgvector** — decision tomada 2026-09-30: RAM insuficiente (0.4 GB libre), ChromaDB mas que suficiente para 10 KBs + equipo pequeno CODANOR. Revisar cuando haya 50+ usuarios concurrentes o 100k+ documentos.
+5. **Modelo predeterminado**: `qwen3:8b` — configurado via "Establir com a predeterminat" en el selector.
 
 ## Módulo IA/LLM — Arquitectura completa (v3.0 — 2026-09-25)
 
@@ -167,6 +242,10 @@ Para LAN: `OLLAMA_HOST=0.0.0.0 ollama serve` (actualmente solo localhost)
 | 2026-09-17 | Botón NotebookLM dentro de wiki.js (no sidebar) | El acceso a NotebookLM es contextual al módulo Conocimiento |
 | 2026-09-21 | Badge IA→C (CODANOR) en phase2-*.js | Imagen corporativa — no mostrar "IA" a clientes |
 | 2026-09-25 | isOllamaKey en _syncLLMConfigFromForm × 9 apps | Bug en actas ENS: synthesizeMeeting activaba flujo manual con Ollama |
+| 2026-09-30 | Wiki_CODANOR con ChromaDB embebido (no PostgreSQL+pgvector) | RAM insuficiente (0.4 GB libre), complejidad innecesaria para 10 KBs y equipo pequeño. Migrar solo si hay 50+ usuarios o 100k+ documentos |
+| 2026-09-30 | Flask :5003 en dashboard_server.py dedicado | Separar el Dashboard del servidor principal :5001 para independencia de despliegue |
+| 2026-09-30 | Modelo predeterminado Open WebUI: qwen3:8b | Mejor equilibrio calidad/velocidad para uso general CODANOR |
+| 2026-09-30 | OpenRouter desactiva https://api.openai.com/v1 en Open WebUI | El endpoint OpenAI por defecto no tiene key válida — causa errores al cargar lista de modelos |
 
 ## Bugs criticos corregidos (2026-09-11 — Módulo LLM)
 
@@ -204,7 +283,7 @@ Para LAN: `OLLAMA_HOST=0.0.0.0 ollama serve` (actualmente solo localhost)
 
 - [x] ~~Corregir bugs de reliability de SonarCloud~~ (37 de ~55 corregidos)
 - [ ] Corregir los 18 innerHTML restantes (security hotspots de SonarCloud)
-- [ ] Instalar Node.js en el Mac
+- [x] ~~Instalar Node.js en el Mac~~ (v24.21.0 instalado)
 - [ ] Ejecutar /init en los 7 proyectos restantes para crear AGENTS.md
 - [ ] Subir los otros 7+ proyectos a GitHub
 - [ ] Conceder "Acceso total al disco" en Ajustes → Privacidad para backup NAS
@@ -222,12 +301,17 @@ Para LAN: `OLLAMA_HOST=0.0.0.0 ollama serve` (actualmente solo localhost)
 - [x] ~~Key corporativa LAN~~ (2026-09-11 — servidor Flask + panel admin plataforma-seguimiento)
 - [x] ~~Manual IA Actas~~ (2026-09-10 — Manual_IA_Actas_Codanor.html en Plataforma_Seguimiento)
 - [x] ~~Mejora consulta Wiki con IA~~ (2026-09-13 — 25k chars, detección NC, Markdown, sugerencias)
+- [x] ~~Wiki_CODANOR v1.0~~ (Open WebUI :3000 + Ollama + ChromaDB + 10 KBs + RAG verificado + OpenRouter — 2026-09-30)
+- [x] ~~Guia_Wiki_CODANOR_OpenWebUI.docx~~ (13 secciones, 43 tablas, 139 KB — commit `1195855` 2026-09-30)
+- [x] ~~Flask :5003 dashboard_server.py~~ (Panel de Control en puerto dedicado — 2026-09-30)
 - [ ] Probar Mapa de Procesos en LAN desde segundo PC
 - [ ] Verificar exportación PDF del mapa (jsPDF CDN) en cada app
-- [ ] Activar Ollama en LAN (`OLLAMA_HOST=0.0.0.0 ollama serve`)
+- [ ] Activar Ollama en LAN (`OLLAMA_HOST=0.0.0.0 ollama serve`) — bloqueado por firewall MDM
 - [ ] Configurar Key corporativa desde panel `plataforma-seguimiento.html` → "Configuración IA"
 - [ ] Probar acciones de tarea desde segundo PC LAN
 - [ ] Verificar exportación Word con columna Acciones en proyectos con datos reales
+- [ ] Ingestar documentos en 9 KBs restantes (ISO27001, LOPD-RGPD, NIS2, OSINT, Logs-SIEM...)
+- [ ] Script automático de ingesta por API Open WebUI (ingest_nas.py en Wiki_CODANOR/scripts/)
 
 ## Notas y descubrimientos
 
@@ -237,8 +321,11 @@ Para LAN: `OLLAMA_HOST=0.0.0.0 ollama serve` (actualmente solo localhost)
 - **Puerto 5000** en macOS puede estar ocupado por AirPlay Receiver. Usar 5001.
 - **python-docx 1.2.0 y openpyxl 3.1.5** instalados en el sistema.
 - **IndexedDB de la wiki** vive exclusivamente en el navegador — no se sincroniza con plataforma.db.
-- **LAN**: servidor Flask sirve en HOST 0.0.0.0:5001. IP actual: 192.168.3.168. Todos los módulos usan `window.location.hostname` para auto-detectar la IP.
-- **Ollama**: escucha en localhost:11434 por defecto. Para LAN requiere `OLLAMA_HOST=0.0.0.0`. Modelos instalados: qwen2.5-coder:14b (8.5GB), qwen3:8b (5GB), llama3.1:latest (4.7GB), gemma3:4b (3.2GB).
+- **LAN**: servidor Flask sirve en HOST 0.0.0.0:5001. IP actual: 192.168.98.44. Todos los módulos usan `window.location.hostname` para auto-detectar la IP.
+- **Ollama**: escucha en localhost:11434 por defecto. Para LAN requiere `OLLAMA_HOST=0.0.0.0`. Modelos instalados: qwen2.5-coder:14b (8.5GB), qwen3:8b (5GB), llama3.1:latest (4.7GB), gemma3:4b (3.2GB). Versión: v0.34.4.
+- **Wiki_CODANOR**: Open WebUI :3000 en Docker (contenedor `wiki-codanor`). ChromaDB vectordb/ persistente en disco — las KBs sobreviven reinicios. Arranque: `cd ~/Proyectos/Wiki_CODANOR && docker compose up -d`. RAG requiere adjuntar KB explícitamente en el chat (`+` → `Adjuntar coneixement`). `nomic-embed-text` solo para embeddings — NO para chat.
+- **OpenRouter en Open WebUI**: configurado en Paràmetres → Connexions → API d'OpenAI → `https://openrouter.ai/api/v1`. `https://api.openai.com/v1` desactivado (sin key válida).
+- **No PostgreSQL+pgvector** para Wiki_CODANOR: decision tomada 2026-09-30. RAM disponible insuficiente (0.4 GB libre), ChromaDB embebido cubre el caso de uso actual. Revisar si hay 50+ usuarios concurrentes o 100k+ documentos.
 - **Key corporativa LLM**: guardada ofuscada (XOR+base64) en `settings` WHERE `app_id='_global'` AND `key='corp_llm_config'`. La clave de ofuscación es el hostname del servidor (socket.gethostname()). El cliente JS deofusca usando `window.location.hostname`.
 - **`isOllamaKey` guard**: la key de Ollama es la cadena literal `'ollama'` (6 chars). Cualquier condición `length > 10` sin el guard `isOllamaKey` bloqueará el guardado → `hasApiKey()` devolverá false → flujo manual incorrecto. **Afecta a los 3 tipos de phase2**: consulting, implementation e isms.
 - **Groq sept-2026**: los modelos Llama (llama-3.3-70b-versatile, llama-3.1-8b-instant) pasaron a plan Enterprise. Los únicos modelos gratuitos ahora son `openai/gpt-oss-20b` y `openai/gpt-oss-120b`.
@@ -555,7 +642,7 @@ TCC de macOS impide escribir en NAS. Solucion: **Ajustes del Sistema → Privaci
 - **Puerto 5000** en macOS puede estar ocupado por AirPlay Receiver. Usar 5001.
 - **python-docx 1.2.0 y openpyxl 3.1.5** instalados en el sistema (no en requirements.txt original, ya anadidos).
 - **IndexedDB de la wiki** vive exclusivamente en el navegador — no se sincroniza con plataforma.db. El campo wiki_article_id en plataforma.db solo registra que el articulo fue creado, no el contenido.
-- **LAN**: el servidor Flask sirve en HOST 0.0.0.0:5001. IP actual: 192.168.0.81. tiquets.js usa window.location.hostname para auto-detectar la IP correcta desde cualquier equipo de la red.
+- **LAN**: el servidor Flask sirve en HOST 0.0.0.0:5001. IP actual: 192.168.98.44. tiquets.js usa window.location.hostname para auto-detectar la IP correcta desde cualquier equipo de la red.
 - **Mapa de Procesos**: el módulo usa `phase_data` (clave `'mapa_procesos'`) para persistir en plataforma.db. `phase_data` es un store clave-valor JSON libre — el servidor no valida su contenido. El mapa original (`mapa_procesos.html`) usaba IndexedDB (local al navegador), incompatible con LAN multiusuario.
 - **SyntaxError con \'**: el escape `\'` solo es válido dentro de strings JS. En expresiones ternarias `(a === \'b\')` produce SyntaxError silencioso que descarta todo el script. Siempre usar comillas simples sin escape en expresiones: `(a === 'b')`.
 - **localStorage es por origen**: `localhost:5001` y `127.0.0.1:5001` son orígenes distintos para el navegador. Los datos guardados en uno NO son visibles desde el otro. Con PHASE_KEYS el servidor Flask es siempre la fuente de verdad independientemente del origen.

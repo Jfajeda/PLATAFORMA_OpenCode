@@ -2,7 +2,7 @@
 
 > Instructions for AI coding agents operating in this repository.
 > Maintained by Jafa, S.L. (CODANOR), Barcelona, Catalunya.
-> Last updated: 2026-09-25
+> Last updated: 2026-09-30
 
 ## Project Overview
 
@@ -28,7 +28,7 @@ all 9 apps, with corporate key sharing via Flask.
 cd ~/Proyectos/Plataforma_Seguimiento_Proyectos/servidor
 python3 server.py
 # → http://localhost:5001  (HOST 0.0.0.0 — LAN accessible)
-# → http://192.168.3.168:5001 (current LAN IP)
+# → http://192.168.98.44:5001 (current LAN IP)
 
 # Verify DB integrity
 sqlite3 servidor/plataforma.db "PRAGMA integrity_check;"
@@ -697,7 +697,10 @@ PLATAFORMA_OpenCode-NEW/
   sonar-project.properties                # SonarCloud scanner config
   Prompt.docx                             # Project prompt specification
   Estructura_PROYECTOS.pdf                # Module hierarchy diagram
+  Guia_Wiki_CODANOR_OpenWebUI.docx        # Guia config Wiki CODANOR + Open WebUI (139 KB — commit 1195855)
   Biblioteca/                             # Screenshots and reference images
+  servidor/
+    dashboard_server.py                   # Flask :5003 — Panel de Control Dashboard
   .opencode/
     commands/
       sonar.md                            # Slash command /sonar
