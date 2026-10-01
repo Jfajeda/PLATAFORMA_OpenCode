@@ -1,11 +1,11 @@
 # Memory.md — PLATAFORMA_OpenCode
-> Ultima actualizacion: 2026-09-30
+> Ultima actualizacion: 2026-10-01
 
 ## Estado actual
 
 - **Fase**: Produccion / mantenimiento activo
 - **Version**: Manual v3.0 (20 capitulos) + Manual IA Actas v1.0
-- **Ultimo cambio significativo**: Wiki_CODANOR v1.0 — Open WebUI + Ollama + ChromaDB + 10 KBs + RAG verificado + OpenRouter configurado (2026-09-30)
+- **Ultimo cambio significativo**: Arquitectura AGENTS.md+PROPAGATION_RULES.md — solución definitiva al incidente de propagación ENS (2026-10-01)
 - **Issues abiertos**: 72 bugs de reliability + 3 security hotspots detectados por SonarCloud
 
 ## Infraestructura
@@ -16,8 +16,9 @@
 | GitHub | Si | github.com/Jfajeda/PLATAFORMA_OpenCode |
 | SonarCloud | Si | Security A, Reliability B, Maintainability A, 3.5% duplications |
 | .gitignore | Si | Excluye .DS_Store, backups, __pycache__ |
-| AGENTS.md | Si | Actualizado 2026-09-30 — Wiki_CODANOR v1.0 + Open WebUI + OpenRouter |
-| opencode.json | Si | MCP SonarQube configurado |
+| AGENTS.md | Si | Actualizado 2026-10-01 — duplicado eliminado + reglas propagación → PROPAGATION_RULES.md |
+| PROPAGATION_RULES.md | Si | Nuevo 2026-10-01 — clasificación BASE/CLON/DIVERGENTE/PROPIO + workflows + script verificación ENS |
+| opencode.json | Si | MCP SonarQube + instructions: AGENTS.md + PROPAGATION_RULES.md |
 | Memory.md | Si | Este archivo |
 | plataforma.db | Activa | 10 tablas, WAL mode, 298 clientes, 32 proyectos |
 | server.py | Activo | Puerto 5001, HOST 0.0.0.0, ~3000 lineas, 19 endpoints tiquets + 3 endpoints corp LLM |
@@ -41,6 +42,7 @@
 | backup-opencode.sh | Script backup NAS CODANOR (8 modos) | ~14 KB |
 | Guia_Wiki_CODANOR_OpenWebUI.docx | Guia configuracion Wiki CODANOR + Open WebUI (13 secciones, 43 tablas) | 139 KB — commit `1195855` |
 | servidor/dashboard_server.py | Flask :5003 — Panel de Control Dashboard | ~4 KB |
+| PROPAGATION_RULES.md | Reglas propagación entre 9 apps — BASE/CLON/DIVERGENTE/PROPIO + workflows + script verificación ENS | commit `2026-10-01` |
 
 ### Plataforma_Seguimiento_Proyectos/servidor/
 
@@ -242,7 +244,8 @@ Para LAN: `OLLAMA_HOST=0.0.0.0 ollama serve` (actualmente solo localhost)
 | 2026-09-17 | Botón NotebookLM dentro de wiki.js (no sidebar) | El acceso a NotebookLM es contextual al módulo Conocimiento |
 | 2026-09-21 | Badge IA→C (CODANOR) en phase2-*.js | Imagen corporativa — no mostrar "IA" a clientes |
 | 2026-09-25 | isOllamaKey en _syncLLMConfigFromForm × 9 apps | Bug en actas ENS: synthesizeMeeting activaba flujo manual con Ollama |
-| 2026-09-30 | Wiki_CODANOR con ChromaDB embebido (no PostgreSQL+pgvector) | RAM insuficiente (0.4 GB libre), complejidad innecesaria para 10 KBs y equipo pequeño. Migrar solo si hay 50+ usuarios o 100k+ documentos |
+| 2026-10-01 | PROPAGATION_RULES.md como segunda instruction en opencode.json | Incidente: propagación phase2-consulting.js de ISO27001 a ENS destruyó +608 líneas exclusivas (CCN-808, Evolució, Snapshots). Causa raíz: agente no leía AGENTS.md de ENS (workspace diferente) y regla en AGENTS.md principal era incompleta. Solución: archivo dedicado con clasificación BASE/CLON/DIVERGENTE/PROPIO cargado automáticamente |
+| 2026-10-01 | Limpieza AGENTS.md principal — eliminado duplicado 488 líneas | El archivo tenía el contenido completo repetido dos veces (versión 2026-09-30 + versión 2026-09-21). Reducido de 1129 a 641 líneas |
 | 2026-09-30 | Flask :5003 en dashboard_server.py dedicado | Separar el Dashboard del servidor principal :5001 para independencia de despliegue |
 | 2026-09-30 | Modelo predeterminado Open WebUI: qwen3:8b | Mejor equilibrio calidad/velocidad para uso general CODANOR |
 | 2026-09-30 | OpenRouter desactiva https://api.openai.com/v1 en Open WebUI | El endpoint OpenAI por defecto no tiene key válida — causa errores al cargar lista de modelos |
@@ -321,7 +324,7 @@ Para LAN: `OLLAMA_HOST=0.0.0.0 ollama serve` (actualmente solo localhost)
 - **Puerto 5000** en macOS puede estar ocupado por AirPlay Receiver. Usar 5001.
 - **python-docx 1.2.0 y openpyxl 3.1.5** instalados en el sistema.
 - **IndexedDB de la wiki** vive exclusivamente en el navegador — no se sincroniza con plataforma.db.
-- **LAN**: servidor Flask sirve en HOST 0.0.0.0:5001. IP actual: 192.168.98.44. Todos los módulos usan `window.location.hostname` para auto-detectar la IP.
+- **LAN**: servidor Flask sirve en HOST 0.0.0.0:5001. IP actual: 192.168.0.81. Todos los módulos usan `window.location.hostname` para auto-detectar la IP.
 - **Ollama**: escucha en localhost:11434 por defecto. Para LAN requiere `OLLAMA_HOST=0.0.0.0`. Modelos instalados: qwen2.5-coder:14b (8.5GB), qwen3:8b (5GB), llama3.1:latest (4.7GB), gemma3:4b (3.2GB). Versión: v0.34.4.
 - **Wiki_CODANOR**: Open WebUI :3000 en Docker (contenedor `wiki-codanor`). ChromaDB vectordb/ persistente en disco — las KBs sobreviven reinicios. Arranque: `cd ~/Proyectos/Wiki_CODANOR && docker compose up -d`. RAG requiere adjuntar KB explícitamente en el chat (`+` → `Adjuntar coneixement`). `nomic-embed-text` solo para embeddings — NO para chat.
 - **OpenRouter en Open WebUI**: configurado en Paràmetres → Connexions → API d'OpenAI → `https://openrouter.ai/api/v1`. `https://api.openai.com/v1` desactivado (sin key válida).
@@ -642,7 +645,7 @@ TCC de macOS impide escribir en NAS. Solucion: **Ajustes del Sistema → Privaci
 - **Puerto 5000** en macOS puede estar ocupado por AirPlay Receiver. Usar 5001.
 - **python-docx 1.2.0 y openpyxl 3.1.5** instalados en el sistema (no en requirements.txt original, ya anadidos).
 - **IndexedDB de la wiki** vive exclusivamente en el navegador — no se sincroniza con plataforma.db. El campo wiki_article_id en plataforma.db solo registra que el articulo fue creado, no el contenido.
-- **LAN**: el servidor Flask sirve en HOST 0.0.0.0:5001. IP actual: 192.168.98.44. tiquets.js usa window.location.hostname para auto-detectar la IP correcta desde cualquier equipo de la red.
+- **LAN**: el servidor Flask sirve en HOST 0.0.0.0:5001. IP actual: 192.168.0.81. tiquets.js usa window.location.hostname para auto-detectar la IP correcta desde cualquier equipo de la red.
 - **Mapa de Procesos**: el módulo usa `phase_data` (clave `'mapa_procesos'`) para persistir en plataforma.db. `phase_data` es un store clave-valor JSON libre — el servidor no valida su contenido. El mapa original (`mapa_procesos.html`) usaba IndexedDB (local al navegador), incompatible con LAN multiusuario.
 - **SyntaxError con \'**: el escape `\'` solo es válido dentro de strings JS. En expresiones ternarias `(a === \'b\')` produce SyntaxError silencioso que descarta todo el script. Siempre usar comillas simples sin escape en expresiones: `(a === 'b')`.
 - **localStorage es por origen**: `localhost:5001` y `127.0.0.1:5001` son orígenes distintos para el navegador. Los datos guardados en uno NO son visibles desde el otro. Con PHASE_KEYS el servidor Flask es siempre la fuente de verdad independientemente del origen.
