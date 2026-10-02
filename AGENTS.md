@@ -2,7 +2,7 @@
 
 > Instructions for AI coding agents operating in this repository.
 > Maintained by Jafa, S.L. (CODANOR), Barcelona, Catalunya.
-> Last updated: 2026-09-30
+> Last updated: 2026-10-02
 
 ## Project Overview
 
@@ -21,6 +21,12 @@ full integration of LLM providers (Groq, OpenAI, OpenRouter, Google, Anthropic,
 Ollama) for meeting synthesis, acta summaries and wiki document queries across
 all 9 apps, with corporate key sharing via Flask.
 
+The **Análisis de Riesgos module** (v1.0 — 2026-10-02) integrates the risk
+analysis dashboards (ISO27001/ENS/LOPD-RGPD/EIPD) with the Plataforma:
+data migrated from IndexedDB (local) to plataforma.db (Flask/SQLite, LAN shared),
+accessible from any PC on the network. Button "Análisis de Riesgos" added to
+Phase 2 Design tab of all 9 ISO/ENS apps.
+
 ## Build / Lint / Test Commands
 
 ```bash
@@ -33,9 +39,20 @@ python3 server.py
 # Verify DB integrity
 sqlite3 servidor/plataforma.db "PRAGMA integrity_check;"
 
-# Check all 10 tables exist
+# Check all 19 tables exist (4 orig + 6 tiquets + 2 wiki + 1 sonar + 5 riesgos/EIPD + 1 sqlite_sequence)
 sqlite3 servidor/plataforma.db \
   "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name;"
+
+# Verify risk analysis endpoints
+curl -s http://localhost:5001/api/riesgos/iso27001/proyectos
+curl -s http://localhost:5001/api/riesgos/ens/proyectos
+curl -s http://localhost:5001/api/riesgos/lopd/proyectos
+curl -s http://localhost:5001/api/eipd/proyectos
+
+# Verify risk dashboards accessible via Flask
+curl -sI http://localhost:5001/riesgos/iso27001/ | head -3
+curl -sI http://localhost:5001/riesgos/ens/ | head -3
+curl -sI http://localhost:5001/riesgos/lopd/ | head -3
 
 # Verify tiquets module (9 apps)
 python3 -c "
@@ -66,10 +83,26 @@ for app, mod in APPS.items():
     print(f'{app}: {m.group(1) if m else \"NO VER\"} | ollama_fix={fix}')
 "
 
+# Verify _renderRiskLink present + design re-render in switchTab (8 apps)
+python3 -c "
+BASE='/Users/jaimefajeda/Proyectos/Plataforma_Seguimiento_Proyectos'
+for app, mod in [
+    ('ISO27001-SGSI','phase2-consulting.js'),
+    ('ENS-RD311-2022','phase2-consulting.js'),
+    ('RGPD-LOPD-GDD','phase2-consulting.js'),
+    ('ISO9001-SGQ_2015','phase2-implementation.js'),
+    ('ISO14001-SGMA_2015','phase2-implementation.js'),
+]:
+    src = open(f'{BASE}/{app}/js/modules/{mod}').read()
+    has_btn = '_renderRiskLink' in src
+    has_rerender = \"tab === 'design'\" in src
+    print(f'{app}: riskLink={has_btn} | design_rerender={has_rerender}')
+"
+
 # Test Ollama LAN connectivity
 curl -s http://localhost:11434/api/version
 curl -s http://localhost:11434/api/tags | python3 -c \
-  'import json,sys; [print(m[\"name\"]) for m in json.load(sys.stdin).get(\"models\",[])]'
+  'import json,sys; [print(m["name"]) for m in json.load(sys.stdin).get("models",[])]'
 
 # Test Corp LLM endpoint
 curl -s http://localhost:5001/api/corp/llm-config
@@ -127,6 +160,16 @@ PLATAFORMA_OpenCode-NEW/
 | `tiquets_comentarios` | v1.0 | Free-text follow-up log |
 | `tiquets_acciones` | v1.2 | Resolution actions: pendiente→en_curso→resuelta |
 | `tiquets_adjuntos` | v1.3 | File attachments stored in uploads/tiquets/ |
+
+**Risk Analysis module (5):**
+
+| Table | Description |
+|---|---|
+| `risk_projects` | Risk projects per app_id (iso27001/ens/lopd) with cliente, categoria_ens |
+| `risk_assets` | Assets/risks — 37 columns (full Magerit v3 schema + ENS dimensions aut/traz) |
+| `risk_seguimiento` | Risk follow-up actions linked to assets |
+| `eipd_projects` | EIPD (Impact Assessment) projects for LOPD-RGPD |
+| `eipd_data` | EIPD sections as JSON: rat_rt, rat_et, pre_evaluacion, descripcion, factores, medidas, conclusion |
 
 **Ticket ID format:** `TIK-{NNN:03d}-{client_id}-{app_id}-{DD-MM-AAAA}`
 
@@ -265,8 +308,8 @@ DELETE /api/corp/llm-config → elimina (vuelve a localStorage)
 6. **Versión actual** de los archivos LLM en las 9 apps:
    - `llm-models.js?v=20260911g`
    - `llm.js?v=20260911h`
-   - `phase2-consulting.js?v=20260925c` (5 apps consulting)
-   - `phase2-implementation.js?v=20260925c` (3 apps implementation)
+   - `phase2-consulting.js?v=20260930e` (5 apps consulting) ← actualizado 2026-10-02
+   - `phase2-implementation.js?v=20260930f` (3 apps implementation) ← actualizado 2026-10-02
    - `phase2-isms.js?v=20260925c` (TISAX)
    - `phase3-audit.js?v=20260913a` (9 apps)
 
