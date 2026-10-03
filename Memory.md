@@ -1,11 +1,11 @@
 # Memory.md — PLATAFORMA_OpenCode
-> Ultima actualizacion: 2026-10-02
+> Ultima actualizacion: 2026-10-03
 
 ## Estado actual
 
 - **Fase**: Produccion / mantenimiento activo
 - **Version**: Manual v3.0 (20 capitulos) + Manual IA Actas v1.0
-- **Ultimo cambio significativo**: Módulo Análisis de Riesgos v1.0 — migración IndexedDB→Flask, integración Fase 2 (commit `2957632` 2026-10-02)
+- **Ultimo cambio significativo**: Fix LLM LAN + documentación arquitectura completa — ARQUITECTURA_DB_SQLITE-V01.html + GUIA_MANTENIMIENTO_NORMAS-V01.html + ARQUITECTURA-SERVIDORES-FLASK-SQLITE-V01.docx (commit `4fcab16` 2026-10-03)
 - **Issues abiertos**: 72 bugs de reliability + 3 security hotspots detectados por SonarCloud
 
 ## Infraestructura
@@ -16,12 +16,12 @@
 | GitHub | Si | github.com/Jfajeda/PLATAFORMA_OpenCode |
 | SonarCloud | Si | Security A, Reliability B, Maintainability A, 3.5% duplications |
 | .gitignore | Si | Excluye .DS_Store, backups, __pycache__ |
-| AGENTS.md | Si | Actualizado 2026-10-02 — módulo riesgos + nuevas tablas + versiones phase2 |
+| AGENTS.md | Si | Actualizado 2026-10-03 — fix LLM LAN, bugs seguimiento tareas, docs arquitectura V01 |
 | PROPAGATION_RULES.md | Si | 2026-10-01 — clasificación BASE/CLON/DIVERGENTE/PROPIO + workflows + script verificación ENS |
 | opencode.json | Si | MCP SonarQube + instructions: AGENTS.md + PROPAGATION_RULES.md |
 | Memory.md | Si | Este archivo |
-| plataforma.db | Activa | 19 tablas, WAL mode, 298 clientes, 32 proyectos |
-| server.py | Activo | Puerto 5001, HOST 0.0.0.0, ~4272 lineas, 22 endpoints riesgos/EIPD + 19 tiquets + 3 corp LLM |
+| plataforma.db | Activa | 19 tablas, WAL mode, 298 clientes, 36 proyectos |
+| server.py | Activo | Puerto 5001, HOST 0.0.0.0, 4276 lineas, 86 endpoints totales |
 | Ollama | Activo | localhost:11434, v0.34.4. Modelos: qwen2.5-coder:14b, qwen3:8b, llama3.1:latest, gemma3:4b |
 | Wiki_CODANOR | Activa | Open WebUI :3000 (Docker), ChromaDB vectordb/, 10 KBs, Ollama + OpenRouter conectados |
 
@@ -39,33 +39,73 @@
 | homogeneizacion-proyectos.html | Dashboard homogeneizacion (5 pestanas) | ~46 KB |
 | propuesta-herramienta-tiquets.html | Propuesta tecnica tiquets **v1.2** | ~98 KB |
 | backup-opencode.sh | Script backup NAS CODANOR (8 modos) | ~14 KB |
-| Guia_Wiki_CODANOR_OpenWebUI.docx | Guia configuracion Wiki CODANOR + Open WebUI (13 secciones, 43 tablas) | 139 KB — commit `1195855` |
-| PROPAGATION_RULES.md | Reglas propagación entre 9 apps — BASE/CLON/DIVERGENTE/PROPIO + workflows | commit `2026-10-01` |
+| Guia_Wiki_CODANOR_OpenWebUI.docx | Guia configuracion Wiki CODANOR + Open WebUI (13 secciones) | 139 KB |
+| PROPAGATION_RULES.md | Reglas propagación entre 9 apps — BASE/CLON/DIVERGENTE/PROPIO | commit `2026-10-01` |
 
 ### Plataforma_Seguimiento_Proyectos/servidor/
 
 | Archivo | Descripcion | Estado |
 |---------|-------------|--------|
-| server.py | Flask app: motor proyectos + 22 endpoints riesgos/EIPD + 19 tiquets + 3 corp LLM | ~4272 lineas |
-| plataforma.db | SQLite WAL: 19 tablas, WAL mode | Activa |
-| migration_tiquets.sql | DDL standalone v1.0→v1.4 con instrucciones backup | 147 lineas |
-| uploads/tiquets/ | Archivos adjuntos de tiquets (max 10 MB por fichero) | Excluido Git |
-| ARQUITECTURA_DB_SQLITE.html | Documentacion BD **unificada v1.4** | 116 KB |
+| server.py | Flask app: 86 endpoints — Core + Tiquets + Wiki + LLM + Riesgos + EIPD + Sonar + Estáticos | 4276 lineas |
+| plataforma.db | SQLite WAL: 19 tablas | Activa |
+| migration_tiquets.sql | DDL standalone v1.0→v1.4 | 147 lineas |
+| uploads/tiquets/ | Archivos adjuntos de tiquets (max 10 MB) | Excluido Git |
+| uploads/wiki/ | Documentos wiki (PDF/DOCX/TXT) | Excluido Git |
+| ARQUITECTURA_DB_SQLITE.html | Documentacion BD original v1.4 | 116 KB (histórico) |
+| ARQUITECTURA_DB_SQLITE-V01.html | **Documentacion BD actualizada V01** — 19 tablas, 86 endpoints, 29 proyectos | 58 KB — commit `4fcab16` |
+| GUIA_MANTENIMIENTO_NORMAS-V01.html | **Guia mantenimiento V01** — 9+11 apps, tipos A/B/C/D, checklist | 51 KB — commit `4fcab16` |
+| ARQUITECTURA-SERVIDORES-FLASK-SQLITE-V01.docx | **Arquitectura completa V01** — ecosistema ~/Proyectos/ | 59 KB — commit `19cf949` |
+| DOCS/informes/Guia_Migracion_Clave_Corporativa_IA_CODANOR.docx | Guia reconfigurar key IA tras v20261003a | 45 KB — commit `b60b5bf` |
+| DOCS/informes/Manual_Seguimiento_Reuniones_IA_Codanor-V01.docx | Manual reuniones IA v1.1 | 44 KB |
+| DOCS/informes/Manual_Configuracion_IA_LLM.docx | Manual configuración IA v1 | 44 KB |
 | requirements.txt | flask>=3.0.0, flask-cors>=4.0.0, python-docx>=1.0.0, openpyxl>=3.0.0 | — |
 
-### Plataforma_Seguimiento_Proyectos — 9 apps ISO/ENS (versiones actuales)
+### Plataforma_Seguimiento_Proyectos — 9 apps ISO/ENS (versiones actuales 2026-10-03)
 
 | App | app_id | tiquets.js | phase2-*.js | llm.js | phase3-audit.js |
 |-----|--------|------------|-------------|--------|-----------------|
-| ISO27001-SGSI | iso27001 | v=20260829f | v=20260930e | v=20260911h | v=20260930b |
-| ENS-RD311-2022 | ens | v=20260829f | v=20260930e | v=20260911h | v=20260930b |
-| RGPD-LOPD-GDD | rgpd | v=20260829f | v=20260930e | v=20260911h | v=20260930b |
-| ISO27701-SGP | iso27701 | v=20260829f | v=20260930e | v=20260911h | v=20260930b |
-| ISO42001-SGIA | iso42001 | v=20260829f | v=20260930e | v=20260911h | v=20260930b |
-| ISO9001-SGQ_2015 | iso9001 | v=20260829f | v=20260930f | v=20260911h | v=20260930b |
-| ISO14001-SGMA_2015 | iso14001 | v=20260829f | v=20260930f | v=20260911h | v=20260930b |
-| ISO14001-SGMA_2026_NEW | iso14001-2026 | v=20260829f | v=20260930f | v=20260911h | v=20260930b |
-| TISAX | tisax | v=20260829f | v=20260925c | v=20260911h | v=20260930b |
+| ISO27001-SGSI | iso27001 | v=20260829f | v=20261003a | v=20261003a | v=20260930b |
+| ENS-RD311-2022 | ens | v=20260829f | v=20261003a | v=20261003a | v=20260930b |
+| RGPD-LOPD-GDD | rgpd | v=20260829f | v=20261003a | v=20261003a | v=20260930b |
+| ISO27701-SGP | iso27701 | v=20260829f | v=20261003a | v=20261003a | v=20260930b |
+| ISO42001-SGIA | iso42001 | v=20260829f | v=20261003a | v=20261003a | v=20260930b |
+| ISO9001-SGQ_2015 | iso9001 | v=20260829f | v=20261003a | v=20261003a | v=20260930b |
+| ISO14001-SGMA_2015 | iso14001 | v=20260829f | v=20261003a | v=20261003a | v=20260930b |
+| ISO14001-SGMA_2026_NEW | iso14001-2026 | v=20260829f | v=20261003a | v=20261003a | v=20260930b |
+| TISAX | tisax | v=20260829f | v=20261003a | v=20261003a | v=20260930b |
+
+## Fix LLM LAN — Key Corporativa + Modal (v20261003a — commit `ef5f302`)
+
+### 3 bugs corregidos
+
+| Bug | Causa raíz | Fix aplicado | Archivos |
+|---|---|---|---|
+| Modal "Prompt para la IA" aparecía aunque había key corporativa | `hasApiKey()` síncrono antes de que `loadCorpConfig()` completara el fetch al servidor | `await LLMUtil.loadCorpConfig()` antes de cada `if (!hasApiKey())` en `synthesizeMeeting`, `generateActaSummary`, `generateGlobalSummary` y `switchTab('tracking')` | phase2-consulting.js (5) + phase2-implementation.js (3) + phase2-isms.js (TISAX) |
+| Key corporativa corrupta desde PCs LAN | XOR usaba `socket.gethostname()` (servidor) vs `window.location.hostname` (cliente) — distinto con `127.0.0.1` vs IP de red | Clave XOR **fija**: `b'codanor_llm_2026_xor_key_fixed!!'` en `server.py` Y `llm.js` | server.py + llm.js × 9 apps |
+| Ollama no funcionaba en ENS | `_syncLLMConfigFromForm` en ENS sin guard `isOllamaKey` — la key `'ollama'` (6 chars ≤ 10) era descartada | Guard `isOllamaKey` añadido quirúrgicamente en ENS | ENS-RD311-2022/phase2-consulting.js |
+
+### Acción post-actualización requerida (una sola vez)
+**Reconfigurar la key corporativa IA** desde `plataforma-seguimiento.html → Configuración IA → Guardar`. Las keys guardadas con la clave XOR antigua quedan ilegibles. Ver `DOCS/informes/Guia_Migracion_Clave_Corporativa_IA_CODANOR.docx`.
+
+## Bugs Seguimiento de Tareas — corregidos (commits `c3efe81` + `a9c9035`)
+
+| Bug | Causa | Fix |
+|---|---|---|
+| Cabeceras tabla acciones mostraban `PHASE2.ACCIONDESCRIPCION` | 9 claves i18n ausentes en `lang/*.json` e `i18n-embedded.js`. `I18n.t()` devuelve la clave literal si no la encuentra (string truthy → fallback `|| 'valor'` nunca activa) | 9 claves añadidas en `phase2` de todos los lang × 9 apps × 3 idiomas + embedded |
+| Historial de tareas oculto | Guard `!startsWith('phase2.')` filtraba todas las entradas del historial | Guard eliminado de `phase2-consulting.js` (era parche temporal) |
+| `colspan="8"` incorrecto | La tabla tiene 7 columnas, no 8 | `colspan="7"` en `_renderTaskActionsRow` |
+| Botón "Eliminar reunión" no funcionaba | `window.prompt()` de confirmación palabra clave bloqueado por el navegador silenciosamente | Simplificado a un solo `confirm()` — eliminado el `prompt()` de palabra clave |
+| `LANG_VERSION` no bumpeada en 5 apps | ISO42001, TISAX, ISO9001, ISO14001-2015, ISO14001-2026 no tenían cache-busting en el fetch de lang/*.json | `?v=20260906a` añadido en los 5 `i18n.js` |
+
+## Documentación generada en sesión 2026-10-03
+
+| Documento | Tipo | Tamaño | Descripción |
+|---|---|---|---|
+| `ARQUITECTURA_DB_SQLITE-V01.html` | HTML corporativo | 58 KB | 19 tablas, 86 endpoints, 29 proyectos ~/Proyectos/, TOC sticky, ERD visual |
+| `GUIA_MANTENIMIENTO_NORMAS-V01.html` | HTML corporativo | 51 KB | 9+11 apps, tipos A/B/C/D propagación, procedimiento añadir norma (9 tabs), checklist |
+| `ARQUITECTURA-SERVIDORES-FLASK-SQLITE-V01.docx` | Word corporativo | 59 KB | Ecosistema completo, 86 endpoints, hoja de ruta 13 mejoras |
+| `Guia_Migracion_Clave_Corporativa_IA_CODANOR.docx` | Word corporativo | 45 KB | 11 pasos reconfigurar key XOR, FAQ, checklist 12 ítems |
+| `Manual_Seguimiento_Reuniones_IA_Codanor-V01.docx` | Word corporativo | 44 KB | Manual reuniones IA v1.1 — key corporativa LAN, Ollama, errores actualizados |
 
 ## Módulo Análisis de Riesgos (v1.0 — 2026-10-02, commit `2957632`)
 
@@ -238,6 +278,10 @@ DELETE /api/corp/llm-config → elimina
 | 2026-10-02 | Re-render tab 'design' en switchTab() × 8 apps | Tab se renderizaba 1 sola vez en init() — botón riesgos no aparecía al volver al tab |
 | 2026-10-02 | _t=Date.now() en URL botón riesgos | Evita caché agresiva de Safari para el HTML del dashboard |
 | 2026-10-02 | generateProjectId() con fallback offline | Si Flask no responde, el NNN se genera con timestamp local — botón no queda deshabilitado |
+| 2026-10-03 | XOR clave fija en _xor_key() server.py + _deobfuscate() llm.js | XOR dependiente de hostname fallaba desde 127.0.0.1 vs IP de red en LAN — fix ef5f302 |
+| 2026-10-03 | await loadCorpConfig() antes de hasApiKey() en 4 puntos IA × 9 apps | hasApiKey() síncrono antes de la carga async del servidor mostraba modal manual innecesario |
+| 2026-10-03 | removeMeeting() simplificado — solo confirm(), sin prompt() palabra clave | window.prompt() bloqueado silenciosamente por navegador impedía borrar reuniones vacías |
+| 2026-10-03 | 9 claves i18n accionDescripcion etc. añadidas × 9 apps × 3 idiomas | I18n.t() devuelve la clave literal — el fallback `\|\| 'valor'` nunca activa (string truthy) |
 
 ## Pendiente
 
@@ -246,6 +290,16 @@ DELETE /api/corp/llm-config → elimina
 - [ ] Subir los otros 7+ proyectos a GitHub
 - [ ] Conceder "Acceso total al disco" en Ajustes → Privacidad para backup NAS
 - [ ] Regenerar token SonarCloud
+- [ ] **Reconfigurar key corporativa IA** tras actualización v20261003a (una sola vez — ver Guia_Migracion_Clave_Corporativa_IA_CODANOR.docx)
+- [ ] Dashboard de riesgos para ISO9001, ISO14001, ISO42001, ISO27701 (actualmente "Próximamente")
+- [ ] Ingestar documentos en 9 KBs restantes (ISO27001, LOPD-RGPD, NIS2, OSINT, Logs-SIEM...)
+- [ ] Probar Mapa de Procesos en LAN desde segundo PC
+- [ ] Activar Ollama en LAN (`OLLAMA_HOST=0.0.0.0 ollama serve`) — bloqueado por firewall MDM
+- [ ] Activar apps en preparación: ISO9001:2026, NIS2 (documentación ya disponible)
+- [ ] Integrar Gestion_Riesgos_ISO14001, ISO9001, ISO42001 en RISK_DIRS Flask
+- [x] ~~Fix LLM LAN: key corporativa + modal innecesario + Ollama ENS~~ (commit `ef5f302` 2026-10-03)
+- [x] ~~Bugs seguimiento tareas: i18n accionDescripcion, historial, colspan, eliminar reunión~~ (commits `c3efe81` + `a9c9035`)
+- [x] ~~Documentación arquitectura V01~~ (HTML + DOCX — commit `4fcab16` 2026-10-03)
 - [x] ~~Módulo Análisis de Riesgos v1.0~~ (migración IndexedDB→Flask, Fase 2 integrada — commit `2957632` 2026-10-02)
 - [x] ~~Herramienta de Tiquets v1.0→v1.4~~ (implementada 2026-08-28/29)
 - [x] ~~Módulo Mapa de Procesos v1.0~~ (commit eb628fe 2026-09-04)
@@ -254,12 +308,6 @@ DELETE /api/corp/llm-config → elimina
 - [x] ~~Módulo IA/LLM v3.0~~ (2026-09-25 — Ollama local + isOllamaKey fix × 9 apps)
 - [x] ~~Wiki_CODANOR v1.0~~ (Open WebUI :3000 + Ollama + ChromaDB + RAG — 2026-09-30)
 - [x] ~~PROPAGATION_RULES.md~~ (clasificación BASE/CLON/DIVERGENTE/PROPIO — 2026-10-01)
-- [ ] Probar Mapa de Procesos en LAN desde segundo PC
-- [ ] Verificar exportación PDF del mapa (jsPDF CDN) en cada app
-- [ ] Activar Ollama en LAN (`OLLAMA_HOST=0.0.0.0 ollama serve`) — bloqueado por firewall MDM
-- [ ] Probar acciones de tarea desde segundo PC LAN
-- [ ] Dashboard de riesgos para ISO9001, ISO14001, ISO42001, ISO27701 (actualmente "Próximamente")
-- [ ] Ingestar documentos en 9 KBs restantes (ISO27001, LOPD-RGPD, NIS2, OSINT, Logs-SIEM...)
 
 ## Notas y descubrimientos
 
@@ -278,3 +326,8 @@ DELETE /api/corp/llm-config → elimina
 - **Key corporativa LLM**: guardada ofuscada (XOR+base64) en `settings` WHERE `app_id='_global'` AND `key='corp_llm_config'`.
 - **isOllamaKey guard**: la key de Ollama es la cadena `'ollama'` (6 chars). `length > 10` sin el guard bloqueará el guardado → `hasApiKey()` devuelve false.
 - **Groq sept-2026**: modelos gratuitos: `openai/gpt-oss-20b` y `openai/gpt-oss-120b`. Los Llama pasaron a Enterprise.
+- **Key corporativa XOR fija desde v20261003a**: clave `b'codanor_llm_2026_xor_key_fixed!!'` — independiente del hostname del servidor. Funciona desde `localhost`, `127.0.0.1` o cualquier IP de LAN. Tras actualizar el servidor, reconfigurar la key una sola vez desde `plataforma-seguimiento.html → Configuración IA`.
+- **loadCorpConfig() es asíncrono**: `hasApiKey()` es síncrono y no conoce la key corporativa hasta que `loadCorpConfig()` complete su fetch al servidor. Por eso hay que hacer `await LLMUtil.loadCorpConfig()` ANTES de cada `if (!hasApiKey())` en las funciones de síntesis.
+- **I18n.t() devuelve la clave literal**: si una clave no existe en el JSON de idioma, `I18n.t('phase2.accionDescripcion')` devuelve `"phase2.accionDescripcion"` (string truthy). El patrón `t('clave') || 'fallback'` NUNCA activa el fallback — hay que añadir la clave al JSON.
+- **window.prompt() bloqueado en algunos navegadores**: Safari y otros navegadores pueden bloquear silenciosamente `window.prompt()` cuando se llama después de un `confirm()`. El doble diálogo de confirmación para borrar reuniones era la causa de que el botón "Eliminar reunión" no funcionara.
+- **Ecosistema ~/Proyectos/**: 29 proyectos catalogados — 9 apps activas + 11 en preparación + 9 proyectos externos (Gestion_Riesgos ×6, PLATAFORMA_OpenCode-NEW, Mapa_Procesos, Wiki_CODANOR) + herramientas independientes.

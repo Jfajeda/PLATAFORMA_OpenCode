@@ -2,7 +2,7 @@
 
 > Instructions for AI coding agents operating in this repository.
 > Maintained by Jafa, S.L. (CODANOR), Barcelona, Catalunya.
-> Last updated: 2026-10-02
+> Last updated: 2026-10-03
 
 ## Project Overview
 
@@ -671,11 +671,85 @@ flujo manual sin API Key, errores frecuentes y FAQ.
 
 ---
 
+## Fix LLM LAN — Key Corporativa (v20261003a — commit `ef5f302`)
+
+### Bug 1 — Modal "Prompt para la IA" innecesario con key corporativa
+
+`synthesizeMeeting()`, `generateActaSummary()` y `generateGlobalSummary()` llamaban `hasApiKey()` (síncrono) antes de que `loadCorpConfig()` completara su fetch al servidor. La key corporativa siempre parecía ausente en la primera llamada.
+
+**Fix** — `await LLMUtil.loadCorpConfig()` ANTES de cada `if (!LLMUtil.hasApiKey())` en:
+- `phase2-consulting.js` (5 apps consulting)
+- `phase2-implementation.js` (3 apps: ISO9001, ISO14001-2015, ISO14001-2026)
+- `phase2-isms.js` (TISAX)
+- `switchTab('tracking')`: precargar y refrescar panel para que el badge `API Key ✔` sea correcto
+
+### Bug 2 — Key corporativa corrupta en LAN (XOR hostname-dependiente)
+
+`server.py _xor_key()` usaba `socket.gethostname()` y `llm.js _deobfuscate()` usaba `window.location.hostname`. Distintos cuando el cliente accede desde `127.0.0.1` o IP de red.
+
+**Fix** — clave XOR fija idéntica en ambos lados:
+```python
+# server.py
+def _xor_key():
+    return b'codanor_llm_2026_xor_key_fixed!!'
+```
+```javascript
+// llm.js _deobfuscate()
+const key = 'codanor_llm_2026_xor_key_fixed!!';
+```
+**⚠ Acción requerida una sola vez**: reconfigurar key corporativa desde `plataforma-seguimiento.html → Configuración IA → Guardar`. Ver `DOCS/informes/Guia_Migracion_Clave_Corporativa_IA_CODANOR.docx`.
+
+### Bug 3 — Ollama no funcionaba en ENS
+
+`_syncLLMConfigFromForm` de ENS sin guard `isOllamaKey`. Patch quirúrgico (TIPO C):
+```javascript
+if (key && key.value) {
+  const isOllamaKey = cfg.provider === 'ollama' || key.value.trim() === 'ollama';
+  if (isOllamaKey || key.value.trim().length > 10) cfg.apiKey = key.value.trim();
+}
+```
+
+### Versiones v20261003a
+`llm.js`, `phase2-consulting.js` (5 apps), `phase2-implementation.js` (3 apps), `phase2-isms.js` (TISAX) — todos a `?v=20261003a`.
+
+## Bugs Seguimiento de Tareas (commits `c3efe81` + `a9c9035`)
+
+### Bug 1 — Cabeceras tabla acciones = claves raw (`PHASE2.ACCIONDESCRIPCION`)
+
+**Causa:** `I18n.t(key)` devuelve la clave literal si no la encuentra. `t('clave') || 'fallback'` nunca activa el fallback (string truthy).
+
+**Fix:** añadir 9 claves en `phase2` de `lang/es|ca|en.json` + `i18n-embedded.js` × 9 apps:
+`taskActionsTitle`, `accionDescripcion`, `accionPendiente`, `accionEnCurso`, `accionResuelta`, `accionPlaceholder`, `taskNoActions`, `addTaskAction`, `taskActionRemoveConfirm`.
+
+### Bug 2 — Historial oculto
+
+Guard `!histLast.accion.startsWith('phase2.')` eliminado de `phase2-consulting.js` L2273. Era un parche temporal que ocultaba todo el historial.
+
+### Bug 3 — Botón "Eliminar reunión" no funcionaba
+
+`window.prompt()` bloqueado silenciosamente por Safari tras `confirm()`. Fix: eliminar el `prompt()` de palabra clave — solo `confirm()` en `removeMeeting()` × 5 apps consulting.
+
+### Bug 4 — Layout roto en tabla acciones
+
+`colspan="8"` → `colspan="7"` en `_renderTaskActionsRow` (la tabla tiene 7 columnas).
+
+## Documentación generada en sesión 2026-10-03
+
+| Documento | Tamaño | Descripción |
+|---|---|---|
+| `ARQUITECTURA_DB_SQLITE-V01.html` | 58 KB | 19 tablas ERD, 86 endpoints, 29 proyectos ~/Proyectos/, TOC sticky |
+| `GUIA_MANTENIMIENTO_NORMAS-V01.html` | 51 KB | 9+11 apps, tipos A/B/C/D, procedimiento nueva norma (9 tabs), checklist |
+| `ARQUITECTURA-SERVIDORES-FLASK-SQLITE-V01.docx` | 59 KB | Ecosistema completo, 86 endpoints, hoja de ruta 13 mejoras |
+| `Guia_Migracion_Clave_Corporativa_IA_CODANOR.docx` | 45 KB | 11 pasos XOR fix, FAQ, checklist 12 ítems |
+| `Manual_Seguimiento_Reuniones_IA_Codanor-V01.docx` | 44 KB | Manual reuniones IA v1.1 — key corp LAN, Ollama, errores |
+
+---
+
 No `.cursor/rules/`, `.cursorrules`, or `.github/copilot-instructions.md`
 files exist in this repository. When any are added, incorporate their
 contents into this section.
 
 ---
 
-*Last updated: 2026-10-01*
+*Last updated: 2026-10-03*
 
