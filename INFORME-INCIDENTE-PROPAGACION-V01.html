@@ -1,0 +1,1362 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Informe de Incidente — Sistema de Propagación entre Apps CODANOR v1.0</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600;700&family=Nunito+Sans:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #178DC2;
+      --primary-dark: #1275A3;
+      --primary-light: #e8f4fa;
+      --accent: #12A79D;
+      --dark: #1a1a2e;
+      --gray-700: #4a4a5a;
+      --gray-600: #6b6b7b;
+      --gray-100: #f0f0f5;
+      --white: #ffffff;
+      --warning-text: #b7770d;
+      --warning-bg: #fef9e7;
+      --danger-text: #c0392b;
+      --danger-bg: #fdf2f2;
+      --success-text: #1a7a4a;
+      --success-bg: #f0faf4;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Nunito Sans', sans-serif;
+      font-size: 15px;
+      color: var(--gray-700);
+      background: var(--white);
+      line-height: 1.7;
+    }
+
+    /* ── CABECERA FIJA ─────────────────────────────────────────── */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--dark);
+      color: var(--white);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 0 32px;
+      height: 52px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.35);
+    }
+    .site-header .logo-text {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: 1.15rem;
+      color: var(--primary);
+      letter-spacing: .04em;
+      white-space: nowrap;
+    }
+    .site-header .sep { color: #ffffff44; font-size: 1.2rem; }
+    .site-header .header-title {
+      font-family: 'Nunito Sans', sans-serif;
+      font-size: .85rem;
+      font-weight: 600;
+      color: #ffffffcc;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .site-header .header-ver {
+      margin-left: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .78rem;
+      color: var(--primary);
+      white-space: nowrap;
+    }
+
+    /* ── PORTADA ───────────────────────────────────────────────── */
+    .cover {
+      min-height: 100vh;
+      background: var(--dark);
+      color: var(--white);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 80px 40px;
+      position: relative;
+      overflow: hidden;
+    }
+    .cover::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(135deg, rgba(23,141,194,.18) 0%, transparent 60%),
+        linear-gradient(225deg, rgba(18,167,157,.12) 0%, transparent 50%);
+      pointer-events: none;
+    }
+    .cover-deco-top {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+    }
+    .cover-deco-bottom {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--accent), var(--primary));
+    }
+    .cover-logo {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: 3.4rem;
+      color: var(--primary);
+      letter-spacing: .08em;
+      margin-bottom: 4px;
+    }
+    .cover-logo-sub {
+      font-family: 'Nunito Sans', sans-serif;
+      font-size: .85rem;
+      color: #ffffff66;
+      letter-spacing: .25em;
+      text-transform: uppercase;
+      margin-bottom: 40px;
+    }
+    .cover-line {
+      width: 80px;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      border-radius: 2px;
+      margin: 0 auto 32px;
+    }
+    .cover-type {
+      font-family: 'Nunito Sans', sans-serif;
+      font-size: .78rem;
+      font-weight: 700;
+      letter-spacing: .3em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 16px;
+    }
+    .cover-title {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: 2rem;
+      color: var(--white);
+      line-height: 1.25;
+      max-width: 780px;
+      margin-bottom: 16px;
+    }
+    .cover-subtitle {
+      font-family: 'Nunito Sans', sans-serif;
+      font-size: 1rem;
+      color: #ffffffbb;
+      max-width: 640px;
+      margin-bottom: 48px;
+      line-height: 1.6;
+    }
+    .cover-meta {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px 36px;
+      margin-bottom: 32px;
+    }
+    .cover-meta-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+    .cover-meta-label {
+      font-size: .7rem;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: #ffffff55;
+    }
+    .cover-meta-value {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      font-size: .92rem;
+      color: var(--white);
+    }
+    .cover-badge {
+      display: inline-block;
+      padding: 6px 20px;
+      border: 1px solid #ffffff33;
+      border-radius: 20px;
+      font-size: .75rem;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: #ffffffaa;
+      background: rgba(255,255,255,.05);
+      margin-top: 8px;
+    }
+
+    /* ── LAYOUT PRINCIPAL ──────────────────────────────────────── */
+    .main-layout {
+      display: flex;
+      align-items: flex-start;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+      gap: 32px;
+    }
+
+    /* ── TOC SIDEBAR ───────────────────────────────────────────── */
+    .toc {
+      width: 280px;
+      flex-shrink: 0;
+      position: sticky;
+      top: 68px;
+      max-height: calc(100vh - 90px);
+      overflow-y: auto;
+      background: var(--gray-100);
+      border-radius: 10px;
+      padding: 20px 0;
+      border: 1px solid #dde2ea;
+    }
+    .toc-title {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: .75rem;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--primary-dark);
+      padding: 0 20px 12px;
+      border-bottom: 2px solid var(--primary-light);
+      margin-bottom: 8px;
+    }
+    .toc a {
+      display: block;
+      padding: 7px 20px;
+      text-decoration: none;
+      font-size: .82rem;
+      color: var(--gray-700);
+      line-height: 1.4;
+      transition: background .15s, color .15s;
+      border-left: 3px solid transparent;
+    }
+    .toc a:hover {
+      background: var(--primary-light);
+      color: var(--primary-dark);
+      border-left-color: var(--primary);
+    }
+    .toc a .toc-num {
+      display: inline-block;
+      min-width: 22px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .75rem;
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    /* ── CONTENIDO ─────────────────────────────────────────────── */
+    .content { flex: 1; min-width: 0; }
+
+    section {
+      margin-bottom: 56px;
+      scroll-margin-top: 70px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+      margin-bottom: 24px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--primary-light);
+    }
+    .section-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--primary);
+      white-space: nowrap;
+    }
+    .section-title {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: 1.35rem;
+      color: var(--dark);
+      line-height: 1.3;
+    }
+
+    h3 {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      font-size: 1.05rem;
+      color: var(--primary-dark);
+      margin: 28px 0 12px;
+    }
+
+    p { margin-bottom: 14px; }
+    ul, ol { padding-left: 22px; margin-bottom: 14px; }
+    li { margin-bottom: 5px; }
+    strong { font-weight: 700; color: var(--dark); }
+
+    /* ── TABLAS ────────────────────────────────────────────────── */
+    .table-wrap { overflow-x: auto; margin-bottom: 20px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .88rem;
+    }
+    thead th {
+      background: var(--primary-dark);
+      color: var(--white);
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      font-size: .82rem;
+      padding: 11px 14px;
+      text-align: left;
+      letter-spacing: .03em;
+      white-space: nowrap;
+    }
+    tbody tr:nth-child(odd)  { background: var(--white); }
+    tbody tr:nth-child(even) { background: var(--gray-100); }
+    tbody tr:hover { background: var(--primary-light); }
+    td {
+      padding: 10px 14px;
+      border-bottom: 1px solid #e0e4ed;
+      vertical-align: top;
+      color: var(--gray-700);
+      line-height: 1.5;
+    }
+    td code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .8rem;
+      background: #f3f4f8;
+      padding: 1px 5px;
+      border-radius: 3px;
+      color: var(--primary-dark);
+    }
+
+    /* ── BADGES DE TIPO ────────────────────────────────────────── */
+    .badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-family: 'Poppins', sans-serif;
+      font-size: .72rem;
+      font-weight: 700;
+      letter-spacing: .04em;
+      white-space: nowrap;
+    }
+    .badge-base      { color: var(--primary-dark); background: var(--primary-light); border: 1px solid #a8d4ec; }
+    .badge-clon      { color: var(--success-text); background: var(--success-bg); border: 1px solid #b2dfc7; }
+    .badge-div       { color: var(--danger-text); background: var(--danger-bg); border: 1px solid #f1b9b9; }
+    .badge-own       { color: var(--warning-text); background: var(--warning-bg); border: 1px solid #f0d5a0; }
+
+    /* ── CAJAS DE AVISO ────────────────────────────────────────── */
+    .box {
+      padding: 16px 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+      border-left: 5px solid;
+      font-size: .9rem;
+    }
+    .box-warning {
+      background: var(--warning-bg);
+      border-color: var(--warning-text);
+      color: #6b4a00;
+    }
+    .box-danger {
+      background: var(--danger-bg);
+      border-color: var(--danger-text);
+      color: #7a1a1a;
+    }
+    .box-success {
+      background: var(--success-bg);
+      border-color: var(--success-text);
+      color: #0d4a2a;
+    }
+    .box-info {
+      background: var(--primary-light);
+      border-color: var(--primary);
+      color: #0a3d5c;
+    }
+    .box strong { color: inherit; }
+
+    /* ── BLOQUES DE CÓDIGO ─────────────────────────────────────── */
+    pre {
+      background: #1e1e2e;
+      color: #cdd6f4;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .8rem;
+      padding: 18px 22px;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 16px 0;
+      line-height: 1.6;
+      border: 1px solid #313244;
+    }
+    pre .cm  { color: #6c7086; }
+    pre .kw  { color: #89b4fa; }
+    pre .st  { color: #a6e3a1; }
+    pre .fn  { color: #89dceb; }
+    pre .nb  { color: #fab387; }
+    pre .op  { color: #cba6f7; }
+
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .83em;
+      background: #f3f4f8;
+      padding: 1px 5px;
+      border-radius: 3px;
+      color: var(--primary-dark);
+    }
+    pre code { background: none; padding: 0; color: inherit; font-size: inherit; }
+
+    /* ── COMMIT TABLE ──────────────────────────────────────────── */
+    .commit-hash {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .78rem;
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    /* ── VECTOR CARDS ──────────────────────────────────────────── */
+    .vector-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      margin: 20px 0;
+    }
+    .vector-card {
+      border: 1px solid #e0e4ed;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .vector-card-head {
+      background: var(--primary-dark);
+      color: var(--white);
+      padding: 10px 16px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      font-size: .88rem;
+    }
+    .vector-card-body {
+      padding: 14px 16px;
+      font-size: .88rem;
+      line-height: 1.6;
+      color: var(--gray-700);
+    }
+
+    /* ── WORKFLOW STEPS ────────────────────────────────────────── */
+    .steps { counter-reset: step; margin: 16px 0; }
+    .step {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+    .step-num {
+      flex-shrink: 0;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--primary-dark);
+      color: var(--white);
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: .8rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 2px;
+    }
+    .step-body { flex: 1; font-size: .9rem; line-height: 1.55; }
+
+    /* ── LECCIONES ─────────────────────────────────────────────── */
+    .lesson-list { list-style: none; padding: 0; }
+    .lesson-list li {
+      padding: 14px 18px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      border-left: 4px solid var(--primary);
+      background: var(--primary-light);
+      font-size: .91rem;
+      line-height: 1.6;
+    }
+    .lesson-label {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: .8rem;
+      letter-spacing: .04em;
+      color: var(--primary-dark);
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    /* ── GLOSARIO ──────────────────────────────────────────────── */
+    .glosario-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .glosario-item {
+      padding: 12px 16px;
+      border: 1px solid #e0e4ed;
+      border-radius: 8px;
+      background: var(--white);
+    }
+    .glosario-term {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 500;
+      font-size: .85rem;
+      color: var(--primary-dark);
+      margin-bottom: 4px;
+    }
+    .glosario-def {
+      font-size: .86rem;
+      color: var(--gray-700);
+      line-height: 1.5;
+    }
+
+    /* ── PIE DE PÁGINA ─────────────────────────────────────────── */
+    .site-footer {
+      background: var(--dark);
+      color: #ffffff66;
+      font-size: .75rem;
+      text-align: center;
+      padding: 14px 32px;
+      line-height: 1.7;
+      border-top: 3px solid var(--primary);
+    }
+    .site-footer span { color: #ffffff99; }
+
+    /* ── SEPARADOR ─────────────────────────────────────────────── */
+    .divider {
+      height: 2px;
+      background: linear-gradient(90deg, var(--primary), transparent);
+      border: none;
+      margin: 32px 0;
+      border-radius: 1px;
+    }
+
+    /* ── RESPONSIVE ────────────────────────────────────────────── */
+    @media (max-width: 860px) {
+      .toc { display: none; }
+      .main-layout { padding: 24px 16px 60px; }
+      .cover-title { font-size: 1.5rem; }
+      .cover-logo { font-size: 2.4rem; }
+    }
+
+    /* ── PRINT ─────────────────────────────────────────────────── */
+    @media print {
+      .toc, .site-header { display: none !important; }
+      .main-layout { padding: 0; display: block; }
+      .content { width: 100%; }
+      body { font-size: 11pt; }
+      section { page-break-inside: avoid; margin-bottom: 32px; }
+      .cover { min-height: auto; page-break-after: always; padding: 40px 24px; }
+      pre { white-space: pre-wrap; word-break: break-all; }
+      @page {
+        margin: 18mm 16mm 22mm;
+        size: A4;
+      }
+      @page :left { margin-left: 22mm; }
+      @page :right { margin-right: 22mm; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- CABECERA FIJA -->
+  <header class="site-header">
+    <span class="logo-text">CODANOR</span>
+    <span class="sep">|</span>
+    <span class="header-title">Informe de Incidente — Sistema de Propagación entre Apps CODANOR</span>
+    <span class="header-ver">v1.0 · 01/10/2026</span>
+  </header>
+
+  <!-- PORTADA -->
+  <div class="cover">
+    <div class="cover-deco-top"></div>
+    <div class="cover-logo">CODANOR</div>
+    <div class="cover-logo-sub">Jafa, S.L. — Barcelona, Catalunya</div>
+    <div class="cover-line"></div>
+    <div class="cover-type">Informe de Incidente</div>
+    <h1 class="cover-title">Sistema de Propagación entre Apps CODANOR</h1>
+    <p class="cover-subtitle">Análisis, correcciones aplicadas y mejoras preventivas implementadas</p>
+    <div class="cover-meta">
+      <div class="cover-meta-item">
+        <span class="cover-meta-label">Versión</span>
+        <span class="cover-meta-value">v1.0</span>
+      </div>
+      <div class="cover-meta-item">
+        <span class="cover-meta-label">Fecha</span>
+        <span class="cover-meta-value">01/10/2026</span>
+      </div>
+      <div class="cover-meta-item">
+        <span class="cover-meta-label">Autor</span>
+        <span class="cover-meta-value">Jaime Fajeda — CODANOR</span>
+      </div>
+      <div class="cover-meta-item">
+        <span class="cover-meta-label">Referencia</span>
+        <span class="cover-meta-value">INC-2026-001</span>
+      </div>
+    </div>
+    <div class="cover-badge">Documento interno — Uso exclusivo CODANOR</div>
+    <div class="cover-deco-bottom"></div>
+  </div>
+
+  <!-- LAYOUT PRINCIPAL -->
+  <div class="main-layout">
+
+    <!-- TOC SIDEBAR -->
+    <nav class="toc" aria-label="Tabla de contenidos">
+      <div class="toc-title">Contenido</div>
+      <a href="#seccion-1"><span class="toc-num">1.</span> Introducción y objeto</a>
+      <a href="#seccion-2"><span class="toc-num">2.</span> Alcance</a>
+      <a href="#seccion-3"><span class="toc-num">3.</span> Descripción del incidente</a>
+      <a href="#seccion-4"><span class="toc-num">4.</span> Análisis de causa raíz</a>
+      <a href="#seccion-5"><span class="toc-num">5.</span> Mapa de divergencias</a>
+      <a href="#seccion-6"><span class="toc-num">6.</span> Correcciones aplicadas</a>
+      <a href="#seccion-7"><span class="toc-num">7.</span> Mejoras preventivas</a>
+      <a href="#seccion-8"><span class="toc-num">8.</span> Workflow definitivo</a>
+      <a href="#seccion-9"><span class="toc-num">9.</span> Lecciones aprendidas</a>
+      <a href="#seccion-10"><span class="toc-num">10.</span> Glosario</a>
+    </nav>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="content">
+
+      <!-- CONTROL DE VERSIONES -->
+      <section id="control-versiones">
+        <div class="section-header">
+          <span class="section-num">—</span>
+          <h2 class="section-title">Control de versiones</h2>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Versión</th>
+                <th>Fecha</th>
+                <th>Autor</th>
+                <th>Descripción</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>v1.0</code></td>
+                <td>01/10/2026</td>
+                <td>Jaime Fajeda</td>
+                <td>Versión inicial — documentación completa del incidente INC-2026-001</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <hr class="divider">
+
+      <!-- SECCIÓN 1 -->
+      <section id="seccion-1">
+        <div class="section-header">
+          <span class="section-num">1.</span>
+          <h2 class="section-title">Introducción y objeto</h2>
+        </div>
+
+        <p>
+          El ecosistema CODANOR consta de <strong>9 aplicaciones ISO/ENS</strong> de gestión de sistemas
+          de seguridad y calidad, todas servidas por un servidor Flask centralizado en
+          <code>localhost:5001</code> con base de datos SQLite (<code>plataforma.db</code>).
+          Las 9 aplicaciones son: ISO27001-SGSI, ENS-RD311-2022, RGPD-LOPD-GDD, ISO27701-SGP,
+          ISO42001-SGIA, ISO9001-SGQ_2015, ISO14001-SGMA_2015, ISO14001-SGMA_2026_NEW y TISAX.
+        </p>
+        <p>
+          El workspace principal de OpenCode es <code>PLATAFORMA_OpenCode-NEW</code>, desde donde
+          se realizan todas las operaciones de mantenimiento sobre las 9 apps. Las operaciones de
+          propagación de código — copiar fixes entre apps — son una tarea habitual del mantenimiento
+          del ecosistema y se realizan mediante comandos <code>sed</code>, <code>cp</code> o
+          scripts Python.
+        </p>
+        <p>
+          Este informe documenta el <strong>incidente INC-2026-001</strong> ocurrido el 01/10/2026
+          durante la corrección de vulnerabilidades <code>innerHTML</code> inseguros (operación MP-1),
+          en el que se produjo una pérdida accidental de más de 608 líneas de código exclusivo de la
+          aplicación ENS-RD311-2022. El documento cubre las causas identificadas, las correcciones
+          aplicadas y las mejoras preventivas implementadas para evitar que se repita.
+        </p>
+
+        <div class="box box-info">
+          <strong>Referencia de incidente:</strong> INC-2026-001<br>
+          <strong>Clasificación:</strong> Pérdida de código en producción<br>
+          <strong>Severidad:</strong> Alta — funcionalidad ENS completamente inoperativa<br>
+          <strong>Estado final:</strong> Resuelto — commits correctores aplicados y mejoras preventivas implementadas
+        </div>
+      </section>
+
+      <hr class="divider">
+
+      <!-- SECCIÓN 2 -->
+      <section id="seccion-2">
+        <div class="section-header">
+          <span class="section-num">2.</span>
+          <h2 class="section-title">Alcance</h2>
+        </div>
+
+        <h3>Incluido en el alcance</h3>
+        <ul>
+          <li>Propagación de archivos JavaScript entre las 9 apps ISO/ENS del ecosistema <code>Plataforma_Seguimiento_Proyectos</code></li>
+          <li>Arquitectura de instrucciones OpenCode (AGENTS.md principal + específicos de cada app)</li>
+          <li>Workflow de correcciones masivas tipo MP (mantenimiento de plataforma)</li>
+          <li>Gestión del archivo <code>PROPAGATION_RULES.md</code> como fuente de verdad operativa</li>
+          <li>Archivos afectados: <code>phase2-consulting.js</code>, <code>phase2-implementation.js</code>, <code>phase2-isms.js</code>, <code>tiquets.js</code>, <code>mapa-procesos.js</code>, <code>phase3-audit.js</code></li>
+        </ul>
+
+        <h3>Excluido del alcance</h3>
+        <ul>
+          <li>Proyectos independientes de CODANOR (OSSINT, legislacion_monitor-NEW, Planificacion_Diaria, Mapa_Procesos, etc.) — cada uno tiene su propio workspace y no comparte código con las 9 apps ISO/ENS</li>
+          <li>Servidor Flask <code>server.py</code> y base de datos <code>plataforma.db</code> — no participan en el mecanismo de propagación</li>
+          <li>Archivos de datos estáticos (<code>ens-808-checklist.js</code>, <code>iso9001-clauses-detailed.js</code>, etc.) — se editan directamente en cada app sin propagación</li>
+          <li>Módulos completamente independientes: <code>wiki.js</code>, <code>store.js</code>, <code>app.js</code> — tienen su propio ciclo de mantenimiento</li>
+        </ul>
+      </section>
+
+      <hr class="divider">
+
+      <!-- SECCIÓN 3 -->
+      <section id="seccion-3">
+        <div class="section-header">
+          <span class="section-num">3.</span>
+          <h2 class="section-title">Descripción del incidente</h2>
+        </div>
+
+        <h3>3.1 Incidente principal — pérdida de código ENS</h3>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Campo</th><th>Valor</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>Fecha y hora</strong></td><td>01/10/2026, ~10:30h</td></tr>
+              <tr><td><strong>Operación en curso</strong></td><td>Fix MP-1 — corrección de 5 vulnerabilidades <code>innerHTML</code> inseguros en los módulos JS de las 9 apps</td></tr>
+              <tr><td><strong>Commit causante</strong></td><td><span class="commit-hash">22379b8</span> — "fix: corregir innerHTML inseguros — escapar d.version, nombres modelos Ollama, result.message y e.message × 9 apps (MP-1)"</td></tr>
+              <tr><td><strong>Archivo destruido</strong></td><td><code>ENS-RD311-2022/js/modules/phase2-consulting.js</code></td></tr>
+              <tr><td><strong>Código perdido</strong></td><td>+608 líneas exclusivas de ENS</td></tr>
+              <tr><td><strong>Descubrimiento</strong></td><td>Verificación manual en browser por el usuario</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="box box-danger">
+          <strong>🚫 Funciones desaparecidas tras el commit 22379b8:</strong>
+          <ul style="margin-top:8px">
+            <li><code>_seg808Data(kind, itemId)</code> — datos de Seguimiento CCN-STIC 808</li>
+            <li><code>_evid808Data(kind, itemId)</code> — datos de Evidencias CCN-STIC 808</li>
+            <li><code>renderEvolucion()</code> — pestaña Evolució con gráfico Chart.js</li>
+            <li><code>takeSnapshot()</code> — snapshot periódico de progreso ENS</li>
+            <li><code>desglosarLineaCSV(kind, itemId, index)</code> — gestión documental F2</li>
+            <li><code>_visibleDocs(arr)</code> — índices documentos propuestos</li>
+          </ul>
+        </div>
+
+        <p><strong>Síntomas visibles en el browser:</strong></p>
+        <ul>
+          <li>Pestaña "Seguimiento CCN-808" completamente vacía</li>
+          <li>Pestaña "Evolució" desaparecida del menú de navegación</li>
+          <li>Botón "⚡ Desglosar" ausente en la gestión documental F2</li>
+          <li>Snapshots periódicos inoperativos</li>
+        </ul>
+
+        <h3>3.2 Incidentes relacionados activados por el mismo commit</h3>
+
+        <div class="box box-warning">
+          <strong>⚠️ Incidente relacionado A — ISO9001/ISO14001: variable incorrecta en renderNormaTab()</strong><br><br>
+          La propagación masiva introdujo en <code>ISO9001</code> e <code>ISO14001</code> el uso de
+          <code>ISO27001_CLAUSES_DETAIL</code> en lugar de las variables propias de cada app
+          (<code>ISO9001_CLAUSES_DETAIL</code> / <code>CLAUSE_GROUPS</code>). Resultado: la pestaña
+          "Punts de Norma" aparecía con 0 controles.
+        </div>
+
+        <div class="box box-warning">
+          <strong>⚠️ Incidente relacionado B — ISO9001/ISO14001: documentosPropuestos vacíos</strong><br><br>
+          Como consecuencia directa del incidente A, la corrección de
+          <code>renderNormaTab()</code> dejó <code>documentosPropuestos</code> sin inicializar,
+          haciendo que las plantillas de documentos propuestas no aparecieran en el selector.
+        </div>
+      </section>
+
+      <hr class="divider">
+
+      <!-- SECCIÓN 4 -->
+      <section id="seccion-4">
+        <div class="section-header">
+          <span class="section-num">4.</span>
+          <h2 class="section-title">Análisis de causa raíz</h2>
+        </div>
+
+        <p>Se identificaron tres vectores causales independientes que actuaron conjuntamente para permitir el incidente:</p>
+
+        <div class="vector-grid">
+
+          <div class="vector-card">
+            <div class="vector-card-head">Vector 1 — Regla incompleta en AGENTS.md</div>
+            <div class="vector-card-body">
+              La regla 7 del <code>AGENTS.md</code> principal indicaba: <em>"al propagar
+              phase2-consulting.js entre las 5 apps consulting, usar Python (no cp) para
+              preservar las diferencias de appId"</em>. Esta regla era correcta para
+              RGPD/ISO27701/ISO42001 (donde solo difiere el <code>appId</code>) pero
+              <strong>incompleta</strong> porque no advertía que ENS tiene +608 líneas
+              exclusivas que se destruyen con cualquier propagación completa —
+              independientemente del método utilizado (sed, cp o Python sustitución de appId).
+            </div>
+          </div>
+
+          <div class="vector-card">
+            <div class="vector-card-head">Vector 2 — Información crítica inaccesible</div>
+            <div class="vector-card-body">
+              El <code>AGENTS.md</code> de <code>ENS-RD311-2022</code> (334 líneas) contiene
+              toda la información necesaria sobre el código exclusivo CCN-808, Evolució y
+              Snapshots. Sin embargo, el workspace activo de OpenCode es
+              <code>PLATAFORMA_OpenCode-NEW</code>. OpenCode solo carga el
+              <code>AGENTS.md</code> del workspace activo — <strong>el agente nunca veía
+              las advertencias críticas del AGENTS.md específico de ENS</strong> al operar
+              desde el workspace principal.
+            </div>
+          </div>
+
+          <div class="vector-card">
+            <div class="vector-card-head">Vector 3 — Ausencia de verificación automática</div>
+            <div class="vector-card-body">
+              No existía ningún mecanismo que verificara automáticamente que ENS conservaba
+              su código exclusivo antes de hacer commit. El agente aplicó la propagación
+              de buena fe siguiendo la regla incompleta del <code>AGENTS.md</code> principal,
+              sin que ninguna herramienta o script alertara de la pérdida de las 608 líneas
+              exclusivas durante la operación.
+            </div>
+          </div>
+
+        </div>
+
+        <div class="box box-info">
+          <strong>Conclusión del análisis:</strong> El incidente no fue causado por un error
+          de juicio puntual sino por una deficiencia estructural en el sistema de instrucciones
+          de OpenCode. Los tres vectores son independientes — cualquiera de ellos corregido
+          individualmente hubiera sido suficiente para prevenir el incidente.
+        </div>
+      </section>
+
+      <hr class="divider">
+
+      <!-- SECCIÓN 5 -->
+      <section id="seccion-5">
+        <div class="section-header">
+          <span class="section-num">5.</span>
+          <h2 class="section-title">Mapa de divergencias entre las 9 apps</h2>
+        </div>
+
+        <p>
+          La tabla siguiente clasifica todos los archivos JS de propagación entre las 9 apps
+          según su tipo. Esta clasificación es la fuente de verdad que debe consultarse antes
+          de cualquier operación de propagación.
+        </p>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>App</th>
+                <th>Archivo</th>
+                <th>Tipo</th>
+                <th>Líneas exclusivas</th>
+                <th>Variables globales clave</th>
+                <th>Puede propagarse desde BASE</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>ISO27001-SGSI</strong></td>
+                <td><code>phase2-consulting.js</code></td>
+                <td><span class="badge badge-base">BASE</span></td>
+                <td>—</td>
+                <td><code>ISO27001_CLAUSES_DETAIL</code>, <code>CLAUSE_GROUPS</code></td>
+                <td>Es el BASE</td>
+              </tr>
+              <tr>
+                <td><strong>ENS-RD311-2022</strong></td>
+                <td><code>phase2-consulting.js</code></td>
+                <td><span class="badge badge-div">DIVERGENTE ⚠️</span></td>
+                <td>+608</td>
+                <td><code>ENS_808_CHECKLIST</code></td>
+                <td><strong style="color:var(--danger-text)">NUNCA — solo patch quirúrgico</strong></td>
+              </tr>
+              <tr>
+                <td><strong>RGPD-LOPD-GDD</strong></td>
+                <td><code>phase2-consulting.js</code></td>
+                <td><span class="badge badge-clon">CLON SEGURO</span></td>
+                <td>0</td>
+                <td>—</td>
+                <td>SÍ con <code>sed</code> (solo appId)</td>
+              </tr>
+              <tr>
+                <td><strong>ISO27701-SGP</strong></td>
+                <td><code>phase2-consulting.js</code></td>
+                <td><span class="badge badge-clon">CLON SEGURO</span></td>
+                <td>0</td>
+                <td><code>organizationRole</code> (en datos)</td>
+                <td>SÍ con <code>sed</code> (solo appId)</td>
+              </tr>
+              <tr>
+                <td><strong>ISO42001-SGIA</strong></td>
+                <td><code>phase2-consulting.js</code></td>
+                <td><span class="badge badge-clon">CLON SEGURO</span></td>
+                <td>0</td>
+                <td><code>AIIA</code> module (archivo separado)</td>
+                <td>SÍ con <code>sed</code> (solo appId)</td>
+              </tr>
+              <tr>
+                <td><strong>ISO9001-SGQ_2015</strong></td>
+                <td><code>phase2-implementation.js</code></td>
+                <td><span class="badge badge-own">PROPIO</span></td>
+                <td>—</td>
+                <td><code>ACTIVITY_GROUPS</code>, <code>ISO9001_CLAUSES_DETAIL</code></td>
+                <td><strong style="color:var(--danger-text)">NUNCA — archivo propio</strong></td>
+              </tr>
+              <tr>
+                <td><strong>ISO14001-SGMA_2015</strong></td>
+                <td><code>phase2-implementation.js</code></td>
+                <td><span class="badge badge-own">PROPIO</span></td>
+                <td>—</td>
+                <td><code>CLAUSE_GROUPS</code>, <code>ISO14001_CLAUSES_DETAIL</code></td>
+                <td><strong style="color:var(--danger-text)">NUNCA — archivo propio</strong></td>
+              </tr>
+              <tr>
+                <td><strong>ISO14001-SGMA_2026_NEW</strong></td>
+                <td><code>phase2-implementation.js</code></td>
+                <td><span class="badge badge-own">PROPIO</span></td>
+                <td>—</td>
+                <td><code>CLAUSE_GROUPS</code>, <code>ISO14001_CLAUSES_DETAIL</code></td>
+                <td><strong style="color:var(--danger-text)">NUNCA — archivo propio</strong></td>
+              </tr>
+              <tr>
+                <td><strong>TISAX</strong></td>
+                <td><code>phase2-isms.js</code></td>
+                <td><span class="badge badge-own">PROPIO</span></td>
+                <td>—</td>
+                <td>ISA catalog, sin tabs, sin LLM</td>
+                <td><strong style="color:var(--danger-text)">NUNCA — archivo único</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>5.1 Archivos con propagación segura en todas las apps</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Archivo</th><th>Tipo en todas las apps</th><th>Método de propagación</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>tiquets.js</code></td>
+                <td><span class="badge badge-clon">CLON SEGURO × 8</span></td>
+                <td><code>sed</code> — solo cambia <code>this.appId</code></td>
+              </tr>
+              <tr>
+                <td><code>mapa-procesos.js</code></td>
+                <td><span class="badge badge-clon">CLON SEGURO × 8</span></td>
+                <td><code>sed</code> — solo cambia <code>appId:</code></td>
+              </tr>
+              <tr>
+                <td><code>phase3-audit.js</code></td>
+                <td><span class="badge badge-clon">CLON SEGURO × 8</span></td>
+                <td><code>cp</code> directo — idéntico en todas las apps</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <hr class="divider">
+
+      <!-- SECCIÓN 6 -->
+      <section id="seccion-6">
+        <div class="section-header">
+          <span class="section-num">6.</span>
+          <h2 class="section-title">Correcciones aplicadas</h2>
+        </div>
+
+        <h3>6.1 Commits correctores</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Commit</th>
+                <th>Descripción</th>
+                <th>Archivos afectados</th>
+                <th>Impacto</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="commit-hash">9fea92b</span></td>
+                <td>fix(ENS): restaurar mejoras defc5ef (CCN-808 + Evolució + Snapshots) perdidas + reaplicar fixes innerHTML MP-1</td>
+                <td><code>ENS-RD311-2022/js/modules/phase2-consulting.js</code></td>
+                <td>+610 líneas restauradas</td>
+              </tr>
+              <tr>
+                <td><span class="commit-hash">85ba45a</span></td>
+                <td>fix: restaurar variables correctas en renderNormaTab — ISO9001→ACTIVITY_GROUPS, ISO14001→CLAUSE_GROUPS</td>
+                <td>6 archivos (ISO9001, ISO14001-2015, ISO14001-2026)</td>
+                <td>"Punts de Norma" operativo</td>
+              </tr>
+              <tr>
+                <td><span class="commit-hash">fe6e71b</span></td>
+                <td>fix: migración suave documentosPropuestos vacíos en ISO9001/ISO14001 — recupera plantillas propuestas</td>
+                <td>6 archivos (ISO9001, ISO14001-2015, ISO14001-2026)</td>
+                <td>Plantillas propuestas restauradas</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>6.2 Procedimiento de restauración ENS (commit 9fea92b)</h3>
+
+        <div class="steps">
+          <div class="step">
+            <span class="step-num">1</span>
+            <div class="step-body">
+              Recuperar el archivo previo al incidente desde el commit <code>defc5ef</code> (último estado correcto de ENS):
+              <pre><code>git checkout defc5ef -- ENS-RD311-2022/js/modules/phase2-consulting.js
+# También aplicado a otros 7 archivos del mismo commit</code></pre>
+            </div>
+          </div>
+          <div class="step">
+            <span class="step-num">2</span>
+            <div class="step-body">
+              Aplicar patch quirúrgico Python para reintegrar los 4 fixes del commit <code>22379b8</code>
+              que sí eran válidos (escapado de <code>d.version</code>, modelos Ollama, <code>result.message</code>,
+              <code>e.message</code> y <code>tabMapa</code>) sin sobreescribir el archivo:
+              <pre><code>path = 'ENS-RD311-2022/js/modules/phase2-consulting.js'
+src = open(path).read()
+# Fix 1: escapar d.version
+src = src.replace(OLD_VERSION_SNIPPET, NEW_VERSION_SNIPPET)
+# Fix 2: escapar modelos Ollama
+src = src.replace(OLD_OLLAMA_SNIPPET, NEW_OLLAMA_SNIPPET)
+# Fix 3: escapar result.message
+src = src.replace(OLD_RESULT_SNIPPET, NEW_RESULT_SNIPPET)
+# Fix 4: escapar e.message
+src = src.replace(OLD_ERROR_SNIPPET, NEW_ERROR_SNIPPET)
+open(path, 'w').write(src)</code></pre>
+            </div>
+          </div>
+          <div class="step">
+            <span class="step-num">3</span>
+            <div class="step-body">
+              Bump de versión en <code>ENS-RD311-2022/index.html</code>:
+              <code>20260928c</code> → <code>20260930b</code>
+            </div>
+          </div>
+          <div class="step">
+            <span class="step-num">4</span>
+            <div class="step-body">
+              Verificación de integridad ENS — confirmar que las funciones críticas existen:
+              <pre><code>grep -c "_seg808Data\|renderEvolucion\|takeSnapshot\|desglosarLineaCSV" \
+  ENS-RD311-2022/js/modules/phase2-consulting.js
+# Resultado esperado: 4 ✅</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="box box-success">
+          <strong>✅ Estado final tras las correcciones:</strong> Las 3 apps afectadas (ENS, ISO9001, ISO14001) han recuperado toda su funcionalidad. El ecosistema está operativo al 100%.
+        </div>
+      </section>
+
+      <hr class="divider">
+
+      <!-- SECCIÓN 7 -->
+      <section id="seccion-7">
+        <div class="section-header">
+          <span class="section-num">7.</span>
+          <h2 class="section-title">Mejoras preventivas implementadas</h2>
+        </div>
+
+        <p>Se implementaron 4 mejoras estructurales para eliminar los tres vectores causales identificados:</p>
+
+        <h3>Mejora 1 — PROPAGATION_RULES.md (nuevo archivo, 233 líneas)</h3>
+        <p>
+          Se creó un archivo dedicado <code>PROPAGATION_RULES.md</code> en el workspace
+          <code>PLATAFORMA_OpenCode-NEW</code> con la clasificación completa
+          BASE/CLON SEGURO/DIVERGENTE/PROPIO de todos los archivos JS entre las 9 apps.
+          Incluye:
+        </p>
+        <ul>
+          <li>Tablas de clasificación por tipo con todos los archivos relevantes</li>
+          <li>Workflow paso a paso para cada uno de los 5 casos de propagación</li>
+          <li>Script de verificación de integridad ENS con umbral mínimo de 580 líneas exclusivas</li>
+          <li>Lista de funciones exclusivas de ENS que nunca deben perderse</li>
+          <li>Variables globales críticas por app (TIPO D)</li>
+          <li>Reglas de mantenimiento del propio archivo</li>
+        </ul>
+        <p>El archivo se carga automáticamente por OpenCode como segunda instrucción (ver Mejora 2).</p>
+
+        <div class="box box-success">
+          <strong>✅ Vector corregido:</strong> Vector 1 (regla incompleta) y Vector 2 (información inaccesible) — el archivo de clasificación está ahora en el workspace activo y es cargado por OpenCode en cada sesión.
+        </div>
+
+        <h3>Mejora 2 — opencode.json actualizado</h3>
+        <p>
+          Se actualizó el campo <code>instructions</code> en <code>opencode.json</code> para
+          cargar ambos archivos al inicio de cada sesión:
+        </p>
+        <pre><code>{
+  "instructions": ["AGENTS.md", "PROPAGATION_RULES.md"]
+}</code></pre>
+        <p>
+          De este modo, OpenCode tiene acceso a la clasificación completa de tipos de archivos
+          antes de ejecutar cualquier operación de propagación.
+        </p>
+
+        <h3>Mejora 3 — AGENTS.md principal limpiado</h3>
+        <p>
+          Se detectó que el <code>AGENTS.md</code> del workspace principal tenía su contenido
+          completo duplicado (el archivo contenía dos copias íntegras del mismo texto). Se
+          eliminó el duplicado, reduciendo el archivo de <strong>1129 a 641 líneas</strong>.
+          Las reglas de propagación incompletas fueron reemplazadas por referencias explícitas
+          a <code>PROPAGATION_RULES.md</code>.
+        </p>
+
+        <div class="box box-info">
+          <strong>Impacto:</strong> El contexto de cada sesión OpenCode es más compacto y preciso. Se eliminan instrucciones contradictorias y referencias cruzadas confusas.
+        </div>
+
+        <h3>Mejora 4 — Hub raíz ~/Proyectos/AGENTS.md actualizado</h3>
+        <p>
+          Se actualizó el hub raíz de instrucciones de OpenCode con:
+        </p>
+        <ul>
+          <li>Rutas corregidas a sus valores actuales: <code>PLATAFORMA_OpenCode</code> → <code>PLATAFORMA_OpenCode-NEW</code>, <code>legislacion_monitor</code> → <code>legislacion_monitor-NEW</code>, etc.</li>
+          <li>Nueva sección "Arquitectura de instrucciones OpenCode" con jerarquía completa de AGENTS.md por workspace</li>
+          <li>Tabla de servidores Flask activos con puertos y estados</li>
+          <li>Estado real de AGENTS.md por proyecto (existente / pendiente)</li>
+        </ul>
+      </section>
+
+      <hr class="divider">
+
+      <!-- SECCIÓN 8 -->
+      <section id="seccion-8">
+        <div class="section-header">
+          <span class="section-num">8.</span>
+          <h2 class="section-title">Workflow de propagación seguro (definitivo)</h2>
+        </div>
+
+        <p>
+          El siguiente workflow es el procedimiento oficial para cualquier operación de propagación
+          entre las 9 apps. Se divide en 5 casos según el tipo de archivo. Este workflow sustituye
+          cualquier instrucción anterior sobre propagación.
+        </p>
+
+        <div class="box box-warning">
+          <strong>⚠️ Regla fundamental:</strong> Antes de propagar cualquier archivo JS entre apps,
+          identificar su TIPO en <code>PROPAGATION_RULES.md</code>. Nunca asumir que todas las apps
+          son iguales.
+        </div>
+
+        <h3>Caso 1 — Fix en phase2-consulting.js</h3>
+        <div class="steps">
+          <div class="step"><span class="step-num">1</span><div class="step-body">Editar <code>ISO27001-SGSI/js/modules/phase2-consulting.js</code> (archivo BASE)</div></div>
+          <div class="step"><span class="step-num">2</span><div class="step-body">Propagar a RGPD/ISO27701/ISO42001 con <code>sed</code> — son CLONES SEGUROS, solo difiere el appId</div></div>
+          <div class="step"><span class="step-num">3</span><div class="step-body"><strong>ENS → patch quirúrgico Python SOLAMENTE</strong> — nunca <code>cp</code>, nunca <code>sed</code> completo</div></div>
+          <div class="step"><span class="step-num">4</span><div class="step-body">Ejecutar script de verificación de integridad ENS (umbral ≥ 580 líneas exclusivas)</div></div>
+          <div class="step"><span class="step-num">5</span><div class="step-body">Bump versión en los 5 <code>index.html</code> de las apps consulting</div></div>
+        </div>
+
+        <h3>Script de verificación ENS (obligatorio antes de cualquier commit)</h3>
+        <pre><code><span class="cm"># Verificación de integridad ENS — ejecutar antes de commit</span>
+python3 -c <span class="st">"
+import subprocess, sys
+BASE = 'Plataforma_Seguimiento_Proyectos'
+r = subprocess.run([
+    'diff',
+    f'{BASE}/ISO27001-SGSI/js/modules/phase2-consulting.js',
+    f'{BASE}/ENS-RD311-2022/js/modules/phase2-consulting.js'
+], capture_output=True, text=True)
+lines = r.stdout.count('\n>')
+if lines < 580:
+    print(f'ERROR: ENS ha perdido codigo exclusivo ({lines} lineas, minimo 580)')
+    sys.exit(1)
+print(f'OK — ENS tiene {lines} lineas exclusivas (minimo 580)')
+"</span></code></pre>
+
+        <h3>Caso 2 — Fix en tiquets.js o mapa-procesos.js</h3>
+        <div class="steps">
+          <div class="step"><span class="step-num">1</span><div class="step-body">Editar <code>ISO27001-SGSI</code> (BASE)</div></div>
+          <div class="step"><span class="step-num">2</span><div class="step-body">Propagar a las 8 apps con <code>sed</code> — todas son CLONES SEGUROS</div></div>
+          <div class="step"><span class="step-num">3</span><div class="step-body">Bump versión en los 9 <code>index.html</code></div></div>
+        </div>
+
+        <h3>Caso 3 — Fix en phase2-implementation.js</h3>
+        <div class="box box-danger">
+          <strong>🚫 ISO9001, ISO14001-2015 e ISO14001-2026 tienen TIPO D — PROPIO.</strong>
+          Editar CADA app por separado con patch quirúrgico. NUNCA copiar entre ellas.
+        </div>
+        <div class="steps">
+          <div class="step"><span class="step-num">1</span><div class="step-body">Identificar qué apps específicas requieren el fix</div></div>
+          <div class="step"><span class="step-num">2</span><div class="step-body">Editar cada app por separado con patch Python sobre el archivo propio</div></div>
+          <div class="step"><span class="step-num">3</span><div class="step-body">Bump versión en los <code>index.html</code> de las apps afectadas</div></div>
+        </div>
+
+        <h3>Caso 4 — Fix en phase3-audit.js</h3>
+        <div class="steps">
+          <div class="step"><span class="step-num">1</span><div class="step-body">Editar <code>ISO27001-SGSI/js/modules/phase3-audit.js</code> (BASE)</div></div>
+          <div class="step"><span class="step-num">2</span><div class="step-body">Copiar con <code>cp</code> a las 8 apps restantes — es idéntico en todas (CLON SEGURO sin <code>sed</code>)</div></div>
+          <div class="step"><span class="step-num">3</span><div class="step-body">Bump versión en los 9 <code>index.html</code></div></div>
+        </div>
+
+        <h3>Caso 5 — Fix en phase2-isms.js</h3>
+        <div class="steps">
+          <div class="step"><span class="step-num">1</span><div class="step-body">Editar <code>TISAX/js/modules/phase2-isms.js</code> directamente — TIPO D — PROPIO</div></div>
+          <div class="step"><span class="step-num">2</span><div class="step-body">Bump versión en <code>TISAX/index.html</code></div></div>
+        </div>
+      </section>
+
+      <hr class="divider">
+
+      <!-- SECCIÓN 9 -->
+      <section id="seccion-9">
+        <div class="section-header">
+          <span class="section-num">9.</span>
+          <h2 class="section-title">Lecciones aprendidas y recomendaciones</h2>
+        </div>
+
+        <h3>9.1 Lecciones aprendidas</h3>
+        <ul class="lesson-list">
+          <li>
+            <span class="lesson-label">Lección 1 — Jerarquía de instrucciones</span>
+            La arquitectura de múltiples AGENTS.md (común + específicos por app) es correcta
+            conceptualmente, pero requiere un mecanismo explícito para que las reglas operativas
+            críticas sean accesibles desde el workspace principal. No es suficiente con documentar
+            las reglas en el AGENTS.md específico de la app afectada — deben estar disponibles
+            en el contexto activo del agente.
+          </li>
+          <li>
+            <span class="lesson-label">Lección 2 — Alto riesgo de las propagaciones masivas</span>
+            Las operaciones de propagación masiva (sed/cp sobre múltiples archivos) son de alto
+            riesgo. Requieren verificación post-operación, no solo pre-operación. Una regla
+            escrita correctamente pero incompleta puede ser más peligrosa que no tener regla,
+            porque genera una falsa sensación de seguridad.
+          </li>
+          <li>
+            <span class="lesson-label">Lección 3 — Clasificación de tipos como mecanismo robusto</span>
+            Un archivo de clasificación explícita de tipos (BASE/CLON/DIVERGENTE/PROPIO) es
+            significativamente más robusto que reglas textuales dispersas en el AGENTS.md
+            principal. La clasificación obliga a razonar sobre el tipo antes de actuar, mientras
+            que las reglas textuales son susceptibles de interpretaciones parciales.
+          </li>
+        </ul>
+
+        <h3>9.2 Recomendaciones para el futuro</h3>
+        <ul>
+          <li>
+            <strong>Actualizar PROPAGATION_RULES.md</strong> cada vez que se añade código
+            exclusivo nuevo a ENS u otra app — el umbral de 580 líneas puede crecer.
+          </li>
+          <li>
+            <strong>Ejecutar el script de verificación ENS</strong> antes de cualquier commit
+            que toque <code>phase2-consulting.js</code> en cualquiera de las 5 apps consulting.
+          </li>
+          <li>
+            <strong>Considerar la extracción del código exclusivo de ENS</strong> a un archivo
+            separado <code>phase2-ens-extensions.js</code> si supera las 1000 líneas, para
+            eliminar estructuralmente el riesgo de propagación accidental.
+          </li>
+          <li>
+            <strong>Añadir referencias cruzadas a PROPAGATION_RULES.md</strong> en los AGENTS.md
+            específicos de cada app, para que cualquier operador que lea el AGENTS.md de ENS
+            conozca la existencia del archivo de clasificación.
+          </li>
+          <li>
+            <strong>Documentar las funciones exclusivas de ENS en los comentarios del propio archivo JS</strong>
+            con un bloque de encabezado que las liste explícitamente y advierta sobre la prohibición
+            de sobreescritura.
+          </li>
+        </ul>
+      </section>
+
+      <hr class="divider">
+
+      <!-- SECCIÓN 10 -->
+      <section id="seccion-10">
+        <div class="section-header">
+          <span class="section-num">10.</span>
+          <h2 class="section-title">Glosario</h2>
+        </div>
+
+        <div class="glosario-grid">
+          <div class="glosario-item">
+            <div class="glosario-term">BASE</div>
+            <div class="glosario-def">Archivo master que se edita directamente y se propaga a los CLONES mediante <code>sed</code> o <code>cp</code>. Ejemplo: <code>ISO27001-SGSI/js/modules/phase2-consulting.js</code>.</div>
+          </div>
+          <div class="glosario-item">
+            <div class="glosario-term">CLON SEGURO</div>
+            <div class="glosario-def">Idéntico al BASE excepto el <code>appId</code>. La propagación con <code>sed</code> es segura porque solo cambia ese valor. Ejemplo: RGPD, ISO27701, ISO42001 para <code>phase2-consulting.js</code>.</div>
+          </div>
+          <div class="glosario-item">
+            <div class="glosario-term">DIVERGENTE</div>
+            <div class="glosario-def">Comparte la base pero tiene código exclusivo añadido. <strong>Nunca propagar completo desde BASE</strong> — usar exclusivamente patch quirúrgico Python. Ejemplo: ENS-RD311-2022.</div>
+          </div>
+          <div class="glosario-item">
+            <div class="glosario-term">PROPIO</div>
+            <div class="glosario-def">Archivo sin equivalente funcional en otra app. Se edita directamente, nunca se copia entre apps del mismo tipo. Ejemplo: <code>phase2-implementation.js</code> en ISO9001/ISO14001.</div>
+          </div>
+          <div class="glosario-item">
+            <div class="glosario-term">Patch quirúrgico</div>
+            <div class="glosario-def">Modificación puntual de líneas específicas mediante Python <code>str.replace()</code> sobre el archivo completo, sin sobreescribir el archivo entero ni usar <code>sed</code> de sustitución completa.</div>
+          </div>
+          <div class="glosario-item">
+            <div class="glosario-term">PROPAGATION_RULES.md</div>
+            <div class="glosario-def">Archivo de instrucciones operativas para propagación entre apps, cargado automáticamente por OpenCode como segunda instrucción junto con <code>AGENTS.md</code>.</div>
+          </div>
+          <div class="glosario-item">
+            <div class="glosario-term">appId</div>
+            <div class="glosario-def">Identificador único de aplicación (<code>iso27001</code>, <code>ens</code>, <code>rgpd</code>, <code>iso27701</code>, <code>iso42001</code>, <code>iso9001</code>, <code>iso14001</code>, <code>iso14001-2026</code>, <code>tisax</code>) que diferencia los CLONES del BASE.</div>
+          </div>
+          <div class="glosario-item">
+            <div class="glosario-term">CCN-STIC 808</div>
+            <div class="glosario-def">Guía del Centro Criptológico Nacional para la verificación del cumplimiento del Esquema Nacional de Seguridad (ENS). Implementada exclusivamente en ENS-RD311-2022.</div>
+          </div>
+          <div class="glosario-item">
+            <div class="glosario-term">Evolució</div>
+            <div class="glosario-def">Pestaña exclusiva de la app ENS-RD311-2022 que muestra un gráfico Chart.js con la tendencia de progreso del cumplimiento ENS a lo largo de snapshots periódicos.</div>
+          </div>
+          <div class="glosario-item">
+            <div class="glosario-term">Snapshot</div>
+            <div class="glosario-def">Captura periódica del estado de cumplimiento ENS (medidas implementadas/no implementadas) almacenada para alimentar el gráfico de tendencia de la pestaña Evolució.</div>
+          </div>
+          <div class="glosario-item">
+            <div class="glosario-term">MP-1</div>
+            <div class="glosario-def">Operación de mantenimiento de plataforma número 1: corrección de 5 vulnerabilidades de <code>innerHTML</code> inseguros en los módulos JS de las 9 apps ISO/ENS. Commit <code>22379b8</code>.</div>
+          </div>
+          <div class="glosario-item">
+            <div class="glosario-term">INC-2026-001</div>
+            <div class="glosario-def">Referencia oficial de este incidente en el registro CODANOR. Primer incidente documentado de pérdida de código en el ecosistema de 9 apps ISO/ENS.</div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- PIE DE PÁGINA -->
+  <footer class="site-footer">
+    <span>CODANOR — Jafa, S.L.</span> | <span>CONFIDENCIAL — Documento interno. Uso exclusivo CODANOR</span><br>
+    <code style="font-size:.7rem;color:#ffffff55">/Users/jaimefajeda/Proyectos/PLATAFORMA_OpenCode-NEW/INFORME-INCIDENTE-PROPAGACION-V01.html</code>
+    | <span>v1.0 · 01/10/2026</span>
+  </footer>
+
+</body>
+</html>
