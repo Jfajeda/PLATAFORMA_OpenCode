@@ -34,6 +34,7 @@
 |---------|-------------|---------|
 | Manual_OpenCode_Codanor.html | Manual v3.0, 20 capitulos | ~137 KB |
 | Manual_IA_Actas_Codanor.html | Manual IA módulo actas v1.0, 10 secciones | ~99 KB |
+| Manual_Seguimiento_Acta_Sintesis_IA-V02.html | **Manual Acta y Síntesis con IA v2.0** — Groq por defecto, TOC sticky, sección mantenimiento | ~60 KB — commit 2026-10-07 |
 | plataforma-seguimiento.html | Dashboard + Kanban + Tiquets + Config IA Corp | ~98 KB |
 | analisis-codigo.html | Panel SonarCloud exportable, 5 pestanas | ~46 KB |
 | plan-homogeneizacion-modulos.html | Plan de homogeneizacion (14 caps) | ~72 KB |
@@ -306,6 +307,7 @@ DELETE /api/corp/llm-config → elimina
 | 2026-10-03 | await loadCorpConfig() antes de hasApiKey() en 4 puntos IA × 9 apps | hasApiKey() síncrono antes de la carga async del servidor mostraba modal manual innecesario |
 | 2026-10-03 | removeMeeting() simplificado — solo confirm(), sin prompt() palabra clave | window.prompt() bloqueado silenciosamente por navegador impedía borrar reuniones vacías |
 | 2026-10-03 | 9 claves i18n accionDescripcion etc. añadidas × 9 apps × 3 idiomas | I18n.t() devuelve la clave literal — el fallback `\|\| 'valor'` nunca activa (string truthy) |
+| 2026-10-07 | Manual_Seguimiento_Acta_Sintesis_IA-V02.html — nuevo formato HTML corporativo | Sustituye al .docx anterior. Nuevo formato HTML con branding CODANOR, Groq como proveedor por defecto, sección de mantenimiento del manual (sección 11) para garantizar que no quede obsoleto |
 | 2026-10-07 | Groq como proveedor corporativo por defecto en llm.js + plataforma.db | OpenRouter :free rotó modelos sin aviso 3 veces en una semana — Groq tiene modelos propios que no rotan, 1000 t/s, gratuito |
 | 2026-10-07 | FREE_FALLBACK_CHAIN actualizada con 7 modelos verificados oct-2026 | hermes-3-405b:free y gpt-oss-120b:free ya no están disponibles en OpenRouter |
 | 2026-10-05 | Skill `documentos-proyectos` — plantilla unificada 3 formatos (HTML + .docx + .md) | Todos los documentos del proyecto siguen el mismo patrón visual CODANOR con tipografía estandarizada y colores WCAG AA |

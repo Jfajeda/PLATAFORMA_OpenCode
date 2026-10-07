@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manual Acta y Síntesis con IA — CODANOR</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600;700&family=Nunito+Sans:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary:        #178DC2;
+      --primary-dark:   #1275A3;
+      --primary-light:  #e8f4fa;
+      --accent:         #12A79D;
+      --accent-dark:    #0d7a71;
+      --accent-light:   #e6f7f6;
+      --dark:           #1a1a2e;
+      --gray-900:       #2d2d44;
+      --gray-700:       #4a4a5a;
+      --gray-600:       #6b6b7b;
+      --gray-500:       #7a7a8a;
+      --gray-300:       #c4c4d0;
+      --gray-100:       #f0f0f5;
+      --white:          #ffffff;
+      --warning-text:   #b7770d;
+      --warning-bg:     #fef9e7;
+      --warning-dark:   #7d6608;
+      --danger-text:    #922b21;
+      --danger-bg:      #fdedec;
+      --success-text:   #0e7a72;
+      --success-bg:     #e6f7f6;
+      --info-text:      #1275A3;
+      --info-bg:        #e8f4fa;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Nunito Sans', sans-serif;
+      font-size: 16px;
+      line-height: 1.7;
+      color: var(--gray-700);
+      background: var(--gray-100);
+    }
+
+    /* ─── CABECERA FIJA ─── */
+    .page-header {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--white);
+      border-bottom: 3px solid var(--primary);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.6rem 2rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .page-header-brand { display: flex; align-items: center; gap: 0.8rem; }
+    .page-header-logo { font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 700; color: var(--primary); letter-spacing: -0.5px; }
+    .page-header-title { font-family: 'Poppins', sans-serif; font-size: 0.82rem; font-weight: 600; color: var(--primary-dark); }
+    .page-header-meta { font-family: 'Poppins', sans-serif; font-size: 0.75rem; color: var(--gray-500); }
+
+    /* ─── LAYOUT ─── */
+    .layout { display: flex; min-height: calc(100vh - 56px); }
+
+    /* ─── SIDEBAR ─── */
+    .sidebar {
+      width: 270px; min-width: 270px;
+      background: var(--white);
+      border-right: 1px solid var(--gray-300);
+      padding: 1.5rem 0;
+      position: sticky; top: 56px;
+      height: calc(100vh - 56px);
+      overflow-y: auto;
+    }
+    .sidebar-label {
+      font-family: 'Poppins', sans-serif; font-size: 0.65rem; font-weight: 600;
+      color: var(--gray-500); text-transform: uppercase; letter-spacing: 0.8px;
+      padding: 0 1.2rem; margin-bottom: 0.5rem;
+    }
+    .sidebar nav a {
+      display: block; font-size: 0.86rem; color: var(--gray-700);
+      text-decoration: none; padding: 0.32rem 1.2rem;
+      border-left: 3px solid transparent; transition: all 0.15s;
+    }
+    .sidebar nav a:hover, .sidebar nav a.active {
+      color: var(--primary); background: var(--primary-light); border-left-color: var(--primary);
+    }
+    .sidebar nav a.toc-sub { font-size: 0.80rem; padding-left: 2.2rem; color: var(--gray-600); }
+    .sidebar-sep { border: none; border-top: 1px solid var(--gray-300); margin: 0.6rem 1.2rem; }
+
+    /* ─── CONTENIDO ─── */
+    .main-content { flex: 1; padding: 0; min-width: 0; }
+
+    /* ─── PORTADA ─── */
+    .cover {
+      background: var(--dark); color: var(--white);
+      padding: 5rem 4rem 4rem; position: relative; overflow: hidden;
+    }
+    .cover::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 5px;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+    }
+    .cover-logo { font-family: 'Poppins', sans-serif; font-size: 1.4rem; font-weight: 700; color: var(--primary); margin-bottom: 4rem; }
+    .cover-type { font-family: 'Poppins', sans-serif; font-size: 0.75rem; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 1rem; }
+    .cover-title { font-family: 'Poppins', sans-serif; font-size: 2.6rem; font-weight: 700; color: var(--white); line-height: 1.15; margin-bottom: 1rem; }
+    .cover-subtitle { font-family: 'Poppins', sans-serif; font-size: 1.15rem; font-weight: 300; color: rgba(255,255,255,0.75); margin-bottom: 3rem; }
+    .cover-meta { display: flex; gap: 2.5rem; flex-wrap: wrap; }
+    .cover-meta-item .label { font-size: 0.68rem; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 0.2rem; }
+    .cover-meta-item .value { font-family: 'Poppins', sans-serif; font-size: 0.92rem; font-weight: 600; color: var(--white); }
+    .cover-footer { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.15); display: flex; justify-content: space-between; align-items: center; }
+    .cover-footer .company { font-size: 0.82rem; color: rgba(255,255,255,0.6); }
+    .cover-footer .classification { font-size: 0.72rem; font-style: italic; color: rgba(255,255,255,0.45); }
+
+    /* ─── SECCIONES ─── */
+    .content-section {
+      background: var(--white); margin: 2rem; border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06); padding: 2.5rem 3rem;
+    }
+    .version-control {
+      background: var(--white); margin: 2rem; border-radius: 8px;
+      padding: 2rem 3rem; border-left: 4px solid var(--primary);
+    }
+    .section-number { font-family: 'Poppins', sans-serif; font-size: 0.72rem; font-weight: 600; color: var(--primary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.4rem; }
+
+    /* ─── TIPOGRAFÍA ─── */
+    h1 { font-family: 'Poppins', sans-serif; font-size: 1.8rem; font-weight: 700; color: var(--dark); margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--primary-light); }
+    h2 { font-family: 'Poppins', sans-serif; font-size: 1.25rem; font-weight: 600; color: var(--primary-dark); margin-top: 2rem; margin-bottom: 0.75rem; }
+    h3 { font-family: 'Poppins', sans-serif; font-size: 1.0rem; font-weight: 600; color: var(--gray-900); margin-top: 1.5rem; margin-bottom: 0.5rem; }
+    h4 { font-family: 'Poppins', sans-serif; font-size: 0.92rem; font-weight: 600; color: var(--gray-700); margin-top: 1rem; margin-bottom: 0.3rem; }
+    p { margin-bottom: 0.85rem; font-size: 0.95rem; }
+    ul, ol { padding-left: 1.6rem; margin-bottom: 0.85rem; }
+    li { font-size: 0.95rem; margin-bottom: 0.35rem; }
+    strong { color: var(--gray-900); }
+
+    /* ─── TABLAS ─── */
+    .table-wrapper { overflow-x: auto; margin: 1.2rem 0; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    thead th { font-family: 'Poppins', sans-serif; font-size: 0.80rem; font-weight: 600; color: var(--white); background: var(--primary-dark); padding: 0.65rem 0.9rem; text-align: left; white-space: nowrap; }
+    tbody td { padding: 0.6rem 0.9rem; border-bottom: 1px solid var(--gray-300); color: var(--gray-700); vertical-align: top; }
+    tbody tr:hover td { background: var(--primary-light); }
+    tbody tr:nth-child(even) td { background: #f8f8fb; }
+    tbody tr:nth-child(even):hover td { background: var(--primary-light); }
+    td code { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--primary-dark); background: var(--gray-100); padding: 0.1rem 0.3rem; border-radius: 3px; }
+
+    /* ─── CÓDIGO ─── */
+    code { font-family: 'JetBrains Mono', monospace; font-size: 0.83rem; color: var(--primary-dark); background: var(--gray-100); padding: 0.15rem 0.4rem; border-radius: 4px; }
+    pre { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; background: var(--dark); color: #e0e0e0; padding: 1.2rem 1.5rem; border-radius: 6px; overflow-x: auto; line-height: 1.6; margin: 1rem 0; }
+    pre code { color: inherit; background: none; padding: 0; }
+
+    /* ─── ALERTAS ─── */
+    .alert { padding: 0.9rem 1.1rem; border-radius: 6px; margin: 1rem 0; font-size: 0.9rem; border-left: 4px solid; }
+    .alert-title { font-family: 'Poppins', sans-serif; font-weight: 600; margin-bottom: 0.3rem; }
+    .alert-info    { background: var(--info-bg);    border-color: var(--primary);      color: var(--info-text); }
+    .alert-warning { background: var(--warning-bg); border-color: var(--warning-text); color: var(--warning-dark); }
+    .alert-danger  { background: var(--danger-bg);  border-color: var(--danger-text);  color: var(--danger-text); }
+    .alert-success { background: var(--success-bg); border-color: var(--accent);       color: var(--success-text); }
+    .alert-new     { background: #f0fdf4; border-color: var(--accent); color: var(--accent-dark); }
+
+    /* ─── BADGES ─── */
+    .badge { display: inline-block; font-family: 'Poppins', sans-serif; font-size: 0.68rem; font-weight: 600; padding: 0.15rem 0.5rem; border-radius: 3px; letter-spacing: 0.3px; }
+    .badge-primary { color: var(--primary-dark); background: var(--primary-light); }
+    .badge-accent  { color: var(--accent-dark);  background: var(--accent-light); }
+    .badge-success { color: var(--success-text); background: var(--success-bg); }
+    .badge-warning { color: var(--warning-dark); background: var(--warning-bg); }
+    .badge-danger  { color: var(--danger-text);  background: var(--danger-bg); }
+    .badge-dark    { color: var(--white);        background: var(--gray-900); }
+    .badge-new     { color: var(--accent-dark);  background: #e6fff8; border: 1px solid var(--accent); }
+
+    /* ─── PASO A PASO ─── */
+    .steps { counter-reset: step; list-style: none; padding: 0; margin: 1rem 0; }
+    .steps li { counter-increment: step; display: flex; gap: 1rem; padding: 0.75rem 0; border-bottom: 1px solid var(--gray-100); align-items: flex-start; }
+    .steps li:last-child { border-bottom: none; }
+    .steps li::before {
+      content: counter(step);
+      font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 0.85rem;
+      color: var(--white); background: var(--primary);
+      min-width: 1.8rem; height: 1.8rem;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 0.1rem;
+    }
+    .steps li .step-action { font-weight: 600; color: var(--gray-900); font-size: 0.93rem; }
+    .steps li .step-result { font-size: 0.85rem; color: var(--gray-600); margin-top: 0.15rem; }
+
+    /* ─── GRID PROVEEDORES ─── */
+    .provider-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; margin: 1rem 0; }
+    .provider-card {
+      border: 1px solid var(--gray-300); border-radius: 8px; padding: 1rem 1.2rem;
+      background: var(--white); transition: box-shadow 0.15s;
+    }
+    .provider-card:hover { box-shadow: 0 2px 8px rgba(23,141,194,0.15); border-color: var(--primary); }
+    .provider-card.recommended { border-color: var(--accent); border-width: 2px; }
+    .provider-name { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 1rem; color: var(--dark); margin-bottom: 0.3rem; }
+    .provider-key  { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--gray-600); }
+    .provider-desc { font-size: 0.85rem; color: var(--gray-700); margin-top: 0.4rem; }
+
+    /* ─── STATUS ─── */
+    .st-ok   { color: #0e7a72; background: #e6f7f6; padding: 0.12rem 0.45rem; border-radius: 3px; font-size: 0.8rem; font-weight: 600; }
+    .st-warn { color: var(--warning-dark); background: var(--warning-bg); padding: 0.12rem 0.45rem; border-radius: 3px; font-size: 0.8rem; font-weight: 600; }
+    .st-fail { color: var(--danger-text);  background: var(--danger-bg);  padding: 0.12rem 0.45rem; border-radius: 3px; font-size: 0.8rem; font-weight: 600; }
+    .st-na   { color: var(--gray-700);    background: var(--gray-100);   padding: 0.12rem 0.45rem; border-radius: 3px; font-size: 0.8rem; font-weight: 600; }
+
+    /* ─── MANTENIMIENTO ─── */
+    .maint-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 1rem 0; }
+    .maint-card { border: 1px solid var(--gray-300); border-radius: 8px; padding: 1.2rem 1.5rem; }
+    .maint-card h3 { margin-top: 0; border-bottom: 1px solid var(--gray-100); padding-bottom: 0.5rem; }
+
+    /* ─── PIE ─── */
+    .doc-footer {
+      background: var(--white); border-top: 3px solid var(--primary);
+      padding: 1.2rem 2rem; display: grid; grid-template-columns: 1fr auto 1fr;
+      align-items: center; gap: 1rem; margin-top: 2rem;
+    }
+    .doc-footer .footer-left  { font-size: 0.78rem; color: var(--gray-700); font-weight: 600; }
+    .doc-footer .footer-center { font-size: 0.72rem; color: var(--gray-600); font-style: italic; text-align: center; }
+    .doc-footer .footer-right  { font-size: 0.72rem; color: var(--gray-600); text-align: right; }
+    .doc-footer .footer-path   { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; color: var(--gray-600); margin-top: 0.2rem; }
+
+    /* ─── BOTÓN IMPRIMIR ─── */
+    .btn-print {
+      position: fixed; bottom: 1.5rem; right: 1.5rem;
+      background: var(--primary); color: var(--white); border: none; border-radius: 6px;
+      padding: 0.6rem 1.1rem; font-family: 'Poppins', sans-serif; font-size: 0.85rem;
+      font-weight: 600; cursor: pointer; box-shadow: 0 2px 8px rgba(23,141,194,0.35);
+      transition: background 0.15s; z-index: 200;
+    }
+    .btn-print:hover { background: var(--primary-dark); }
+
+    .glossary-term { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--primary-dark); font-weight: 500; }
+
+    @media print {
+      .sidebar, .page-header, .btn-print { display: none !important; }
+      .main-content { padding: 0; }
+      .content-section { margin: 0; box-shadow: none; border-radius: 0; page-break-inside: avoid; }
+      body { font-size: 10pt; background: white; }
+      .cover { page-break-after: always; }
+      .doc-footer { position: fixed; bottom: 0; left: 0; right: 0; border-top: 2px solid var(--primary); background: white; padding: 0.5rem 1.5rem; font-size: 8pt; }
+    }
+    @media (max-width: 900px) {
+      .sidebar { display: none; }
+      .cover-title { font-size: 2rem; }
+      .content-section { margin: 1rem; padding: 1.5rem; }
+      .maint-grid, .provider-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- CABECERA FIJA -->
+<header class="page-header">
+  <div class="page-header-brand">
+    <span class="page-header-logo">(CODANOR 50)</span>
+    <span class="page-header-title">Manual · Acta y Síntesis con IA</span>
+  </div>
+  <span class="page-header-meta">v2.0 · 07/10/2026</span>
+</header>
+
+<div class="layout">
+
+  <!-- SIDEBAR TOC -->
+  <aside class="sidebar">
+    <div class="sidebar-label">Índice de contenidos</div>
+    <nav>
+      <a href="#portada">Portada</a>
+      <a href="#versiones">Control de versiones</a>
+      <hr class="sidebar-sep">
+      <a href="#seccion-1">1. Introducción</a>
+      <a href="#seccion-2">2. Alcance</a>
+      <a href="#seccion-3">3. Cómo trabaja la IA</a>
+      <a href="#seccion-3" class="toc-sub">3.1 Modo automático</a>
+      <a href="#sec-3-2" class="toc-sub">3.2 Modo manual</a>
+      <a href="#sec-3-3" class="toc-sub">3.3 Key corporativa LAN</a>
+      <a href="#seccion-4">4. Proveedores disponibles</a>
+      <a href="#seccion-5">5. Configurar la IA</a>
+      <a href="#sec-5-1" class="toc-sub">5.1 Config personal</a>
+      <a href="#sec-5-2" class="toc-sub">5.2 Config corporativa</a>
+      <a href="#sec-5-3" class="toc-sub">5.3 Ollama local</a>
+      <a href="#seccion-6">6. Sintetizar un acta</a>
+      <a href="#sec-6-1" class="toc-sub">6.1 Con API Key</a>
+      <a href="#sec-6-2" class="toc-sub">6.2 Sin API Key</a>
+      <a href="#seccion-7">7. Resumen de actas</a>
+      <a href="#seccion-8">8. Gestión de tareas</a>
+      <a href="#sec-8-1" class="toc-sub">8.1 Estados</a>
+      <a href="#sec-8-2" class="toc-sub">8.2 Acciones de resolución</a>
+      <a href="#sec-8-3" class="toc-sub">8.3 Historial</a>
+      <a href="#seccion-9">9. Acceso LAN</a>
+      <a href="#seccion-10">10. Resolución de problemas</a>
+      <a href="#seccion-11">11. Mantenimiento del manual</a>
+      <a href="#seccion-12">12. Novedades v2.0</a>
+      <a href="#glosario">Glosario</a>
+    </nav>
+  </aside>
+
+  <!-- CONTENIDO -->
+  <main class="main-content">
+
+    <!-- PORTADA -->
+    <div class="cover" id="portada">
+      <div class="cover-logo">(CODANOR 50)</div>
+      <div class="cover-type">Manual de usuario</div>
+      <h1 class="cover-title">Acta y Síntesis<br>con Inteligencia Artificial</h1>
+      <p class="cover-subtitle">Módulo de Consultoría / Implantación — Pestaña «Seguimiento»<br>Plataforma de Seguimiento de Proyectos · 9 normas ISO/ENS</p>
+      <div class="cover-meta">
+        <div class="cover-meta-item">
+          <div class="label">Versión</div>
+          <div class="value">v2.0</div>
+        </div>
+        <div class="cover-meta-item">
+          <div class="label">Fecha</div>
+          <div class="value">07/10/2026</div>
+        </div>
+        <div class="cover-meta-item">
+          <div class="label">Sustituye a</div>
+          <div class="value">v1.1 de 03/10/2026</div>
+        </div>
+        <div class="cover-meta-item">
+          <div class="label">Autor</div>
+          <div class="value">Jafa, S.L. (CODANOR)</div>
+        </div>
+      </div>
+      <div class="cover-footer">
+        <span class="company">CODANOR — Jafa, S.L. — Barcelona, Catalunya</span>
+        <span class="classification">Documento interno — Uso exclusivo CODANOR</span>
+      </div>
+    </div>
+
+    <!-- CONTROL DE VERSIONES -->
+    <div class="version-control" id="versiones">
+      <h2>Control de versiones</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr><th>Versión</th><th>Fecha</th><th>Autor</th><th>Descripción del cambio</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>v2.0</code> <span class="badge badge-new">ACTUAL</span></td>
+              <td>07/10/2026</td>
+              <td>Jafa, S.L.</td>
+              <td>Groq como proveedor por defecto. Sección mantenimiento del manual. Nuevo formato HTML corporativo. Sección resumen global de actas. Resolución de problemas ampliada.</td>
+            </tr>
+            <tr>
+              <td><code>v1.1</code></td>
+              <td>03/10/2026</td>
+              <td>Jafa, S.L.</td>
+              <td>Key corporativa LAN (XOR fija). await loadCorpConfig() antes de hasApiKey(). Fix Ollama en ENS. i18n acciones corregido. Fix historial tareas.</td>
+            </tr>
+            <tr>
+              <td><code>v1.0</code></td>
+              <td>25/06/2026</td>
+              <td>Jafa, S.L.</td>
+              <td>Versión inicial. Síntesis de actas, gestión de tareas, modos automático y manual.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 1 — INTRODUCCIÓN -->
+    <div class="content-section" id="seccion-1">
+      <div class="section-number">Sección 1</div>
+      <h1>Introducción y objeto</h1>
+      <p>La pestaña <strong>«Seguimiento»</strong>, dentro del módulo de Consultoría/Implantación, permite gestionar las reuniones con el cliente a lo largo de todo el proyecto. La Inteligencia Artificial (IA) automatiza las partes más costosas en tiempo: leer el acta, redactar el resumen y extraer las tareas.</p>
+      <p>Este manual cubre el uso completo de las funciones IA integradas en la plataforma: síntesis de actas, resumen global, extracción de tareas y gestión del seguimiento.</p>
+
+      <h2>¿Qué puedes hacer con la IA en esta pestaña?</h2>
+      <div class="provider-grid" style="grid-template-columns: repeat(auto-fill, minmax(200px,1fr));">
+        <div class="provider-card">
+          <div class="provider-name">✨ Sintetizar acta</div>
+          <div class="provider-desc">Genera un resumen de ~10 líneas a partir del .docx, .pdf o .txt subido.</div>
+        </div>
+        <div class="provider-card">
+          <div class="provider-name">📋 Extraer tareas</div>
+          <div class="provider-desc">La IA detecta y crea las tareas con responsable y fecha límite automáticamente.</div>
+        </div>
+        <div class="provider-card">
+          <div class="provider-name">📊 Resumen global</div>
+          <div class="provider-desc">Resumen ejecutivo de todas las actas del proyecto en un solo clic.</div>
+        </div>
+        <div class="provider-card">
+          <div class="provider-name">🔄 Seguimiento</div>
+          <div class="provider-desc">Gestión de estados, acciones de resolución e historial completo de cada tarea.</div>
+        </div>
+      </div>
+
+      <h2>Aplicaciones disponibles</h2>
+      <p>El módulo está disponible en las <strong>9 aplicaciones</strong> de la plataforma:</p>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Aplicación</th><th>Norma</th><th>Módulo phase2</th></tr></thead>
+          <tbody>
+            <tr><td>ISO 27001-SGSI</td><td>ISO 27001:2022</td><td><code>phase2-consulting.js</code></td></tr>
+            <tr><td>ENS RD 311/2022</td><td>ENS RD 311/2022</td><td><code>phase2-consulting.js</code></td></tr>
+            <tr><td>ISO 27701-SGP</td><td>ISO 27701</td><td><code>phase2-consulting.js</code></td></tr>
+            <tr><td>ISO 42001-SGIA</td><td>ISO 42001</td><td><code>phase2-consulting.js</code></td></tr>
+            <tr><td>RGPD-LOPD-GDD</td><td>RGPD / LOPDGDD</td><td><code>phase2-consulting.js</code></td></tr>
+            <tr><td>ISO 9001-SGQ</td><td>ISO 9001:2015</td><td><code>phase2-implementation.js</code></td></tr>
+            <tr><td>ISO 14001-SGMA 2015</td><td>ISO 14001:2015</td><td><code>phase2-implementation.js</code></td></tr>
+            <tr><td>ISO 14001-SGMA 2026</td><td>ISO 14001:2026</td><td><code>phase2-implementation.js</code></td></tr>
+            <tr><td>TISAX</td><td>TISAX ISA</td><td><code>phase2-isms.js</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="alert alert-info">
+        <div class="alert-title">Audiencia de este manual</div>
+        Consultores y técnicos de CODANOR que usan la Plataforma de Seguimiento de Proyectos.
+        No se requieren conocimientos de programación.
+        Clasificación: <strong>Documento interno — Uso exclusivo CODANOR.</strong>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 2 — ALCANCE -->
+    <div class="content-section" id="seccion-2">
+      <div class="section-number">Sección 2</div>
+      <h1>Alcance</h1>
+      <h2>Dentro del alcance</h2>
+      <ul>
+        <li>Uso de la función «Sintetizar» en la pestaña Seguimiento (todas las apps)</li>
+        <li>Uso del «Resumen global de actas» en la pestaña Diseño</li>
+        <li>Configuración de API Key personal y corporativa</li>
+        <li>Uso de Ollama (IA local) como proveedor</li>
+        <li>Gestión de tareas, acciones de resolución e historial</li>
+        <li>Acceso desde la LAN desde varios PCs simultáneamente</li>
+        <li>Resolución de problemas frecuentes</li>
+        <li>Procedimiento de mantenimiento y actualización de este manual</li>
+      </ul>
+      <h2>Fuera del alcance</h2>
+      <ul>
+        <li>Instalación del servidor Flask (ver ARQUITECTURA-SERVIDORES-FLASK-SQLITE-V01.docx)</li>
+        <li>Configuración avanzada de Ollama (modelos, VRAM, cuantización)</li>
+        <li>Integración con SonarCloud o GitHub</li>
+        <li>Módulo de Auditoría (pestaña Auditoría — «Consultar documento con IA» de phase3-audit.js)</li>
+      </ul>
+    </div>
+
+    <!-- SECCIÓN 3 — CÓMO TRABAJA LA IA -->
+    <div class="content-section" id="seccion-3">
+      <div class="section-number">Sección 3</div>
+      <h1>Cómo trabaja la IA aquí</h1>
+
+      <h2 id="sec-3-1">3.1 Modo automático (con API Key) — Recomendado</h2>
+      <p>Configuras una API Key <strong>una vez</strong>. Al pulsar <strong>«Sintetizar»</strong>, la aplicación llama directamente al servicio de IA y rellena el resumen y las tareas. No necesitas salir de la aplicación.</p>
+      <div class="alert alert-success">
+        <div class="alert-title">Proveedor recomendado: Groq</div>
+        Desde v2.0 (octubre 2026), <strong>Groq es el proveedor corporativo por defecto</strong>. Sus modelos (<code>openai/gpt-oss-20b</code>, <code>openai/gpt-oss-120b</code>) son propios de Groq — no dependen de terceros y no rotan sin aviso. Velocidad: 1.000 tokens/segundo. Gratuito con key propia (<code>gsk_...</code>). Crea tu key en <strong>console.groq.com/keys</strong>.
+      </div>
+
+      <h2 id="sec-3-2">3.2 Modo manual (sin API Key — flujo de respaldo)</h2>
+      <p>Si no hay API Key configurada, la aplicación muestra el modal <strong>«Prompt para la IA»</strong>. El prompt ya está copiado al portapapeles automáticamente. Puedes pegarlo en ChatGPT, Claude u otro servicio externo y luego pegar el resultado con el botón <strong>«Pegar resultado IA»</strong>.</p>
+      <div class="alert alert-warning">
+        <div class="alert-title">Si aparece el modal teniendo API Key configurada</div>
+        La key corporativa se carga de forma asíncrona desde el servidor. Si pulsas «Sintetizar» muy rápido al cargar la página, puede que la key aún no esté disponible. Cierra el modal y vuelve a pulsar «Sintetizar» — en la segunda llamada ya estará cargada.
+      </div>
+
+      <h2 id="sec-3-3">3.3 Key corporativa compartida en LAN <span class="badge badge-new">GROQ v2.0</span></h2>
+      <p>El administrador configura la API Key corporativa <strong>una sola vez</strong> desde el panel <em>«Configuración IA»</em> de <code>plataforma-seguimiento.html</code>. Esta clave se almacena en el servidor Flask (<code>plataforma.db</code>) y es automáticamente usada por <strong>todos los PCs de la red</strong>.</p>
+      <ul>
+        <li>La key se ofusca con XOR+base64 antes de guardarse — no se almacena en texto plano</li>
+        <li>La clave XOR es fija e independiente del hostname — funciona desde <code>localhost</code>, <code>127.0.0.1</code> o cualquier IP de la LAN</li>
+        <li>Si un usuario configura su propia key personal, ésta tiene <strong>prioridad</strong> sobre la corporativa</li>
+        <li>Proveedor corporativo actual: <strong>Groq</strong> con modelo <code>openai/gpt-oss-20b</code></li>
+      </ul>
+
+      <h2>3.4 Prioridad de configuración</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Prioridad</th><th>Tipo</th><th>Dónde se guarda</th><th>Visible desde</th></tr></thead>
+          <tbody>
+            <tr><td><span class="st-ok">1º</span></td><td>Key personal</td><td>localStorage del navegador</td><td>Solo ese PC y ese navegador</td></tr>
+            <tr><td><span class="st-warn">2º</span></td><td>Key corporativa</td><td>plataforma.db (servidor Flask)</td><td>Cualquier PC de la LAN</td></tr>
+            <tr><td><span class="st-na">3º</span></td><td>Default (Groq)</td><td>Código fuente (<code>llm.js</code>)</td><td>Si no hay key personal ni corporativa</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 4 — PROVEEDORES -->
+    <div class="content-section" id="seccion-4">
+      <div class="section-number">Sección 4</div>
+      <h1>Proveedores de IA disponibles</h1>
+      <p>La plataforma soporta 6 proveedores. Puedes cambiar en cualquier momento desde el panel <strong>«🔑 Configuración API (LLM)»</strong> en la pestaña Seguimiento.</p>
+
+      <div class="provider-grid">
+        <div class="provider-card recommended">
+          <div class="provider-name">Groq <span class="badge badge-new">RECOMENDADO</span></div>
+          <div class="provider-key">gsk_...</div>
+          <div class="provider-desc">Modelos propios: <code>openai/gpt-oss-20b</code>, <code>openai/gpt-oss-120b</code>. No rotan. 1.000 t/s. Gratuito. <strong>Proveedor corporativo por defecto desde v2.0.</strong></div>
+        </div>
+        <div class="provider-card">
+          <div class="provider-name">Google Gemini</div>
+          <div class="provider-key">AIza...</div>
+          <div class="provider-desc">Modelo <code>gemini-2.0-flash</code>. Alta calidad, gratuito. Crea key en <em>aistudio.google.com</em>.</div>
+        </div>
+        <div class="provider-card">
+          <div class="provider-name">OpenRouter</div>
+          <div class="provider-key">sk-or-...</div>
+          <div class="provider-desc">Acceso a +100 modelos. Alias <code>openrouter/free</code> disponible. Modelos :free pueden cambiar sin aviso.</div>
+        </div>
+        <div class="provider-card">
+          <div class="provider-name">Ollama (Local)</div>
+          <div class="provider-key">(sin key)</div>
+          <div class="provider-desc">IA 100% local, sin internet. Requiere Ollama instalado. Para LAN: <code>OLLAMA_HOST=0.0.0.0</code>.</div>
+        </div>
+        <div class="provider-card">
+          <div class="provider-name">OpenAI (GPT)</div>
+          <div class="provider-key">sk-...</div>
+          <div class="provider-desc">Modelo <code>gpt-4o-mini</code>. De pago. Máxima fiabilidad. Requiere tarjeta de crédito.</div>
+        </div>
+        <div class="provider-card">
+          <div class="provider-name">Anthropic (Claude)</div>
+          <div class="provider-key">sk-ant-...</div>
+          <div class="provider-desc">Modelo <code>claude-3-5-haiku</code>. De pago. Alta calidad en análisis de documentos.</div>
+        </div>
+      </div>
+
+      <h2>Fallback automático</h2>
+      <p>Si el modelo elegido falla (error 429, 503 o modelo no disponible), la plataforma reintenta automáticamente con el siguiente modelo de la cadena de fallback:</p>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Proveedor</th><th>Cadena de fallback</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><strong>Groq</strong></td>
+              <td><code>openai/gpt-oss-20b</code> → <code>openai/gpt-oss-120b</code> → <code>llama-3.3-70b-versatile</code> → <code>llama-3.1-8b-instant</code></td>
+            </tr>
+            <tr>
+              <td><strong>OpenRouter :free</strong></td>
+              <td><code>gemini-2.0-flash-exp:free</code> → <code>mistral-7b:free</code> → <code>qwen3-14b:free</code> → <code>llama-3.1-8b:free</code> → <code>phi-3-mini:free</code> → (2 más)</td>
+            </tr>
+            <tr>
+              <td><strong>Ollama</strong></td>
+              <td><code>qwen2.5-coder:14b</code> → <code>qwen3:8b</code> → <code>llama3.1:latest</code> → <code>gemma3:4b</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 5 — CONFIGURAR LA IA -->
+    <div class="content-section" id="seccion-5">
+      <div class="section-number">Sección 5</div>
+      <h1>Configurar la IA</h1>
+
+      <h2 id="sec-5-1">5.1 Configuración personal (por navegador)</h2>
+      <p>La configuración personal se guarda en el <code>localStorage</code> del navegador del PC donde se configura. Solo es visible desde ese PC y ese navegador.</p>
+      <ol class="steps">
+        <li><span><div class="step-action">Abre el proyecto → pestaña «Seguimiento»</div></span></li>
+        <li><span><div class="step-action">El panel «🔑 Configuración API (LLM)» aparece arriba</div></span></li>
+        <li><span><div class="step-action">Elige proveedor</div><div class="step-result">Recomendado: Groq. Crea tu key en console.groq.com/keys (gratis, sin tarjeta).</div></span></li>
+        <li><span><div class="step-action">Pega la API Key en el campo «API Key»</div></span></li>
+        <li><span><div class="step-action">Pulsa «Probar conexión»</div><div class="step-result">Debe aparecer «✔ OK» con el nombre del modelo.</div></span></li>
+        <li><span><div class="step-action">La configuración se guarda automáticamente al escribir</div></span></li>
+      </ol>
+
+      <h2 id="sec-5-2">5.2 Configuración corporativa compartida en LAN <span class="badge badge-accent">RECOMENDADA</span></h2>
+      <p>El administrador configura la key <strong>una vez</strong> y todos los PCs de la red la usan automáticamente. No es necesario configurar nada en cada PC.</p>
+      <ol class="steps">
+        <li><span><div class="step-action">Abre <code>http://192.168.x.x:5001</code> (IP del servidor Flask)</div></span></li>
+        <li><span><div class="step-action">Ve a la sección lateral «Configuración IA»</div></span></li>
+        <li><span><div class="step-action">Elige proveedor <strong>Groq</strong>, pega la API Key y pulsa «Guardar»</div></span></li>
+        <li><span><div class="step-action">Todos los PCs de la LAN usarán esta key automáticamente</div><div class="step-result">No es necesario reiniciar el servidor.</div></span></li>
+      </ol>
+      <div class="alert alert-info">
+        <div class="alert-title">Prioridad</div>
+        Si un usuario configura su propia key personal en la app, ésta tiene prioridad sobre la key corporativa. Para volver a usar la corporativa: borrar la key personal del campo API Key en la app.
+      </div>
+
+      <h2 id="sec-5-3">5.3 Ollama (IA local, sin internet)</h2>
+      <p>Ollama ejecuta modelos de IA localmente. No requiere API Key ni conexión a internet. Ideal para datos confidenciales.</p>
+      <ul>
+        <li>Instalar Ollama: <code>ollama.ai</code></li>
+        <li>Para acceso desde otros PCs de la LAN: <code>OLLAMA_HOST=0.0.0.0 ollama serve</code></li>
+        <li>En la app: seleccionar proveedor <strong>«Ollama (Local)»</strong> — el campo API Key se rellena solo con <code>ollama</code></li>
+        <li>Pulsar <strong>«Detectar»</strong> para listar los modelos instalados</li>
+      </ul>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Modelo</th><th>Tamaño</th><th>Para qué</th></tr></thead>
+          <tbody>
+            <tr><td><code>qwen2.5-coder:14b</code></td><td>8.5 GB</td><td>Mejor calidad — análisis técnico</td></tr>
+            <tr><td><code>qwen3:8b</code></td><td>5 GB</td><td>Uso general — rápido</td></tr>
+            <tr><td><code>llama3.1:latest</code></td><td>4.7 GB</td><td>Redacción — estable</td></tr>
+            <tr><td><code>gemma3:4b</code></td><td>3.2 GB</td><td>Respuestas rápidas — ligero</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 6 — SINTETIZAR ACTA -->
+    <div class="content-section" id="seccion-6">
+      <div class="section-number">Sección 6</div>
+      <h1>Sintetizar un acta de reunión</h1>
+
+      <h2 id="sec-6-1">6.1 Flujo con API Key configurada</h2>
+      <ol class="steps">
+        <li><span><div class="step-action">Abre la reunión (clic en «▼ Abrir acta»)</div><div class="step-result">Se expande el panel del acta con los campos de síntesis.</div></span></li>
+        <li><span><div class="step-action">Pulsa «Subir acta» y selecciona el fichero .docx, .pdf o .txt</div><div class="step-result">El nombre del fichero queda visible junto al botón.</div></span></li>
+        <li><span><div class="step-action">Pulsa «✨ Sintetizar»</div><div class="step-result">Toast «Procesando...» y spinner mientras la IA trabaja.</div></span></li>
+        <li><span><div class="step-action">Espera unos segundos (hasta 30 s con modelos gratuitos)</div><div class="step-result">Resumen (~10 líneas) y tareas extraídas y rellenadas automáticamente.</div></span></li>
+        <li><span><div class="step-action">Revisa y ajusta responsables y fechas si es necesario</div><div class="step-result">Los cambios se guardan automáticamente.</div></span></li>
+      </ol>
+      <div class="alert alert-info">
+        <div class="alert-title">Reintentos automáticos</div>
+        La aplicación reintenta automáticamente hasta 2 veces si la llamada falla por saturación (error 429) o servidor caído (503). Si ya hay contenido guardado, aparecerá el modal de confirmación «¿Sobrescribir con la propuesta de la IA?» — esto es el comportamiento correcto.
+      </div>
+
+      <h2 id="sec-6-2">6.2 Flujo sin API Key (modo manual de respaldo)</h2>
+      <ol class="steps">
+        <li><span><div class="step-action">Pulsa «✨ Sintetizar» → aparece el modal «Prompt para la IA»</div><div class="step-result">El prompt ya está copiado al portapapeles automáticamente.</div></span></li>
+        <li><span><div class="step-action">Abre ChatGPT, Claude o cualquier IA en el navegador</div></span></li>
+        <li><span><div class="step-action">Pega el prompt (<code>⌘V</code>) y envía</div></span></li>
+        <li><span><div class="step-action">Copia el JSON que devuelve la IA</div></span></li>
+        <li><span><div class="step-action">En la app: pulsa «Pegar resultado IA» → pega el JSON → «Aplicar»</div><div class="step-result">Los campos se rellenan igual que en modo automático.</div></span></li>
+      </ol>
+    </div>
+
+    <!-- SECCIÓN 7 — RESUMEN GLOBAL -->
+    <div class="content-section" id="seccion-7">
+      <div class="section-number">Sección 7</div>
+      <h1>Resumen global de actas</h1>
+      <p>La función <strong>«Generar Resumen IA»</strong> (pestaña <strong>Diseño</strong>, sección Actas) genera un resumen ejecutivo de <strong>todas las actas</strong> del proyecto en un único texto. Es útil para informes de progreso y reuniones de dirección.</p>
+
+      <ol class="steps">
+        <li><span><div class="step-action">Ve a la pestaña «Diseño SGSI» (o «Diseño» en otras normas)</div></span></li>
+        <li><span><div class="step-action">Sube una o más actas en la sección «Actas de consultoría»</div></span></li>
+        <li><span><div class="step-action">Pulsa «Generar Resumen IA» junto al listado de actas</div></span></li>
+        <li><span><div class="step-action">La IA genera un resumen 3-5 puntos por acta y un ejecutivo global</div><div class="step-result">El resultado se muestra en el panel y se puede copiar o guardar.</div></span></li>
+      </ol>
+
+      <div class="alert alert-info">
+        <div class="alert-title">El botón aparece siempre</div>
+        Desde v1.1, el botón «Generar Resumen IA» aparece siempre que hay un fichero subido, aunque no haya API Key. Si no hay key, muestra el modal de prompt manual de respaldo.
+      </div>
+    </div>
+
+    <!-- SECCIÓN 8 — GESTIÓN DE TAREAS -->
+    <div class="content-section" id="seccion-8">
+      <div class="section-number">Sección 8</div>
+      <h1>Gestión y seguimiento de tareas</h1>
+      <p>Cada tarea incluye: <strong>título, descripción, responsable, fecha límite, estado</strong> e indicador <span class="badge badge-accent">C</span> (CODANOR) si fue propuesta por la IA. Las tareas <strong>nunca se borran</strong> — se pueden consultar filtrando por estado.</p>
+
+      <h2 id="sec-8-1">8.1 Estados de tarea</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Estado</th><th>Descripción</th><th>Acciones disponibles</th></tr></thead>
+          <tbody>
+            <tr><td><span class="st-warn">En curso</span></td><td>Tarea activa en progreso</td><td>Completar · Desestimar</td></tr>
+            <tr><td><span class="st-warn">A revisar</span></td><td>Pendiente de revisión por el responsable</td><td>Completar · Desestimar</td></tr>
+            <tr><td><span class="st-ok">Completada</span></td><td>Cerrada con éxito — fecha de cierre registrada</td><td>Reabrir</td></tr>
+            <tr><td><span class="st-na">Desestimada</span></td><td>Descartada con motivo obligatorio registrado</td><td>Reabrir</td></tr>
+            <tr><td><span class="st-fail">Vencida</span></td><td>Fecha límite superada sin cerrar</td><td>Completar · Desestimar</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 id="sec-8-2">8.2 Acciones de resolución (sub-pasos)</h2>
+      <p>Cada tarea puede tener <strong>acciones de resolución</strong> intermedias — los pasos concretos para cerrarla. Se accede con el botón <strong>📋</strong> de cada tarea en el panel de seguimiento.</p>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Campo</th><th>Descripción</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Descripción</strong></td><td>Texto libre describiendo la acción a realizar</td></tr>
+            <tr><td><strong>Responsable</strong></td><td>Persona o rol responsable de esta acción concreta</td></tr>
+            <tr><td><strong>Estado</strong></td><td><span class="badge badge-warning">Pendiente</span> <span class="badge badge-primary">En curso</span> <span class="badge badge-success">Resuelta</span></td></tr>
+            <tr><td><strong>Cerrada el</strong></td><td>Fecha de cierre automática al marcar como «Resuelta»</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="alert alert-warning">
+        <div class="alert-title">Restricción</div>
+        No se pueden añadir ni editar acciones cuando la tarea está en estado <strong>Completada</strong> o <strong>Desestimada</strong>. Réabrela primero si necesitas añadir más pasos.
+      </div>
+
+      <h2 id="sec-8-3">8.3 Historial de cambios</h2>
+      <p>Cada cambio de estado (completar, desestimar, reabrir) queda registrado en el historial de la tarea con: fecha, acción y nota opcional. El historial es visible en el panel de detalle de la tarea y nunca se puede borrar — es el registro de auditoría.</p>
+    </div>
+
+    <!-- SECCIÓN 9 — ACCESO LAN -->
+    <div class="content-section" id="seccion-9">
+      <div class="section-number">Sección 9</div>
+      <h1>Acceso desde la LAN (varios PCs)</h1>
+      <p>El servidor Flask escucha en <code>0.0.0.0:5001</code> — accesible desde cualquier PC de la red local.</p>
+
+      <h2>9.1 URLs de acceso</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Desde</th><th>URL</th></tr></thead>
+          <tbody>
+            <tr><td>El servidor mismo</td><td><code>http://localhost:5001</code> o <code>http://127.0.0.1:5001</code></td></tr>
+            <tr><td>Otro PC de la LAN</td><td><code>http://192.168.x.x:5001</code> (IP del servidor)</td></tr>
+            <tr><td>Pantalla de inicio (9 normas)</td><td><code>http://192.168.x.x:5001/</code></td></tr>
+            <tr><td>App ENS directa</td><td><code>http://192.168.x.x:5001/ens/</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>9.2 localStorage vs key corporativa</h2>
+      <p>El <code>localStorage</code> del navegador es estrictamente por origen (<code>localhost</code> ≠ <code>127.0.0.1</code> ≠ IP de red). Por tanto:</p>
+      <ul>
+        <li>La key personal configurada en <code>localhost</code> <strong>NO</strong> es visible desde <code>127.0.0.1</code> ni desde la IP de red</li>
+        <li>La key corporativa (guardada en el servidor) <strong>SÍ</strong> es visible desde cualquier origen</li>
+        <li><strong>Recomendación en entornos LAN multiusuario</strong>: usar siempre la key corporativa</li>
+        <li>Si un usuario quiere una key personal diferente: configúrala en la app — tiene prioridad sobre la corporativa</li>
+      </ul>
+      <div class="alert alert-danger">
+        <div class="alert-title">Importante</div>
+        Nunca mezcles acceso por <code>localhost</code> y por IP en la misma sesión para la misma key personal — son orígenes distintos y el navegador no compartirá el localStorage.
+      </div>
+    </div>
+
+    <!-- SECCIÓN 10 — RESOLUCIÓN DE PROBLEMAS -->
+    <div class="content-section" id="seccion-10">
+      <div class="section-number">Sección 10</div>
+      <h1>Resolución de problemas frecuentes</h1>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Síntoma</th><th>Causa probable</th><th>Solución</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>Aparece el modal «Prompt para la IA» aunque tengo key configurada</td>
+              <td>La key corporativa aún no se ha cargado del servidor (primera llamada justo al cargar la página)</td>
+              <td>Esperar 2-3 segundos y volver a pulsar «Sintetizar». En la segunda llamada ya estará cargada.</td>
+            </tr>
+            <tr>
+              <td>El panel muestra «Sin API Key» pero sí la he introducido</td>
+              <td>La key se guardó en <code>localhost</code> pero accedes desde <code>127.0.0.1</code> o IP de red</td>
+              <td>Usar la key corporativa (panel Configuración IA de <code>plataforma-seguimiento.html</code>).</td>
+            </tr>
+            <tr>
+              <td>Error 404: «No endpoints found for...»</td>
+              <td>El nombre del modelo ya no existe en el proveedor (común con OpenRouter :free)</td>
+              <td>Cambiar a Groq (<code>openai/gpt-oss-20b</code>) — los modelos de Groq no rotan.</td>
+            </tr>
+            <tr>
+              <td>Error 429: cuota agotada</td>
+              <td>Modelo gratuito saturado en ese momento</td>
+              <td>La app reintenta automáticamente. Si persiste, cambiar de modelo o esperar unos minutos.</td>
+            </tr>
+            <tr>
+              <td>Error CORS en Safari / acceso por <code>file://</code></td>
+              <td>El navegador bloquea llamadas externas desde <code>file://</code></td>
+              <td>Acceder siempre por <code>http://localhost:5001</code> o por la IP de LAN, nunca abriendo el HTML directamente.</td>
+            </tr>
+            <tr>
+              <td>Ollama no funciona desde otro PC de la LAN</td>
+              <td>Ollama escucha solo en <code>localhost</code> por defecto</td>
+              <td>Ejecutar en el servidor: <code>OLLAMA_HOST=0.0.0.0 ollama serve</code></td>
+            </tr>
+            <tr>
+              <td>La IA devuelve textos de ejemplo en lugar del contenido del acta</td>
+              <td>Modelo poco potente o acta con muy poco texto</td>
+              <td>Usar un modelo mejor (<code>llama-3.3-70b-versatile</code>, <code>gemini-2.0-flash</code>, <code>openai/gpt-oss-20b</code>) o revisar que el acta tiene contenido real.</td>
+            </tr>
+            <tr>
+              <td>El resumen tarda más de 30 segundos</td>
+              <td>Normal con modelos gratuitos en horas punta</td>
+              <td>La app espera hasta 90 s y reintenta una vez. Para mayor velocidad usar Groq (1.000 t/s).</td>
+            </tr>
+            <tr>
+              <td>Las columnas de acciones muestran texto tipo <code>PHASE2.ACCIONDESCRIPCION</code></td>
+              <td>Versión anterior del módulo con claves i18n ausentes</td>
+              <td>Recargar la página — la versión <code>v20261007b</code> incluye todas las traducciones.</td>
+            </tr>
+            <tr>
+              <td>«✨ Sintetizar» no aparece en la reunión</td>
+              <td>La reunión no tiene acta subida ni notas escritas</td>
+              <td>Subir el fichero del acta con «Subir acta» o escribir notas en el campo de texto.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 11 — MANTENIMIENTO DEL MANUAL -->
+    <div class="content-section" id="seccion-11">
+      <div class="section-number">Sección 11 <span class="badge badge-new">NUEVO v2.0</span></div>
+      <h1>Mantenimiento y actualización de este manual</h1>
+      <p>Esta sección define <strong>cuándo actualizar</strong> el manual, <strong>qué cambiar</strong> y <strong>cómo publicarlo</strong>. El objetivo es que el manual esté siempre sincronizado con el estado real del sistema.</p>
+
+      <h2>11.1 Cuándo actualizar</h2>
+      <div class="maint-grid">
+        <div class="maint-card">
+          <h3>Cambios que requieren actualización inmediata</h3>
+          <ul>
+            <li>Cambio de proveedor corporativo por defecto</li>
+            <li>Nuevos proveedores o modelos soportados</li>
+            <li>Cambio en el flujo de «Sintetizar» (pasos, botones, modales)</li>
+            <li>Cambios en la URL o estructura del servidor Flask</li>
+            <li>Nuevas funciones IA (ej: resumen global, consulta wiki)</li>
+            <li>Corrección de errores documentados en la sección 10</li>
+          </ul>
+        </div>
+        <div class="maint-card">
+          <h3>Cambios que pueden esperar a la próxima versión</h3>
+          <ul>
+            <li>Actualización de la cadena FREE_FALLBACK_CHAIN</li>
+            <li>Cambios menores de UI (iconos, colores, textos de botones)</li>
+            <li>Nuevas apps ISO/ENS añadidas a la plataforma</li>
+            <li>Correcciones tipográficas</li>
+            <li>Mejoras de la sección de resolución de problemas</li>
+          </ul>
+        </div>
+      </div>
+
+      <h2>11.2 Proceso de actualización</h2>
+      <ol class="steps">
+        <li><span><div class="step-action">Identificar el cambio que requiere actualización</div><div class="step-result">Ver tabla 11.1. Si afecta al flujo principal → actualización inmediata.</div></span></li>
+        <li><span><div class="step-action">Incrementar la versión en el control de versiones</div><div class="step-result">Regla: cambios de fondo → v2.x; cambios mayores estructurales → v3.0. Formato: <code>vX.Y</code>.</div></span></li>
+        <li><span><div class="step-action">Editar el archivo <code>Manual_Seguimiento_Acta_Sintesis_IA-VXX.html</code></div><div class="step-result">Actualizar: control de versiones, sección afectada, cabecera (versión + fecha), pie de página.</div></span></li>
+        <li><span><div class="step-action">Añadir la fila en el control de versiones</div><div class="step-result">Versión | Fecha | Autor | Descripción del cambio.</div></span></li>
+        <li><span><div class="step-action">Actualizar <code>AGENTS.md</code> y <code>Memory.md</code> en PLATAFORMA_OpenCode-NEW</div><div class="step-result">Sección «Documentación generada» con la nueva versión y tamaño.</div></span></li>
+        <li><span><div class="step-action">Commit en Git</div><div class="step-result">Mensaje: <code>docs: Manual_Seguimiento_Acta_Sintesis_IA-VXX.html — descripción breve</code></div></span></li>
+      </ol>
+
+      <h2>11.3 Nomenclatura de versiones del archivo</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Versión</th><th>Nombre de archivo</th><th>Criterio</th></tr></thead>
+          <tbody>
+            <tr><td><code>v2.0</code></td><td><code>Manual_Seguimiento_Acta_Sintesis_IA-V02.html</code></td><td>Versión actual — nuevo formato HTML, Groq por defecto</td></tr>
+            <tr><td><code>v2.1</code></td><td><code>Manual_Seguimiento_Acta_Sintesis_IA-V02.html</code></td><td>Actualización menor — mismo archivo, nueva fila en control de versiones</td></tr>
+            <tr><td><code>v3.0</code></td><td><code>Manual_Seguimiento_Acta_Sintesis_IA-V03.html</code></td><td>Nuevo archivo — cambio estructural mayor (nueva arquitectura IA, nuevo módulo)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="alert alert-info">
+        <div class="alert-title">Regla de nomenclatura</div>
+        El sufijo <code>-V02</code> del nombre de archivo solo cambia cuando el cambio es estructural (nueva versión mayor). Para actualizaciones menores dentro de la misma versión mayor, se edita el mismo archivo y se añade una fila al control de versiones.
+      </div>
+
+      <h2>11.4 Checklist pre-publicación</h2>
+      <ul>
+        <li>☐ Control de versiones actualizado con nueva fila</li>
+        <li>☐ Fecha actualizada en portada, cabecera y pie de página</li>
+        <li>☐ Sección 10 (problemas) revisada — ¿hay nuevos problemas conocidos?</li>
+        <li>☐ Sección 4 (proveedores) actualizada — ¿hay modelos nuevos o retirados?</li>
+        <li>☐ Tabla de proveedores (sección 4) refleja el proveedor corporativo actual</li>
+        <li>☐ AGENTS.md actualizado con la nueva versión del documento</li>
+        <li>☐ Memory.md actualizado con la nueva versión del documento</li>
+        <li>☐ Commit en Git con mensaje descriptivo</li>
+      </ul>
+    </div>
+
+    <!-- SECCIÓN 12 — NOVEDADES -->
+    <div class="content-section" id="seccion-12">
+      <div class="section-number">Sección 12</div>
+      <h1>Novedades de esta versión (v2.0)</h1>
+
+      <div class="alert alert-new">
+        <div class="alert-title">v2.0 — 07/10/2026 — Respecto a v1.1 (03/10/2026)</div>
+        Esta versión introduce Groq como proveedor corporativo por defecto, un nuevo formato HTML corporativo con branding CODANOR completo, y la sección de mantenimiento del manual para garantizar que no quede obsoleto.
+      </div>
+
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Área</th><th>Cambio</th><th>Impacto</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><strong>Proveedor por defecto</strong></td>
+              <td>Groq sustituye a OpenRouter como proveedor corporativo por defecto</td>
+              <td>Los modelos de Groq son propios — no rotan sin aviso. Fin de los fallos por rotación de OpenRouter :free.</td>
+            </tr>
+            <tr>
+              <td><strong>Key corporativa</strong></td>
+              <td>Key Groq (<code>gsk_...</code>) guardada en <code>plataforma.db</code> con XOR fija</td>
+              <td>Funciona automáticamente en todos los PCs de la LAN sin configurar nada.</td>
+            </tr>
+            <tr>
+              <td><strong>FREE_FALLBACK_CHAIN</strong></td>
+              <td>Actualizada con 7 modelos verificados disponibles en OpenRouter a oct-2026</td>
+              <td>Si alguien usa OpenRouter, la cadena de respaldo usa modelos activos.</td>
+            </tr>
+            <tr>
+              <td><strong>Formato del manual</strong></td>
+              <td>Nuevo formato HTML corporativo con branding CODANOR, TOC sticky, pasos numerados visuales</td>
+              <td>Mejor legibilidad y navegación. Imprimible directamente a PDF con el botón.</td>
+            </tr>
+            <tr>
+              <td><strong>Sección mantenimiento</strong></td>
+              <td>Nueva sección 11 con proceso, checklist y nomenclatura de versiones</td>
+              <td>El manual puede mantenerse actualizado de forma sistemática.</td>
+            </tr>
+            <tr>
+              <td><strong>Tabla de proveedores</strong></td>
+              <td>Rediseño con tarjetas visuales y cadenas de fallback explícitas</td>
+              <td>Más fácil identificar qué proveedor usar y qué pasa si falla.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>Novedades heredadas de v1.1 (03/10/2026)</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Área</th><th>Cambio</th></tr></thead>
+          <tbody>
+            <tr><td>Config corporativa LAN</td><td>Clave XOR fija independiente del hostname del servidor. Funciona desde <code>localhost</code>, <code>127.0.0.1</code> o cualquier IP de LAN.</td></tr>
+            <tr><td>Sintetizar / Resumen</td><td><code>await loadCorpConfig()</code> antes de comprobar <code>hasApiKey()</code>. Se elimina el modal manual innecesario cuando hay key corporativa.</td></tr>
+            <tr><td>Ollama en ENS</td><td>Fix <code>isOllamaKey</code> en ENS RD311/2022. Ollama funciona correctamente (antes su key <code>'ollama'</code> de 6 chars era descartada).</td></tr>
+            <tr><td>Acciones de resolución</td><td>i18n corregido (9 claves ausentes). Las columnas «Descripción», «Responsable», «Estado», «Cerrada el» muestran texto correcto.</td></tr>
+            <tr><td>Eliminar reuniones</td><td>Simplificado a un <code>confirm()</code>. Se pueden borrar reuniones vacías sin que el diálogo quede bloqueado.</td></tr>
+            <tr><td>Historial de tareas</td><td>Eliminado el filtro que ocultaba entradas del historial. El historial de cambios es visible correctamente.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- GLOSARIO -->
+    <div class="content-section" id="glosario">
+      <div class="section-number">Glosario</div>
+      <h1>Glosario de términos</h1>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Término / Clave</th><th>Definición</th></tr></thead>
+          <tbody>
+            <tr><td class="glossary-term">API Key</td><td>Credencial que autoriza a la aplicación a usar un servicio de IA externo. Formato: <code>gsk_...</code> (Groq), <code>sk-or-...</code> (OpenRouter), <code>AIza...</code> (Google).</td></tr>
+            <tr><td class="glossary-term">Key corporativa</td><td>API Key compartida en LAN, configurada una vez por el administrador en <code>plataforma-seguimiento.html → Configuración IA</code>. Se guarda en <code>plataforma.db</code>.</td></tr>
+            <tr><td class="glossary-term">Key personal</td><td>API Key individual guardada en el <code>localStorage</code> del navegador. Solo visible desde ese PC y navegador. Tiene prioridad sobre la corporativa.</td></tr>
+            <tr><td class="glossary-term">localStorage</td><td>Almacenamiento local del navegador, distinto por origen (<code>localhost</code> ≠ <code>127.0.0.1</code> ≠ IP de red). Las keys personales viven aquí.</td></tr>
+            <tr><td class="glossary-term">Prompt</td><td>Texto de instrucciones enviado a la IA para que genere el resultado deseado (resumen + tareas).</td></tr>
+            <tr><td class="glossary-term">Modelo (LLM)</td><td>Motor de IA concreto. Ejemplos: <code>openai/gpt-oss-20b</code> (Groq), <code>gemini-2.0-flash</code> (Google), <code>qwen2.5-coder:14b</code> (Ollama).</td></tr>
+            <tr><td class="glossary-term">Síntesis</td><td>Resumen de ~10 líneas generado por la IA a partir del texto del acta. Incluye información de la reunión, acuerdos y tareas.</td></tr>
+            <tr><td class="glossary-term">Groq</td><td>Proveedor de IA con hardware propio (LPU). Modelos <code>openai/gpt-oss-20b</code> y <code>openai/gpt-oss-120b</code> son suyos — no rotan. 1.000 t/s. Gratuito con key propia.</td></tr>
+            <tr><td class="glossary-term">Ollama</td><td>Software que ejecuta modelos de IA localmente, sin internet. Requiere GPU o CPU con RAM suficiente.</td></tr>
+            <tr><td class="glossary-term">CORS</td><td>Mecanismo de seguridad del navegador que puede bloquear llamadas externas. Solución: acceder siempre por HTTP desde el servidor (<code>localhost:5001</code>).</td></tr>
+            <tr><td class="glossary-term">Fallback manual</td><td>Flujo de respaldo sin API Key: copiar el prompt, usarlo en ChatGPT/Claude, pegar el JSON con «Pegar resultado IA».</td></tr>
+            <tr><td class="glossary-term">FREE_FALLBACK_CHAIN</td><td>Lista interna de modelos :free de OpenRouter que se prueban en orden si el anterior falla.</td></tr>
+            <tr><td class="glossary-term">XOR</td><td>Operación binaria usada para ofuscar la key corporativa antes de guardarla en <code>plataforma.db</code>. No es cifrado fuerte — es ofuscación.</td></tr>
+            <tr><td class="glossary-term">phase2-consulting.js</td><td>Módulo JavaScript de la pestaña Seguimiento para las 5 apps de consultoría (ISO27001, ENS, ISO27701, ISO42001, RGPD).</td></tr>
+            <tr><td class="glossary-term">llm.js</td><td>Motor de llamadas a la IA. Contiene <code>getConfig()</code>, <code>loadCorpConfig()</code>, <code>hasApiKey()</code>, <code>callLLM()</code>.</td></tr>
+            <tr><td class="glossary-term">llm-models.js</td><td>Catálogo de proveedores y modelos. Contiene las cadenas de fallback <code>GROQ_FALLBACK_CHAIN</code>, <code>FREE_FALLBACK_CHAIN</code>, <code>OLLAMA_FALLBACK_CHAIN</code>.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- PIE DE PÁGINA -->
+<footer class="doc-footer">
+  <div class="footer-left">CODANOR — Jafa, S.L. — Barcelona, Catalunya</div>
+  <div class="footer-center">Documento interno — Uso exclusivo CODANOR</div>
+  <div class="footer-right">
+    v2.0 · 07/10/2026
+    <div class="footer-path">PLATAFORMA_OpenCode-NEW/Manual_Seguimiento_Acta_Sintesis_IA-V02.html</div>
+  </div>
+</footer>
+
+<!-- BOTÓN IMPRIMIR -->
+<button class="btn-print" onclick="window.print()">Imprimir / PDF</button>
+
+<!-- TOC HIGHLIGHT -->
+<script>
+  const sections = document.querySelectorAll('[id^="seccion-"], [id^="sec-"], #portada, #versiones, #glosario');
+  const navLinks  = document.querySelectorAll('.sidebar nav a');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(a => a.classList.remove('active'));
+        const active = document.querySelector(`.sidebar nav a[href="#${entry.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-10% 0px -80% 0px' });
+  sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>
