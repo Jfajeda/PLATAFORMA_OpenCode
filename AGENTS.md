@@ -2,7 +2,7 @@
 
 > Instructions for AI coding agents operating in this repository.
 > Maintained by Jafa, S.L. (CODANOR), Barcelona, Catalunya.
-> Last updated: 2026-10-03
+> Last updated: 2026-10-07
 
 ## Project Overview
 
@@ -16,10 +16,13 @@ The **Tiquets module** is the most active component: a full-stack ticketing
 system integrated into `plataforma.db` (SQLite) served by Flask on port 5001,
 deployed across all 9 ISO/ENS apps and in `plataforma-seguimiento.html`.
 
-The **IA/LLM module** (v3.0 — 2026-09-25) is the second most active component:
+The **IA/LLM module** (v3.1 — 2026-10-07) is the second most active component:
 full integration of LLM providers (Groq, OpenAI, OpenRouter, Google, Anthropic,
 Ollama) for meeting synthesis, acta summaries and wiki document queries across
 all 9 apps, with corporate key sharing via Flask.
+**Groq is now the default corporate provider** (key stored in plataforma.db,
+shared automatically across all LAN PCs). OpenRouter :free is used only when
+explicitly configured by the user.
 
 The **Análisis de Riesgos module** (v1.0 — 2026-10-02) integrates the risk
 analysis dashboards (ISO27001/ENS/LOPD-RGPD/EIPD) with the Plataforma:
@@ -132,6 +135,7 @@ PLATAFORMA_OpenCode-NEW/
     commands/
       sonar.md                            # Slash command /sonar
       sonar-report.md                     # Slash command /sonar-report
+      documentos-proyectos.md             # Slash command /documentos-proyectos — plantilla corporativa
     package.json                          # OpenCode plugin dependency
 ```
 
@@ -247,7 +251,9 @@ GROQ_FALLBACK_CHAIN: [
   'llama-3.1-8b-instant',    // 4º — Enterprise
 ]
 
-FREE_FALLBACK_CHAIN (OpenRouter):  // 5 modelos :free
+FREE_FALLBACK_CHAIN (OpenRouter):  // 7 modelos :free — actualizado 2026-10-07
+  // gemini-2.0-flash-exp:free, mistral-7b:free, qwen3-14b:free,
+  // llama-3.1-8b:free, phi-3-mini:free, gpt-oss-20b:free, hermes-3-405b:free
 OLLAMA_FALLBACK_CHAIN: [
   'qwen2.5-coder:14b',       // 1º — mejor calidad
   'qwen3:8b',                // 2º — uso general
@@ -261,7 +267,7 @@ OLLAMA_FALLBACK_CHAIN: [
 ```
 1º localStorage personal (key > 10 chars, o provider === 'ollama')
 2º Config corporativa del servidor (GET /api/corp/llm-config, XOR ofuscada)
-3º Default vacío (muestra panel de configuración)
+3º Default: Groq (provider='groq', model='openai/gpt-oss-20b')
 ```
 
 ### Config corporativa — server.py
@@ -306,11 +312,11 @@ DELETE /api/corp/llm-config → elimina (vuelve a localStorage)
 5. **Ollama en LAN** requiere `OLLAMA_HOST=0.0.0.0 ollama serve`. Por defecto solo escucha en `localhost:11434`.
 
 6. **Versión actual** de los archivos LLM en las 9 apps:
-   - `llm-models.js?v=20260911g`
-   - `llm.js?v=20260911h`
-   - `phase2-consulting.js?v=20260930e` (5 apps consulting) ← actualizado 2026-10-02
-   - `phase2-implementation.js?v=20260930f` (3 apps implementation) ← actualizado 2026-10-02
-   - `phase2-isms.js?v=20260925c` (TISAX)
+   - `llm-models.js?v=20261007a`
+   - `llm.js?v=20261007a`
+   - `phase2-consulting.js?v=20261007b` (5 apps consulting) ← actualizado 2026-10-07
+   - `phase2-implementation.js?v=20261007b` (3 apps implementation) ← actualizado 2026-10-07
+   - `phase2-isms.js?v=20261007b` (TISAX)
    - `phase3-audit.js?v=20260913a` (9 apps)
 
 7. **Reglas de propagación entre apps** — ver `PROPAGATION_RULES.md` (cargado automáticamente por OpenCode). Contiene la clasificación completa BASE/CLON/DIVERGENTE/PROPIO, el workflow paso a paso y el script de verificación pre-commit. **No aplicar ninguna propagación sin consultar ese archivo primero.**
@@ -743,6 +749,115 @@ Guard `!histLast.accion.startsWith('phase2.')` eliminado de `phase2-consulting.j
 | `Guia_Migracion_Clave_Corporativa_IA_CODANOR.docx` | 45 KB | 11 pasos XOR fix, FAQ, checklist 12 ítems |
 | `Manual_Seguimiento_Reuniones_IA_Codanor-V01.docx` | 44 KB | Manual reuniones IA v1.1 — key corp LAN, Ollama, errores |
 
+## Skill: documentos-proyectos (v1.0 — 2026-10-05)
+
+### Descripción
+
+Skill OpenCode que genera documentos corporativos CODANOR con estructura y diseño estandarizados.
+Archivo: `.opencode/commands/documentos-proyectos.md` (33 KB, 1049 líneas).
+
+### Cómo invocarlo
+
+```
+/documentos-proyectos
+```
+
+O en el mensaje: `"crea un documento según el Skill-documentos-proyectos"`.
+Pulsar `Ctrl+P` para listar todos los comandos disponibles.
+
+### Formatos de salida
+
+| Formato | Plantilla | Para qué |
+|---|---|---|
+| HTML corporativo | Plantilla A | Manuales, Informes, Propuestas, Guías |
+| Script Python `.py` + `.docx` | Plantilla B | Equivalente Word del HTML (python-docx) |
+| Markdown `.md` | Plantilla C | Docs técnicas, READMEs, Changelogs, Wikis |
+
+### Selección automática de formato
+
+Si el usuario no especifica formato, el skill aplica esta tabla:
+
+| Tipo de documento | Formato generado |
+|---|---|
+| Manual, Informe, Propuesta, Guía | HTML + script Python .docx |
+| Documentación técnica, README, Changelog, Wiki | .md |
+
+### Estructura obligatoria en todos los documentos
+
+Todos los documentos generados por este skill incluyen siempre:
+
+1. **Portada** — logo CODANOR, tipo, título, subtítulo, versión, autor, clasificación
+2. **Control de versiones** — tabla historial (versión / fecha / autor / descripción)
+3. **Índice / TOC** — numerado, 2 niveles, enlaces internos
+4. **Introducción y objeto** — contexto, propósito, audiencia
+5. **Alcance** — qué cubre y qué queda fuera
+6. **Secciones de contenido** — variables según el documento
+7. **Glosario** — siempre la última sección
+8. **Cabecera persistente** — logo + título + versión (en todas las páginas)
+9. **Pie persistente** — empresa + clasificación + ruta del archivo + nº página
+
+### Tipografía corporativa
+
+| Rol | Fuente | Pesos | Cargada desde |
+|---|---|---|---|
+| Titulares / Headings | **Poppins** | 300, 600, 700 | Google Fonts |
+| Cuerpo / Tablas / UI | **Nunito Sans** | 400, 600, 700 | Google Fonts |
+| Código / Rutas / Paths | **JetBrains Mono** | 400, 500 | Google Fonts |
+
+**Eliminadas:** Muli (obsoleta, absorbida por Nunito) · SF Mono / Courier New (dependientes del SO).
+
+```html
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600;700
+  &family=Nunito+Sans:ital,wght@0,400;0,600;0,700;1,400
+  &family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+```
+
+### Paleta de colores corporativa (WCAG AA garantizado)
+
+| Token CSS | Hex | Uso | Ratio mín. |
+|---|---|---|---|
+| `--primary-dark` | `#1275A3` | Texto azul, `thead th` fondo | 4.57 PASS |
+| `--dark` | `#1a1a2e` | H1, portada, texto principal | 17.06 PASS |
+| `--gray-700` | `#4a4a5a` | Cuerpo de texto, `td` | 8.68 PASS |
+| `--gray-600` | `#6b6b7b` | Pie de página, metadata | 5.54 PASS *(corregido de `#aaa`)* |
+| `--warning-text` | `#b7770d` | Texto naranja sobre blanco | 4.52 PASS *(corregido de `#f39c12`)* |
+| `--warning-dark` | `#7d6608` | Texto sobre fondo amarillo claro | 5.27 PASS *(corregido de `#d68910`)* |
+
+**Combinaciones PROHIBIDAS** (no usar en ningún documento generado):
+
+| Combinación | Ratio | Usar en su lugar |
+|---|---|---|
+| `#f39c12` sobre blanco | 2.19 FALLO | `#b7770d` sobre blanco |
+| `#aaaaaa` sobre blanco | 2.32 FALLO | `#6b6b7b` sobre blanco |
+| Texto blanco sobre `#f39c12` | 2.20 FALLO | Texto `#1a1a2e` sobre `#f39c12` |
+| Texto blanco sobre `#12A79D` (badges pequeños) | 3.06 BORDERLINE | Texto `#1a1a2e` sobre `#12A79D` |
+| `#d68910` sobre `#fef9e7` | 2.68 FALLO | `#7d6608` sobre `#fef9e7` |
+
+### Nomenclatura de archivos generados
+
+| Formato | Patrón | Ejemplo |
+|---|---|---|
+| HTML | `NOMBRE-DOC-VXX.html` | `ARQUITECTURA-DB-V01.html` |
+| Script Python | `generar_nombre-doc.py` | `generar_arquitectura-db.py` |
+| Word generado | `NOMBRE-DOC-VXX.docx` | `ARQUITECTURA-DB-V01.docx` |
+| Markdown | `nombre-doc.md` | `arquitectura-db.md` |
+
+## Archivos protegidos — NO modificar sin aprobación explícita
+
+Los siguientes archivos son de referencia corporativa. El agente NO debe
+modificarlos sin confirmación explícita del usuario en cada sesión.
+
+| Archivo | Motivo |
+|---|---|
+| `.opencode/commands/documentos-proyectos.md` | Plantilla base imagen corporativa CODANOR — documento de referencia |
+| `Manual_OpenCode_Codanor.html` | Documento base de referencia visual — fuente de verdad del diseño |
+| `AGENTS.md` | Instrucciones del agente — este mismo archivo |
+| `PROPAGATION_RULES.md` | Reglas de propagación entre las 9 apps ISO/ENS |
+
+**Regla:** Si una tarea requiere modificar alguno de estos archivos,
+DETENER y solicitar confirmación explícita antes de proceder.
+El sistema de permisos de `opencode.json` también pedirá confirmación (`ask`).
+
 ---
 
 No `.cursor/rules/`, `.cursorrules`, or `.github/copilot-instructions.md`
@@ -751,5 +866,5 @@ contents into this section.
 
 ---
 
-*Last updated: 2026-10-03*
+*Last updated: 2026-10-05*
 

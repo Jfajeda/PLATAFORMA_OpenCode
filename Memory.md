@@ -1,11 +1,11 @@
 # Memory.md — PLATAFORMA_OpenCode
-> Ultima actualizacion: 2026-10-03
+> Ultima actualizacion: 2026-10-07
 
 ## Estado actual
 
 - **Fase**: Produccion / mantenimiento activo
 - **Version**: Manual v3.0 (20 capitulos) + Manual IA Actas v1.0
-- **Ultimo cambio significativo**: Fix LLM LAN + documentación arquitectura completa — ARQUITECTURA_DB_SQLITE-V01.html + GUIA_MANTENIMIENTO_NORMAS-V01.html + ARQUITECTURA-SERVIDORES-FLASK-SQLITE-V01.docx (commit `4fcab16` 2026-10-03)
+- **Ultimo cambio significativo**: Groq como proveedor corporativo por defecto — fin de inestabilidad OpenRouter :free (commits `27049f0` + `885e667` 2026-10-07)
 - **Issues abiertos**: 72 bugs de reliability + 3 security hotspots detectados por SonarCloud
 
 ## Infraestructura
@@ -16,13 +16,14 @@
 | GitHub | Si | github.com/Jfajeda/PLATAFORMA_OpenCode |
 | SonarCloud | Si | Security A, Reliability B, Maintainability A, 3.5% duplications |
 | .gitignore | Si | Excluye .DS_Store, backups, __pycache__ |
-| AGENTS.md | Si | Actualizado 2026-10-03 — fix LLM LAN, bugs seguimiento tareas, docs arquitectura V01 |
+| AGENTS.md | Si | Actualizado 2026-10-07 — Groq proveedor por defecto, versiones v20261007a/b, IA/LLM module v3.1 |
 | PROPAGATION_RULES.md | Si | 2026-10-01 — clasificación BASE/CLON/DIVERGENTE/PROPIO + workflows + script verificación ENS |
 | opencode.json | Si | MCP SonarQube + instructions: AGENTS.md + PROPAGATION_RULES.md |
 | Memory.md | Si | Este archivo |
+| `.opencode/commands/documentos-proyectos.md` | Si | Skill plantilla documentos corporativos (HTML + .docx + .md) — 33 KB — 2026-10-05 |
 | plataforma.db | Activa | 19 tablas, WAL mode, 298 clientes, 36 proyectos |
 | server.py | Activo | Puerto 5001, HOST 0.0.0.0, 4276 lineas, 86 endpoints totales |
-| Ollama | Activo | localhost:11434, v0.34.4. Modelos: qwen2.5-coder:14b, qwen3:8b, llama3.1:latest, gemma3:4b |
+| Ollama | Activo | localhost:11434, v0.35.1. Modelos: qwen2.5-coder:14b, qwen3:8b, llama3.1:latest, gemma3:4b |
 | Wiki_CODANOR | Activa | Open WebUI :3000 (Docker), ChromaDB vectordb/, 10 KBs, Ollama + OpenRouter conectados |
 
 ## Componentes del proyecto
@@ -41,6 +42,7 @@
 | backup-opencode.sh | Script backup NAS CODANOR (8 modos) | ~14 KB |
 | Guia_Wiki_CODANOR_OpenWebUI.docx | Guia configuracion Wiki CODANOR + Open WebUI (13 secciones) | 139 KB |
 | PROPAGATION_RULES.md | Reglas propagación entre 9 apps — BASE/CLON/DIVERGENTE/PROPIO | commit `2026-10-01` |
+| `.opencode/commands/documentos-proyectos.md` | Skill plantilla documentos corporativos (HTML + .docx + .md) | 33 KB — 2026-10-05 |
 
 ### Plataforma_Seguimiento_Proyectos/servidor/
 
@@ -60,19 +62,41 @@
 | DOCS/informes/Manual_Configuracion_IA_LLM.docx | Manual configuración IA v1 | 44 KB |
 | requirements.txt | flask>=3.0.0, flask-cors>=4.0.0, python-docx>=1.0.0, openpyxl>=3.0.0 | — |
 
-### Plataforma_Seguimiento_Proyectos — 9 apps ISO/ENS (versiones actuales 2026-10-03)
+### Plataforma_Seguimiento_Proyectos — 9 apps ISO/ENS (versiones actuales 2026-10-07)
 
-| App | app_id | tiquets.js | phase2-*.js | llm.js | phase3-audit.js |
-|-----|--------|------------|-------------|--------|-----------------|
-| ISO27001-SGSI | iso27001 | v=20260829f | v=20261003a | v=20261003a | v=20260930b |
-| ENS-RD311-2022 | ens | v=20260829f | v=20261003a | v=20261003a | v=20260930b |
-| RGPD-LOPD-GDD | rgpd | v=20260829f | v=20261003a | v=20261003a | v=20260930b |
-| ISO27701-SGP | iso27701 | v=20260829f | v=20261003a | v=20261003a | v=20260930b |
-| ISO42001-SGIA | iso42001 | v=20260829f | v=20261003a | v=20261003a | v=20260930b |
-| ISO9001-SGQ_2015 | iso9001 | v=20260829f | v=20261003a | v=20261003a | v=20260930b |
-| ISO14001-SGMA_2015 | iso14001 | v=20260829f | v=20261003a | v=20261003a | v=20260930b |
-| ISO14001-SGMA_2026_NEW | iso14001-2026 | v=20260829f | v=20261003a | v=20261003a | v=20260930b |
-| TISAX | tisax | v=20260829f | v=20261003a | v=20261003a | v=20260930b |
+| App | app_id | tiquets.js | phase2-*.js | llm.js | llm-models.js | phase3-audit.js |
+|-----|--------|------------|-------------|--------|---------------|-----------------|
+| ISO27001-SGSI | iso27001 | v=20260829f | v=20261007b | v=20261007a | v=20261007a | v=20260930b |
+| ENS-RD311-2022 | ens | v=20260829f | v=20261007b | v=20261007a | v=20261007a | v=20260930b |
+| RGPD-LOPD-GDD | rgpd | v=20260829f | v=20261007b | v=20261007a | v=20261007a | v=20260930b |
+| ISO27701-SGP | iso27701 | v=20260829f | v=20261007b | v=20261007a | v=20261007a | v=20260930b |
+| ISO42001-SGIA | iso42001 | v=20260829f | v=20261007b | v=20261007a | v=20261007a | v=20260930b |
+| ISO9001-SGQ_2015 | iso9001 | v=20260829f | v=20261007b | v=20261007a | v=20261007a | v=20260930b |
+| ISO14001-SGMA_2015 | iso14001 | v=20260829f | v=20261007b | v=20261007a | v=20261007a | v=20260930b |
+| ISO14001-SGMA_2026_NEW | iso14001-2026 | v=20260829f | v=20261007b | v=20261007a | v=20261007a | v=20260930b |
+| TISAX | tisax | v=20260829f | v=20261007b | v=20261007a | v=20261007a | v=20260930b |
+
+## Fix LLM — Groq como proveedor corporativo (v20261007a — commits `27049f0` + `885e667`)
+
+### Problema raíz
+
+OpenRouter `:free` rotó modelos sin previo aviso 3 veces durante la semana del 2026-10-07.
+Cada rotación rompía `synthesizeMeeting()` en todas las apps con el error `NOT FOUND`.
+
+### Solución definitiva
+
+| Cambio | Archivo | Detalle |
+|---|---|---|
+| Key corporativa Groq en BD | `plataforma.db` settings `_global/corp_llm_config` | `provider: groq`, `model: openai/gpt-oss-20b`, key `gsk_aM7w6O...uBVQ` (56 chars) |
+| Default `getConfig()` → Groq | `llm.js` × 9 apps | `provider: 'openrouter'` → `provider: 'groq'`, `model: 'openai/gpt-oss-20b'` |
+| `FREE_FALLBACK_CHAIN` actualizada | `llm-models.js` × 9 apps | 7 modelos verificados oct-2026: Gemini, Mistral, Qwen3, Llama3.1, Phi-3, gpt-oss-20b, Hermes |
+| Versiones bumpeadas | 9 `index.html` | `llm.js?v=20261007a`, `llm-models.js?v=20261007a`, `phase2-*.js?v=20261007b` |
+
+### Por qué Groq no rota
+
+Los modelos `openai/gpt-oss-20b` y `openai/gpt-oss-120b` son **modelos propios de Groq**.
+No dependen de acuerdos con terceros proveedores — no pueden ser retirados sin deprecación formal.
+Velocidad: 1000 tokens/segundo. Gratuito con key propia (`gsk_...`).
 
 ## Fix LLM LAN — Key Corporativa + Modal (v20261003a — commit `ef5f302`)
 
@@ -282,6 +306,11 @@ DELETE /api/corp/llm-config → elimina
 | 2026-10-03 | await loadCorpConfig() antes de hasApiKey() en 4 puntos IA × 9 apps | hasApiKey() síncrono antes de la carga async del servidor mostraba modal manual innecesario |
 | 2026-10-03 | removeMeeting() simplificado — solo confirm(), sin prompt() palabra clave | window.prompt() bloqueado silenciosamente por navegador impedía borrar reuniones vacías |
 | 2026-10-03 | 9 claves i18n accionDescripcion etc. añadidas × 9 apps × 3 idiomas | I18n.t() devuelve la clave literal — el fallback `\|\| 'valor'` nunca activa (string truthy) |
+| 2026-10-07 | Groq como proveedor corporativo por defecto en llm.js + plataforma.db | OpenRouter :free rotó modelos sin aviso 3 veces en una semana — Groq tiene modelos propios que no rotan, 1000 t/s, gratuito |
+| 2026-10-07 | FREE_FALLBACK_CHAIN actualizada con 7 modelos verificados oct-2026 | hermes-3-405b:free y gpt-oss-120b:free ya no están disponibles en OpenRouter |
+| 2026-10-05 | Skill `documentos-proyectos` — plantilla unificada 3 formatos (HTML + .docx + .md) | Todos los documentos del proyecto siguen el mismo patrón visual CODANOR con tipografía estandarizada y colores WCAG AA |
+| 2026-10-05 | Tipografía corporativa: Poppins + Nunito Sans + JetBrains Mono | Muli eliminada (obsoleta). SF Mono / Courier New eliminadas (dependencias de SO). Google Fonts — compatible en todos los equipos |
+| 2026-10-05 | 5 combinaciones de color corregidas por bajo contraste WCAG AA | `#f39c12`→`#b7770d`, `#aaa`→`#6b6b7b`, badge blanco sobre naranja→texto `#1a1a2e`, badge blanco sobre `#12A79D`→texto `#1a1a2e`, `#d68910`→`#7d6608` |
 
 ## Pendiente
 
@@ -290,13 +319,14 @@ DELETE /api/corp/llm-config → elimina
 - [ ] Subir los otros 7+ proyectos a GitHub
 - [ ] Conceder "Acceso total al disco" en Ajustes → Privacidad para backup NAS
 - [ ] Regenerar token SonarCloud
-- [ ] **Reconfigurar key corporativa IA** tras actualización v20261003a (una sola vez — ver Guia_Migracion_Clave_Corporativa_IA_CODANOR.docx)
 - [ ] Dashboard de riesgos para ISO9001, ISO14001, ISO42001, ISO27701 (actualmente "Próximamente")
 - [ ] Ingestar documentos en 9 KBs restantes (ISO27001, LOPD-RGPD, NIS2, OSINT, Logs-SIEM...)
 - [ ] Probar Mapa de Procesos en LAN desde segundo PC
 - [ ] Activar Ollama en LAN (`OLLAMA_HOST=0.0.0.0 ollama serve`) — bloqueado por firewall MDM
 - [ ] Activar apps en preparación: ISO9001:2026, NIS2 (documentación ya disponible)
 - [ ] Integrar Gestion_Riesgos_ISO14001, ISO9001, ISO42001 en RISK_DIRS Flask
+- [x] ~~Groq como proveedor corporativo por defecto — fin de inestabilidad OpenRouter~~ (commits `27049f0` + `885e667` 2026-10-07)
+- [x] ~~Reconfigurar key corporativa IA tras v20261003a~~ (key Groq guardada directamente en BD 2026-10-07)
 - [x] ~~Fix LLM LAN: key corporativa + modal innecesario + Ollama ENS~~ (commit `ef5f302` 2026-10-03)
 - [x] ~~Bugs seguimiento tareas: i18n accionDescripcion, historial, colspan, eliminar reunión~~ (commits `c3efe81` + `a9c9035`)
 - [x] ~~Documentación arquitectura V01~~ (HTML + DOCX — commit `4fcab16` 2026-10-03)
@@ -311,6 +341,7 @@ DELETE /api/corp/llm-config → elimina
 
 ## Notas y descubrimientos
 
+- **Groq proveedor corporativo por defecto** (desde 2026-10-07): modelos `openai/gpt-oss-20b` y `openai/gpt-oss-120b` son propios de Groq — no rotan. Key `gsk_...` guardada en plataforma.db, compartida automáticamente en toda la LAN. OpenRouter `:free` solo si el usuario lo configura explícitamente.
 - **OpenCode queda bloqueado** si su directorio de trabajo se elimina o mueve.
 - **El usuario NO tiene Node.js, Homebrew ni GitHub CLI**. Git push requiere autenticacion manual.
 - **SonarCloud token**: regenerar desde sonarcloud.io > My Account > Security.
@@ -331,3 +362,6 @@ DELETE /api/corp/llm-config → elimina
 - **I18n.t() devuelve la clave literal**: si una clave no existe en el JSON de idioma, `I18n.t('phase2.accionDescripcion')` devuelve `"phase2.accionDescripcion"` (string truthy). El patrón `t('clave') || 'fallback'` NUNCA activa el fallback — hay que añadir la clave al JSON.
 - **window.prompt() bloqueado en algunos navegadores**: Safari y otros navegadores pueden bloquear silenciosamente `window.prompt()` cuando se llama después de un `confirm()`. El doble diálogo de confirmación para borrar reuniones era la causa de que el botón "Eliminar reunión" no funcionara.
 - **Ecosistema ~/Proyectos/**: 29 proyectos catalogados — 9 apps activas + 11 en preparación + 9 proyectos externos (Gestion_Riesgos ×6, PLATAFORMA_OpenCode-NEW, Mapa_Procesos, Wiki_CODANOR) + herramientas independientes.
+- **Tipografía corporativa documentos** (desde skill v1.0 — 2026-10-05): Poppins (titulares, pesos 300/600/700) + Nunito Sans (cuerpo, 400/600/700) + JetBrains Mono (código/rutas, 400/500). Todas via Google Fonts. Muli eliminada por obsoleta. SF Mono / Courier New eliminadas por dependencia de SO.
+- **Colores WCAG AA en documentos**: 5 combinaciones problemáticas corregidas. Nunca usar `#f39c12` sobre blanco (ratio 2.19) → usar `#b7770d`. Nunca `#aaa` sobre blanco (2.32) → usar `#6b6b7b`. Nunca texto blanco sobre `#f39c12` (2.20) → texto `#1a1a2e`. Nunca texto blanco sobre `#12A79D` en badges pequeños (3.06) → texto `#1a1a2e`. Nunca `#d68910` sobre `#fef9e7` (2.68) → usar `#7d6608`.
+- **Skill documentos-proyectos**: invocarlo con `/documentos-proyectos` o con la frase "crea un documento según el Skill-documentos-proyectos". `Ctrl+P` lista todos los comandos disponibles.
