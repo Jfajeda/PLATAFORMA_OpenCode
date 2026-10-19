@@ -1,27 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   com.codanor.opencode-backup.plist
-  Agente launchd para backup automatico de OpenCode al NAS CODANOR.
+  Agente launchd para backup automatico de OpenCode.
   CODANOR - Jafa, S.L. | Barcelona, Catalunya
 
-  INSTALACION:
-    1. Edita la ruta de ProgramArguments si el repo no esta en
-       ~/Proyectos/PLATAFORMA_OpenCode-NEW.
-    2. Copia este archivo a ~/Library/LaunchAgents/:
-         cp com.codanor.opencode-backup.plist ~/Library/LaunchAgents/
-    3. Cargalo:
-         launchctl load ~/Library/LaunchAgents/com.codanor.opencode-backup.plist
-    4. (Opcional) Ejecutarlo de inmediato para probar:
-         launchctl start com.codanor.opencode-backup
+  TAREAS PROGRAMADAS:
+    - Backup completo diario a las 09:00
+    - Prueba de restauracion (--test-restore) el primer lunes de cada mes a las 10:00
 
-  IMPORTANTE (macOS):
-    El proceso lanzado por launchd necesita "Acceso total al disco" para
-    escribir en el NAS (volumen de red). Concedelo en:
-      Ajustes del Sistema > Privacidad y seguridad > Acceso total al disco
-    anadiendo /bin/bash (o el binario que corresponda).
+  LOG (local, siempre accesible independiente del NAS):
+    ~/Library/Logs/com.codanor.opencode-backup.log
+    Consultar: tail -f ~/Library/Logs/com.codanor.opencode-backup.log
+
+  INSTALACION:
+    cp com.codanor.opencode-backup.plist ~/Library/LaunchAgents/
+    launchctl load ~/Library/LaunchAgents/com.codanor.opencode-backup.plist
+
+  EJECUTAR MANUALMENTE:
+    launchctl start com.codanor.opencode-backup
 
   DESINSTALAR:
     launchctl unload ~/Library/LaunchAgents/com.codanor.opencode-backup.plist
+
+  NOTA NAS: el share CODANOR requiere TCC "Acceso total al disco" para launchd.
+    Alternativa sin TCC: anadirlo como Login Item (Ajustes > General > Elementos
+    de inicio de sesion) para que se monte antes de las 09:00.
+    Una vez resuelto, intercambiar OPENCODE_BACKUP_DIR y OPENCODE_BACKUP_DIR_REDUNDANT.
 -->
 <plist version="1.0">
 <dict>
@@ -34,19 +38,53 @@
     <string>/Users/jaimefajeda/Proyectos/PLATAFORMA_OpenCode-NEW/backup-opencode.sh</string>
   </array>
 
+  <!-- Backup completo diario a las 09:00 + prueba de restauracion el primer lunes del mes a las 10:00 -->
   <key>StartCalendarInterval</key>
+  <array>
+    <!-- Backup diario a las 09:00 -->
+    <dict>
+      <key>Hour</key>
+      <integer>9</integer>
+      <key>Minute</key>
+      <integer>0</integer>
+    </dict>
+    <!-- Prueba de restauracion: primer lunes del mes (Weekday=2) a las 10:00
+         launchd no soporta "primer lunes" directamente; se programa cada lunes.
+         El script --test-restore es no destructivo y rapido (~2 min). -->
+    <dict>
+      <key>Weekday</key>
+      <integer>2</integer>
+      <key>Hour</key>
+      <integer>10</integer>
+      <key>Minute</key>
+      <integer>0</integer>
+    </dict>
+  </array>
+
+  <!-- Variables de entorno -->
+  <key>EnvironmentVariables</key>
   <dict>
-    <key>Hour</key>
-    <integer>2</integer>
-    <key>Minute</key>
-    <integer>0</integer>
+    <key>PATH</key>
+    <string>/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+    <key>HOME</key>
+    <string>/Users/jaimefajeda</string>
+    <!-- Destino principal: Transcend (escritura confirmada) -->
+    <key>OPENCODE_BACKUP_DIR</key>
+    <string>/Volumes/Transcend/opencode-backups</string>
+    <!-- Redundancia: NAS CODANOR (falla silenciosamente si no tiene TCC) -->
+    <key>OPENCODE_BACKUP_DIR_REDUNDANT</key>
+    <string>/Volumes/CODANOR/opencode-backups</string>
+    <!-- iCloud Drive: externalizado a internet (automatico via iCloud) -->
+    <key>OPENCODE_ICLOUD_DIR</key>
+    <string>/Users/jaimefajeda/Library/Mobile Documents/com~apple~CloudDocs/CODANOR-Backups</string>
   </dict>
 
+  <!-- Log LOCAL: independiente del NAS, siempre accesible -->
   <key>StandardOutPath</key>
-  <string>/Volumes/CODANOR/opencode-backups/backup.log</string>
+  <string>/Users/jaimefajeda/Library/Logs/com.codanor.opencode-backup.log</string>
 
   <key>StandardErrorPath</key>
-  <string>/Volumes/CODANOR/opencode-backups/backup.log</string>
+  <string>/Users/jaimefajeda/Library/Logs/com.codanor.opencode-backup.log</string>
 
   <key>RunAtLoad</key>
   <false/>

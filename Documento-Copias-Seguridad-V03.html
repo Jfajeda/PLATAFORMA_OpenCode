@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guía de Copias de Seguridad — OpenCode — CODANOR — v3.0</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600;700&family=Nunito+Sans:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    /* ─── TOKENS DE COLOR (WCAG AA) ─── */
+    :root {
+      --primary:        #178DC2;
+      --primary-dark:   #1275A3;
+      --primary-light:  #e8f4fa;
+      --accent:         #12A79D;
+      --accent-dark:    #0d7a71;
+      --accent-light:   #e6f7f6;
+      --dark:           #1a1a2e;
+      --gray-900:       #2d2d44;
+      --gray-700:       #4a4a5a;
+      --gray-600:       #6b6b7b;
+      --gray-500:       #7a7a8a;
+      --gray-300:       #c4c4d0;
+      --gray-100:       #f0f0f5;
+      --white:          #ffffff;
+      --warning-text:   #b7770d;
+      --warning-bg:     #fef9e7;
+      --warning-dark:   #7d6608;
+      --danger-text:    #922b21;
+      --danger-bg:      #fdedec;
+      --success-text:   #0e7a72;
+      --success-bg:     #e6f7f6;
+      --info-text:      #1275A3;
+      --info-bg:        #e8f4fa;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Nunito Sans', sans-serif;
+      font-size: 16px; line-height: 1.7;
+      color: var(--gray-700); background: var(--gray-100);
+    }
+
+    /* ─── CABECERA FIJA ─── */
+    .page-header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      background: var(--white); border-bottom: 3px solid var(--primary);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.55rem 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); height: 52px;
+    }
+    .page-header-brand { display: flex; align-items: center; gap: 0.75rem; }
+    .page-header-logo  { font-family: 'Poppins', sans-serif; font-size: 0.95rem; font-weight: 700; color: var(--primary); }
+    .page-header-sep   { color: var(--gray-300); font-size: 1.1rem; }
+    .page-header-title { font-family: 'Poppins', sans-serif; font-size: 0.82rem; font-weight: 600; color: var(--primary-dark); }
+    .page-header-meta  { font-family: 'Poppins', sans-serif; font-size: 0.75rem; color: var(--gray-500); }
+
+    /* ─── PORTADA ─── */
+    .cover-page {
+      min-height: 100vh;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 40%, var(--dark) 100%);
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+      text-align: center; color: var(--white); position: relative; overflow: hidden; padding: 2rem;
+    }
+    .cover-page::before {
+      content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+      background: radial-gradient(ellipse at 30% 50%, rgba(18,167,157,0.15) 0%, transparent 60%),
+                  radial-gradient(ellipse at 70% 20%, rgba(23,141,194,0.10) 0%, transparent 50%);
+      animation: float 20s ease-in-out infinite;
+    }
+    @keyframes float { 0%, 100% { transform: translate(0,0); } 50% { transform: translate(-2%,2%); } }
+    .cover-content  { position: relative; z-index: 1; max-width: 720px; }
+    .cover-divider  { width: 80px; height: 4px; background: var(--accent); margin: 1.5rem auto; border-radius: 2px; }
+    .cover-type     { font-family: 'Poppins', sans-serif; font-size: 0.72rem; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 0.5rem; }
+    .cover-title    { font-family: 'Poppins', sans-serif; font-size: 2.8rem; font-weight: 700; color: var(--white); line-height: 1.15; margin-bottom: 0.5rem; border: none; padding: 0; }
+    .cover-subtitle { font-family: 'Poppins', sans-serif; font-size: 1.15rem; font-weight: 300; color: rgba(255,255,255,0.82); margin-bottom: 0.75rem; }
+    .cover-edition  { font-size: 0.95rem; opacity: 0.65; margin-bottom: 1.5rem; }
+    .cover-badge    { display: inline-block; background: var(--accent); color: var(--dark); padding: 0.5rem 1.5rem; border-radius: 50px; font-family: 'Poppins', sans-serif; font-size: 0.9rem; font-weight: 600; margin-top: 1.5rem; }
+    .cover-meta-grid { display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap; margin-top: 2rem; }
+    .cover-meta-item .lbl { font-size: 0.65rem; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 0.2rem; }
+    .cover-meta-item .val { font-family: 'Poppins', sans-serif; font-size: 0.88rem; font-weight: 600; color: var(--white); }
+    .cover-footer { position: absolute; bottom: 2rem; left: 0; right: 0; text-align: center; z-index: 1; }
+    .cover-footer p { font-size: 0.85rem; opacity: 0.5; }
+
+    /* ─── DASHBOARD KPI ─── */
+    .dashboard {
+      background: var(--dark); color: var(--white);
+      padding: 2.5rem 2rem; text-align: center;
+    }
+    .dashboard-title    { font-family: 'Poppins', sans-serif; font-size: 1.1rem; font-weight: 600; color: var(--white); margin-bottom: 0.3rem; }
+    .dashboard-subtitle { font-size: 0.85rem; color: rgba(255,255,255,0.55); margin-bottom: 1.8rem; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; max-width: 1100px; margin: 0 auto; }
+    .kpi-card  { background: rgba(255,255,255,0.06); border-radius: 8px; padding: 1.2rem 1rem; border: 1px solid rgba(255,255,255,0.1); }
+    .kpi-value { font-family: 'Poppins', sans-serif; font-size: 1.6rem; font-weight: 700; margin-bottom: 0.3rem; }
+    .kpi-label { font-size: 0.8rem; font-weight: 600; color: rgba(255,255,255,0.75); margin-bottom: 0.2rem; }
+    .kpi-sub   { font-size: 0.72rem; color: rgba(255,255,255,0.45); }
+    .v-ok   { color: #4dd0c4; }
+    .v-warn { color: #f0c040; }
+    .v-info { color: #7ec8e8; }
+    .v-new  { color: #a8e6cf; }
+
+    /* ─── LAYOUT ─── */
+    .manual-container { display: flex; min-height: 100vh; }
+
+    /* ─── SIDEBAR ─── */
+    .sidebar {
+      width: 290px; background: var(--white);
+      border-right: 1px solid var(--gray-300);
+      position: fixed; top: 52px; left: 0;
+      height: calc(100vh - 52px); overflow-y: auto;
+      z-index: 100; padding: 1.5rem 0;
+    }
+    .sidebar-label { font-family: 'Poppins', sans-serif; font-size: 0.65rem; font-weight: 600; color: var(--gray-500); text-transform: uppercase; letter-spacing: 0.8px; padding: 0 1.2rem; margin-bottom: 0.5rem; }
+    .sidebar nav a  { display: block; font-size: 0.86rem; color: var(--gray-700); text-decoration: none; padding: 0.32rem 1.2rem; border-left: 3px solid transparent; transition: all 0.15s; }
+    .sidebar nav a:hover, .sidebar nav a.active { color: var(--primary); background: var(--primary-light); border-left-color: var(--primary); }
+    .sidebar nav a.toc-sub { font-size: 0.8rem; padding-left: 2rem; color: var(--gray-600); }
+    .sidebar nav a.toc-sub:hover { color: var(--primary); }
+
+    /* ─── CONTENIDO PRINCIPAL ─── */
+    .main-content { flex: 1; margin-left: 290px; padding-top: 52px; }
+
+    /* ─── CONTROL DE VERSIONES ─── */
+    .version-control { background: var(--white); margin: 2rem; border-radius: 8px; padding: 2rem 2.5rem; border-left: 4px solid var(--primary); }
+    .version-control h2 { font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; color: var(--primary-dark); margin-bottom: 1rem; }
+
+    /* ─── SECCIONES ─── */
+    .content-section { background: var(--white); margin: 2rem; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); padding: 2.5rem 3rem; }
+    .section-number  { font-family: 'Poppins', sans-serif; font-size: 0.72rem; font-weight: 600; color: var(--primary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.4rem; }
+
+    /* ─── TIPOGRAFÍA ─── */
+    h1 { font-family: 'Poppins', sans-serif; font-size: 1.85rem; font-weight: 700; color: var(--dark); margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--primary-light); }
+    h2 { font-family: 'Poppins', sans-serif; font-size: 1.3rem; font-weight: 600; color: var(--primary); margin-top: 2rem; margin-bottom: 0.75rem; }
+    h3 { font-family: 'Poppins', sans-serif; font-size: 1.05rem; font-weight: 600; color: var(--gray-900); margin-top: 1.5rem; margin-bottom: 0.5rem; }
+    p  { margin-bottom: 0.85rem; font-size: 0.95rem; }
+    ul, ol { padding-left: 1.5rem; margin-bottom: 0.85rem; }
+    li { font-size: 0.95rem; margin-bottom: 0.3rem; }
+
+    /* ─── TABLAS ─── */
+    .table-wrapper { overflow-x: auto; margin: 1.2rem 0; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.87rem; }
+    thead th { font-family: 'Poppins', sans-serif; font-size: 0.8rem; font-weight: 600; color: var(--white); background: var(--primary-dark); padding: 0.65rem 0.9rem; text-align: left; white-space: nowrap; }
+    tbody td { padding: 0.6rem 0.9rem; border-bottom: 1px solid var(--gray-300); color: var(--gray-700); vertical-align: top; }
+    tbody tr:hover td { background: var(--primary-light); }
+    tbody tr:nth-child(even) td { background: #f8f8fb; }
+    tbody tr:nth-child(even):hover td { background: var(--primary-light); }
+
+    /* ─── CÓDIGO ─── */
+    code { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: var(--primary-dark); background: var(--gray-100); padding: 0.15rem 0.4rem; border-radius: 4px; }
+    pre  { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; background: var(--dark); color: #e0e0e0; padding: 1.2rem 1.5rem; border-radius: 6px; overflow-x: auto; line-height: 1.6; margin: 1rem 0; }
+    pre code { color: inherit; background: none; padding: 0; font-size: inherit; }
+    td code { font-size: 0.78rem; }
+
+    /* ─── ALERTAS ─── */
+    .alert { padding: 0.9rem 1.1rem; border-radius: 6px; margin: 1rem 0; font-size: 0.9rem; border-left: 4px solid; }
+    .alert-title { font-family: 'Poppins', sans-serif; font-weight: 600; margin-bottom: 0.3rem; }
+    .alert-info    { background: var(--info-bg);    border-color: var(--primary);      color: var(--info-text); }
+    .alert-warning { background: var(--warning-bg); border-color: var(--warning-text); color: var(--warning-dark); }
+    .alert-danger  { background: var(--danger-bg);  border-color: var(--danger-text);  color: var(--danger-text); }
+    .alert-success { background: var(--success-bg); border-color: var(--accent);       color: var(--success-text); }
+
+    /* ─── BADGES ─── */
+    .badge { display: inline-block; font-family: 'Poppins', sans-serif; font-size: 0.68rem; font-weight: 600; padding: 0.15rem 0.5rem; border-radius: 3px; }
+    .badge-ok      { color: var(--success-text); background: var(--success-bg); }
+    .badge-warn    { color: var(--warning-dark);  background: var(--warning-bg); }
+    .badge-info    { color: var(--info-text);     background: var(--info-bg); }
+    .badge-danger  { color: var(--danger-text);   background: var(--danger-bg); }
+    .badge-dark    { color: var(--white);         background: var(--gray-900); }
+    .badge-new     { color: var(--accent-dark);   background: var(--accent-light); }
+    .badge-recom   { color: var(--primary-dark);  background: var(--primary-light); }
+
+    /* ─── STATUS ─── */
+    .st-ok   { color: #0e7a72; background: #e6f7f6; padding: 0.15rem 0.5rem; border-radius: 3px; font-size: 0.8rem; font-weight: 600; }
+    .st-warn { color: var(--warning-dark); background: var(--warning-bg); padding: 0.15rem 0.5rem; border-radius: 3px; font-size: 0.8rem; font-weight: 600; }
+    .st-pend { color: var(--danger-text);  background: var(--danger-bg);  padding: 0.15rem 0.5rem; border-radius: 3px; font-size: 0.8rem; font-weight: 600; }
+
+    /* ─── OPCIONES CARDS ─── */
+    .option-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin: 1.2rem 0; }
+    .option-card { border-radius: 8px; padding: 1.2rem; border: 1px solid var(--gray-300); }
+    .option-card h4 { font-family: 'Poppins', sans-serif; font-size: 0.95rem; font-weight: 600; margin-bottom: 0.5rem; }
+    .option-card p  { font-size: 0.88rem; color: var(--gray-700); margin: 0; }
+    .opt-principal  { border-color: var(--primary); background: var(--primary-light); }
+    .opt-principal h4 { color: var(--primary-dark); }
+    .opt-ok         { border-color: var(--accent); background: var(--accent-light); }
+    .opt-ok h4      { color: var(--accent-dark); }
+    .opt-warn       { border-color: var(--warning-text); background: var(--warning-bg); }
+    .opt-warn h4    { color: var(--warning-dark); }
+    .opt-future     { border-color: var(--gray-300); background: var(--gray-100); }
+    .opt-future h4  { color: var(--gray-700); }
+
+    /* ─── STEP LIST ─── */
+    ol.step-list { counter-reset: steps; list-style: none; padding: 0; }
+    ol.step-list li { counter-increment: steps; display: flex; gap: 1rem; margin-bottom: 0.75rem; font-size: 0.93rem; }
+    ol.step-list li::before { content: counter(steps); min-width: 28px; height: 28px; background: var(--primary); color: var(--white); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Poppins', sans-serif; font-size: 0.8rem; font-weight: 700; flex-shrink: 0; margin-top: 0.1rem; }
+
+    /* ─── GLOSSARY ─── */
+    .glossary-term { font-family: 'JetBrains Mono', monospace; font-size: 0.83rem; color: var(--primary-dark); font-weight: 500; }
+
+    /* ─── MEJORAS PENDIENTES ─── */
+    .mejora-item { display: flex; gap: 1rem; padding: 0.85rem 1rem; border-radius: 6px; margin-bottom: 0.75rem; border: 1px solid var(--gray-300); background: var(--white); align-items: flex-start; }
+    .mejora-prio { font-family: 'Poppins', sans-serif; font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 4px; white-space: nowrap; flex-shrink: 0; margin-top: 0.15rem; }
+    .prio-alta   { background: var(--danger-bg); color: var(--danger-text); }
+    .prio-media  { background: var(--warning-bg); color: var(--warning-dark); }
+    .prio-baja   { background: var(--info-bg); color: var(--info-text); }
+    .mejora-body { flex: 1; }
+    .mejora-body strong { font-family: 'Poppins', sans-serif; font-size: 0.9rem; color: var(--dark); display: block; margin-bottom: 0.2rem; }
+    .mejora-body p { font-size: 0.88rem; color: var(--gray-700); margin: 0; }
+
+    /* ─── PIE ─── */
+    .doc-footer { background: var(--white); border-top: 3px solid var(--primary); padding: 1.2rem 2rem; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 1rem; margin-top: 2rem; }
+    .doc-footer .footer-left   { font-size: 0.78rem; color: var(--gray-700); font-weight: 600; }
+    .doc-footer .footer-center { font-size: 0.72rem; color: var(--gray-600); font-style: italic; text-align: center; }
+    .doc-footer .footer-right  { font-size: 0.72rem; color: var(--gray-600); text-align: right; }
+    .doc-footer .footer-path   { font-family: 'JetBrains Mono', monospace; font-size: 0.67rem; color: var(--gray-600); margin-top: 0.2rem; }
+
+    /* ─── BOTÓN IMPRIMIR ─── */
+    .btn-print { position: fixed; bottom: 1.5rem; right: 1.5rem; background: var(--primary); color: var(--white); border: none; border-radius: 6px; padding: 0.6rem 1.1rem; font-family: 'Poppins', sans-serif; font-size: 0.85rem; font-weight: 600; cursor: pointer; box-shadow: 0 2px 8px rgba(23,141,194,0.35); z-index: 200; transition: background 0.15s; }
+    .btn-print:hover { background: var(--primary-dark); }
+
+    /* ─── PRINT ─── */
+    @media print {
+      .sidebar, .page-header, .btn-print { display: none !important; }
+      .main-content { margin-left: 0; padding-top: 0; }
+      .content-section { margin: 0; box-shadow: none; border-radius: 0; page-break-inside: avoid; }
+      body { font-size: 10pt; background: white; }
+      pre { font-size: 8pt; } table { font-size: 8pt; }
+      .cover-page { page-break-after: always; }
+      .doc-footer { position: fixed; bottom: 0; left: 0; right: 0; border-top: 2px solid var(--primary); background: white; padding: 0.5rem 1.5rem; font-size: 8pt; }
+    }
+
+    @media (max-width: 900px) {
+      .sidebar { display: none; }
+      .main-content { margin-left: 0; }
+      .cover-title { font-size: 2rem; }
+      .content-section { margin: 1rem; padding: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ─── CABECERA FIJA ─── -->
+<header class="page-header">
+  <div class="page-header-brand">
+    <span class="page-header-logo">(CODANOR 50)</span>
+    <span class="page-header-sep">|</span>
+    <span class="page-header-title">Gu&iacute;a de Copias de Seguridad &mdash; OpenCode</span>
+  </div>
+  <span class="page-header-meta">v3.0 &bull; 19/10/2026</span>
+</header>
+
+<!-- ─── PORTADA ─── -->
+<div class="cover-page" id="portada">
+  <div class="cover-content">
+    <div class="cover-divider"></div>
+    <div class="cover-type">Gu&iacute;a Corporativa</div>
+    <h1 class="cover-title">Copias de Seguridad<br>de OpenCode</h1>
+    <p class="cover-subtitle">Sistema automatizado, externalizado y con pruebas de restauraci&oacute;n verificadas</p>
+    <p class="cover-edition">Transcend &bull; NAS Synology &bull; iCloud Drive &bull; Regla 3-2-1</p>
+    <span class="cover-badge">v3.0 &bull; 19 de octubre de 2026</span>
+    <div class="cover-meta-grid">
+      <div class="cover-meta-item"><div class="lbl">Versi&oacute;n</div><div class="val">v3.0</div></div>
+      <div class="cover-meta-item"><div class="lbl">Fecha</div><div class="val">19/10/2026</div></div>
+      <div class="cover-meta-item"><div class="lbl">Autor</div><div class="val">Jaimefajeda &mdash; CODANOR</div></div>
+      <div class="cover-meta-item"><div class="lbl">Secciones</div><div class="val">11 secciones + Glosario</div></div>
+      <div class="cover-meta-item"><div class="lbl">Clasificaci&oacute;n</div><div class="val">Documento interno &mdash; Uso exclusivo CODANOR</div></div>
+    </div>
+  </div>
+  <div class="cover-footer"><p>Jafa, S.L. &mdash; CODANOR &bull; Barcelona, Catalunya</p></div>
+</div>
+
+<!-- ─── DASHBOARD KPI ─── -->
+<div class="dashboard" id="dashboard">
+  <div class="dashboard-title">Estado del sistema de copias de seguridad</div>
+  <div class="dashboard-subtitle">Resumen ejecutivo &bull; Datos actualizados 19/10/2026 &bull; Primera ejecuci&oacute;n verificada</div>
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-value v-ok">5,2 GB</div>
+      <div class="kpi-label">Tama&ntilde;o del backup</div>
+      <div class="kpi-sub">Sin .git ni node_modules (ahorro ~900 MB)</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-value v-ok">09:00</div>
+      <div class="kpi-label">Backup diario</div>
+      <div class="kpi-sub">launchd &bull; ejecutado hoy correctamente</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-value v-ok">Transcend</div>
+      <div class="kpi-label">Destino principal</div>
+      <div class="kpi-sub">842 GB libres &bull; escritura confirmada</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-value v-ok">iCloud</div>
+      <div class="kpi-label">Capa externalizada</div>
+      <div class="kpi-sub">CODANOR-Backups/ &bull; 5,2 GB &bull; activo hoy</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-value v-ok">12 / 0</div>
+      <div class="kpi-label">Test restauraci&oacute;n</div>
+      <div class="kpi-sub">PASS=12 &bull; FAIL=0 &bull; verificado hoy</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-value v-new">5</div>
+      <div class="kpi-label">Nuevos comandos</div>
+      <div class="kpi-sub">--verify, --test-restore, --restore-db&hellip;</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-value v-ok">30</div>
+      <div class="kpi-label">Copias retenidas</div>
+      <div class="kpi-sub">Por tipo &bull; rotaci&oacute;n autom&aacute;tica</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-value v-warn">NAS</div>
+      <div class="kpi-label">Redundancia</div>
+      <div class="kpi-sub">Pendiente TCC &bull; falla silenciosamente</div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── LAYOUT ─── -->
+<div class="manual-container">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <p class="sidebar-label" style="margin-top:1rem;">&Iacute;ndice de la Gu&iacute;a</p>
+    <nav>
+      <a href="#portada">Portada</a>
+      <a href="#versiones">Control de versiones</a>
+      <a href="#sec1">1. Introducci&oacute;n</a>
+      <a href="#sec2">2. Qu&eacute; se respalda</a>
+      <a href="#sec3">3. Opciones de backup</a>
+      <a href="#sec4">4. Script backup-opencode.sh</a>
+      <a href="#sec4-comandos" class="toc-sub">4.1 Comandos disponibles</a>
+      <a href="#sec4-fixes" class="toc-sub">4.2 Correcciones aplicadas</a>
+      <a href="#sec5">5. Automatizaci&oacute;n launchd</a>
+      <a href="#sec5-plist" class="toc-sub">5.1 Configuraci&oacute;n plist</a>
+      <a href="#sec5-log" class="toc-sub">5.2 Log y monitorizaci&oacute;n</a>
+      <a href="#sec6">6. Externalizaci&oacute;n iCloud Drive</a>
+      <a href="#sec7">7. Estrategia 3-2-1</a>
+      <a href="#sec8">8. Restauraci&oacute;n</a>
+      <a href="#sec8-modos" class="toc-sub">8.1 Modos de restauraci&oacute;n</a>
+      <a href="#sec8-desastre" class="toc-sub">8.2 P&eacute;rdida total del equipo</a>
+      <a href="#sec9">9. Verificaci&oacute;n e integridad</a>
+      <a href="#sec9-verify" class="toc-sub">9.1 --verify</a>
+      <a href="#sec9-test" class="toc-sub">9.2 --test-restore</a>
+      <a href="#sec10">10. NAS Synology</a>
+      <a href="#sec11">11. GitHub</a>
+      <a href="#sec12">12. Mejoras pendientes</a>
+      <a href="#glosario">Glosario</a>
+    </nav>
+  </aside>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="main-content">
+
+    <!-- CONTROL DE VERSIONES -->
+    <div class="version-control" id="versiones">
+      <h2>Control de versiones</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Versi&oacute;n</th><th>Fecha</th><th>Formato</th><th>Autor</th><th>Descripci&oacute;n</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><code>v1.0</code></td><td>27/06/2026</td><td>.docx</td><td>CODANOR</td>
+              <td>Versi&oacute;n inicial. Gu&iacute;a corporativa: NAS Synology, regla 3-2-1, script backup, launchd a las 02:00.</td>
+            </tr>
+            <tr>
+              <td><code>v1.1</code></td><td>27/06/2026</td><td>.html</td><td>CODANOR</td>
+              <td>Conversi&oacute;n HTML b&aacute;sica. Sin sidebar, sin cabecera fija, tipograf&iacute;a Muli (obsoleta).</td>
+            </tr>
+            <tr>
+              <td><code>v2.0</code></td><td>05/10/2026</td><td>.html</td><td>Jaimefajeda</td>
+              <td>Redise&ntilde;o completo con Skill <code>documentos-proyectos</code>. Portada corporativa, sidebar TOC, cabecera fija, Poppins + Nunito Sans + JetBrains Mono, WCAG AA, control de versiones, glosario.</td>
+            </tr>
+            <tr style="background:var(--primary-light);">
+              <td><code>v3.0</code></td><td>19/10/2026</td><td>.html</td><td>Jaimefajeda</td>
+              <td><strong>Sesi&oacute;n 19/10/2026.</strong> Script corregido (4 bugs), automatizaci&oacute;n launchd funcional (hora 09:00, log local), iCloud Drive activo como capa externalizada, 5 nuevos comandos de restauraci&oacute;n y verificaci&oacute;n, prueba de restauraci&oacute;n no destructiva (PASS=12, FAIL=0). Secci&oacute;n de mejoras pendientes a&ntilde;adida.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 1 — INTRODUCCIÓN -->
+    <div class="content-section" id="sec1">
+      <div class="section-number">Secci&oacute;n 1</div>
+      <h1>Introducci&oacute;n</h1>
+      <p>Esta gu&iacute;a documenta el sistema de copias de seguridad del ecosistema CODANOR para OpenCode y los proyectos ISO/ENS asociados. La v3.0 recoge los cambios aplicados en la sesi&oacute;n del 19/10/2026, en la que se corrigi&oacute; la automatizaci&oacute;n, se implement&oacute; la externalizaci&oacute;n a iCloud Drive y se a&ntilde;adieron pruebas de restauraci&oacute;n verificables.</p>
+
+      <h2>Activos cr&iacute;ticos a proteger</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Activo</th><th>Ruta</th><th>Tama&ntilde;o aprox.</th><th>Criticidad</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Proyectos</strong></td><td><code>~/Proyectos/</code> (21 proyectos)</td><td>~6,1 GB</td><td><span class="st-ok">ALTA</span></td></tr>
+            <tr><td><strong>plataforma.db</strong></td><td><code>servidor/plataforma.db</code></td><td>3,7 MB</td><td><span class="st-ok">CRÍTICA</span></td></tr>
+            <tr><td><strong>opencode.db</strong></td><td><code>~/.local/share/opencode/opencode.db</code></td><td>3,2 GB (548 sesiones)</td><td><span class="st-ok">ALTA</span></td></tr>
+            <tr><td><strong>Plantillas ENS/ISO</strong></td><td><code>~/Proyectos/Plantillas_ENS_ISO-NEW/</code></td><td>2,4 GB</td><td><span class="st-ok">ALTA</span></td></tr>
+            <tr><td><strong>Uploads tiquets/wiki</strong></td><td><code>servidor/uploads/</code></td><td>38 MB</td><td><span class="st-warn">MEDIA</span></td></tr>
+            <tr><td><strong>Configuraci&oacute;n OpenCode</strong></td><td><code>~/.config/opencode/</code></td><td>6,5 MB</td><td><span class="st-warn">MEDIA</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="alert alert-info">
+        <div class="alert-title">Regla 3-2-1</div>
+        <strong>3</strong> copias de los datos &bull; en <strong>2</strong> soportes distintos &bull; con <strong>1</strong> copia fuera del equipo. A partir de la v3.0: Transcend (local) + NAS CODANOR (LAN) + iCloud Drive (internet).
+      </div>
+
+      <div class="alert alert-success">
+        <div class="alert-title">Primera ejecuci&oacute;n verificada — 19/10/2026</div>
+        El backup autom&aacute;tico de las 09:00 se ejecut&oacute; correctamente por primera vez hoy. Los tres archivos <code>.tar.gz</code> pasaron la prueba <code>--test-restore</code> con PASS=12, FAIL=0. Las bases de datos <code>plataforma.db</code> (298 clientes) y <code>opencode.db</code> (548 sesiones) verificadas como &iacute;ntegras.
+      </div>
+    </div>
+
+    <!-- SECCIÓN 2 — QUÉ SE RESPALDA -->
+    <div class="content-section" id="sec2">
+      <div class="section-number">Secci&oacute;n 2</div>
+      <h1>Qu&eacute; se respalda y qu&eacute; se excluye</h1>
+
+      <h2>Incluido en la copia</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Archivo generado</th><th>Contenido</th><th>Tama&ntilde;o comprimido</th></tr></thead>
+          <tbody>
+            <tr><td><code>proyectos_TIMESTAMP.tar.gz</code></td><td><code>~/Proyectos/</code> completo, incluyendo <code>plataforma.db</code>, todos los <code>.db</code>, uploads y plantillas</td><td>~3,1 GB</td></tr>
+            <tr><td><code>opencode_data_TIMESTAMP.tar.gz</code></td><td><code>storage/</code> + <code>opencode.db</code> (copia consistente sqlite3 .backup) + <code>auth.json</code> + <code>account.json</code></td><td>~1,1 GB</td></tr>
+            <tr><td><code>opencode_config_TIMESTAMP.tar.gz</code></td><td><code>~/.config/opencode/</code> completo (comandos, agentes, opencode.json)</td><td>~800 KB</td></tr>
+            <tr><td><strong>Total backup</strong></td><td>—</td><td><strong>~5,2 GB</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>Excluido de la copia</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Elemento excluido</th><th>Motivo</th><th>Tama&ntilde;o evitado</th></tr></thead>
+          <tbody>
+            <tr><td><code>snapshot/</code> (OpenCode)</td><td>Voluminoso y regenerable autom&aacute;ticamente</td><td>~19 GB</td></tr>
+            <tr><td><code>Proyectos/*/.git</code></td><td>Historial git recuperable desde GitHub</td><td>~800 MB</td></tr>
+            <tr><td><code>*/node_modules/</code></td><td>Dependencias reinstalables con npm/bun</td><td>~68 MB</td></tr>
+            <tr><td><code>.SynologyWorkingDirectory/</code></td><td>Archivos internos del cliente Synology Drive (no son SQLite v&aacute;lido)</td><td>Variable</td></tr>
+            <tr><td><code>cache/</code>, <code>log/</code>, <code>bin/</code></td><td>Datos temporales o reinstalables</td><td>~600 MB</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="alert alert-success">
+        <div class="alert-title">Resultado de las exclusiones</div>
+        De ~26 GB totales en disco, el backup comprimido ocupa <strong>~5,2 GB</strong> &mdash; una reducci&oacute;n del 80% sin perder ning&uacute;n dato cr&iacute;tico. Las bases de datos <code>.db</code> se incluyen siempre dentro de los tars (copiadas con <code>sqlite3 .backup</code>).
+      </div>
+    </div>
+
+    <!-- SECCIÓN 3 — OPCIONES -->
+    <div class="content-section" id="sec3">
+      <div class="section-number">Secci&oacute;n 3</div>
+      <h1>Opciones de realizaci&oacute;n del backup</h1>
+
+      <div class="option-grid">
+        <div class="option-card opt-principal">
+          <h4>Transcend USB <span class="badge badge-recom">PRINCIPAL</span></h4>
+          <p>Disco externo de 932 GB (842 GB libres). Escritura confirmada. Destino actual del backup diario de las 09:00. Sin restricciones TCC en macOS.</p>
+        </div>
+        <div class="option-card opt-ok">
+          <h4>iCloud Drive <span class="badge badge-new">NUEVO v3.0</span></h4>
+          <p>Los tres tars m&aacute;s recientes se copian autom&aacute;ticamente a <code>CODANOR-Backups/</code> en iCloud. Subida autom&aacute;tica a internet. Activo desde 19/10/2026.</p>
+        </div>
+        <div class="option-card opt-warn">
+          <h4>NAS CODANOR <span class="badge badge-warn">REDUNDANCIA</span></h4>
+          <p>Synology SYCODANOR-920. 7,2 TB libres. Falla silenciosamente por restricci&oacute;n TCC de launchd. Pendiente de resolver como Login Item.</p>
+        </div>
+        <div class="option-card opt-future">
+          <h4>NAS &rarr; OneDrive <span class="badge badge-info">FUTURO</span></h4>
+          <p>Hyper Backup en DSM para replicar a OneDrive 1 TB (incluido en Microsoft 365 CODANOR). Por configurar en el panel web del NAS.</p>
+        </div>
+      </div>
+
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Capa</th><th>Soporte</th><th>Estado</th><th>Espacio libre</th><th>Tipo de acceso</th></tr></thead>
+          <tbody>
+            <tr><td><strong>1 &mdash; Principal</strong></td><td>Transcend USB</td><td><span class="st-ok">ACTIVO</span></td><td>842 GB</td><td>USB local, sin TCC</td></tr>
+            <tr><td><strong>2 &mdash; Redundancia LAN</strong></td><td>NAS CODANOR</td><td><span class="st-warn">PENDIENTE TCC</span></td><td>7,2 TB</td><td>SMB &bull; falla silent.</td></tr>
+            <tr><td><strong>3 &mdash; Externalizado</strong></td><td>iCloud Drive</td><td><span class="st-ok">ACTIVO</span></td><td>Plan pagado</td><td>Internet &bull; autom&aacute;tico</td></tr>
+            <tr><td><strong>4 &mdash; Nube empresarial</strong></td><td>OneDrive 1 TB</td><td><span class="st-pend">POR CONFIGURAR</span></td><td>1 TB</td><td>Hyper Backup DSM</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 4 — SCRIPT -->
+    <div class="content-section" id="sec4">
+      <div class="section-number">Secci&oacute;n 4</div>
+      <h1>Script <code>backup-opencode.sh</code></h1>
+      <p>Script Bash principal del sistema de backup. Ubicaci&oacute;n: <code>~/Proyectos/PLATAFORMA_OpenCode-NEW/backup-opencode.sh</code>. La v3.0 del script incorpora 4 correcciones de bugs y 5 nuevos modos de operaci&oacute;n.</p>
+
+      <h2 id="sec4-comandos">4.1 Comandos disponibles</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Comando</th><th>Acci&oacute;n</th><th>Novedad</th></tr></thead>
+          <tbody>
+            <tr><td><code>./backup-opencode.sh</code></td><td>Backup completo (proyectos + datos + config + iCloud + redundancia)</td><td>&mdash;</td></tr>
+            <tr><td><code>--proyectos</code></td><td>Solo backup de <code>~/Proyectos/</code></td><td>&mdash;</td></tr>
+            <tr><td><code>--sessions</code></td><td>Solo datos OpenCode (storage + opencode.db consistente)</td><td>&mdash;</td></tr>
+            <tr><td><code>--config</code></td><td>Solo <code>~/.config/opencode/</code></td><td>&mdash;</td></tr>
+            <tr><td><code>--list</code></td><td>Lista backups en el destino principal y en iCloud</td><td>&mdash;</td></tr>
+            <tr><td><code>--restore &lt;tar.gz&gt;</code></td><td>Restaura datos OpenCode. <strong>Nuevo:</strong> verifica integridad del tar antes de extraer</td><td><span class="badge badge-new">Mejorado</span></td></tr>
+            <tr><td><code>--restore-proyectos &lt;tar.gz&gt;</code></td><td>Restaura <code>~/Proyectos/</code> completo con backup previo de seguridad autom&aacute;tico</td><td><span class="badge badge-new">NUEVO</span></td></tr>
+            <tr><td><code>--restore-db &lt;tar.gz&gt;</code></td><td>Restaura solo <code>plataforma.db</code>. Para Flask, restaura, reinicia Flask</td><td><span class="badge badge-new">NUEVO</span></td></tr>
+            <tr><td><code>--verify</code></td><td>Verifica integridad de todos los tars + <code>sqlite3 integrity_check</code> en todas las DBs</td><td><span class="badge badge-new">NUEVO</span></td></tr>
+            <tr><td><code>--test-restore</code></td><td>Prueba de restauraci&oacute;n no destructiva: extrae en /tmp y verifica (12 checks)</td><td><span class="badge badge-new">NUEVO</span></td></tr>
+            <tr><td><code>--clean</code></td><td>Elimina backups antiguos (&gt;30 por tipo)</td><td>&mdash;</td></tr>
+            <tr><td><code>--export</code></td><td>Exporta sesiones OpenCode a JSON individual</td><td>&mdash;</td></tr>
+            <tr><td><code>--help</code></td><td>Muestra ayuda completa con variables de entorno</td><td>&mdash;</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 id="sec4-fixes">4.2 Correcciones aplicadas en v3.0</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>#</th><th>Bug corregido</th><th>Impacto anterior</th><th>Soluci&oacute;n aplicada</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td><code>backup_proyectos</code> no exclu&iacute;a <code>.git</code> ni <code>node_modules</code></td>
+              <td>Backup ~900 MB m&aacute;s grande de lo necesario</td>
+              <td>A&ntilde;adido <code>--exclude='Proyectos/*/.git'</code>, <code>--exclude='*/node_modules'</code>, <code>--exclude='.SynologyWorkingDirectory'</code></td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td><code>clean_backups</code> usaba prefijos inexistentes (<code>opencode_full_</code>, <code>opencode_sessions_</code>)</td>
+              <td>La rotaci&oacute;n autom&aacute;tica nunca eliminaba backups antiguos</td>
+              <td>Corregido a <code>proyectos_</code>, <code>opencode_data_</code>, <code>opencode_config_</code></td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td>Trap <code>rm -rf "$TMP_DIR"</code> con <code>set -u</code> activo</td>
+              <td>Error <code>unbound variable</code> al finalizar <code>backup_full</code> (no destructivo)</td>
+              <td>Cambiado a <code>rm -rf "${TMP_DIR:-}"</code></td>
+            </tr>
+            <tr>
+              <td>4</td>
+              <td><code>--verify</code> marcaba como FAIL los ficheros <code>.SynologyWorkingDirectory/Sign/*.db</code></td>
+              <td>Falsos positivos en la verificaci&oacute;n de integridad</td>
+              <td>Filtro <code>grep -v 'SynologyWorkingDirectory\|/\.db$'</code> en la selecci&oacute;n de DBs</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>4.3 Variables de entorno configurables</h2>
+      <pre>OPENCODE_BACKUP_DIR            # Destino principal  (default: /Volumes/Transcend/opencode-backups)
+OPENCODE_BACKUP_DIR_REDUNDANT  # Redundancia        (default: /Volumes/CODANOR/opencode-backups)
+OPENCODE_ICLOUD_DIR            # Carpeta iCloud Drive destino
+OPENCODE_PROYECTOS_DIR         # Directorio de proyectos (default: ~/Proyectos)
+OPENCODE_MIN_FREE_MB           # Espacio libre m&iacute;nimo en MB (default: 8000)
+OPENCODE_MIN_CLIENTS           # M&iacute;nimo clientes esperados en plataforma.db (default: 10)</pre>
+    </div>
+
+    <!-- SECCIÓN 5 — LAUNCHD -->
+    <div class="content-section" id="sec5">
+      <div class="section-number">Secci&oacute;n 5</div>
+      <h1>Automatizaci&oacute;n con launchd</h1>
+      <p>El agente <code>com.codanor.opencode-backup.plist</code> programa dos tareas autom&aacute;ticas: el backup diario y la prueba de restauraci&oacute;n semanal. Ambas tareas est&aacute;n activas desde el 19/10/2026.</p>
+
+      <h2 id="sec5-plist">5.1 Configuraci&oacute;n del plist (v3.0)</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Par&aacute;metro</th><th>Valor v2.0 (incorrecto)</th><th>Valor v3.0 (corregido)</th><th>Motivo del cambio</th></tr></thead>
+          <tbody>
+            <tr><td><code>StandardOutPath</code></td><td><code>/Volumes/CODANOR/opencode-backups/backup.log</code></td><td><code>~/Library/Logs/com.codanor.opencode-backup.log</code></td><td>La carpeta del NAS no exist&iacute;a &rarr; launchd no pod&iacute;a abrir el proceso &rarr; <strong>el backup nunca ejecut&oacute; desde septiembre</strong></td></tr>
+            <tr><td><code>Hour</code></td><td><code>2</code> (02:00 &mdash; Mac dormido)</td><td><code>9</code> (09:00 &mdash; jornada activa)</td><td>A las 02:00 el Mac duerme, el NAS se desmonta. A las 09:00 ambos est&aacute;n activos</td></tr>
+            <tr><td><code>StartCalendarInterval</code></td><td>Solo un intervalo (02:00 diario)</td><td>Dos intervalos: 09:00 diario + lunes 10:00 (<code>--test-restore</code>)</td><td>A&ntilde;adir prueba de restauraci&oacute;n autom&aacute;tica semanal</td></tr>
+            <tr><td><code>EnvironmentVariables</code></td><td>No definidas (PATH m&iacute;nimo del sistema)</td><td><code>PATH</code> extendido + <code>HOME</code> + <code>OPENCODE_BACKUP_DIR</code> + <code>OPENCODE_ICLOUD_DIR</code></td><td>Asegurar que launchd encuentra las herramientas y usa el destino correcto</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>5.2 Comandos de gesti&oacute;n del agente</h2>
+      <pre># Cargar el agente (instalaci&oacute;n)
+launchctl load ~/Library/LaunchAgents/com.codanor.opencode-backup.plist
+
+# Recargar tras cambios en el plist
+launchctl unload ~/Library/LaunchAgents/com.codanor.opencode-backup.plist
+launchctl load   ~/Library/LaunchAgents/com.codanor.opencode-backup.plist
+
+# Ejecutar de inmediato (sin esperar la hora programada)
+launchctl start com.codanor.opencode-backup
+
+# Verificar estado (runs, hora programada, variables de entorno)
+launchctl print gui/$(id -u)/com.codanor.opencode-backup</pre>
+
+      <h2 id="sec5-log">5.3 Log y monitorizaci&oacute;n</h2>
+      <pre># Ver el log en tiempo real
+tail -f ~/Library/Logs/com.codanor.opencode-backup.log
+
+# Ver los &uacute;ltimos 50 eventos
+tail -50 ~/Library/Logs/com.codanor.opencode-backup.log
+
+# Comprobar si el backup de hoy se ejecut&oacute;
+grep "$(date +%Y-%m-%d)" ~/Library/Logs/com.codanor.opencode-backup.log | tail -20</pre>
+
+      <div class="alert alert-warning">
+        <div class="alert-title">Por qu&eacute; el backup no ejecut&oacute; desde septiembre</div>
+        El plist anterior apuntaba el log a <code>/Volumes/CODANOR/opencode-backups/backup.log</code>. launchd intenta abrir ese fichero <strong>antes</strong> de lanzar el proceso. Como la carpeta no exist&iacute;a en el NAS (restricci&oacute;n TCC), launchd fallaba silenciosamente al preparar el proceso &mdash; sin dejar ning&uacute;n rastro visible. El agente aparec&iacute;a como cargado (<code>runs=0</code>) pero nunca ejecutaba. Corregido en v3.0 con log local.
+      </div>
+    </div>
+
+    <!-- SECCIÓN 6 — ICLOUD -->
+    <div class="content-section" id="sec6">
+      <div class="section-number">Secci&oacute;n 6 &mdash; Nuevo en v3.0</div>
+      <h1>Externalizaci&oacute;n: iCloud Drive</h1>
+      <p>La capa externalizada (off-site) de la regla 3-2-1 se implementa mediante iCloud Drive. Al finalizar cada backup completo, el script copia autom&aacute;ticamente los tres tars m&aacute;s recientes a una carpeta de iCloud. macOS los sube a los servidores de Apple sin intervenci&oacute;n manual.</p>
+
+      <h2>Arquitectura de la capa iCloud</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Archivo en iCloud</th><th>Contenido</th><th>Tama&ntilde;o</th><th>Accesible desde</th></tr></thead>
+          <tbody>
+            <tr><td><code>proyectos_TIMESTAMP.tar.gz</code></td><td><code>~/Proyectos/</code> + <code>plataforma.db</code> + todas las DBs de los proyectos</td><td>~3,1 GB</td><td>icloud.com, iPhone, iPad, Mac nuevo</td></tr>
+            <tr><td><code>opencode_data_TIMESTAMP.tar.gz</code></td><td><code>opencode.db</code> consistente (548 sesiones) + storage + credenciales</td><td>~1,1 GB</td><td>icloud.com, cualquier dispositivo Apple</td></tr>
+            <tr><td><code>opencode_config_TIMESTAMP.tar.gz</code></td><td>Comandos, agentes, <code>opencode.json</code>, MCP config</td><td>~800 KB</td><td>icloud.com, cualquier dispositivo Apple</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>Ruta local de la carpeta en iCloud Drive:</p>
+      <pre>~/Library/Mobile Documents/com~apple~CloudDocs/CODANOR-Backups/</pre>
+
+      <h2>Por qu&eacute; los <code>.tar.gz</code> y no las DBs directamente</h2>
+      <p>Las bases de datos SQLite en modo WAL (<code>opencode.db</code>, <code>plataforma.db</code>) tienen tres archivos relacionados (<code>.db</code>, <code>.db-shm</code>, <code>.db-wal</code>). Si iCloud los copia en momentos distintos, la copia puede quedar en estado inconsistente e irrecuperable.</p>
+      <p>Los <code>.tar.gz</code> son archivos est&aacute;ticos que iCloud copia como un bloque &uacute;nico. Las DBs van dentro, copiadas previamente con <code>sqlite3 .backup</code> (operaci&oacute;n at&oacute;mica, segura con WAL). <strong>Sin riesgo de corrupci&oacute;n.</strong></p>
+
+      <h2>Pol&iacute;tica de retenci&oacute;n en iCloud</h2>
+      <p>El script mantiene <strong>solo 1 tar por tipo</strong> en iCloud (el m&aacute;s reciente). Esto evita llenar el plan de iCloud. El historial completo de 30 versiones se conserva en el Transcend y, cuando est&eacute; configurado, en el NAS.</p>
+
+      <div class="alert alert-info">
+        <div class="alert-title">Acceso en caso de p&eacute;rdida del Mac</div>
+        Si pierdes el Mac, los tres archivos est&aacute;n disponibles inmediatamente en <strong>icloud.com</strong> con tu Apple ID. Descarga los tars, extrae en <code>~/</code> del Mac nuevo y ejecuta <code>--verify</code> para confirmar la integridad antes de restaurar.
+      </div>
+    </div>
+
+    <!-- SECCIÓN 7 — ESTRATEGIA -->
+    <div class="content-section" id="sec7">
+      <div class="section-number">Secci&oacute;n 7</div>
+      <h1>Estrategia 3-2-1 &mdash; Estado actual</h1>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Capa</th><th>Soporte</th><th>Frecuencia</th><th>Cubre</th><th>Estado</th><th>Antig&uuml;edad m&aacute;x.</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><strong>1 &mdash; Principal</strong></td>
+              <td>Transcend USB</td>
+              <td>Diaria 09:00</td>
+              <td>Proyectos + datos + config + DBs</td>
+              <td><span class="st-ok">ACTIVO</span></td>
+              <td>24 h</td>
+            </tr>
+            <tr>
+              <td><strong>2 &mdash; LAN Redundante</strong></td>
+              <td>NAS CODANOR (rsync)</td>
+              <td>Tras cada backup</td>
+              <td>Espejo del Transcend</td>
+              <td><span class="st-warn">TCC PENDIENTE</span></td>
+              <td>24 h (cuando funcione)</td>
+            </tr>
+            <tr>
+              <td><strong>3 &mdash; Off-site / Internet</strong></td>
+              <td>iCloud Drive</td>
+              <td>Diaria (tras backup)</td>
+              <td>1 versi&oacute;n de cada tar</td>
+              <td><span class="st-ok">ACTIVO</span></td>
+              <td>24 h</td>
+            </tr>
+            <tr>
+              <td><strong>4 &mdash; Nube empresarial</strong></td>
+              <td>NAS &rarr; OneDrive 1TB</td>
+              <td>Por definir (10:00)</td>
+              <td>Historial completo 30 versiones</td>
+              <td><span class="st-pend">POR CONFIGURAR</span></td>
+              <td>&mdash;</td>
+            </tr>
+            <tr>
+              <td><strong>5 &mdash; Sistema</strong></td>
+              <td>Time Machine</td>
+              <td>Horaria</td>
+              <td>Sistema completo macOS</td>
+              <td><span class="st-ok">ACTIVO</span></td>
+              <td>1 h</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>Diagrama de flujo</h2>
+      <pre>09:00 diario (launchd):
+  backup-opencode.sh
+    ├── backup_proyectos  → Transcend/opencode-backups/proyectos_*.tar.gz    (3,1 GB)
+    │     └─ plataforma.db incluida (copia sqlite3 .backup)
+    ├── backup_sessions   → Transcend/opencode-backups/opencode_data_*.tar.gz (1,1 GB)
+    │     └─ opencode.db incluida (copia sqlite3 .backup)
+    ├── backup_config     → Transcend/opencode-backups/opencode_config_*.tar.gz (800 KB)
+    ├── backup_redundant  → rsync Transcend → NAS CODANOR (si accesible)
+    └── backup_icloud     → copia tars → iCloud Drive → subida autom&aacute;tica a internet
+
+Cada lunes 10:00 (launchd):
+  backup-opencode.sh --test-restore
+    └── Verifica integridad sin tocar producci&oacute;n → log local</pre>
+    </div>
+
+    <!-- SECCIÓN 8 — RESTAURACIÓN -->
+    <div class="content-section" id="sec8">
+      <div class="section-number">Secci&oacute;n 8</div>
+      <h1>Restauraci&oacute;n de copias</h1>
+
+      <h2 id="sec8-modos">8.1 Modos de restauraci&oacute;n</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Comando</th><th>Qu&eacute; restaura</th><th>Seguridad autom&aacute;tica</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><code>--restore &lt;tar.gz&gt;</code></td>
+              <td>Datos OpenCode: <code>~/.local/share/opencode/</code> y <code>~/.config/opencode/</code></td>
+              <td>Verifica integridad del tar antes de extraer. Crea backup del estado actual autom&aacute;ticamente.</td>
+            </tr>
+            <tr>
+              <td><code>--restore-proyectos &lt;tar.gz&gt;</code></td>
+              <td><code>~/Proyectos/</code> completo (c&oacute;digo + datos + DBs)</td>
+              <td>Verifica integridad + muestra contenido + crea backup de seguridad de proyectos antes de sobrescribir.</td>
+            </tr>
+            <tr>
+              <td><code>--restore-db &lt;tar.gz&gt;</code></td>
+              <td>Solo <code>plataforma.db</code> en producci&oacute;n</td>
+              <td>Extrae en /tmp, verifica <code>integrity_check</code> y conteo de clientes, para Flask, hace backup de la DB actual, restaura, reinicia Flask.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>Flujo de restauraci&oacute;n de <code>plataforma.db</code></h2>
+      <pre># 1. Listar backups disponibles
+./backup-opencode.sh --list
+
+# 2. Verificar integridad antes de restaurar (opcional pero recomendado)
+./backup-opencode.sh --verify
+
+# 3. Restaurar solo la base de datos de la plataforma
+./backup-opencode.sh --restore-db /Volumes/Transcend/opencode-backups/proyectos_20261019_090000.tar.gz
+
+# 4. Restaurar ~/Proyectos/ completo (si necesitas recuperar todo el c&oacute;digo)
+./backup-opencode.sh --restore-proyectos /Volumes/Transcend/opencode-backups/proyectos_20261019_090000.tar.gz</pre>
+
+      <div class="alert alert-success">
+        <div class="alert-title">La restauraci&oacute;n siempre es reversible</div>
+        Todos los comandos de restauraci&oacute;n crean autom&aacute;ticamente un backup del estado actual antes de modificar ning&uacute;n archivo de producci&oacute;n. Si algo va mal, puedes volver al estado anterior ejecutando el mismo comando con el archivo <code>*_pre_restore_*.tar.gz</code> generado.
+      </div>
+
+      <h2 id="sec8-desastre">8.2 P&eacute;rdida total del equipo</h2>
+      <p>Procedimiento completo para recuperar el ecosistema CODANOR en un Mac nuevo:</p>
+      <ol class="step-list">
+        <li>Instalar OpenCode en el equipo nuevo desde el repositorio oficial</li>
+        <li>Descargar los tres tars desde <strong>icloud.com</strong> (Apple ID CODANOR) o conectar el Transcend</li>
+        <li>Verificar integridad de los tars descargados: <code>tar -tzf archivo.tar.gz &gt; /dev/null</code></li>
+        <li>Restaurar configuraci&oacute;n: <code>./backup-opencode.sh --restore opencode_config_*.tar.gz</code></li>
+        <li>Restaurar datos OpenCode: <code>./backup-opencode.sh --restore opencode_data_*.tar.gz</code></li>
+        <li>Restaurar proyectos: <code>./backup-opencode.sh --restore-proyectos proyectos_*.tar.gz</code></li>
+        <li>Verificar <code>plataforma.db</code>: <code>sqlite3 servidor/plataforma.db "PRAGMA integrity_check;"</code></li>
+        <li>Instalar las dependencias del servidor Flask: <code>pip3 install -r requirements.txt</code></li>
+        <li>Reinstalar el agente launchd: <code>launchctl load ~/Library/LaunchAgents/com.codanor.opencode-backup.plist</code></li>
+        <li>Ejecutar prueba de restauraci&oacute;n para confirmar que el siguiente backup ser&aacute; correcto: <code>./backup-opencode.sh --test-restore</code></li>
+      </ol>
+
+      <div class="alert alert-danger">
+        <div class="alert-title">auth.json contiene credenciales</div>
+        <code>auth.json</code> y <code>account.json</code> contienen tokens de autenticaci&oacute;n de LLM. Est&aacute;n incluidos en el <code>opencode_data_*.tar.gz</code>. Restaurar &uacute;nicamente en equipos de confianza CODANOR. <strong>Nunca subir a repositorios p&uacute;blicos.</strong>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 9 — VERIFICACIÓN -->
+    <div class="content-section" id="sec9">
+      <div class="section-number">Secci&oacute;n 9 &mdash; Nuevo en v3.0</div>
+      <h1>Verificaci&oacute;n e integridad</h1>
+      <p>La v3.0 incorpora dos mecanismos de verificaci&oacute;n que garantizan que los backups son recuperables antes de que sea necesario restaurarlos.</p>
+
+      <h2 id="sec9-verify">9.1 <code>--verify</code> &mdash; Comprobaci&oacute;n de integridad completa</h2>
+      <p>Verifica todos los archivos <code>.tar.gz</code> del directorio de backup sin extraer nada al sistema de producci&oacute;n. Para cada tar que contenga bases de datos SQLite, las extrae en <code>/tmp</code> y ejecuta <code>PRAGMA integrity_check</code>. Para <code>plataforma.db</code>, verifica adem&aacute;s que el n&uacute;mero de clientes supera el m&iacute;nimo configurado.</p>
+      <pre>OPENCODE_BACKUP_DIR=/Volumes/Transcend/opencode-backups \
+  ./backup-opencode.sh --verify</pre>
+      <p>Salida esperada (resultado del 19/10/2026):</p>
+      <pre>[PASS] TAR OK  │ opencode_config_20261019_090000.tar.gz (1,0M) │ 2026-10-19 10:18
+[PASS] TAR OK  │ opencode_data_20261019_090000.tar.gz (1,1G)   │ 2026-10-19 10:18
+[PASS]   DB OK │ opencode.db │ integrity_check=ok │ sesiones=548
+[PASS] TAR OK  │ proyectos_20261019_090000.tar.gz (3,1G)       │ 2026-10-19 10:16
+[PASS]   DB OK │ plataforma.db │ integrity_check=ok │ clientes=298
+[INFO] === Resultado: 6 archivos verificados │ PASS=6 │ FAIL=0 ===
+[OK]   Todos los backups verificados correctamente.</pre>
+
+      <h2 id="sec9-test">9.2 <code>--test-restore</code> &mdash; Prueba de restauraci&oacute;n no destructiva</h2>
+      <p>Simula una restauraci&oacute;n completa extrayendo los tars m&aacute;s recientes en un directorio temporal de <code>/tmp</code>. Ejecuta 12 comprobaciones sobre el contenido extra&iacute;do. No modifica ning&uacute;n archivo de producci&oacute;n. El directorio temporal se limpia al finalizar.</p>
+      <pre>./backup-opencode.sh --test-restore</pre>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Test</th><th>Qu&eacute; verifica</th><th>Resultado 19/10/2026</th></tr></thead>
+          <tbody>
+            <tr><td>1a</td><td>Integridad del tar de proyectos</td><td><span class="st-ok">PASS</span></td></tr>
+            <tr><td>1b</td><td>N&uacute;mero de proyectos extra&iacute;dos (&gt; 0)</td><td><span class="st-ok">PASS &bull; 21 proyectos</span></td></tr>
+            <tr><td>1c</td><td><code>plataforma.db</code>: integrity_check + clientes ≥ 10</td><td><span class="st-ok">PASS &bull; ok &bull; 298 clientes</span></td></tr>
+            <tr><td>1d</td><td>Carpeta <code>Plataforma_Seguimiento_Proyectos</code> presente</td><td><span class="st-ok">PASS</span></td></tr>
+            <tr><td>1e</td><td>Carpeta <code>PLATAFORMA_OpenCode-NEW</code> presente</td><td><span class="st-ok">PASS</span></td></tr>
+            <tr><td>2a</td><td>Integridad del tar de datos OpenCode</td><td><span class="st-ok">PASS</span></td></tr>
+            <tr><td>2b</td><td><code>opencode.db</code>: integrity_check + sesiones</td><td><span class="st-ok">PASS &bull; ok &bull; 548 sesiones</span></td></tr>
+            <tr><td>2c</td><td>Storage/session: archivos JSON presentes</td><td><span class="st-ok">PASS &bull; 1 archivo</span></td></tr>
+            <tr><td>3a</td><td>Integridad del tar de config</td><td><span class="st-ok">PASS</span></td></tr>
+            <tr><td>3b</td><td><code>opencode.json</code> presente en config</td><td><span class="st-ok">PASS</span></td></tr>
+            <tr><td>4a</td><td>iCloud CODANOR-Backups: archivos presentes</td><td><span class="st-ok">PASS &bull; 3 archivos</span></td></tr>
+            <tr><td>4b</td><td>Tar de proyectos en iCloud: integridad</td><td><span class="st-ok">PASS</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p><strong>Resultado global: PASS=12, FAIL=0.</strong> Los datos son recuperables en su totalidad.</p>
+      <p>La prueba <code>--test-restore</code> se ejecuta autom&aacute;ticamente cada lunes a las 10:00 v&iacute;a launchd. El resultado queda registrado en el log local.</p>
+    </div>
+
+    <!-- SECCIÓN 10 — NAS SYNOLOGY -->
+    <div class="content-section" id="sec10">
+      <div class="section-number">Secci&oacute;n 10</div>
+      <h1>NAS Synology CODANOR</h1>
+
+      <h2>Situaci&oacute;n actual</h2>
+      <p>El NAS Synology (SYCODANOR-920, 10 TB, 7,2 TB libres) est&aacute; montado en la LAN y funciona correctamente desde Finder. Sin embargo, el proceso <code>launchd</code> que ejecuta el backup no tiene permiso TCC para acceder a vol&uacute;menes de red SMB (<code>Operation not permitted</code>).</p>
+      <p>El backup falla silenciosamente al intentar acceder al NAS desde launchd, pero <strong>el sistema contin&uacute;a sin interrumpirse</strong> (warning, no error) y usa el Transcend como destino principal.</p>
+
+      <h2>Resoluci&oacute;n del problema TCC</h2>
+      <p>La soluci&oacute;n recomendada es a&ntilde;adir el NAS como elemento de inicio de sesi&oacute;n para que se monte con permisos de sesi&oacute;n completos antes de las 09:00:</p>
+      <ol class="step-list">
+        <li><strong>Ajustes del Sistema &rarr; General &rarr; Elementos de inicio de sesi&oacute;n</strong></li>
+        <li>Clic en <strong>+</strong> &rarr; conectar al servidor <code>smb://SYCODANOR-920._smb._tcp.local/CODANOR</code></li>
+        <li>El NAS se montar&aacute; autom&aacute;ticamente al iniciar sesi&oacute;n, con los mismos permisos que Finder</li>
+        <li>Launchd a las 09:00 encontrar&aacute; el volumen montado y con permisos correctos</li>
+        <li>Una vez verificado, invertir en el plist: <code>OPENCODE_BACKUP_DIR=/Volumes/CODANOR/opencode-backups</code> y <code>OPENCODE_BACKUP_DIR_REDUNDANT=/Volumes/Transcend/opencode-backups</code></li>
+      </ol>
+
+      <div class="alert alert-warning">
+        <div class="alert-title">No a&ntilde;adir /bin/bash a TCC</div>
+        La alternativa de conceder "Acceso total al disco" a <code>/bin/bash</code> otorgar&iacute;a ese permiso a <strong>cualquier script bash del sistema</strong>, no solo al de backup. El riesgo de seguridad no justifica la simplicidad. Usar el m&eacute;todo de Login Item descrito arriba.
+      </div>
+
+      <h2>Buenas pr&aacute;cticas en Synology DSM</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Funci&oacute;n DSM</th><th>Recomendaci&oacute;n</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Hyper Backup</strong></td><td>Configurar tarea diaria (10:00) hacia OneDrive 1 TB. Cifrado AES-256. Retenci&oacute;n 7 versiones.</td></tr>
+            <tr><td><strong>Snapshot Replication</strong></td><td>Activar snapshots Btrfs programados para versiones inmutables de la carpeta <code>opencode-backups</code></td></tr>
+            <tr><td><strong>Papelera de red</strong></td><td>Habilitar <code>#recycle</code> para recuperar archivos borrados por la rotaci&oacute;n autom&aacute;tica</td></tr>
+            <tr><td><strong>SMB versi&oacute;n</strong></td><td>Forzar SMB 3 y cifrado en tr&aacute;nsito: Panel de control &rarr; Servicio de archivos &rarr; SMB</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 11 — GITHUB -->
+    <div class="content-section" id="sec11">
+      <div class="section-number">Secci&oacute;n 11</div>
+      <h1>GitHub &mdash; C&oacute;digo fuente</h1>
+
+      <div class="alert alert-info">
+        <div class="alert-title">Pol&iacute;tica de datos de clientes</div>
+        Las copias de seguridad con datos de clientes permanecen en el ordenador local, el Transcend, el NAS e iCloud. <strong>Nunca viajan a GitHub.</strong> El c&oacute;digo fuente s&iacute; se sube normalmente. El <code>.gitignore</code> excluye <code>*.db</code>, <code>*.tar.gz</code>, <code>auth.json</code>, <code>account.json</code> y <code>uploads/</code>.
+      </div>
+
+      <h2>Estado actual de los repos (19/10/2026)</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Repo</th><th>Commits sin push</th><th>Archivos sin commit</th><th>Acci&oacute;n requerida</th></tr></thead>
+          <tbody>
+            <tr><td><code>Plataforma_Seguimiento_Proyectos</code></td><td><span class="st-warn">16 commits</span></td><td><span class="st-warn">21 archivos</span></td><td>Push pendiente</td></tr>
+            <tr><td><code>PLATAFORMA_OpenCode-NEW</code></td><td><span class="st-warn">2 commits</span></td><td><span class="st-warn">19 archivos</span></td><td>Push pendiente (incluye este documento)</td></tr>
+            <tr><td><code>Gestion_Riesgos_ENS</code></td><td>1 commit</td><td>0</td><td>Push pendiente</td></tr>
+            <tr><td><code>Gestion_Riesgos_ISO27001</code></td><td>1 commit</td><td>0</td><td>Push pendiente</td></tr>
+            <tr><td><code>Gestion_Riesgos_LOPD-RGPD</code></td><td>1 commit</td><td>0</td><td>Push pendiente</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <pre># Subir cambios pendientes
+cd ~/Proyectos/PLATAFORMA_OpenCode-NEW
+git add backup-opencode.sh com.codanor.opencode-backup.plist Documento-Copias-Seguridad-V03.html
+git commit -m "feat: backup v3.0 — iCloud, test-restore, 5 nuevos comandos, fixes launchd"
+git push
+
+cd ~/Proyectos/Plataforma_Seguimiento_Proyectos
+git add .
+git commit -m "feat: backup automatico 09:00 + correcciones script"
+git push</pre>
+    </div>
+
+    <!-- SECCIÓN 12 — MEJORAS PENDIENTES -->
+    <div class="content-section" id="sec12">
+      <div class="section-number">Secci&oacute;n 12</div>
+      <h1>Mejoras pendientes</h1>
+      <p>Acciones identificadas durante la sesi&oacute;n del 19/10/2026 que mejorar&iacute;an la robustez del sistema pero que no bloquean el funcionamiento actual.</p>
+
+      <div class="mejora-item">
+        <span class="mejora-prio prio-alta">ALTA</span>
+        <div class="mejora-body">
+          <strong>NAS CODANOR como destino principal</strong>
+          <p>Resolver la restricci&oacute;n TCC a&ntilde;adiendo el NAS como Login Item (Ajustes &rarr; General &rarr; Elementos de inicio de sesi&oacute;n). Una vez confirmado, invertir <code>OPENCODE_BACKUP_DIR</code> y <code>OPENCODE_BACKUP_DIR_REDUNDANT</code> en el plist. El NAS ofrece RAID, 7,2 TB y retenci&oacute;n prolongada.</p>
+        </div>
+      </div>
+
+      <div class="mejora-item">
+        <span class="mejora-prio prio-alta">ALTA</span>
+        <div class="mejora-body">
+          <strong>NAS Synology &rarr; OneDrive 1 TB (Hyper Backup)</strong>
+          <p>Configurar Hyper Backup en el panel web del NAS (DSM) para replicar la carpeta <code>opencode-backups</code> a OneDrive 1 TB (incluido en Microsoft 365 CODANOR). Programar a las 10:00, retenci&oacute;n 7 versiones, cifrado AES-256. Esto completar&iacute;a la capa 4 de la estrategia y a&ntilde;adir&iacute;a una segunda nube externalizada independiente de Apple.</p>
+        </div>
+      </div>
+
+      <div class="mejora-item">
+        <span class="mejora-prio prio-alta">ALTA</span>
+        <div class="mejora-body">
+          <strong>Commits y push pendientes</strong>
+          <p>Hay 16 commits sin push en <code>Plataforma_Seguimiento_Proyectos</code> y 2 en <code>PLATAFORMA_OpenCode-NEW</code>, m&aacute;s 40 archivos sin commit en total. Si se pierde el Mac ahora, estos cambios solo existen en local (y en el Transcend/iCloud a partir de hoy). Realizar push tras cada sesi&oacute;n de trabajo.</p>
+        </div>
+      </div>
+
+      <div class="mejora-item">
+        <span class="mejora-prio prio-media">MEDIA</span>
+        <div class="mejora-body">
+          <strong>Cifrado AES-256 de los tars antes de subir a iCloud</strong>
+          <p>Los tars contienen datos de clientes (298 en <code>plataforma.db</code>) y credenciales (<code>auth.json</code>). Aunque iCloud cifra en tr&aacute;nsito y en reposo, a&ntilde;adir cifrado propio antes de la subida garantizar&iacute;a que Apple no puede acceder al contenido. Implementar con <code>openssl enc -aes-256-cbc</code> antes de la copia a <code>ICLOUD_DIR</code>.</p>
+        </div>
+      </div>
+
+      <div class="mejora-item">
+        <span class="mejora-prio prio-media">MEDIA</span>
+        <div class="mejora-body">
+          <strong>Notificaci&oacute;n macOS si el backup falla</strong>
+          <p>A&ntilde;adir al script una llamada a <code>osascript -e 'display notification "Backup fallido" with title "CODANOR Backup"'</code> en caso de error. Actualmente los fallos solo quedan en el log. Una notificaci&oacute;n visible en el Centro de notificaciones alerta inmediatamente.</p>
+        </div>
+      </div>
+
+      <div class="mejora-item">
+        <span class="mejora-prio prio-media">MEDIA</span>
+        <div class="mejora-body">
+          <strong>Backup incremental del tar de proyectos</strong>
+          <p>El tar de proyectos ocupa 3,1 GB y tarda varios minutos. Evaluar el uso de <code>rsync</code> incremental hacia el Transcend en lugar de un tar completo diario. Reducir&iacute;a el tiempo de backup de ~10 min a ~1 min en d&iacute;as sin cambios significativos.</p>
+        </div>
+      </div>
+
+      <div class="mejora-item">
+        <span class="mejora-prio prio-baja">BAJA</span>
+        <div class="mejora-body">
+          <strong>Historial de resultados de <code>--test-restore</code></strong>
+          <p>Actualmente los resultados de la prueba semanal solo se guardan en el log. Crear un archivo <code>test-restore-history.json</code> en <code>BACKUP_DIR</code> con el hist&oacute;rico de resultados (fecha, PASS, FAIL) para tener visibilidad de la evoluci&oacute;n a lo largo del tiempo.</p>
+        </div>
+      </div>
+
+      <div class="mejora-item">
+        <span class="mejora-prio prio-baja">BAJA</span>
+        <div class="mejora-body">
+          <strong>Backup de <code>plataforma.db</code> con sqlite3 .backup directo</strong>
+          <p>Actualmente <code>plataforma.db</code> se incluye en el tar de proyectos tal cual (sin copia sqlite3 .backup). Si Flask est&aacute; activo durante el backup, la copia puede ser inconsistente en modo WAL. A&ntilde;adir una funci&oacute;n <code>backup_plataforma_db_consistent()</code> similar a la que ya existe para <code>opencode.db</code>.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- GLOSARIO -->
+    <div class="content-section" id="glosario">
+      <div class="section-number">Glosario</div>
+      <h1>Glosario de t&eacute;rminos</h1>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>T&eacute;rmino / Clave</th><th>Definici&oacute;n</th></tr></thead>
+          <tbody>
+            <tr><td class="glossary-term">NAS</td><td>Network Attached Storage. Dispositivo de almacenamiento en red. En CODANOR: Synology SYCODANOR-920, vol. CODANOR, 7,2 TB libres, acceso SMB por LAN.</td></tr>
+            <tr><td class="glossary-term">Synology DSM</td><td>DiskStation Manager. Sistema operativo del NAS Synology. Ofrece Hyper Backup, Snapshot Replication, papelera de red y cuotas de usuario.</td></tr>
+            <tr><td class="glossary-term">Hyper Backup</td><td>Aplicaci&oacute;n de Synology DSM para replicar datos del NAS a otro NAS, servidor rsync o nube (AWS S3, Backblaze B2, OneDrive, etc.). Cubre la capa 4 de la estrategia.</td></tr>
+            <tr><td class="glossary-term">TCC</td><td>Transparency, Consent and Control. Marco de privacidad de macOS que controla el acceso de apps a recursos del sistema. launchd no tiene permisos TCC para vol&uacute;menes SMB por defecto.</td></tr>
+            <tr><td class="glossary-term">launchd</td><td>Sistema de programaci&oacute;n de tareas de macOS. El archivo <code>com.codanor.opencode-backup.plist</code> programa el backup diario a las 09:00 y el test semanal los lunes a las 10:00.</td></tr>
+            <tr><td class="glossary-term">StartCalendarInterval</td><td>Clave del plist de launchd que define cu&aacute;ndo ejecutar la tarea. Acepta un array de dicts con Hour, Minute, Weekday, Day. Equivalente a cron pero con recuperaci&oacute;n de eventos perdidos.</td></tr>
+            <tr><td class="glossary-term">sqlite3 .backup</td><td>Comando interno de sqlite3 que realiza una copia at&oacute;mica y consistente de una base de datos SQLite en modo WAL. Seguro con la base de datos abierta. Usado para <code>opencode.db</code> (3,2 GB).</td></tr>
+            <tr><td class="glossary-term">WAL</td><td>Write-Ahead Logging. Modo de SQLite que permite lecturas concurrentes durante escrituras. Genera tres archivos relacionados: <code>.db</code>, <code>.db-shm</code>, <code>.db-wal</code>. Requiere <code>sqlite3 .backup</code> para copias seguras.</td></tr>
+            <tr><td class="glossary-term">tar.gz</td><td>Formato de archivo comprimido (tar + gzip). Usado por el script para empaquetar proyectos, datos y config en un &uacute;nico archivo verificable. Las DBs van dentro tras ser copiadas con sqlite3 .backup.</td></tr>
+            <tr><td class="glossary-term">--test-restore</td><td>Modo del script que simula una restauraci&oacute;n completa extrayendo en /tmp y ejecutando 12 comprobaciones. No destructivo. Programado autom&aacute;ticamente cada lunes a las 10:00.</td></tr>
+            <tr><td class="glossary-term">--verify</td><td>Modo del script que verifica la integridad de todos los tars en el directorio de backup y ejecuta <code>PRAGMA integrity_check</code> en las DBs encontradas. No modifica nada.</td></tr>
+            <tr><td class="glossary-term">iCloud Drive</td><td>Servicio de almacenamiento en la nube de Apple. En CODANOR se usa como capa externalizada: los tars del backup diario se copian a <code>CODANOR-Backups/</code> y se suben autom&aacute;ticamente a internet.</td></tr>
+            <tr><td class="glossary-term">CODANOR-Backups/</td><td>Carpeta dentro de iCloud Drive que contiene los tres tars m&aacute;s recientes del backup. Ruta: <code>~/Library/Mobile Documents/com~apple~CloudDocs/CODANOR-Backups/</code>.</td></tr>
+            <tr><td class="glossary-term">plataforma.db</td><td>Base de datos SQLite del servidor Flask (puerto 5001). Contiene 19 tablas con 298 clientes, 36 proyectos, tiquets, riesgos y configuraci&oacute;n IA. Excluida del git, incluida en el tar de proyectos.</td></tr>
+            <tr><td class="glossary-term">opencode.db</td><td>Base de datos SQLite de OpenCode (~/.local/share/opencode/opencode.db). Almacena el historial de 548 sesiones, mensajes y configuraci&oacute;n. Tama&ntilde;o: 3,2 GB. Se copia con sqlite3 .backup.</td></tr>
+            <tr><td class="glossary-term">rsync</td><td>Herramienta Unix para sincronizaci&oacute;n incremental de archivos. Usada por <code>backup_redundant()</code> para sincronizar el Transcend con el NAS CODANOR. Copia solo las diferencias.</td></tr>
+            <tr><td class="glossary-term">Regla 3-2-1</td><td>Estrategia est&aacute;ndar de backup: 3 copias, en 2 soportes distintos, con 1 copia fuera del emplazamiento. En CODANOR: Transcend + NAS (LAN) + iCloud Drive (internet).</td></tr>
+            <tr><td class="glossary-term">PRAGMA integrity_check</td><td>Comando SQLite que verifica la integridad estructural de una base de datos. Devuelve <code>ok</code> si el archivo est&aacute; &iacute;ntegro o una descripci&oacute;n del error si est&aacute; corrupto.</td></tr>
+            <tr><td class="glossary-term">auth.json</td><td>Archivo de credenciales de OpenCode con tokens de autenticaci&oacute;n LLM. Incluido en los backups. Nunca subir a repositorios p&uacute;blicos. Restaurar solo en equipos de confianza CODANOR.</td></tr>
+            <tr><td class="glossary-term">PAT</td><td>Personal Access Token. Token de acceso personal de GitHub para operaciones Git por HTTPS. Necesario para hacer push desde la l&iacute;nea de comandos.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- PIE DE PÁGINA -->
+<footer class="doc-footer">
+  <div class="footer-left">CODANOR &mdash; Jafa, S.L. &mdash; Barcelona, Catalunya</div>
+  <div class="footer-center">Documento interno &mdash; Uso exclusivo CODANOR</div>
+  <div class="footer-right">
+    v3.0 &bull; 19/10/2026
+    <div class="footer-path">PLATAFORMA_OpenCode-NEW/Documento-Copias-Seguridad-V03.html</div>
+  </div>
+</footer>
+
+<!-- BOTÓN IMPRIMIR -->
+<button class="btn-print" onclick="window.print()">Imprimir / PDF</button>
+
+<!-- TOC HIGHLIGHT ACTIVO -->
+<script>
+  const sections = document.querySelectorAll('[id^="sec"], #portada, #versiones, #glosario, #dashboard');
+  const navLinks = document.querySelectorAll('.sidebar nav a');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(a => a.classList.remove('active'));
+        const active = document.querySelector(`.sidebar nav a[href="#${entry.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { threshold: 0.2 });
+  sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>
