@@ -208,6 +208,9 @@ backup_redundant() {
 # --- BACKUP ICLOUD (capa externalizada) ---
 # Copia los tars mas recientes a iCloud Drive para subida automatica a internet.
 # Las DBs van dentro de los tars (copiadas con sqlite3 .backup) — sin riesgo WAL.
+# IMPORTANTE: se eliminan primero los tars antiguos de iCloud y DESPUES se copia
+# el nuevo. Si se hiciera al reves, iCloud pone un lock sobre el archivo recien
+# copiado mientras lo sube y el rm -f falla silenciosamente acumulando versiones.
 backup_icloud() {
   # Verificar que iCloud Drive esta disponible
   local ICLOUD_BASE="$HOME/Library/Mobile Documents/com~apple~CloudDocs"
@@ -224,38 +227,40 @@ backup_icloud() {
 
   local COPIED=0
 
-  # Copiar el tar de proyectos mas reciente (contiene plataforma.db)
+  # --- proyectos ---
   local LAST_P
   LAST_P=$(ls -t "$BACKUP_DIR"/proyectos_*.tar.gz 2>/dev/null | head -1)
   if [ -n "$LAST_P" ]; then
+    # 1. Eliminar TODOS los tars anteriores de iCloud antes de copiar el nuevo
+    rm -f "$ICLOUD_DIR"/proyectos_*.tar.gz 2>/dev/null || true
+    # 2. Copiar el tar nuevo (sin lock de versiones anteriores)
     cp "$LAST_P" "$ICLOUD_DIR/" 2>/dev/null && COPIED=$((COPIED + 1)) || \
       warn "No se pudo copiar proyectos a iCloud."
-    # Mantener solo el mas reciente en iCloud (evitar llenar el plan)
-    ls -t "$ICLOUD_DIR"/proyectos_*.tar.gz 2>/dev/null | tail -n +2 | xargs rm -f 2>/dev/null || true
   fi
 
-  # Copiar el tar de datos OpenCode mas reciente (contiene opencode.db)
+  # --- datos OpenCode ---
   local LAST_D
   LAST_D=$(ls -t "$BACKUP_DIR"/opencode_data_*.tar.gz 2>/dev/null | head -1)
   if [ -n "$LAST_D" ]; then
+    rm -f "$ICLOUD_DIR"/opencode_data_*.tar.gz 2>/dev/null || true
     cp "$LAST_D" "$ICLOUD_DIR/" 2>/dev/null && COPIED=$((COPIED + 1)) || \
       warn "No se pudo copiar datos OpenCode a iCloud."
-    ls -t "$ICLOUD_DIR"/opencode_data_*.tar.gz 2>/dev/null | tail -n +2 | xargs rm -f 2>/dev/null || true
   fi
 
-  # Copiar el tar de config mas reciente
+  # --- config ---
   local LAST_C
   LAST_C=$(ls -t "$BACKUP_DIR"/opencode_config_*.tar.gz 2>/dev/null | head -1)
   if [ -n "$LAST_C" ]; then
+    rm -f "$ICLOUD_DIR"/opencode_config_*.tar.gz 2>/dev/null || true
     cp "$LAST_C" "$ICLOUD_DIR/" 2>/dev/null && COPIED=$((COPIED + 1)) || \
       warn "No se pudo copiar config a iCloud."
-    ls -t "$ICLOUD_DIR"/opencode_config_*.tar.gz 2>/dev/null | tail -n +2 | xargs rm -f 2>/dev/null || true
   fi
 
   if [ "$COPIED" -gt 0 ]; then
-    local ICLOUD_SIZE
+    local ICLOUD_SIZE FILE_COUNT
     ICLOUD_SIZE=$(du -sh "$ICLOUD_DIR" 2>/dev/null | cut -f1)
-    ok "iCloud Drive: $COPIED archivos copiados ($ICLOUD_SIZE) → subida automatica en curso"
+    FILE_COUNT=$(ls "$ICLOUD_DIR"/*.tar.gz 2>/dev/null | wc -l | tr -d ' ')
+    ok "iCloud Drive: $COPIED archivos copiados ($ICLOUD_SIZE, $FILE_COUNT en carpeta) → subida automatica en curso"
     info "  Ruta: $ICLOUD_DIR"
     info "  Accesible en: icloud.com o cualquier dispositivo Apple"
   else

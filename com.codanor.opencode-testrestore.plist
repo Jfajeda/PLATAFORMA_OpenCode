@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  com.codanor.opencode-testrestore.plist
+  Agente launchd para prueba de restauracion automatica semanal.
+  CODANOR - Jafa, S.L. | Barcelona, Catalunya
+
+  TAREA: Ejecutar --test-restore cada lunes a las 10:00
+    - No destructivo: extrae en /tmp y verifica. No modifica produccion.
+    - 12 checks: integridad tars, plataforma.db, opencode.db, iCloud Drive
+    - Duracion estimada: ~2-3 minutos
+
+  LOG (mismo archivo que el backup principal):
+    ~/Library/Logs/com.codanor.opencode-backup.log
+    Consultar: grep "PRUEBA DE RESTAURACION" ~/Library/Logs/com.codanor.opencode-backup.log
+
+  INSTALACION:
+    cp com.codanor.opencode-testrestore.plist ~/Library/LaunchAgents/
+    launchctl load ~/Library/LaunchAgents/com.codanor.opencode-testrestore.plist
+
+  EJECUTAR MANUALMENTE:
+    launchctl start com.codanor.opencode-testrestore
+
+  DESINSTALAR:
+    launchctl unload ~/Library/LaunchAgents/com.codanor.opencode-testrestore.plist
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.codanor.opencode-testrestore</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>/Users/jaimefajeda/Proyectos/PLATAFORMA_OpenCode-NEW/backup-opencode.sh</string>
+    <string>--test-restore</string>
+  </array>
+
+  <!-- Prueba de restauracion cada lunes a las 10:00 -->
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Weekday</key>
+    <integer>2</integer>
+    <key>Hour</key>
+    <integer>10</integer>
+    <key>Minute</key>
+    <integer>0</integer>
+  </dict>
+
+  <!-- Variables de entorno: mismo destino que el backup principal -->
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+    <key>HOME</key>
+    <string>/Users/jaimefajeda</string>
+    <key>OPENCODE_BACKUP_DIR</key>
+    <string>/Volumes/Transcend/opencode-backups</string>
+    <key>OPENCODE_ICLOUD_DIR</key>
+    <string>/Users/jaimefajeda/Library/Mobile Documents/com~apple~CloudDocs/CODANOR-Backups</string>
+  </dict>
+
+  <!-- Log compartido con el agente de backup -->
+  <key>StandardOutPath</key>
+  <string>/Users/jaimefajeda/Library/Logs/com.codanor.opencode-backup.log</string>
+
+  <key>StandardErrorPath</key>
+  <string>/Users/jaimefajeda/Library/Logs/com.codanor.opencode-backup.log</string>
+
+  <key>RunAtLoad</key>
+  <false/>
+</dict>
+</plist>

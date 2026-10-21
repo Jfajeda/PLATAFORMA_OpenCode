@@ -4,9 +4,8 @@
   Agente launchd para backup automatico de OpenCode.
   CODANOR - Jafa, S.L. | Barcelona, Catalunya
 
-  TAREAS PROGRAMADAS:
-    - Backup completo diario a las 09:00
-    - Prueba de restauracion (--test-restore) el primer lunes de cada mes a las 10:00
+  TAREA: Backup completo diario a las 09:00
+  (La prueba de restauracion --test-restore esta en com.codanor.opencode-testrestore.plist)
 
   LOG (local, siempre accesible independiente del NAS):
     ~/Library/Logs/com.codanor.opencode-backup.log
@@ -38,28 +37,14 @@
     <string>/Users/jaimefajeda/Proyectos/PLATAFORMA_OpenCode-NEW/backup-opencode.sh</string>
   </array>
 
-  <!-- Backup completo diario a las 09:00 + prueba de restauracion el primer lunes del mes a las 10:00 -->
+  <!-- Backup completo diario a las 09:00 -->
   <key>StartCalendarInterval</key>
-  <array>
-    <!-- Backup diario a las 09:00 -->
-    <dict>
-      <key>Hour</key>
-      <integer>9</integer>
-      <key>Minute</key>
-      <integer>0</integer>
-    </dict>
-    <!-- Prueba de restauracion: primer lunes del mes (Weekday=2) a las 10:00
-         launchd no soporta "primer lunes" directamente; se programa cada lunes.
-         El script --test-restore es no destructivo y rapido (~2 min). -->
-    <dict>
-      <key>Weekday</key>
-      <integer>2</integer>
-      <key>Hour</key>
-      <integer>10</integer>
-      <key>Minute</key>
-      <integer>0</integer>
-    </dict>
-  </array>
+  <dict>
+    <key>Hour</key>
+    <integer>9</integer>
+    <key>Minute</key>
+    <integer>0</integer>
+  </dict>
 
   <!-- Variables de entorno -->
   <key>EnvironmentVariables</key>
