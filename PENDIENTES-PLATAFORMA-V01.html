@@ -1,0 +1,1696 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seguimiento de Pendientes — CODANOR</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600;700&family=Nunito+Sans:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    /* ─── TOKENS DE COLOR (WCAG AA) ─── */
+    :root {
+      --primary:        #178DC2;
+      --primary-dark:   #1275A3;
+      --primary-light:  #e8f4fa;
+      --accent:         #12A79D;
+      --accent-dark:    #0d7a71;
+      --accent-light:   #e6f7f6;
+      --dark:           #1a1a2e;
+      --gray-900:       #2d2d44;
+      --gray-700:       #4a4a5a;
+      --gray-600:       #6b6b7b;
+      --gray-500:       #7a7a8a;
+      --gray-300:       #c4c4d0;
+      --gray-100:       #f0f0f5;
+      --white:          #ffffff;
+      --warning-text:   #b7770d;
+      --warning-bg:     #fef9e7;
+      --warning-dark:   #7d6608;
+      --danger-text:    #922b21;
+      --danger-bg:      #fdedec;
+      --success-text:   #0e7a72;
+      --success-bg:     #e6f7f6;
+      --info-text:      #1275A3;
+      --info-bg:        #e8f4fa;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Nunito Sans', sans-serif;
+      font-size: 16px;
+      line-height: 1.7;
+      color: var(--gray-700);
+      background: var(--gray-100);
+    }
+
+    /* ─── CABECERA FIJA ─── */
+    .page-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--white);
+      border-bottom: 3px solid var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.6rem 2rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .page-header-brand { display: flex; align-items: center; gap: 0.8rem; }
+    .page-header-logo {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--primary);
+      letter-spacing: -0.5px;
+    }
+    .page-header-title {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--primary-dark);
+    }
+    .page-header-meta {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.75rem;
+      color: var(--gray-500);
+    }
+
+    /* ─── LAYOUT ─── */
+    .layout { display: flex; min-height: calc(100vh - 56px); }
+
+    /* ─── SIDEBAR ─── */
+    .sidebar {
+      width: 270px;
+      min-width: 270px;
+      background: var(--white);
+      border-right: 1px solid var(--gray-300);
+      padding: 1.5rem 0;
+      position: sticky;
+      top: 56px;
+      height: calc(100vh - 56px);
+      overflow-y: auto;
+    }
+    .sidebar-label {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.65rem;
+      font-weight: 600;
+      color: var(--gray-500);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      padding: 0 1.2rem;
+      margin-bottom: 0.5rem;
+      margin-top: 1rem;
+    }
+    .sidebar-label:first-child { margin-top: 0; }
+    .sidebar nav a {
+      display: block;
+      font-size: 0.86rem;
+      color: var(--gray-700);
+      text-decoration: none;
+      padding: 0.32rem 1.2rem;
+      border-left: 3px solid transparent;
+      transition: all 0.15s;
+    }
+    .sidebar nav a:hover, .sidebar nav a.active {
+      color: var(--primary);
+      background: var(--primary-light);
+      border-left-color: var(--primary);
+    }
+    .sidebar nav a.toc-sub {
+      font-size: 0.8rem;
+      padding-left: 2rem;
+    }
+    .sidebar-kpi {
+      margin: 0.5rem 1rem 1rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.4rem;
+    }
+    .kpi-mini {
+      background: var(--gray-100);
+      border-radius: 6px;
+      padding: 0.4rem 0.5rem;
+      text-align: center;
+    }
+    .kpi-mini .num {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-mini .lbl {
+      font-size: 0.62rem;
+      color: var(--gray-600);
+      margin-top: 0.1rem;
+    }
+    .kpi-mini.red .num  { color: var(--danger-text); }
+    .kpi-mini.ora .num  { color: var(--warning-text); }
+    .kpi-mini.blu .num  { color: var(--primary-dark); }
+    .kpi-mini.grn .num  { color: var(--success-text); }
+
+    /* ─── CONTENIDO PRINCIPAL ─── */
+    .main-content { flex: 1; padding: 0; min-width: 0; }
+
+    /* ─── PORTADA ─── */
+    .cover {
+      background: var(--dark);
+      color: var(--white);
+      padding: 5rem 4rem 4rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .cover::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 5px;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+    }
+    .cover-logo {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 4rem;
+    }
+    .cover-type {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 1rem;
+    }
+    .cover-title {
+      font-family: 'Poppins', sans-serif;
+      font-size: 2.8rem;
+      font-weight: 700;
+      color: var(--white);
+      line-height: 1.15;
+      margin-bottom: 1rem;
+    }
+    .cover-subtitle {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 300;
+      color: rgba(255,255,255,0.75);
+      margin-bottom: 3rem;
+    }
+    .cover-meta { display: flex; gap: 2.5rem; flex-wrap: wrap; }
+    .cover-meta-item .label {
+      font-size: 0.68rem;
+      color: rgba(255,255,255,0.5);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 0.2rem;
+    }
+    .cover-meta-item .value {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--white);
+    }
+    .cover-footer {
+      margin-top: 4rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid rgba(255,255,255,0.15);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .cover-footer .company { font-size: 0.82rem; color: rgba(255,255,255,0.6); }
+    .cover-footer .classification { font-size: 0.72rem; font-style: italic; color: rgba(255,255,255,0.45); }
+
+    /* ─── SECCIONES ─── */
+    .content-section {
+      background: var(--white);
+      margin: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+      padding: 2.5rem 3rem;
+    }
+    .version-control {
+      background: var(--white);
+      margin: 2rem;
+      border-radius: 8px;
+      padding: 2rem 3rem;
+      border-left: 4px solid var(--primary);
+    }
+
+    /* ─── HEADINGS ─── */
+    h1 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.9rem;
+      font-weight: 700;
+      color: var(--dark);
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--primary-light);
+    }
+    h2 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.35rem;
+      font-weight: 600;
+      color: var(--primary);
+      margin-top: 2rem;
+      margin-bottom: 0.75rem;
+    }
+    h3 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--gray-900);
+      margin-top: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .section-number {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 0.4rem;
+    }
+
+    p { margin-bottom: 0.85rem; font-size: 0.95rem; }
+    ul, ol { padding-left: 1.5rem; margin-bottom: 0.85rem; }
+    li { font-size: 0.95rem; margin-bottom: 0.3rem; }
+
+    /* ─── TABLAS ─── */
+    .table-wrapper { overflow-x: auto; margin: 1.2rem 0; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    thead th {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--white);
+      background: var(--primary-dark);
+      padding: 0.65rem 0.9rem;
+      text-align: left;
+      white-space: nowrap;
+    }
+    tbody td {
+      padding: 0.6rem 0.9rem;
+      border-bottom: 1px solid var(--gray-300);
+      color: var(--gray-700);
+      vertical-align: top;
+    }
+    tbody tr:hover td { background: var(--primary-light); }
+    tbody tr:nth-child(even) td { background: #f8f8fb; }
+    tbody tr:nth-child(even):hover td { background: var(--primary-light); }
+    td code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      color: var(--primary-dark);
+      background: var(--gray-100);
+      padding: 0.1rem 0.3rem;
+      border-radius: 3px;
+    }
+
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.83rem;
+      color: var(--primary-dark);
+      background: var(--gray-100);
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+    }
+    pre {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+      background: var(--dark);
+      color: #e0e0e0;
+      padding: 1.2rem 1.5rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      line-height: 1.6;
+      margin: 1rem 0;
+    }
+    pre code { color: inherit; background: none; padding: 0; font-size: inherit; }
+
+    /* ─── ALERTAS ─── */
+    .alert {
+      padding: 0.9rem 1.1rem;
+      border-radius: 6px;
+      margin: 1rem 0;
+      font-size: 0.9rem;
+      border-left: 4px solid;
+    }
+    .alert-title { font-family: 'Poppins', sans-serif; font-weight: 600; margin-bottom: 0.3rem; }
+    .alert-info    { background: var(--info-bg);    border-color: var(--primary);      color: var(--info-text); }
+    .alert-warning { background: var(--warning-bg); border-color: var(--warning-text); color: var(--warning-dark); }
+    .alert-danger  { background: var(--danger-bg);  border-color: var(--danger-text);  color: var(--danger-text); }
+    .alert-success { background: var(--success-bg); border-color: var(--accent);       color: var(--success-text); }
+
+    /* ─── BADGES ─── */
+    .badge {
+      display: inline-block;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.68rem;
+      font-weight: 600;
+      padding: 0.15rem 0.55rem;
+      border-radius: 3px;
+      letter-spacing: 0.3px;
+      white-space: nowrap;
+    }
+    .badge-primary { color: var(--primary-dark);  background: var(--primary-light); }
+    .badge-success { color: var(--success-text);  background: var(--success-bg); }
+    .badge-warning { color: var(--warning-dark);  background: var(--warning-bg); }
+    .badge-danger  { color: var(--danger-text);   background: var(--danger-bg); }
+    .badge-dark    { color: var(--white);         background: var(--gray-900); }
+    .badge-accent  { color: var(--accent-dark);   background: var(--accent-light); }
+
+    /* ─── PRIORITY CELLS ─── */
+    .pr-critica  { color: var(--danger-text);  background: var(--danger-bg);  padding: 0.15rem 0.5rem; border-radius: 3px; font-size: 0.78rem; font-weight: 700; white-space: nowrap; }
+    .pr-alta     { color: var(--warning-dark); background: var(--warning-bg); padding: 0.15rem 0.5rem; border-radius: 3px; font-size: 0.78rem; font-weight: 700; white-space: nowrap; }
+    .pr-media    { color: var(--info-text);    background: var(--info-bg);    padding: 0.15rem 0.5rem; border-radius: 3px; font-size: 0.78rem; font-weight: 700; white-space: nowrap; }
+    .pr-baja     { color: var(--gray-700);     background: var(--gray-100);   padding: 0.15rem 0.5rem; border-radius: 3px; font-size: 0.78rem; font-weight: 700; white-space: nowrap; }
+
+    /* ─── STATUS CELLS ─── */
+    .st-pendiente { color: var(--warning-dark); background: var(--warning-bg); padding: 0.15rem 0.5rem; border-radius: 3px; font-size: 0.78rem; font-weight: 600; white-space: nowrap; }
+    .st-bloqueado { color: var(--danger-text);  background: var(--danger-bg);  padding: 0.15rem 0.5rem; border-radius: 3px; font-size: 0.78rem; font-weight: 600; white-space: nowrap; }
+    .st-proceso   { color: var(--info-text);    background: var(--info-bg);    padding: 0.15rem 0.5rem; border-radius: 3px; font-size: 0.78rem; font-weight: 600; white-space: nowrap; }
+    .st-completado{ color: var(--success-text); background: var(--success-bg); padding: 0.15rem 0.5rem; border-radius: 3px; font-size: 0.78rem; font-weight: 600; white-space: nowrap; }
+
+    /* ─── TARJETA DE PENDIENTE ─── */
+    .pendiente-card {
+      border: 1px solid var(--gray-300);
+      border-radius: 8px;
+      margin: 1.5rem 0;
+      overflow: hidden;
+    }
+    .pendiente-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.85rem 1.2rem;
+      background: var(--gray-100);
+      border-bottom: 1px solid var(--gray-300);
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .pendiente-card-id {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--gray-600);
+      margin-right: 0.5rem;
+    }
+    .pendiente-card-title {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--dark);
+      flex: 1;
+    }
+    .pendiente-card-badges { display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap; }
+    .pendiente-card-body { padding: 1.2rem 1.5rem; }
+    .pendiente-card-body p { font-size: 0.9rem; margin-bottom: 0.6rem; }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+    .detail-box {
+      background: var(--gray-100);
+      border-radius: 6px;
+      padding: 0.8rem 1rem;
+    }
+    .detail-box-title {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--gray-600);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.4rem;
+    }
+    .detail-box ul { margin: 0; padding-left: 1.2rem; }
+    .detail-box li { font-size: 0.85rem; margin-bottom: 0.2rem; }
+    .steps-list { counter-reset: steps; list-style: none; padding: 0; }
+    .steps-list li {
+      counter-increment: steps;
+      display: flex;
+      gap: 0.7rem;
+      align-items: flex-start;
+      margin-bottom: 0.5rem;
+      font-size: 0.88rem;
+    }
+    .steps-list li::before {
+      content: counter(steps);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 1.5rem;
+      height: 1.5rem;
+      border-radius: 50%;
+      background: var(--primary);
+      color: var(--white);
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 0.1rem;
+    }
+
+    /* ─── KPI RESUMEN ─── */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+    .kpi-card {
+      background: var(--white);
+      border: 1px solid var(--gray-300);
+      border-radius: 8px;
+      padding: 1.2rem 1.5rem;
+      text-align: center;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .kpi-card .kpi-num {
+      font-family: 'Poppins', sans-serif;
+      font-size: 2.5rem;
+      font-weight: 700;
+      line-height: 1;
+      margin-bottom: 0.4rem;
+    }
+    .kpi-card .kpi-label {
+      font-size: 0.82rem;
+      color: var(--gray-600);
+      font-weight: 600;
+    }
+    .kpi-card.total  .kpi-num { color: var(--primary-dark); }
+    .kpi-card.critic .kpi-num { color: var(--danger-text); }
+    .kpi-card.alta   .kpi-num { color: var(--warning-text); }
+    .kpi-card.media  .kpi-num { color: var(--info-text); }
+    .kpi-card.baja   .kpi-num { color: var(--gray-700); }
+    .kpi-card.complet .kpi-num { color: var(--success-text); }
+
+    /* ─── ÁREA HEADER ─── */
+    .area-header {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      margin-bottom: 1rem;
+    }
+    .area-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .dot-rojo    { background: var(--danger-text); }
+    .dot-naranja { background: var(--warning-text); }
+    .dot-azul    { background: var(--primary-dark); }
+    .dot-verde   { background: var(--success-text); }
+    .dot-gris    { background: var(--gray-500); }
+
+    /* ─── PIE ─── */
+    .doc-footer {
+      background: var(--white);
+      border-top: 3px solid var(--primary);
+      padding: 1.2rem 2rem;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+    .doc-footer .footer-left   { font-size: 0.78rem; color: var(--gray-700); font-weight: 600; }
+    .doc-footer .footer-center { font-size: 0.72rem; color: var(--gray-600); font-style: italic; text-align: center; }
+    .doc-footer .footer-right  { font-size: 0.72rem; color: var(--gray-600); text-align: right; }
+    .doc-footer .footer-path   { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; color: var(--gray-600); margin-top: 0.2rem; }
+
+    .btn-print {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      background: var(--primary);
+      color: var(--white);
+      border: none;
+      border-radius: 6px;
+      padding: 0.6rem 1.1rem;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(23,141,194,0.35);
+      transition: background 0.15s;
+      z-index: 200;
+    }
+    .btn-print:hover { background: var(--primary-dark); }
+
+    .glossary-term { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--primary-dark); font-weight: 500; }
+
+    @media print {
+      .sidebar, .page-header, .btn-print { display: none !important; }
+      .main-content { padding: 0; }
+      .content-section { margin: 0; box-shadow: none; border-radius: 0; page-break-inside: avoid; }
+      body { font-size: 10pt; background: white; }
+      pre { font-size: 8pt; }
+      table { font-size: 8pt; }
+      .cover { page-break-after: always; }
+      .doc-footer {
+        position: fixed;
+        bottom: 0; left: 0; right: 0;
+        border-top: 2px solid var(--primary);
+        background: white;
+        padding: 0.5rem 1.5rem;
+        font-size: 8pt;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .sidebar { display: none; }
+      .cover-title { font-size: 2rem; }
+      .content-section { margin: 1rem; padding: 1.5rem; }
+      .detail-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- CABECERA FIJA -->
+  <header class="page-header">
+    <div class="page-header-brand">
+      <span class="page-header-logo">CODANOR</span>
+      <span class="page-header-title">Seguimiento de Pendientes — Plataforma ISO/ENS</span>
+    </div>
+    <span class="page-header-meta">v1.0 · 28/10/2026</span>
+  </header>
+
+  <div class="layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-label">Resumen</div>
+      <div class="sidebar-kpi">
+        <div class="kpi-mini red"><div class="num">2</div><div class="lbl">Críticos</div></div>
+        <div class="kpi-mini ora"><div class="num">5</div><div class="lbl">Alta prioridad</div></div>
+        <div class="kpi-mini blu"><div class="num">5</div><div class="lbl">Media</div></div>
+        <div class="kpi-mini grn"><div class="num">3</div><div class="lbl">Baja</div></div>
+      </div>
+      <div class="sidebar-label">Índice de contenidos</div>
+      <nav>
+        <a href="#portada">Portada</a>
+        <a href="#versiones">Control de versiones</a>
+        <a href="#seccion-1">1. Introducción</a>
+        <a href="#seccion-2">2. Resumen ejecutivo</a>
+        <a href="#seccion-3">3. Seguridad</a>
+        <a class="toc-sub" href="#p01">P-01 innerHTML XSS</a>
+        <a class="toc-sub" href="#p09">P-09 Token SonarCloud</a>
+        <a href="#seccion-4">4. Módulo SIG</a>
+        <a class="toc-sub" href="#p02">P-02 toastSigWarning</a>
+        <a class="toc-sub" href="#p03">P-03 CSV duplicado</a>
+        <a class="toc-sub" href="#p04">P-04 Bump app.js</a>
+        <a href="#seccion-5">5. Módulo Capas</a>
+        <a class="toc-sub" href="#p05">P-05 Integración proyectos</a>
+        <a class="toc-sub" href="#p06">P-06 Logo upload</a>
+        <a href="#seccion-6">6. Análisis de Riesgos</a>
+        <a class="toc-sub" href="#p07">P-07 Dashboards</a>
+        <a href="#seccion-7">7. Infraestructura</a>
+        <a class="toc-sub" href="#p08">P-08 Acceso disco</a>
+        <a class="toc-sub" href="#p10">P-10 Ollama LAN</a>
+        <a href="#seccion-8">8. Expansión</a>
+        <a class="toc-sub" href="#p11">P-11 AGENTS.md</a>
+        <a class="toc-sub" href="#p12">P-12 GitHub</a>
+        <a class="toc-sub" href="#p13">P-13 Nuevas apps</a>
+        <a class="toc-sub" href="#p14">P-14 RISK_DIRS</a>
+        <a class="toc-sub" href="#p15">P-15 Wiki ingest</a>
+        <a href="#glosario">Glosario</a>
+      </nav>
+    </aside>
+
+    <!-- CONTENIDO -->
+    <main class="main-content">
+
+      <!-- PORTADA -->
+      <div class="cover" id="portada">
+        <div class="cover-logo">CODANOR</div>
+        <div class="cover-type">Informe de seguimiento</div>
+        <h1 class="cover-title" style="font-family:'Poppins',sans-serif;color:var(--white);border:none;">Seguimiento de Pendientes<br>Plataforma ISO/ENS</h1>
+        <p class="cover-subtitle">Estado, prioridad y plan de mejora de los 15 pendientes activos del proyecto</p>
+        <div class="cover-meta">
+          <div class="cover-meta-item">
+            <div class="label">Versión</div>
+            <div class="value">v1.0</div>
+          </div>
+          <div class="cover-meta-item">
+            <div class="label">Fecha</div>
+            <div class="value">28/10/2026</div>
+          </div>
+          <div class="cover-meta-item">
+            <div class="label">Autor</div>
+            <div class="value">Jafa, S.L.</div>
+          </div>
+          <div class="cover-meta-item">
+            <div class="label">Pendientes totales</div>
+            <div class="value">15</div>
+          </div>
+        </div>
+        <div class="cover-footer">
+          <span class="company">CODANOR — Jafa, S.L. — Barcelona, Catalunya</span>
+          <span class="classification">Documento interno — Uso exclusivo CODANOR</span>
+        </div>
+      </div>
+
+      <!-- CONTROL DE VERSIONES -->
+      <div class="version-control" id="versiones">
+        <h2>Control de versiones</h2>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr><th>Versión</th><th>Fecha</th><th>Autor</th><th>Descripción del cambio</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>v1.0</code></td>
+                <td>28/10/2026</td>
+                <td>Jafa, S.L.</td>
+                <td>Versión inicial — 15 pendientes extraídos de Memory.md + AGENTS.md</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- SECCIÓN 1 — INTRODUCCIÓN -->
+      <div class="content-section" id="seccion-1">
+        <div class="section-number">Sección 1</div>
+        <h1>Introducción y objeto</h1>
+        <p>Este documento recoge el estado actualizado de los <strong>15 pendientes activos</strong> de la Plataforma ISO/ENS de CODANOR, extraídos de los archivos <code>Memory.md</code> y <code>AGENTS.md</code> con fecha 28 de octubre de 2026.</p>
+        <p>Para cada pendiente se documenta: identificador único, descripción técnica, nivel de prioridad, estado actual, archivos afectados, dependencias con otros pendientes y los pasos concretos de mejora para su resolución.</p>
+        <div class="alert alert-info">
+          <div class="alert-title">Audiencia</div>
+          Equipo técnico CODANOR y agentes de desarrollo (OpenCode). Clasificación: <strong>Documento interno — Uso exclusivo CODANOR</strong>.
+        </div>
+        <div class="alert alert-warning">
+          <div class="alert-title">Nota sobre criticidad</div>
+          Los pendientes P-09 (Token SonarCloud) y P-01 (innerHTML XSS) son los de mayor impacto en producción. Se recomienda resolverlos de forma consecutiva antes de abordar el resto.
+        </div>
+      </div>
+
+      <!-- SECCIÓN 2 — RESUMEN EJECUTIVO -->
+      <div class="content-section" id="seccion-2">
+        <div class="section-number">Sección 2</div>
+        <h1>Resumen ejecutivo</h1>
+
+        <div class="kpi-grid">
+          <div class="kpi-card total">
+            <div class="kpi-num">15</div>
+            <div class="kpi-label">Pendientes totales</div>
+          </div>
+          <div class="kpi-card critic">
+            <div class="kpi-num">2</div>
+            <div class="kpi-label">Prioridad Crítica</div>
+          </div>
+          <div class="kpi-card alta">
+            <div class="kpi-num">5</div>
+            <div class="kpi-label">Prioridad Alta</div>
+          </div>
+          <div class="kpi-card media">
+            <div class="kpi-num">5</div>
+            <div class="kpi-label">Prioridad Media</div>
+          </div>
+          <div class="kpi-card baja">
+            <div class="kpi-num">3</div>
+            <div class="kpi-label">Prioridad Baja</div>
+          </div>
+          <div class="kpi-card complet">
+            <div class="kpi-num">0</div>
+            <div class="kpi-label">En progreso</div>
+          </div>
+        </div>
+
+        <h2>Tabla resumen de todos los pendientes</h2>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Pendiente</th>
+                <th>Área</th>
+                <th>Prioridad</th>
+                <th>Estado</th>
+                <th>Depende de</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>P-01</code></td>
+                <td>Corregir 18 innerHTML (XSS)</td>
+                <td>Seguridad</td>
+                <td><span class="pr-critica">Crítica</span></td>
+                <td><span class="st-pendiente">Pendiente</span></td>
+                <td><code>P-09</code></td>
+              </tr>
+              <tr>
+                <td><code>P-02</code></td>
+                <td>Activar _toastSigWarning en phase2-*.js</td>
+                <td>SIG</td>
+                <td><span class="pr-alta">Alta</span></td>
+                <td><span class="st-pendiente">Pendiente</span></td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><code>P-03</code></td>
+                <td>Corregir duplicado 8.11 en CSV ENS</td>
+                <td>SIG</td>
+                <td><span class="pr-alta">Alta</span></td>
+                <td><span class="st-pendiente">Pendiente</span></td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><code>P-04</code></td>
+                <td>Bump app.js de 6 apps</td>
+                <td>SIG</td>
+                <td><span class="pr-media">Media</span></td>
+                <td><span class="st-pendiente">Pendiente</span></td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><code>P-05</code></td>
+                <td>Capas: integrar con proyectos ISO27001/ENS</td>
+                <td>Capas</td>
+                <td><span class="pr-media">Media</span></td>
+                <td><span class="st-pendiente">Pendiente</span></td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><code>P-06</code></td>
+                <td>Capas: logo upload en herramientas base</td>
+                <td>Capas</td>
+                <td><span class="pr-media">Media</span></td>
+                <td><span class="st-pendiente">Pendiente</span></td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><code>P-07</code></td>
+                <td>Dashboards riesgos: ISO9001/ISO14001/ISO42001/ISO27701</td>
+                <td>Riesgos</td>
+                <td><span class="pr-alta">Alta</span></td>
+                <td><span class="st-pendiente">Pendiente</span></td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><code>P-08</code></td>
+                <td>Acceso total al disco para backup NAS</td>
+                <td>Infraestructura</td>
+                <td><span class="pr-alta">Alta</span></td>
+                <td><span class="st-bloqueado">Bloqueado</span></td>
+                <td>Manual (Ajustes)</td>
+              </tr>
+              <tr>
+                <td><code>P-09</code></td>
+                <td>Regenerar token SonarCloud</td>
+                <td>Seguridad</td>
+                <td><span class="pr-critica">Crítica</span></td>
+                <td><span class="st-pendiente">Pendiente</span></td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><code>P-10</code></td>
+                <td>Activar Ollama en LAN</td>
+                <td>Infraestructura</td>
+                <td><span class="pr-alta">Alta</span></td>
+                <td><span class="st-bloqueado">Bloqueado</span></td>
+                <td>Firewall MDM</td>
+              </tr>
+              <tr>
+                <td><code>P-11</code></td>
+                <td>Ejecutar /init en 7 proyectos restantes</td>
+                <td>Expansión</td>
+                <td><span class="pr-media">Media</span></td>
+                <td><span class="st-pendiente">Pendiente</span></td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><code>P-12</code></td>
+                <td>Subir 7+ proyectos a GitHub</td>
+                <td>Expansión</td>
+                <td><span class="pr-media">Media</span></td>
+                <td><span class="st-pendiente">Pendiente</span></td>
+                <td><code>P-11</code></td>
+              </tr>
+              <tr>
+                <td><code>P-13</code></td>
+                <td>Activar apps: ISO9001:2026, NIS2</td>
+                <td>Expansión</td>
+                <td><span class="pr-baja">Baja</span></td>
+                <td><span class="st-pendiente">Pendiente</span></td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><code>P-14</code></td>
+                <td>Integrar Riesgos ISO14001/ISO9001/ISO42001 en RISK_DIRS</td>
+                <td>Expansión</td>
+                <td><span class="pr-baja">Baja</span></td>
+                <td><span class="st-pendiente">Pendiente</span></td>
+                <td><code>P-07</code></td>
+              </tr>
+              <tr>
+                <td><code>P-15</code></td>
+                <td>Ingestar documentos en 9 KBs Wiki_CODANOR</td>
+                <td>Expansión</td>
+                <td><span class="pr-baja">Baja</span></td>
+                <td><span class="st-pendiente">Pendiente</span></td>
+                <td>—</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- SECCIÓN 3 — SEGURIDAD -->
+      <div class="content-section" id="seccion-3">
+        <div class="section-number">Sección 3</div>
+        <div class="area-header">
+          <div class="area-dot dot-rojo"></div>
+          <h1 style="border:none;margin:0;padding:0;">Seguridad</h1>
+        </div>
+        <p>Área de mayor riesgo para la plataforma en producción. Agrupa las vulnerabilidades detectadas por SonarCloud y los accesos necesarios para mantener el análisis continuo activo.</p>
+
+        <!-- P-09 -->
+        <div class="pendiente-card" id="p09">
+          <div class="pendiente-card-header">
+            <div>
+              <span class="pendiente-card-id">P-09</span>
+              <span class="pendiente-card-title">Regenerar token SonarCloud</span>
+            </div>
+            <div class="pendiente-card-badges">
+              <span class="pr-critica">Crítica</span>
+              <span class="st-pendiente">Pendiente</span>
+              <span class="badge badge-danger">Desbloquea P-01</span>
+            </div>
+          </div>
+          <div class="pendiente-card-body">
+            <p>El token de integración con SonarCloud ha caducado. Sin él, el escáner no puede enviar resultados y el panel de <code>analisis-codigo.html</code> muestra datos desactualizados. Este pendiente bloquea la verificación de todos los hotspots de seguridad, incluyendo P-01.</p>
+            <div class="detail-grid">
+              <div class="detail-box">
+                <div class="detail-box-title">Archivos / sistemas afectados</div>
+                <ul>
+                  <li><code>sonar-project.properties</code></li>
+                  <li><code>analisis-codigo.html</code> (panel)</li>
+                  <li>Pipeline CI/CD o script de análisis manual</li>
+                  <li>sonarcloud.io → proyecto CODANOR</li>
+                </ul>
+              </div>
+              <div class="detail-box">
+                <div class="detail-box-title">Impacto si no se resuelve</div>
+                <ul>
+                  <li>72 bugs de reliability sin verificar</li>
+                  <li>18 hotspots XSS sin confirmar estado</li>
+                  <li>3 security hotspots sin actualizar</li>
+                  <li>Rating Reliability B sin mejorar</li>
+                </ul>
+              </div>
+            </div>
+            <h3>Pasos de mejora</h3>
+            <ol class="steps-list">
+              <li>Acceder a <strong>sonarcloud.io → My Account → Security → Generate Tokens</strong></li>
+              <li>Crear token nuevo con nombre <code>CODANOR-scanner-2026</code> y tipo "Global Analysis Token"</li>
+              <li>Actualizar el token en <code>sonar-project.properties</code> o en la variable de entorno <code>SONAR_TOKEN</code></li>
+              <li>Ejecutar el análisis manual: <code>sonar-scanner</code> desde el directorio del proyecto</li>
+              <li>Verificar que el panel <code>analisis-codigo.html</code> muestra datos actualizados</li>
+              <li>Registrar el nuevo token en el gestor de contraseñas corporativo</li>
+            </ol>
+            <div class="alert alert-danger">
+              <div class="alert-title">Acción inmediata requerida</div>
+              Sin este token activo no es posible verificar ni cerrar ningún hotspot de seguridad de P-01. Es el primer pendiente a resolver.
+            </div>
+          </div>
+        </div>
+
+        <!-- P-01 -->
+        <div class="pendiente-card" id="p01">
+          <div class="pendiente-card-header">
+            <div>
+              <span class="pendiente-card-id">P-01</span>
+              <span class="pendiente-card-title">Corregir 18 innerHTML restantes (XSS)</span>
+            </div>
+            <div class="pendiente-card-badges">
+              <span class="pr-critica">Crítica</span>
+              <span class="st-pendiente">Pendiente</span>
+              <span class="badge badge-warning">Requiere P-09</span>
+            </div>
+          </div>
+          <div class="pendiente-card-body">
+            <p>SonarCloud ha detectado <strong>18 usos de <code>innerHTML</code></strong> marcados como security hotspots en los archivos JS de la plataforma. La asignación directa a <code>innerHTML</code> con contenido no saneado es un vector de ataque XSS (Cross-Site Scripting) que puede comprometer sesiones de usuario y datos de los 298 clientes gestionados.</p>
+            <div class="detail-grid">
+              <div class="detail-box">
+                <div class="detail-box-title">Archivos probablemente afectados</div>
+                <ul>
+                  <li><code>js/modules/tiquets.js</code> (9 apps)</li>
+                  <li><code>js/modules/phase2-consulting.js</code> (5 apps)</li>
+                  <li><code>js/modules/phase2-implementation.js</code></li>
+                  <li><code>js/modules/wiki.js</code></li>
+                  <li><code>plataforma-seguimiento.html</code></li>
+                </ul>
+              </div>
+              <div class="detail-box">
+                <div class="detail-box-title">Riesgo real</div>
+                <ul>
+                  <li>XSS persistente si el contenido viene de BD</li>
+                  <li>XSS reflejado si viene de parámetros URL</li>
+                  <li>Afecta a datos de clientes reales (298 clientes)</li>
+                  <li>Incumplimiento ISO 27001 A.14 (seguridad desarrollo)</li>
+                </ul>
+              </div>
+            </div>
+            <h3>Pasos de mejora</h3>
+            <ol class="steps-list">
+              <li>Resolver P-09 primero para obtener la lista exacta de los 18 hotspots con archivo y línea</li>
+              <li>Para cada hotspot: evaluar si el contenido es interno (no es XSS real) o externo (requiere sanitización)</li>
+              <li>Sustituir <code>el.innerHTML = val</code> por <code>el.textContent = val</code> cuando el contenido es texto plano</li>
+              <li>Para HTML que debe renderizarse: usar <code>DOMPurify.sanitize(val)</code> antes de asignar a <code>innerHTML</code></li>
+              <li>Añadir <code>DOMPurify</code> (CDN o local) en los <code>index.html</code> de las apps afectadas</li>
+              <li>Marcar los hotspots que sean falsos positivos como "Safe" en SonarCloud con comentario justificado</li>
+              <li>Re-ejecutar análisis y verificar que el rating Security sube de A a A+</li>
+            </ol>
+            <div class="alert alert-warning">
+              <div class="alert-title">Patrón de corrección estándar</div>
+              <pre>// ANTES (inseguro):
+el.innerHTML = data.comentario;
+
+// DESPUÉS (seguro — solo texto):
+el.textContent = data.comentario;
+
+// DESPUÉS (seguro — HTML permitido con DOMPurify):
+el.innerHTML = DOMPurify.sanitize(data.comentario);</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECCIÓN 4 — SIG -->
+      <div class="content-section" id="seccion-4">
+        <div class="section-number">Sección 4</div>
+        <div class="area-header">
+          <div class="area-dot dot-naranja"></div>
+          <h1 style="border:none;margin:0;padding:0;">Módulo SIG — Sistema Integrado de Gestión</h1>
+        </div>
+        <p>El módulo SIG (v1.0, entregado 2026-10-20) tiene tres pendientes de integración y mantenimiento que completan su funcionalidad. Ninguno bloquea el uso básico del módulo, pero su resolución mejora la coherencia de datos y la experiencia de usuario.</p>
+
+        <!-- P-02 -->
+        <div class="pendiente-card" id="p02">
+          <div class="pendiente-card-header">
+            <div>
+              <span class="pendiente-card-id">P-02</span>
+              <span class="pendiente-card-title">Activar _toastSigWarning desde phase2-*.js</span>
+            </div>
+            <div class="pendiente-card-badges">
+              <span class="pr-alta">Alta</span>
+              <span class="st-pendiente">Pendiente</span>
+            </div>
+          </div>
+          <div class="pendiente-card-body">
+            <p>El método <code>_toastSigWarning()</code> está implementado en los 9 <code>app.js</code> pero no se invoca desde los módulos <code>phase2-*.js</code>. El objetivo es avisar al usuario cuando intenta añadir una reunión o tarea en una norma cuyo proyecto ya pertenece a un SIG activo (para evitar duplicación de datos).</p>
+            <div class="detail-grid">
+              <div class="detail-box">
+                <div class="detail-box-title">Archivos a modificar</div>
+                <ul>
+                  <li><code>ISO27001-SGSI/js/modules/phase2-consulting.js</code> (BASE)</li>
+                  <li><code>ENS-RD311-2022/js/modules/phase2-consulting.js</code> (TIPO C — patch quirúrgico)</li>
+                  <li><code>RGPD, ISO27701, ISO42001 phase2-consulting.js</code> (TIPO B — sed)</li>
+                  <li><code>ISO9001, ISO14001-2015, ISO14001-2026 phase2-implementation.js</code> (TIPO D — cada uno por separado)</li>
+                  <li><code>TISAX/js/modules/phase2-isms.js</code> (TIPO D)</li>
+                </ul>
+              </div>
+              <div class="detail-box">
+                <div class="detail-box-title">Métodos destino de la llamada</div>
+                <ul>
+                  <li><code>addMeeting()</code> — antes de guardar reunión nueva</li>
+                  <li><code>addTask()</code> — antes de guardar tarea nueva</li>
+                  <li>La llamada: <code>if (App._checkSigMembership()) App._toastSigWarning('reuniones');</code></li>
+                </ul>
+              </div>
+            </div>
+            <h3>Pasos de mejora</h3>
+            <ol class="steps-list">
+              <li>Consultar <code>PROPAGATION_RULES.md</code> antes de cualquier modificación (ENS es TIPO C — DIVERGENTE)</li>
+              <li>Añadir la llamada en <code>addMeeting()</code> y <code>addTask()</code> de <code>ISO27001-SGSI/phase2-consulting.js</code> (BASE)</li>
+              <li>Propagar a RGPD, ISO27701, ISO42001 con <code>sed</code> (TIPO B)</li>
+              <li>Aplicar patch quirúrgico en ENS (TIPO C) — NO copiar el archivo completo</li>
+              <li>Editar cada <code>phase2-implementation.js</code> por separado: ISO9001, ISO14001-2015, ISO14001-2026 (TIPO D)</li>
+              <li>Editar <code>phase2-isms.js</code> de TISAX (TIPO D)</li>
+              <li>Bump versión en los 9 <code>index.html</code> afectados</li>
+              <li>Verificar que no hay métodos duplicados con el script de detección de AGENTS.md</li>
+            </ol>
+          </div>
+        </div>
+
+        <!-- P-03 -->
+        <div class="pendiente-card" id="p03">
+          <div class="pendiente-card-header">
+            <div>
+              <span class="pendiente-card-id">P-03</span>
+              <span class="pendiente-card-title">Corregir duplicado 8.11 en ISO27001_hacia_ENS.csv</span>
+            </div>
+            <div class="pendiente-card-badges">
+              <span class="pr-alta">Alta</span>
+              <span class="st-pendiente">Pendiente</span>
+              <span class="badge badge-warning">Bloquea UNIQUE constraint</span>
+            </div>
+          </div>
+          <div class="pendiente-card-body">
+            <p>El archivo <code>servidor/data/ISO27001_hacia_ENS.csv</code> tiene un error en las líneas 76-77: ambas tienen el código <code>8.11</code>. La línea 77 debería ser <code>8.12</code>. Este duplicado impide añadir un constraint <code>UNIQUE</code> a la tabla <code>sig_correspondencias</code>, dejando la integridad de datos desprotegida.</p>
+            <div class="detail-grid">
+              <div class="detail-box">
+                <div class="detail-box-title">Archivos afectados</div>
+                <ul>
+                  <li><code>servidor/data/ISO27001_hacia_ENS.csv</code> — líneas 76-77</li>
+                  <li><code>servidor/plataforma.db</code> — tabla <code>sig_correspondencias</code></li>
+                  <li><code>servidor/server.py</code> — función de carga de CSVs + DDL</li>
+                </ul>
+              </div>
+              <div class="detail-box">
+                <div class="detail-box-title">Impacto si no se resuelve</div>
+                <ul>
+                  <li>Datos duplicados en <code>sig_correspondencias</code></li>
+                  <li>No es posible añadir <code>UNIQUE(hls_id, norma, clausula)</code></li>
+                  <li>Posibles resultados incorrectos en tabla de correspondencias SIG</li>
+                </ul>
+              </div>
+            </div>
+            <h3>Pasos de mejora</h3>
+            <ol class="steps-list">
+              <li>Abrir <code>servidor/data/ISO27001_hacia_ENS.csv</code> y localizar líneas 76-77</li>
+              <li>Cambiar el código de la línea 77 de <code>8.11</code> a <code>8.12</code></li>
+              <li>En <code>server.py</code> función <code>init_db()</code>: añadir lógica de recarga del CSV en <code>sig_correspondencias</code> (DELETE + INSERT o UPSERT)</li>
+              <li>Reiniciar Flask para que recargue el CSV corregido</li>
+              <li>Verificar en SQLite: <code>SELECT clausula, COUNT(*) FROM sig_correspondencias WHERE norma='iso27001' GROUP BY clausula HAVING COUNT(*)>1;</code> — debe devolver 0 filas</li>
+              <li>Añadir constraint en la definición DDL de <code>sig_correspondencias</code>: <code>UNIQUE(hls_id, norma, clausula)</code></li>
+              <li>Invocar <code>POST /api/sig/correspondencias/reload</code> para confirmar recarga limpia</li>
+            </ol>
+          </div>
+        </div>
+
+        <!-- P-04 -->
+        <div class="pendiente-card" id="p04">
+          <div class="pendiente-card-header">
+            <div>
+              <span class="pendiente-card-id">P-04</span>
+              <span class="pendiente-card-title">Bump app.js de 6 apps a versión unificada</span>
+            </div>
+            <div class="pendiente-card-badges">
+              <span class="pr-media">Media</span>
+              <span class="st-pendiente">Pendiente</span>
+            </div>
+          </div>
+          <div class="pendiente-card-body">
+            <p>Seis apps tienen el código SIG (<code>_checkSigMembership</code>, <code>_toastSigWarning</code>, <code>_openSigFromSidebar</code>) implementado correctamente en su <code>app.js</code> pero con una versión desactualizada en <code>index.html</code>. Esto puede causar que el navegador sirva la versión en caché en lugar de la actual.</p>
+            <div class="detail-grid">
+              <div class="detail-box">
+                <div class="detail-box-title">Apps con versión desactualizada</div>
+                <ul>
+                  <li><code>RGPD-LOPD-GDD</code> → actualmente <code>v=20260923a</code></li>
+                  <li><code>ISO9001-SGQ_2015</code> → actualmente <code>v=20260917a</code></li>
+                  <li><code>ISO27701-SGP</code> → actualmente <code>v=20260904c</code></li>
+                  <li><code>ISO14001-SGMA_2015</code> → actualmente <code>v=20260904c</code></li>
+                  <li><code>ISO14001-SGMA_2026_NEW</code> → actualmente <code>v=20260904c</code></li>
+                  <li><code>TISAX</code> → actualmente <code>v=20260904c</code></li>
+                </ul>
+              </div>
+              <div class="detail-box">
+                <div class="detail-box-title">Versión objetivo</div>
+                <ul>
+                  <li>Nueva versión: <code>v=20261028a</code> (o la siguiente letra disponible)</li>
+                  <li>ISO27001/ENS/ISO42001 ya en <code>v=20261021a</code> — son referencia</li>
+                  <li>Solo cambiar la cadena de versión en el <code>index.html</code> de cada app</li>
+                </ul>
+              </div>
+            </div>
+            <h3>Pasos de mejora</h3>
+            <ol class="steps-list">
+              <li>Verificar que el <code>app.js</code> de cada una de las 6 apps contiene los 3 métodos SIG: <code>_checkSigMembership</code>, <code>_toastSigWarning</code>, <code>_openSigFromSidebar</code></li>
+              <li>En el <code>index.html</code> de cada app, localizar la línea <code>app.js?v=</code></li>
+              <li>Cambiar la versión a <code>v=20261028a</code> en las 6 apps</li>
+              <li>Verificar con el script de comprobación de AGENTS.md que las versiones son correctas</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECCIÓN 5 — CAPAS -->
+      <div class="content-section" id="seccion-5">
+        <div class="section-number">Sección 5</div>
+        <div class="area-header">
+          <div class="area-dot dot-azul"></div>
+          <h1 style="border:none;margin:0;padding:0;">Módulo Capas de Ciberseguridad</h1>
+        </div>
+        <p>El módulo Capas (v1.1.0, entregado 2026-10-21/27) está en producción con las 11 capas, 50 controles y 178 herramientas base. Quedan dos mejoras funcionales por implementar.</p>
+
+        <!-- P-05 -->
+        <div class="pendiente-card" id="p05">
+          <div class="pendiente-card-header">
+            <div>
+              <span class="pendiente-card-id">P-05</span>
+              <span class="pendiente-card-title">Integrar herramientas con proyectos ISO27001/ENS</span>
+            </div>
+            <div class="pendiente-card-badges">
+              <span class="pr-media">Media</span>
+              <span class="st-pendiente">Pendiente</span>
+            </div>
+          </div>
+          <div class="pendiente-card-body">
+            <p>Actualmente la vista de herramientas en el módulo Capas muestra todas las herramientas sin filtrar por proyecto. La mejora consiste en permitir asociar herramientas a proyectos concretos de ISO27001 o ENS para que cada proyecto tenga su propia selección de herramientas por capa.</p>
+            <div class="detail-grid">
+              <div class="detail-box">
+                <div class="detail-box-title">Archivos afectados</div>
+                <ul>
+                  <li><code>capas-seguridad/js/app.js</code> — Store + vistas</li>
+                  <li><code>capas-seguridad/js/data.js</code> — modelo de datos</li>
+                  <li><code>servidor/server.py</code> — endpoints capas</li>
+                  <li><code>servidor/plataforma.db</code> — tabla <code>capas_herramientas</code></li>
+                </ul>
+              </div>
+              <div class="detail-box">
+                <div class="detail-box-title">Cambios en DB necesarios</div>
+                <ul>
+                  <li>Añadir columna <code>project_id TEXT</code> a <code>capas_herramientas</code></li>
+                  <li>O crear tabla de relación <code>capas_proyectos</code></li>
+                  <li>Actualizar endpoints para filtrar por <code>project_id</code></li>
+                </ul>
+              </div>
+            </div>
+            <h3>Pasos de mejora</h3>
+            <ol class="steps-list">
+              <li>Definir modelo: ¿herramienta pertenece a un proyecto o la relación es N:M?</li>
+              <li>Añadir campo <code>project_ids</code> (JSON array) en <code>capas_herramientas</code> vía <code>ALTER TABLE</code></li>
+              <li>Actualizar <code>GET /api/capas/herramientas</code> para aceptar parámetro opcional <code>?project_id=</code></li>
+              <li>Añadir selector de proyecto en el header de la app Capas</li>
+              <li>Actualizar <code>Store.load()</code> para pasar el <code>project_id</code> activo al fetch</li>
+              <li>Probar desde ISO27001 y ENS que el filtro funciona correctamente</li>
+            </ol>
+          </div>
+        </div>
+
+        <!-- P-06 -->
+        <div class="pendiente-card" id="p06">
+          <div class="pendiente-card-header">
+            <div>
+              <span class="pendiente-card-id">P-06</span>
+              <span class="pendiente-card-title">Logo upload funcionando en herramientas base</span>
+            </div>
+            <div class="pendiente-card-badges">
+              <span class="pr-media">Media</span>
+              <span class="st-pendiente">Pendiente</span>
+            </div>
+          </div>
+          <div class="pendiente-card-body">
+            <p>La subida de logos (<code>dataURL</code>) en las herramientas base (<code>esBase: true</code>) no funciona correctamente en todos los casos. El endpoint <code>PUT /api/capas/herramientas/&lt;id&gt;</code> permite editar herramientas base pero el frontend puede estar bloqueando la operación de logo para este tipo.</p>
+            <div class="detail-grid">
+              <div class="detail-box">
+                <div class="detail-box-title">Archivos a revisar</div>
+                <ul>
+                  <li><code>capas-seguridad/js/app.js</code> — modal de edición, función de guardado</li>
+                  <li><code>capas-seguridad/index.html</code> — input file del modal</li>
+                  <li><code>servidor/server.py</code> — endpoint <code>PUT /api/capas/herramientas/&lt;id&gt;</code></li>
+                </ul>
+              </div>
+              <div class="detail-box">
+                <div class="detail-box-title">Comportamiento esperado</div>
+                <ul>
+                  <li>Las herramientas base SÍ se pueden editar (logo, notas, descripción)</li>
+                  <li>Las herramientas base NO se pueden eliminar (server devuelve 403)</li>
+                  <li>Logo almacenado como <code>dataURL</code> en columna <code>logo</code></li>
+                </ul>
+              </div>
+            </div>
+            <h3>Pasos de mejora</h3>
+            <ol class="steps-list">
+              <li>Reproducir el bug: abrir modal de edición en una herramienta base, subir un logo y guardar</li>
+              <li>Inspeccionar en DevTools si el <code>PUT</code> al servidor incluye el campo <code>logo</code></li>
+              <li>Verificar en <code>app.js</code> que la función de guardado no omite el campo <code>logo</code> para herramientas base</li>
+              <li>Si el problema es de tamaño del <code>dataURL</code>: añadir compresión de imagen antes de convertir a base64</li>
+              <li>Probar con las 18 herramientas corporativas y confirmar que el logo persiste tras recarga</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECCIÓN 6 — RIESGOS -->
+      <div class="content-section" id="seccion-6">
+        <div class="section-number">Sección 6</div>
+        <div class="area-header">
+          <div class="area-dot dot-naranja"></div>
+          <h1 style="border:none;margin:0;padding:0;">Análisis de Riesgos</h1>
+        </div>
+        <p>El módulo de Análisis de Riesgos (v1.0, 2026-10-02) está activo para ISO27001, ENS y LOPD-RGPD. Cuatro apps muestran actualmente la sección como "Próximamente".</p>
+
+        <!-- P-07 -->
+        <div class="pendiente-card" id="p07">
+          <div class="pendiente-card-header">
+            <div>
+              <span class="pendiente-card-id">P-07</span>
+              <span class="pendiente-card-title">Dashboards de riesgos para ISO9001, ISO14001, ISO42001, ISO27701</span>
+            </div>
+            <div class="pendiente-card-badges">
+              <span class="pr-alta">Alta</span>
+              <span class="st-pendiente">Pendiente</span>
+              <span class="badge badge-warning">Bloquea P-14</span>
+            </div>
+          </div>
+          <div class="pendiente-card-body">
+            <p>Las cuatro apps muestran el botón "Análisis de Riesgos" en la pestaña Diseño pero la vista muestra "Próximamente". Es necesario implementar los dashboards de riesgo adaptados a la metodología de cada norma (ISO 9001 usa gestión de riesgos basada en contexto; ISO 14001 usa aspectos ambientales; ISO 42001 usa riesgos de sistemas de IA; ISO 27701 extiende ISO 27001).</p>
+            <div class="detail-grid">
+              <div class="detail-box">
+                <div class="detail-box-title">Apps afectadas</div>
+                <ul>
+                  <li><code>ISO9001-SGQ_2015</code> — app_id: <code>iso9001</code></li>
+                  <li><code>ISO14001-SGMA_2015</code> — app_id: <code>iso14001</code></li>
+                  <li><code>ISO42001-SGIA</code> — app_id: <code>iso42001</code></li>
+                  <li><code>ISO27701-SGP</code> — app_id: <code>iso27701</code></li>
+                </ul>
+              </div>
+              <div class="detail-box">
+                <div class="detail-box-title">Infraestructura existente reutilizable</div>
+                <ul>
+                  <li>Endpoints <code>/api/riesgos/{app_id}/proyectos</code> ya en <code>server.py</code></li>
+                  <li>Tablas <code>risk_projects</code> y <code>risk_assets</code> ya en <code>plataforma.db</code></li>
+                  <li>Dashboard HTML de ISO27001 como plantilla base</li>
+                  <li><code>RISK_DIRS</code> en <code>server.py</code> — añadir las 4 apps</li>
+                </ul>
+              </div>
+            </div>
+            <h3>Pasos de mejora</h3>
+            <ol class="steps-list">
+              <li>Añadir las 4 apps a <code>RISK_DIRS</code> en <code>server.py</code></li>
+              <li>Crear directorio <code>Gestion_Riesgos_ISO9001/</code>, <code>_ISO14001/</code>, <code>_ISO42001/</code>, <code>_ISO27701/</code> basados en el de ISO27001</li>
+              <li>Adaptar la taxonomía de activos/riesgos a cada norma (contexto de la organización para ISO 9001, aspectos ambientales para ISO 14001, etc.)</li>
+              <li>Verificar que los endpoints responden: <code>curl http://localhost:5001/api/riesgos/iso9001/proyectos</code></li>
+              <li>Sustituir el contenido "Próximamente" por el iframe o enlace al dashboard en cada <code>phase2-*.js</code></li>
+            </ol>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECCIÓN 7 — INFRAESTRUCTURA -->
+      <div class="content-section" id="seccion-7">
+        <div class="section-number">Sección 7</div>
+        <div class="area-header">
+          <div class="area-dot dot-rojo"></div>
+          <h1 style="border:none;margin:0;padding:0;">Infraestructura / DevOps</h1>
+        </div>
+        <p>Pendientes de configuración de entorno que afectan a la operación diaria del sistema: backup automático, análisis de código y acceso a modelos de IA en red local.</p>
+
+        <!-- P-08 -->
+        <div class="pendiente-card" id="p08">
+          <div class="pendiente-card-header">
+            <div>
+              <span class="pendiente-card-id">P-08</span>
+              <span class="pendiente-card-title">Acceso total al disco para backup NAS</span>
+            </div>
+            <div class="pendiente-card-badges">
+              <span class="pr-alta">Alta</span>
+              <span class="st-bloqueado">Bloqueado</span>
+              <span class="badge badge-dark">Requiere acción manual macOS</span>
+            </div>
+          </div>
+          <div class="pendiente-card-body">
+            <p>El script <code>backup-opencode.sh</code> necesita acceso completo al disco para poder leer directorios protegidos por TCC (Transparency, Consent and Control) de macOS. Sin este permiso, el proceso de backup a la NAS CODANOR (SYCODANOR-920) no puede copiar ciertos directorios del sistema.</p>
+            <div class="detail-grid">
+              <div class="detail-box">
+                <div class="detail-box-title">Contexto técnico</div>
+                <ul>
+                  <li>Script: <code>backup-opencode.sh</code> (8 modos)</li>
+                  <li>NAS: <code>SYCODANOR-920</code>, share: <code>CODANOR</code></li>
+                  <li>Ruta NAS: <code>/Volumes/CODANOR</code></li>
+                  <li>Bloqueado por TCC de macOS (sandboxing)</li>
+                </ul>
+              </div>
+              <div class="detail-box">
+                <div class="detail-box-title">Acción requerida</div>
+                <ul>
+                  <li>Ajustes del Sistema → Privacidad y seguridad</li>
+                  <li>→ Acceso total al disco</li>
+                  <li>→ Añadir Terminal (o el proceso que ejecuta el script)</li>
+                  <li>No es modificable por código — requiere acción del usuario</li>
+                </ul>
+              </div>
+            </div>
+            <h3>Pasos de mejora</h3>
+            <ol class="steps-list">
+              <li>Abrir <strong>Ajustes del Sistema → Privacidad y seguridad → Acceso total al disco</strong></li>
+              <li>Hacer clic en <code>+</code> y añadir <strong>Terminal.app</strong> (o iTerm2 si se usa)</li>
+              <li>Si el backup se ejecuta con <code>cron</code> o <code>launchd</code>, añadir también <strong>bash</strong> o el script directamente</li>
+              <li>Verificar que la NAS está montada como Login Item (arrastrar <code>/Volumes/CODANOR</code> a Ajustes → General → Ítems d'inici de sessió)</li>
+              <li>Ejecutar <code>./backup-opencode.sh</code> en modo test y verificar que no hay errores TCC</li>
+            </ol>
+            <div class="alert alert-info">
+              <div class="alert-title">Nota</div>
+              Este pendiente no puede resolverse mediante código. Requiere acción manual del administrador del equipo macOS.
+            </div>
+          </div>
+        </div>
+
+        <!-- P-10 -->
+        <div class="pendiente-card" id="p10">
+          <div class="pendiente-card-header">
+            <div>
+              <span class="pendiente-card-id">P-10</span>
+              <span class="pendiente-card-title">Activar Ollama en LAN (OLLAMA_HOST=0.0.0.0)</span>
+            </div>
+            <div class="pendiente-card-badges">
+              <span class="pr-alta">Alta</span>
+              <span class="st-bloqueado">Bloqueado</span>
+              <span class="badge badge-dark">Bloqueado por firewall MDM</span>
+            </div>
+          </div>
+          <div class="pendiente-card-body">
+            <p>Ollama está activo en el servidor (localhost:11434) pero solo escucha en <code>127.0.0.1</code>. Para que los equipos de la LAN puedan usarlo como proveedor IA, debe escuchar en <code>0.0.0.0</code>. El firewall MDM corporativo bloquea la apertura del puerto 11434 hacia la red.</p>
+            <div class="detail-grid">
+              <div class="detail-box">
+                <div class="detail-box-title">Configuración técnica necesaria</div>
+                <ul>
+                  <li><code>OLLAMA_HOST=0.0.0.0 ollama serve</code></li>
+                  <li>O configurar <code>~/.ollama/config.json</code> con <code>"host": "0.0.0.0"</code></li>
+                  <li>Puerto: 11434 (TCP entrante desde LAN 192.168.0.0/24)</li>
+                  <li>Modelos disponibles: qwen2.5-coder:14b, qwen3:8b, llama3.1, gemma3:4b</li>
+                </ul>
+              </div>
+              <div class="detail-box">
+                <div class="detail-box-title">Soluciones alternativas</div>
+                <ul>
+                  <li>Proxy inverso Nginx/Caddy en el servidor que reenvíe :11434</li>
+                  <li>Solicitar al administrador MDM abrir excepción para el puerto 11434 en la VLAN interna</li>
+                  <li>Tunnel SSH desde clientes LAN: <code>ssh -L 11434:localhost:11434 servidor</code></li>
+                </ul>
+              </div>
+            </div>
+            <h3>Pasos de mejora</h3>
+            <ol class="steps-list">
+              <li>Solicitar al administrador MDM la apertura del puerto 11434 (TCP) desde la VLAN interna 192.168.0.0/24</li>
+              <li>Una vez aprobado: añadir <code>OLLAMA_HOST=0.0.0.0</code> a las variables de entorno del sistema o al script de arranque de Ollama</li>
+              <li>Reiniciar Ollama: <code>OLLAMA_HOST=0.0.0.0 ollama serve</code></li>
+              <li>Verificar desde otro equipo de la LAN: <code>curl http://192.168.0.81:11434/api/version</code></li>
+              <li>En la plataforma, configurar proveedor Ollama desde cualquier PC → <strong>pestaña Seguimiento → Configuración IA → Proveedor: Ollama</strong></li>
+            </ol>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECCIÓN 8 — EXPANSIÓN -->
+      <div class="content-section" id="seccion-8">
+        <div class="section-number">Sección 8</div>
+        <div class="area-header">
+          <div class="area-dot dot-gris"></div>
+          <h1 style="border:none;margin:0;padding:0;">Expansión de plataforma</h1>
+        </div>
+        <p>Pendientes de crecimiento de la plataforma: nuevos proyectos en GitHub, apps en preparación y expansión de la base de conocimiento.</p>
+
+        <!-- P-11 -->
+        <div class="pendiente-card" id="p11">
+          <div class="pendiente-card-header">
+            <div>
+              <span class="pendiente-card-id">P-11</span>
+              <span class="pendiente-card-title">Ejecutar /init en los 7 proyectos restantes</span>
+            </div>
+            <div class="pendiente-card-badges">
+              <span class="pr-media">Media</span>
+              <span class="st-pendiente">Pendiente</span>
+              <span class="badge badge-warning">Bloquea P-12</span>
+            </div>
+          </div>
+          <div class="pendiente-card-body">
+            <p>Solo 2 de los 9 proyectos ISO/ENS tienen <code>AGENTS.md</code> propio con instrucciones específicas para el agente. Los 7 restantes usan únicamente el AGENTS.md global. Ejecutar <code>/init</code> en cada proyecto generará un AGENTS.md específico con la arquitectura, gotchas y pitfalls propios de cada norma.</p>
+            <div class="detail-grid">
+              <div class="detail-box">
+                <div class="detail-box-title">Proyectos pendientes de /init</div>
+                <ul>
+                  <li><code>ISO14001-SGMA_2015</code></li>
+                  <li><code>ISO14001-SGMA_2026_NEW</code></li>
+                  <li><code>ISO9001-SGQ_2015</code></li>
+                  <li><code>ISO27701-SGP</code></li>
+                  <li><code>ISO42001-SGIA</code></li>
+                  <li><code>RGPD-LOPD-GDD</code></li>
+                  <li><code>TISAX</code></li>
+                </ul>
+              </div>
+              <div class="detail-box">
+                <div class="detail-box-title">Referencia</div>
+                <ul>
+                  <li><code>ISO27001-SGSI/AGENTS.md</code> — 360 líneas (modelo)</li>
+                  <li><code>ENS-RD311-2022/AGENTS.md</code> — 334 líneas (modelo)</li>
+                  <li>Ver <code>PROPAGATION_RULES.md</code> para el AGENTS.md específico de cada norma</li>
+                </ul>
+              </div>
+            </div>
+            <h3>Pasos de mejora</h3>
+            <ol class="steps-list">
+              <li>Abrir sesión OpenCode en el directorio de cada proyecto</li>
+              <li>Ejecutar el comando <code>/init</code> para generar el AGENTS.md inicial</li>
+              <li>Revisar y completar el AGENTS.md generado con los aspectos específicos de cada norma (ver tabla en <code>PROPAGATION_RULES.md</code>)</li>
+              <li>Hacer commit del nuevo AGENTS.md en el repositorio del proyecto</li>
+            </ol>
+          </div>
+        </div>
+
+        <!-- P-12 -->
+        <div class="pendiente-card" id="p12">
+          <div class="pendiente-card-header">
+            <div>
+              <span class="pendiente-card-id">P-12</span>
+              <span class="pendiente-card-title">Subir los 7+ proyectos restantes a GitHub</span>
+            </div>
+            <div class="pendiente-card-badges">
+              <span class="pr-media">Media</span>
+              <span class="st-pendiente">Pendiente</span>
+              <span class="badge badge-warning">Requiere P-11</span>
+            </div>
+          </div>
+          <div class="pendiente-card-body">
+            <p>Actualmente solo el repositorio principal <code>PLATAFORMA_OpenCode-NEW</code> está en GitHub. Los 7+ proyectos de apps ISO/ENS no tienen repositorio remoto, lo que supone un riesgo para la continuidad del código ante pérdida del equipo local.</p>
+            <div class="detail-grid">
+              <div class="detail-box">
+                <div class="detail-box-title">Proyectos a subir</div>
+                <ul>
+                  <li><code>ISO27001-SGSI</code></li>
+                  <li><code>ENS-RD311-2022</code></li>
+                  <li><code>ISO9001-SGQ_2015</code></li>
+                  <li><code>ISO14001-SGMA_2015</code></li>
+                  <li><code>ISO14001-SGMA_2026_NEW</code></li>
+                  <li><code>ISO27701-SGP</code></li>
+                  <li><code>ISO42001-SGIA</code>, <code>RGPD-LOPD-GDD</code>, <code>TISAX</code></li>
+                </ul>
+              </div>
+              <div class="detail-box">
+                <div class="detail-box-title">Consideraciones</div>
+                <ul>
+                  <li>Verificar <code>.gitignore</code>: excluir <code>uploads/</code>, <code>*.db</code>, <code>__pycache__</code></li>
+                  <li>NO subir <code>plataforma.db</code> — contiene datos de clientes</li>
+                  <li>Repositorios privados en org <code>Jfajeda</code></li>
+                  <li>Usar rama <code>main</code> como rama principal</li>
+                </ul>
+              </div>
+            </div>
+            <h3>Pasos de mejora</h3>
+            <ol class="steps-list">
+              <li>Completar P-11 para que todos los proyectos tengan AGENTS.md antes del primer push</li>
+              <li>Para cada proyecto: <code>git init &amp;&amp; git add . &amp;&amp; git commit -m "Initial commit"</code></li>
+              <li>Crear repositorio privado en GitHub: <code>gh repo create Jfajeda/NOMBRE --private</code></li>
+              <li>Enlazar y hacer push: <code>git remote add origin URL &amp;&amp; git push -u origin main</code></li>
+              <li>Verificar en GitHub que los archivos sensibles no se han subido</li>
+            </ol>
+          </div>
+        </div>
+
+        <!-- P-13 -->
+        <div class="pendiente-card" id="p13">
+          <div class="pendiente-card-header">
+            <div>
+              <span class="pendiente-card-id">P-13</span>
+              <span class="pendiente-card-title">Activar apps en preparación: ISO9001:2026, NIS2</span>
+            </div>
+            <div class="pendiente-card-badges">
+              <span class="pr-baja">Baja</span>
+              <span class="st-pendiente">Pendiente</span>
+            </div>
+          </div>
+          <div class="pendiente-card-body">
+            <p>Dos nuevas apps están planificadas: la actualización de ISO 9001 a la versión 2026 y el cumplimiento de la directiva NIS2. Están pendientes de iniciar el desarrollo.</p>
+            <div class="detail-grid">
+              <div class="detail-box">
+                <div class="detail-box-title">ISO9001:2026</div>
+                <ul>
+                  <li>Misma estructura que <code>ISO9001-SGQ_2015</code></li>
+                  <li>Actualizar <code>ACTIVITY_GROUPS</code> a cláusulas 2026</li>
+                  <li>app_id: <code>iso9001-2026</code></li>
+                  <li>Usar misma URL NotebookLM que ISO9001 hasta tener notebook propio</li>
+                </ul>
+              </div>
+              <div class="detail-box">
+                <div class="detail-box-title">NIS2</div>
+                <ul>
+                  <li>Nueva app desde cero — Directiva UE 2022/2555</li>
+                  <li>app_id: <code>nis2</code></li>
+                  <li>Requiere definir estructura de cláusulas NIS2</li>
+                  <li>Añadir a <code>APPS_META</code> en <code>server.py</code></li>
+                </ul>
+              </div>
+            </div>
+            <h3>Pasos de mejora</h3>
+            <ol class="steps-list">
+              <li>Para ISO9001:2026: copiar estructura de <code>ISO9001-SGQ_2015</code> y actualizar cláusulas</li>
+              <li>Para NIS2: definir los artículos y requisitos de la Directiva como estructura de datos</li>
+              <li>Añadir las nuevas apps a <code>APPS_META</code> en <code>server.py</code> y a <code>NORMAS_META</code> en el SIG</li>
+              <li>Crear <code>AGENTS.md</code> específico para cada nueva app</li>
+              <li>Registrar en <code>PROPAGATION_RULES.md</code> el tipo de propagación aplicable</li>
+            </ol>
+          </div>
+        </div>
+
+        <!-- P-14 -->
+        <div class="pendiente-card" id="p14">
+          <div class="pendiente-card-header">
+            <div>
+              <span class="pendiente-card-id">P-14</span>
+              <span class="pendiente-card-title">Integrar Gestion_Riesgos ISO14001/ISO9001/ISO42001 en RISK_DIRS</span>
+            </div>
+            <div class="pendiente-card-badges">
+              <span class="pr-baja">Baja</span>
+              <span class="st-pendiente">Pendiente</span>
+              <span class="badge badge-warning">Requiere P-07</span>
+            </div>
+          </div>
+          <div class="pendiente-card-body">
+            <p>Una vez creados los dashboards de riesgo en P-07, hay que registrar las rutas de las nuevas apps de gestión de riesgos en la variable <code>RISK_DIRS</code> de <code>server.py</code> para que Flask las sirva correctamente.</p>
+            <div class="detail-grid">
+              <div class="detail-box">
+                <div class="detail-box-title">Archivo a modificar</div>
+                <ul>
+                  <li><code>servidor/server.py</code> — variable <code>RISK_DIRS</code></li>
+                  <li>Actualmente incluye: iso27001, ens, lopd</li>
+                  <li>Añadir: iso9001, iso14001, iso42001, iso27701</li>
+                </ul>
+              </div>
+              <div class="detail-box">
+                <div class="detail-box-title">Verificación</div>
+                <ul>
+                  <li><code>curl -sI http://localhost:5001/riesgos/iso9001/ | head -3</code> → HTTP 200</li>
+                  <li><code>curl -s http://localhost:5001/api/riesgos/iso9001/proyectos</code> → JSON</li>
+                </ul>
+              </div>
+            </div>
+            <h3>Pasos de mejora</h3>
+            <ol class="steps-list">
+              <li>Completar P-07 (crear los dashboards HTML para las 4 apps)</li>
+              <li>En <code>server.py</code>, localizar la variable <code>RISK_DIRS</code> y añadir las 4 nuevas rutas</li>
+              <li>Añadir los endpoints <code>/api/riesgos/{app_id}/proyectos</code> si no existen ya para cada app</li>
+              <li>Reiniciar Flask y verificar con curl que las rutas responden</li>
+            </ol>
+          </div>
+        </div>
+
+        <!-- P-15 -->
+        <div class="pendiente-card" id="p15">
+          <div class="pendiente-card-header">
+            <div>
+              <span class="pendiente-card-id">P-15</span>
+              <span class="pendiente-card-title">Ingestar documentos en 9 KBs restantes de Wiki_CODANOR</span>
+            </div>
+            <div class="pendiente-card-badges">
+              <span class="pr-baja">Baja</span>
+              <span class="st-pendiente">Pendiente</span>
+            </div>
+          </div>
+          <div class="pendiente-card-body">
+            <p>Wiki_CODANOR (Open WebUI + ChromaDB, Docker en :3000) tiene solo 1 de 10 KBs con documentos ingestados. Los 9 KBs restantes (uno por app ISO/ENS) necesitan los documentos normativos, actas y evidencias correspondientes para que la consulta con IA sea efectiva.</p>
+            <div class="detail-grid">
+              <div class="detail-box">
+                <div class="detail-box-title">Infraestructura disponible</div>
+                <ul>
+                  <li>Open WebUI en <code>localhost:3000</code> (Docker)</li>
+                  <li>ChromaDB como vectordb</li>
+                  <li>Ollama + OpenRouter conectados</li>
+                  <li>1 KB ya activa como referencia</li>
+                </ul>
+              </div>
+              <div class="detail-box">
+                <div class="detail-box-title">Documentos a ingestar por KB</div>
+                <ul>
+                  <li>Norma ISO/ENS en PDF</li>
+                  <li>Actas de reunión del proyecto</li>
+                  <li>Políticas y procedimientos aprobados</li>
+                  <li>Evidencias de auditoría</li>
+                </ul>
+              </div>
+            </div>
+            <h3>Pasos de mejora</h3>
+            <ol class="steps-list">
+              <li>Acceder a Open WebUI en <code>localhost:3000</code> → sección Knowledge Bases</li>
+              <li>Para cada una de las 9 apps: crear una KB con el nombre de la norma</li>
+              <li>Subir los documentos PDF/DOCX/TXT correspondientes a cada KB</li>
+              <li>Actualizar las URLs de NotebookLM en <code>wiki.js</code> de cada app si se crea un notebook específico</li>
+              <li>Probar la función "Consultar documento con IA" en la pestaña Conocimiento de cada app</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+
+      <!-- GLOSARIO -->
+      <div class="content-section" id="glosario">
+        <div class="section-number">Glosario</div>
+        <h1>Glosario de términos</h1>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr><th>Término / Clave</th><th>Definición</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="glossary-term">XSS</td><td>Cross-Site Scripting. Vulnerabilidad que permite inyectar código JavaScript malicioso en páginas web mediante contenido no saneado asignado a innerHTML.</td></tr>
+              <tr><td class="glossary-term">innerHTML</td><td>Propiedad DOM de JavaScript que asigna HTML directamente a un elemento. Peligrosa si el contenido no está sanitizado, ya que ejecuta scripts incrustados.</td></tr>
+              <tr><td class="glossary-term">DOMPurify</td><td>Librería JavaScript de saneamiento de HTML que elimina payloads XSS antes de asignar contenido a innerHTML.</td></tr>
+              <tr><td class="glossary-term">TCC</td><td>Transparency, Consent and Control. Sistema de permisos de macOS que controla el acceso de aplicaciones a recursos del sistema como el disco completo, cámara, micrófono, etc.</td></tr>
+              <tr><td class="glossary-term">SIG</td><td>Sistema Integrado de Gestión. Módulo de la Plataforma que gestiona proyectos con múltiples normas ISO/ENS sin duplicar reuniones, tareas ni documentos.</td></tr>
+              <tr><td class="glossary-term">RISK_DIRS</td><td>Variable en server.py que mapea los app_id a los directorios físicos de los dashboards de análisis de riesgos de cada norma.</td></tr>
+              <tr><td class="glossary-term">TIPO C — DIVERGENTE</td><td>Clasificación en PROPAGATION_RULES.md para archivos que comparten base con otro archivo pero tienen código exclusivo propio (ej: phase2-consulting.js de ENS con +580 líneas exclusivas).</td></tr>
+              <tr><td class="glossary-term">TIPO D — PROPIO</td><td>Clasificación en PROPAGATION_RULES.md para archivos sin equivalente en otra app que nunca deben propagarse entre apps del mismo tipo.</td></tr>
+              <tr><td class="glossary-term">MDM</td><td>Mobile Device Management. Sistema de gestión centralizada de dispositivos corporativos que puede imponer restricciones de red como el bloqueo de puertos (ej: 11434 de Ollama).</td></tr>
+              <tr><td class="glossary-term">HLS</td><td>High Level Structure. Estructura de alto nivel común a todas las normas ISO de sistemas de gestión (ISO 27001, 14001, 9001, etc.) que facilita la integración en el SIG.</td></tr>
+              <tr><td class="glossary-term">KB (Knowledge Base)</td><td>Base de conocimiento en Open WebUI. Cada KB agrupa documentos de una norma para ser consultados con IA mediante ChromaDB (búsqueda vectorial).</td></tr>
+              <tr><td class="glossary-term">dataURL</td><td>Formato de representación de archivos binarios (imágenes, logos) como cadena base64 incrustada directamente en el HTML/JSON, sin necesidad de archivo externo.</td></tr>
+              <tr><td class="glossary-term">bump versión</td><td>Incrementar el sufijo de versión en el atributo src de un archivo JS (ej: ?v=20261007b → ?v=20261028a) para forzar la invalidación de caché del navegador.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- PIE DE PÁGINA -->
+  <footer class="doc-footer">
+    <div class="footer-left">CODANOR — Jafa, S.L. — Barcelona, Catalunya</div>
+    <div class="footer-center">Documento interno — Uso exclusivo CODANOR</div>
+    <div class="footer-right">
+      v1.0 · 28/10/2026
+      <div class="footer-path">PLATAFORMA_OpenCode-NEW/PENDIENTES-PLATAFORMA-V01.html</div>
+    </div>
+  </footer>
+
+  <button class="btn-print" onclick="window.print()">Imprimir / PDF</button>
+
+  <script>
+    const sections = document.querySelectorAll('[id^="seccion-"], #portada, #versiones, #glosario, [id^="p0"], [id^="p1"]');
+    const navLinks = document.querySelectorAll('.sidebar nav a');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          navLinks.forEach(a => a.classList.remove('active'));
+          const active = document.querySelector(`.sidebar nav a[href="#${entry.target.id}"]`);
+          if (active) active.classList.add('active');
+        }
+      });
+    }, { threshold: 0.25 });
+    sections.forEach(s => observer.observe(s));
+  </script>
+
+</body>
+</html>

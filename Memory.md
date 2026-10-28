@@ -5,7 +5,7 @@
 
 - **Fase**: Produccion / mantenimiento activo
 - **Version**: Manual v3.0 (20 capitulos) + Manual IA Actas v1.0
-- **Ultimo cambio significativo**: Módulo SIG v1.0 (2026-10-20) + Módulo Capas de Ciberseguridad v1.1.0 (2026-10-21/27) — actualizacion Memory.md/AGENTS.md (2026-10-28)
+- **Ultimo cambio significativo**: Documento `PENDIENTES-PLATAFORMA-V01.html` generado (2026-10-28) — 15 pendientes con prioridad, estado, pasos de mejora y dependencias
 - **Issues abiertos**: 72 bugs de reliability + 3 security hotspots detectados por SonarCloud
 
 ## Infraestructura
@@ -17,6 +17,7 @@
 | SonarCloud | Si | Security A, Reliability B, Maintainability A, 3.5% duplications |
 | .gitignore | Si | Excluye .DS_Store, backups, __pycache__ |
 | AGENTS.md | Si | Actualizado 2026-10-28 — Módulo SIG v1.0 + Módulo Capas Ciberseguridad v1.1.0 |
+| PENDIENTES-PLATAFORMA-V01.html | Si | Informe seguimiento 15 pendientes — prioridad, estado, pasos mejora — 79 KB — 2026-10-28 |
 | PROPAGATION_RULES.md | Si | 2026-10-01 — clasificación BASE/CLON/DIVERGENTE/PROPIO + workflows + script verificación ENS |
 | opencode.json | Si | MCP SonarQube + instructions: AGENTS.md + PROPAGATION_RULES.md |
 | Memory.md | Si | Este archivo |
@@ -45,6 +46,7 @@
 | `.opencode/commands/documentos-proyectos.md` | Skill plantilla documentos corporativos (HTML + .docx + .md) | 33 KB — 2026-10-05 |
 | **CAPAS-CIBERSEGURIDAD-V01.html** | **Propuesta técnica módulo Capas de Ciberseguridad** — portada, 10 secciones, tablas ENS/ISO27001/ISO42001 | **Oct 2026** |
 | **SIG-MODULO-V01.html** | **Propuesta técnica módulo SIG** — 10 secciones, arquitectura, endpoints, correspondencias | **71 KB — Oct 2026** |
+| **PENDIENTES-PLATAFORMA-V01.html** | **Informe de seguimiento de 15 pendientes activos** — prioridad, estado, archivos afectados, pasos de mejora, dependencias. 8 secciones por área temática + glosario | **79 KB — 2026-10-28** |
 
 ### Plataforma_Seguimiento_Proyectos/servidor/
 
@@ -252,6 +254,7 @@ Color `#5C35A0` (morado), posición al final del grid, badge dinámico con conta
 
 | Fecha | Decision | Razon |
 |-------|----------|-------|
+| 2026-10-28 | Generado `PENDIENTES-PLATAFORMA-V01.html` (79 KB) | Documento de seguimiento de los 15 pendientes activos con prioridad, estado, pasos de mejora y dependencias |
 | 2026-10-27 | `pointer-events:none` en centerFill/centerText SVG | Bug: clic en anillo Información no funcionaba — centerFill tapaba el hitArea |
 | 2026-10-27 | Informe HTML refactorizado: portada + TOC + ISO42001 + catálogo + estadísticas | El informe anterior no tenía columna ISO42001, ni catálogo, ni estadísticas de cobertura |
 | 2026-10-27 | Leyenda lateral izquierda en Vista Diagrama | Mejorar legibilidad — nombre + descripción de cada capa visible sin hacer clic |
@@ -269,21 +272,28 @@ Color `#5C35A0` (morado), posición al final del grid, badge dinámico con conta
 
 ## Pendiente
 
-- [ ] Corregir los 18 innerHTML restantes (security hotspots SonarCloud)
-- [ ] Ejecutar /init en los 7 proyectos restantes para crear AGENTS.md
-- [ ] Subir los otros 7+ proyectos a GitHub
-- [ ] Conceder "Acceso total al disco" en Ajustes → Privacidad para backup NAS
-- [ ] Regenerar token SonarCloud
-- [ ] Dashboard de riesgos para ISO9001, ISO14001, ISO42001, ISO27701 (actualmente "Próximamente")
-- [ ] Ingestar documentos en 9 KBs restantes Wiki_CODANOR
-- [ ] Activar Ollama en LAN (`OLLAMA_HOST=0.0.0.0 ollama serve`) — bloqueado por firewall MDM
-- [ ] Activar apps en preparación: ISO9001:2026, NIS2
-- [ ] Integrar Gestion_Riesgos_ISO14001, ISO9001, ISO42001 en RISK_DIRS Flask
-- [ ] Módulo Capas: integrar con proyectos ISO27001/ENS (filtrar herramientas por proyecto)
-- [ ] Módulo Capas: logo upload funcionando en todas las herramientas base
-- [ ] **SIG: activar `_toastSigWarning` desde `phase2-*.js`** — implementado en 9 `app.js` pero aún no invocado desde `addMeeting()` / `addTask()` de los módulos phase2
-- [ ] **SIG: corregir duplicado `8.11` en `ISO27001_hacia_ENS.csv`** (líneas 76-77, el segundo debería ser `8.12`) y añadir `UNIQUE` constraint a `sig_correspondencias`
-- [ ] **SIG: bump `app.js` de 6 apps** a versión unificada — RGPD en `v20260923a`, ISO9001 en `v20260917a`, ISO27701/ISO14001/ISO14001-2026/TISAX en `v20260904c` (tienen el código SIG pero versión desactualizada)
+### Prioridad Crítica
+- [ ] **[P-09]** Regenerar token SonarCloud — desbloquea verificación de todos los hotspots
+- [ ] **[P-01]** Corregir los 18 innerHTML restantes (XSS — security hotspots SonarCloud) — requiere P-09
+
+### Prioridad Alta
+- [ ] **[P-02]** **SIG: activar `_toastSigWarning` desde `phase2-*.js`** — implementado en 9 `app.js` pero aún no invocado desde `addMeeting()` / `addTask()` de los módulos phase2
+- [ ] **[P-03]** **SIG: corregir duplicado `8.11` en `ISO27001_hacia_ENS.csv`** (líneas 76-77, el segundo debería ser `8.12`) y añadir `UNIQUE` constraint a `sig_correspondencias`
+- [ ] **[P-07]** Dashboard de riesgos para ISO9001, ISO14001, ISO42001, ISO27701 (actualmente "Próximamente")
+- [ ] **[P-08]** Conceder "Acceso total al disco" en Ajustes → Privacidad para backup NAS — acción manual macOS
+- [ ] **[P-10]** Activar Ollama en LAN (`OLLAMA_HOST=0.0.0.0 ollama serve`) — bloqueado por firewall MDM
+
+### Prioridad Media
+- [ ] **[P-04]** **SIG: bump `app.js` de 6 apps** a versión unificada — RGPD en `v20260923a`, ISO9001 en `v20260917a`, ISO27701/ISO14001/ISO14001-2026/TISAX en `v20260904c` (tienen el código SIG pero versión desactualizada)
+- [ ] **[P-05]** Módulo Capas: integrar con proyectos ISO27001/ENS (filtrar herramientas por proyecto)
+- [ ] **[P-06]** Módulo Capas: logo upload funcionando en todas las herramientas base
+- [ ] **[P-11]** Ejecutar /init en los 7 proyectos restantes para crear AGENTS.md
+- [ ] **[P-12]** Subir los otros 7+ proyectos a GitHub — requiere P-11
+
+### Prioridad Baja
+- [ ] **[P-13]** Activar apps en preparación: ISO9001:2026, NIS2
+- [ ] **[P-14]** Integrar Gestion_Riesgos_ISO14001, ISO9001, ISO42001 en RISK_DIRS Flask — requiere P-07
+- [ ] **[P-15]** Ingestar documentos en 9 KBs restantes Wiki_CODANOR
 - [x] ~~Módulo Capas de Ciberseguridad v1.1.0~~ — 11 capas, 50 controles, 178 herramientas, SVG anillos, leyenda, informe HTML (2026-10-21/27)
 - [x] ~~Módulo SIG v1.0~~ — app standalone, 14 endpoints, 8 módulos, 9 apps integradas con badge + toast, 678 correspondencias (2026-10-20)
 - [x] ~~Groq como proveedor corporativo por defecto~~ (commits `27049f0` + `885e667` 2026-10-07)
