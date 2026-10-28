@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arquitectura BD SQLite — Ecosistema CODANOR — v2.0</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600;700&family=Nunito+Sans:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary:       #178DC2;
+      --primary-dark:  #1275A3;
+      --primary-light: #e8f4fa;
+      --accent:        #12A79D;
+      --accent-dark:   #0d7a71;
+      --accent-light:  #e6f7f6;
+      --dark:          #1a1a2e;
+      --gray-900:      #2d2d44;
+      --gray-700:      #4a4a5a;
+      --gray-600:      #6b6b7b;
+      --gray-500:      #7a7a8a;
+      --gray-300:      #c4c4d0;
+      --gray-100:      #f0f0f5;
+      --white:         #ffffff;
+      --danger:        #e74c3c;
+      --danger-bg:     #fdedec;
+      --danger-text:   #922b21;
+      --warning-text:  #b7770d;
+      --warning-bg:    #fef9e7;
+      --warning-dark:  #7d6608;
+      --success-text:  #0e7a72;
+      --success-bg:    #e6f7f6;
+      --purple:        #7d3c98;
+      --purple-bg:     #f3e8f9;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Nunito Sans', sans-serif; font-size: 16px; line-height: 1.7; color: var(--gray-700); background: var(--gray-100); }
+
+    /* CABECERA FIJA */
+    .page-header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      background: var(--white); border-bottom: 3px solid var(--primary);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.55rem 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); height: 52px;
+    }
+    .page-header-brand { display: flex; align-items: center; gap: 0.75rem; }
+    .page-header-logo  { font-family: 'Poppins', sans-serif; font-size: 0.95rem; font-weight: 700; color: var(--primary); letter-spacing: -0.3px; }
+    .page-header-sep   { color: var(--gray-300); font-size: 1.1rem; }
+    .page-header-title { font-family: 'Poppins', sans-serif; font-size: 0.82rem; font-weight: 600; color: var(--primary-dark); }
+    .page-header-meta  { font-family: 'Poppins', sans-serif; font-size: 0.75rem; color: var(--gray-500); }
+
+    /* PORTADA */
+    .cover-page {
+      min-height: 100vh;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 40%, var(--dark) 100%);
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+      text-align: center; color: var(--white); position: relative; overflow: hidden; padding: 2rem;
+    }
+    .cover-page::before {
+      content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+      background: radial-gradient(ellipse at 30% 50%, rgba(18,167,157,0.15) 0%, transparent 60%),
+                  radial-gradient(ellipse at 70% 20%, rgba(23,141,194,0.1) 0%, transparent 50%);
+      animation: float 20s ease-in-out infinite;
+    }
+    @keyframes float { 0%,100% { transform: translate(0,0); } 50% { transform: translate(-2%,2%); } }
+    .cover-content  { position: relative; z-index: 1; max-width: 720px; }
+    .cover-logo     { width: 220px; margin-bottom: 2rem; filter: brightness(0) invert(1); }
+    .cover-divider  { width: 80px; height: 4px; background: var(--accent); margin: 1.5rem auto; border-radius: 2px; }
+    .cover-type     { font-family: 'Poppins', sans-serif; font-size: 0.72rem; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 0.5rem; }
+    .cover-title    { font-family: 'Poppins', sans-serif; font-size: 2.6rem; font-weight: 700; color: var(--white); line-height: 1.15; margin-bottom: 0.5rem; border: none; padding: 0; }
+    .cover-subtitle { font-family: 'Poppins', sans-serif; font-size: 1.15rem; font-weight: 300; color: rgba(255,255,255,0.82); margin-bottom: 0.75rem; }
+    .cover-edition  { font-size: 0.95rem; opacity: 0.65; margin-bottom: 1.5rem; }
+    .cover-badge    { display: inline-block; background: var(--accent); color: var(--white); padding: 0.5rem 1.5rem; border-radius: 50px; font-family: 'Poppins', sans-serif; font-size: 0.9rem; font-weight: 600; margin-top: 1.5rem; letter-spacing: 0.5px; }
+    .cover-footer   { position: absolute; bottom: 2rem; left: 0; right: 0; text-align: center; z-index: 1; }
+    .cover-footer p { font-size: 0.85rem; opacity: 0.5; }
+
+    /* LAYOUT */
+    .manual-container { display: flex; min-height: 100vh; }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: 300px; background: var(--white); border-right: 1px solid var(--gray-300);
+      position: fixed; top: 52px; left: 0; height: calc(100vh - 52px); overflow-y: auto; z-index: 100; padding: 1.5rem 0;
+    }
+    .sidebar-header { padding: 0 1.5rem 1.2rem; border-bottom: 1px solid var(--gray-100); margin-bottom: 0.75rem; }
+    .sidebar-logo   { width: 140px; }
+    .sidebar-label  { font-family: 'Poppins', sans-serif; font-size: 0.65rem; font-weight: 600; color: var(--gray-500); text-transform: uppercase; letter-spacing: 1.5px; padding: 0.75rem 1.5rem 0.4rem; }
+    .sidebar nav a  { display: flex; align-items: center; gap: 0.5rem; font-size: 0.86rem; color: var(--gray-700); text-decoration: none; padding: 0.4rem 1.5rem; border-left: 3px solid transparent; transition: all 0.15s; }
+    .sidebar nav a:hover, .sidebar nav a.active { color: var(--primary); background: var(--primary-light); border-left-color: var(--primary); }
+    .sidebar nav a.toc-sub { font-size: 0.79rem; padding-left: 2.8rem; color: var(--gray-500); }
+    .sidebar nav a.toc-sub:hover { color: var(--primary); }
+    .sb-badge { margin-left: auto; display: inline-block; font-family: 'Poppins', sans-serif; font-size: 0.6rem; font-weight: 700; padding: 0.1rem 0.42rem; border-radius: 3px; }
+    .sb-new  { background: var(--accent-light); color: var(--accent-dark); }
+    .sb-upd  { background: var(--primary-light); color: var(--primary-dark); }
+    .sb-warn { background: var(--warning-bg); color: var(--warning-dark); }
+
+    /* CONTENIDO */
+    .main-content { margin-left: 300px; flex: 1; }
+
+    /* DASHBOARD */
+    .dashboard { margin-left: 300px; margin-top: 52px; background: linear-gradient(180deg, var(--gray-100) 0%, var(--white) 100%); border-bottom: 3px solid var(--primary); padding: 2.5rem 4rem; }
+    .dashboard-title    { font-family: 'Poppins', sans-serif; font-size: 1.3rem; font-weight: 700; color: var(--dark); margin-bottom: 0.3rem; }
+    .dashboard-subtitle { font-size: 0.88rem; color: var(--gray-500); margin-bottom: 1.8rem; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.2rem; }
+    .kpi-card { background: var(--white); border: 1px solid var(--gray-300); border-radius: 8px; padding: 1.1rem; border-top: 4px solid var(--gray-300); }
+    .kpi-card.ok   { border-top-color: var(--accent); }
+    .kpi-card.info { border-top-color: var(--primary); }
+    .kpi-card.warn { border-top-color: var(--warning-text); }
+    .kpi-card.new  { border-top-color: var(--purple); }
+    .kpi-value { font-family: 'Poppins', sans-serif; font-size: 1.9rem; font-weight: 700; line-height: 1; margin-bottom: 0.25rem; }
+    .kpi-value.ok   { color: var(--accent); }
+    .kpi-value.info { color: var(--primary); }
+    .kpi-value.warn { color: var(--warning-text); }
+    .kpi-value.new  { color: var(--purple); }
+    .kpi-label { font-family: 'Poppins', sans-serif; font-size: 0.8rem; font-weight: 600; color: var(--gray-900); }
+    .kpi-sub   { font-size: 0.7rem; color: var(--gray-500); margin-top: 0.2rem; }
+
+    /* VERSIONES */
+    .version-control { background: var(--white); margin: 2rem 2rem 2rem calc(300px + 2rem); border-radius: 8px; padding: 2rem 3rem; border-left: 4px solid var(--primary); }
+    .version-control h2 { font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; color: var(--primary-dark); margin-bottom: 1rem; }
+
+    /* SECCIONES */
+    .content-section { background: var(--white); margin: 2rem 2rem 2rem calc(300px + 2rem); border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); padding: 2.5rem 3rem; }
+    .section-number { font-family: 'Poppins', sans-serif; font-size: 0.72rem; font-weight: 600; color: var(--primary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.35rem; }
+
+    /* TIPOGRAFÍA */
+    h1 { font-family: 'Poppins', sans-serif; font-size: 1.8rem; font-weight: 700; color: var(--dark); margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--primary-light); }
+    h2 { font-family: 'Poppins', sans-serif; font-size: 1.25rem; font-weight: 600; color: var(--primary); margin-top: 2rem; margin-bottom: 0.65rem; }
+    h3 { font-family: 'Poppins', sans-serif; font-size: 1.02rem; font-weight: 600; color: var(--gray-900); margin-top: 1.5rem; margin-bottom: 0.5rem; }
+    p  { margin-bottom: 0.85rem; font-size: 0.95rem; }
+    ul, ol { padding-left: 1.5rem; margin-bottom: 0.85rem; }
+    li { font-size: 0.93rem; margin-bottom: 0.3rem; }
+
+    /* TABLAS */
+    .table-wrapper { overflow-x: auto; margin: 1.2rem 0; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    thead th { font-family: 'Poppins', sans-serif; font-size: 0.78rem; font-weight: 600; color: var(--white); background: var(--primary-dark); padding: 0.65rem 0.9rem; text-align: left; white-space: nowrap; }
+    tbody td { padding: 0.55rem 0.9rem; border-bottom: 1px solid var(--gray-300); color: var(--gray-700); vertical-align: top; }
+    tbody tr:hover td { background: var(--primary-light); }
+    tbody tr:nth-child(even) td { background: #f8f8fb; }
+    tbody tr:nth-child(even):hover td { background: var(--primary-light); }
+    td code { font-family: 'JetBrains Mono', monospace; font-size: 0.76rem; color: var(--primary-dark); background: var(--gray-100); padding: 0.1rem 0.3rem; border-radius: 3px; }
+    .col-pk   { color: var(--warning-dark) !important; font-weight: 600; }
+    .col-fk   { color: var(--accent-dark) !important; }
+    .col-new  { color: var(--purple) !important; font-style: italic; }
+    .row-new td { background: #f9f5ff !important; }
+    .row-new:hover td { background: var(--primary-light) !important; }
+
+    /* CÓDIGO */
+    code { font-family: 'JetBrains Mono', monospace; font-size: 0.83rem; color: var(--primary-dark); background: var(--gray-100); padding: 0.15rem 0.4rem; border-radius: 4px; }
+    pre  { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; background: var(--dark); color: #e0e0e0; padding: 1.25rem 1.5rem; border-radius: 8px; overflow-x: auto; line-height: 1.6; margin: 1rem 0 1.5rem; border-left: 4px solid var(--accent); }
+    pre code { background: none; color: inherit; padding: 0; }
+
+    /* ALERTAS */
+    .alert { padding: 0.9rem 1.1rem; border-radius: 6px; margin: 1rem 0; font-size: 0.9rem; border-left: 4px solid; }
+    .alert-title   { font-family: 'Poppins', sans-serif; font-weight: 600; margin-bottom: 0.3rem; }
+    .alert-info    { background: var(--primary-light); border-color: var(--primary);      color: var(--primary-dark); }
+    .alert-warning { background: var(--warning-bg);    border-color: var(--warning-text); color: var(--warning-dark); }
+    .alert-danger  { background: var(--danger-bg);     border-color: var(--danger-text);  color: var(--danger-text); }
+    .alert-success { background: var(--success-bg);    border-color: var(--accent);       color: var(--success-text); }
+    .alert-purple  { background: var(--purple-bg);     border-color: var(--purple);       color: var(--purple); }
+
+    /* BADGES */
+    .badge { display: inline-block; font-family: 'Poppins', sans-serif; font-size: 0.66rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 3px; letter-spacing: 0.3px; vertical-align: middle; }
+    .badge-ok    { background: var(--success-bg); color: var(--success-text); }
+    .badge-warn  { background: var(--warning-bg); color: var(--warning-dark); }
+    .badge-info  { background: var(--primary-light); color: var(--primary-dark); }
+    .badge-new   { background: var(--purple-bg); color: var(--purple); }
+    .badge-empty { background: var(--gray-100); color: var(--gray-600); }
+
+    /* BD CARDS */
+    .db-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.2rem; margin: 1.5rem 0; }
+    .db-card { background: var(--white); border: 1px solid var(--gray-300); border-radius: 8px; padding: 1.25rem; border-top: 4px solid var(--primary); transition: all 0.2s; }
+    .db-card:hover { box-shadow: 0 4px 12px rgba(23,141,194,0.1); transform: translateY(-2px); }
+    .db-card.principal { border-top-color: var(--accent); }
+    .db-card.vectorial  { border-top-color: var(--purple); }
+    .db-card.dev        { border-top-color: var(--warning-text); opacity: 0.85; }
+    .db-card h4 { font-family: 'Poppins', sans-serif; font-size: 0.95rem; font-weight: 700; color: var(--dark); margin-bottom: 0.3rem; }
+    .db-card .db-path { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--gray-600); margin-bottom: 0.5rem; }
+    .db-card p { font-size: 0.83rem; color: var(--gray-500); margin-bottom: 0; }
+    .db-stat { display: inline-flex; align-items: center; gap: 0.3rem; font-family: 'Poppins', sans-serif; font-size: 0.72rem; font-weight: 600; color: var(--gray-700); margin-right: 0.75rem; }
+
+    /* STEP LIST */
+    .step-list { counter-reset: step; list-style: none; padding-left: 0; margin: 1rem 0; }
+    .step-list li { counter-increment: step; padding: 0.8rem 1rem 0.8rem 3rem; position: relative; margin-bottom: 0.5rem; background: var(--white); border-radius: 6px; border: 1px solid var(--gray-300); font-size: 0.92rem; }
+    .step-list li::before { content: counter(step); position: absolute; left: 0.75rem; top: 0.8rem; width: 24px; height: 24px; background: var(--primary); color: var(--white); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 0.75rem; }
+
+    /* PRIORIDAD */
+    .prio-p1 { border-left: 4px solid var(--danger) !important; }
+    .prio-p2 { border-left: 4px solid var(--warning-text) !important; }
+    .prio-p3 { border-left: 4px solid var(--primary) !important; }
+    .prio-p4 { border-left: 4px solid var(--accent) !important; }
+
+    /* GLOSARIO */
+    .glossary-term { font-family: 'JetBrains Mono', monospace; font-size: 0.83rem; color: var(--primary-dark); font-weight: 500; }
+
+    /* PIE */
+    .doc-footer { background: var(--white); border-top: 3px solid var(--primary); padding: 1.2rem 2rem 1.2rem calc(300px + 2rem); display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 1rem; margin-top: 2rem; }
+    .footer-left   { font-size: 0.78rem; color: var(--gray-700); font-weight: 600; }
+    .footer-center { font-size: 0.72rem; color: var(--gray-600); font-style: italic; text-align: center; }
+    .footer-right  { font-size: 0.72rem; color: var(--gray-600); text-align: right; }
+    .footer-path   { font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; color: var(--gray-600); margin-top: 0.2rem; }
+
+    /* BOTÓN PDF */
+    .btn-print { position: fixed; bottom: 2rem; right: 2rem; background: var(--primary); color: var(--white); border: none; border-radius: 50px; padding: 0.75rem 1.5rem; font-family: 'Poppins', sans-serif; font-size: 0.9rem; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(23,141,194,0.3); transition: all 0.2s; z-index: 200; display: flex; align-items: center; gap: 0.5rem; }
+    .btn-print:hover { background: var(--primary-dark); transform: translateY(-2px); }
+
+    /* BOTÓN WORD */
+    .btn-word { position: fixed; bottom: 2rem; right: 11rem; background: var(--white); color: var(--primary-dark); border: 2px solid var(--primary); border-radius: 50px; padding: 0.75rem 1.5rem; font-family: 'Poppins', sans-serif; font-size: 0.9rem; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(23,141,194,0.15); transition: all 0.2s; z-index: 200; display: flex; align-items: center; gap: 0.5rem; }
+    .btn-word:hover { background: var(--primary-light); transform: translateY(-2px); }
+
+    /* MODAL WORD */
+    .word-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(26,26,46,0.7); z-index: 500; align-items: center; justify-content: center; }
+    .word-modal-overlay.active { display: flex; }
+    .word-modal { background: var(--white); border-radius: 10px; padding: 2rem 2.5rem; max-width: 560px; width: 90%; box-shadow: 0 8px 32px rgba(0,0,0,0.2); }
+    .word-modal h3 { font-family: 'Poppins', sans-serif; font-size: 1.1rem; font-weight: 700; color: var(--dark); margin-bottom: 0.75rem; border: none; padding: 0; }
+    .word-modal p  { font-size: 0.9rem; color: var(--gray-700); margin-bottom: 0.75rem; }
+    .word-modal pre { background: var(--dark); color: #e0e0e0; padding: 0.9rem 1.1rem; border-radius: 6px; font-size: 0.78rem; overflow-x: auto; margin: 0.75rem 0; border-left: 4px solid var(--accent); }
+    .word-modal-close { margin-top: 1.25rem; background: var(--primary); color: var(--white); border: none; padding: 0.55rem 1.4rem; border-radius: 50px; font-family: 'Poppins', sans-serif; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+    .word-modal-close:hover { background: var(--primary-dark); }
+
+    /* PRINT */
+    @media print {
+      @page { size: A4 landscape; margin: 1.5cm; }
+      @page :first { margin-top: 0; }
+      .page-header, .sidebar, .btn-print, .btn-word, .word-modal-overlay { display: none !important; }
+      .main-content { margin-left: 0; }
+      .dashboard, .content-section, .version-control { margin-left: 0; padding: 1rem; }
+      .cover-page { page-break-after: always; min-height: 100vh; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      body { font-size: 9pt; background: white; }
+      pre, table { font-size: 7pt; }
+      .doc-footer { position: fixed; bottom: 0; left: 0; right: 0; padding: 0.4rem 1.5rem; border-top: 2px solid var(--primary); background: white; }
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 900px) {
+      .sidebar { display: none; }
+      .main-content, .dashboard { margin-left: 0; }
+      .content-section, .version-control, .doc-footer { margin-left: 0; }
+      .cover-title { font-size: 2rem; }
+      .btn-word { right: 9rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- CABECERA FIJA -->
+<header class="page-header">
+  <div class="page-header-brand">
+    <span class="page-header-logo">(CODANOR 50)</span>
+    <span class="page-header-sep">|</span>
+    <span class="page-header-title">Arquitectura BD SQLite &mdash; Ecosistema CODANOR</span>
+  </div>
+  <span class="page-header-meta">v2.0 &bull; Octubre 2026</span>
+</header>
+
+<!-- PORTADA -->
+<div class="cover-page" id="portada">
+  <div class="cover-content">
+    <img src="https://codanor.com/assets/img/logo-light.png" alt="CODANOR" class="cover-logo">
+    <div class="cover-divider"></div>
+    <div class="cover-type">Documento T&eacute;cnico de Referencia</div>
+    <h1 class="cover-title">Arquitectura BD SQLite<br>Ecosistema CODANOR</h1>
+    <p class="cover-subtitle">Inventario completo, esquemas, endpoints, mantenimiento y hoja de ruta</p>
+    <p class="cover-edition">7 bases de datos &bull; 19 tablas en plataforma.db &bull; 86 endpoints &bull; Flask + WAL</p>
+    <span class="cover-badge">v2.0 &bull; Octubre 2026</span>
+    <div style="margin-top:2rem;display:flex;gap:2.5rem;justify-content:center;flex-wrap:wrap;">
+      <div style="text-align:left;"><div style="font-size:0.65rem;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:0.2rem;">Versi&oacute;n</div><div style="font-family:'Poppins',sans-serif;font-size:0.88rem;font-weight:600;color:#fff;">v2.0</div></div>
+      <div style="text-align:left;"><div style="font-size:0.65rem;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:0.2rem;">Fecha</div><div style="font-family:'Poppins',sans-serif;font-size:0.88rem;font-weight:600;color:#fff;">Octubre 2026</div></div>
+      <div style="text-align:left;"><div style="font-size:0.65rem;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:0.2rem;">Autor</div><div style="font-family:'Poppins',sans-serif;font-size:0.88rem;font-weight:600;color:#fff;">Jafa, S.L. &mdash; CODANOR</div></div>
+      <div style="text-align:left;"><div style="font-size:0.65rem;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:0.2rem;">Clasificaci&oacute;n</div><div style="font-family:'Poppins',sans-serif;font-size:0.88rem;font-weight:600;color:#fff;">Documento interno &mdash; Uso exclusivo CODANOR</div></div>
+      <div style="text-align:left;"><div style="font-size:0.65rem;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:0.2rem;">Secciones</div><div style="font-family:'Poppins',sans-serif;font-size:0.88rem;font-weight:600;color:#fff;">12 secciones + Glosario</div></div>
+    </div>
+  </div>
+  <div class="cover-footer"><p>Jafa, S.L. &mdash; CODANOR &bull; Barcelona, Catalunya</p></div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="dashboard" id="dashboard">
+  <div class="dashboard-title">Estado del ecosistema de bases de datos</div>
+  <div class="dashboard-subtitle">Datos reales extraídos &bull; Octubre 2026 &bull; 7 BDs SQLite activas</div>
+  <div class="kpi-grid">
+    <div class="kpi-card ok"><div class="kpi-value ok">7</div><div class="kpi-label">BDs SQLite activas</div><div class="kpi-sub">plataforma · tracker · actas · ossint · legislación · chroma · webui</div></div>
+    <div class="kpi-card info"><div class="kpi-value info">19</div><div class="kpi-label">Tablas en plataforma.db</div><div class="kpi-sub">4 core + 6 tiquets + 2 wiki + 1 sonar + 5 riesgos + 1 seq</div></div>
+    <div class="kpi-card info"><div class="kpi-value info">86</div><div class="kpi-label">Endpoints Flask</div><div class="kpi-sub">Core + Tiquets + Wiki + LLM + Riesgos + EIPD + Sonar</div></div>
+    <div class="kpi-card ok"><div class="kpi-value ok">298</div><div class="kpi-label">Clientes registrados</div><div class="kpi-sub">plataforma.db &bull; 37 proyectos activos</div></div>
+    <div class="kpi-card info"><div class="kpi-value info">~19 MB</div><div class="kpi-label">Total BDs activas</div><div class="kpi-sub">plataforma 3.3 MB &bull; chroma 11 MB &bull; webui 2.9 MB</div></div>
+    <div class="kpi-card warn"><div class="kpi-value warn">5</div><div class="kpi-label">Tablas vacías</div><div class="kpi-sub">risk_* y eipd_* — migración IndexedDB pendiente</div></div>
+    <div class="kpi-card ok"><div class="kpi-value ok">22</div><div class="kpi-label">Backups disponibles</div><div class="kpi-sub">10 plataforma.db &bull; 12 tracker.db</div></div>
+    <div class="kpi-card new"><div class="kpi-value new">774</div><div class="kpi-label">Embeddings IA</div><div class="kpi-sub">ChromaDB &bull; 14.596 metadatos &bull; 5 colecciones</div></div>
+  </div>
+</div>
+
+<!-- CONTENEDOR PRINCIPAL -->
+<div class="manual-container">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <img src="https://codanor.com/assets/img/logo_web-50.png" alt="CODANOR" class="sidebar-logo">
+    </div>
+    <p class="sidebar-label">&Iacute;ndice</p>
+    <nav>
+      <a href="#portada">Portada</a>
+      <a href="#versiones">Control de versiones</a>
+      <a href="#sec1">1. Ecosistema de BDs <span class="sb-badge sb-upd">7 BDs</span></a>
+      <a href="#sec2">2. plataforma.db <span class="sb-badge sb-new">19 tablas</span></a>
+      <a href="#sec2-core" class="toc-sub">2.1 Tablas core (4)</a>
+      <a href="#sec2-tiquets" class="toc-sub">2.2 M&oacute;dulo Tiquets (6)</a>
+      <a href="#sec2-wiki" class="toc-sub">2.3 M&oacute;dulo Wiki (2)</a>
+      <a href="#sec2-riesgos" class="toc-sub">2.4 M&oacute;dulo Riesgos (5) <span class="sb-badge sb-new">Nuevo</span></a>
+      <a href="#sec2-sonar" class="toc-sub">2.5 SonarCloud (1)</a>
+      <a href="#sec3">3. Otras BDs del ecosistema</a>
+      <a href="#sec3-tracker" class="toc-sub">3.1 tracker.db</a>
+      <a href="#sec3-actas" class="toc-sub">3.2 codanor_actas.db</a>
+      <a href="#sec3-ossint" class="toc-sub">3.3 ossint.sqlite</a>
+      <a href="#sec3-legislacion" class="toc-sub">3.4 publications.db</a>
+      <a href="#sec3-vectorial" class="toc-sub">3.5 ChromaDB + WebUI</a>
+      <a href="#sec4">4. Endpoints Flask (86)</a>
+      <a href="#sec4-core" class="toc-sub">4.1 Core + Exportaci&oacute;n</a>
+      <a href="#sec4-tiquets" class="toc-sub">4.2 Tiquets (19)</a>
+      <a href="#sec4-riesgos" class="toc-sub">4.3 Riesgos + EIPD (17)</a>
+      <a href="#sec4-llm" class="toc-sub">4.4 LLM corporativo (3)</a>
+      <a href="#sec4-otros" class="toc-sub">4.5 Wiki + Sonar + Est&aacute;ticos</a>
+      <a href="#sec5">5. Diagrama de relaciones</a>
+      <a href="#sec6">6. DDL completo</a>
+      <a href="#sec7">7. Backups (22 disponibles)</a>
+      <a href="#sec8">8. Mantenimiento <span class="sb-badge sb-warn">Checklist</span></a>
+      <a href="#sec9">9. Mejoras propuestas</a>
+      <a href="#sec10">10. Consultas de referencia</a>
+      <a href="#sec11">11. Unificaci&oacute;n futura</a>
+      <a href="#sec12">12. Hoja de ruta</a>
+      <a href="#glosario">Glosario</a>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+
+    <!-- CONTROL DE VERSIONES -->
+    <div class="version-control" id="versiones">
+      <h2>Control de versiones</h2>
+      <div class="table-wrapper"><table>
+        <thead><tr><th>Versión</th><th>Fecha</th><th>Autor</th><th>Descripción</th></tr></thead>
+        <tbody>
+          <tr><td><code>v1.0</code></td><td>29/08/2026</td><td>CODANOR</td><td>Versión inicial — 10 tablas (4 core + 6 tiquets), 32 endpoints documentados</td></tr>
+          <tr><td><code>v1.4</code></td><td>29/08/2026</td><td>CODANOR</td><td>ALTER TABLE wiki_article_id, módulo Wiki documentado, 39 endpoints</td></tr>
+          <tr style="background:var(--primary-light);"><td><code>v2.0</code></td><td>05/10/2026</td><td>Jaimefajeda</td><td><strong>Rediseño completo Skill documentos-proyectos</strong> — inventario real 7 BDs del ecosistema, 19 tablas plataforma.db (incl. risk/eipd), 86 endpoints reales, mejoras propuestas ampliadas, plan de mantenimiento, hoja de ruta unificación</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+
+    <!-- SECCIÓN 1 — ECOSISTEMA -->
+    <div class="content-section" id="sec1">
+      <div class="section-number">Sección 1</div>
+      <h1>Ecosistema de bases de datos CODANOR</h1>
+      <p>El ecosistema <code>~/Proyectos/</code> contiene <strong>7 bases de datos SQLite activas</strong> distribuidas entre diferentes proyectos Flask. Cada BD es independiente, con su propio servidor Flask y esquema. La BD central es <code>plataforma.db</code>.</p>
+
+      <div class="db-grid">
+        <div class="db-card principal">
+          <h4>plataforma.db <span class="badge badge-ok">PRINCIPAL</span></h4>
+          <div class="db-path">servidor/plataforma.db</div>
+          <span class="db-stat">3,3 MB</span><span class="db-stat">19 tablas</span><span class="db-stat">Flask :5001</span>
+          <p>Core de la Plataforma ISO/ENS. 298 clientes, 37 proyectos, 9 normas. Módulos: tiquets, wiki, riesgos, sonar, LLM corporativo.</p>
+        </div>
+        <div class="db-card">
+          <h4>tracker.db <span class="badge badge-info">PLANIFICACIÓN</span></h4>
+          <div class="db-path">Planificacion_Diaria_Proyectos/servidor/tracker.db</div>
+          <span class="db-stat">1,0 MB</span><span class="db-stat">5 tablas</span><span class="db-stat">Flask :5002</span>
+          <p>Sesiones de trabajo, proyectos y adjuntos del planificador diario. 54 clientes, 77 proyectos, 360 sesiones.</p>
+        </div>
+        <div class="db-card">
+          <h4>codanor_actas.db <span class="badge badge-info">ACTAS</span></h4>
+          <div class="db-path">Seguimiento de Actas.../db/codanor_actas.db</div>
+          <span class="db-stat">404 KB</span><span class="db-stat">7 tablas</span><span class="db-stat">Flask</span>
+          <p>19 actas de reunión, 120 puntos tratados, 73 acciones derivadas. Sistema independiente anterior a la integración en plataforma.db.</p>
+        </div>
+        <div class="db-card dev">
+          <h4>ossint.sqlite <span class="badge badge-warn">DEV</span></h4>
+          <div class="db-path">OSSINT/db/ossint.sqlite</div>
+          <span class="db-stat">52 KB</span><span class="db-stat">7 tablas</span><span class="db-stat">Flask</span>
+          <p>Investigaciones OSINT, hallazgos e informes. BD prácticamente vacía — proyecto en fase inicial.</p>
+        </div>
+        <div class="db-card">
+          <h4>publications.db <span class="badge badge-info">LEGISLACIÓN</span></h4>
+          <div class="db-path">legislacion_monitor-NEW/data/publications.db</div>
+          <span class="db-stat">40 KB</span><span class="db-stat">1 tabla</span><span class="db-stat">Python standalone</span>
+          <p>40 publicaciones legislativas monitorizadas (NIS2, CSRD, RGPD, ISO 27001/27002...). Archivo WAL activo.</p>
+        </div>
+        <div class="db-card vectorial">
+          <h4>chroma.sqlite3 <span class="badge badge-new">IA VECTORIAL</span></h4>
+          <div class="db-path">Wiki_CODANOR/vectordb/vector_db/chroma.sqlite3</div>
+          <span class="db-stat">11 MB</span><span class="db-stat">774 embeddings</span><span class="db-stat">Docker :3000</span>
+          <p>ChromaDB — base de datos vectorial para búsqueda semántica RAG. 5 colecciones, 14.596 metadatos.</p>
+        </div>
+        <div class="db-card vectorial">
+          <h4>webui.db <span class="badge badge-new">OPEN-WEBUI</span></h4>
+          <div class="db-path">Wiki_CODANOR/vectordb/webui.db</div>
+          <span class="db-stat">2,9 MB</span><span class="db-stat">42 tablas</span><span class="db-stat">Docker :3000</span>
+          <p>Open-WebUI (SQLAlchemy/Alembic). 10 knowledge bases, conversaciones, configuración completa del sistema de chat IA.</p>
+        </div>
+      </div>
+
+      <div class="table-wrapper"><table>
+        <thead><tr><th>BD</th><th>Ruta</th><th>Tamaño</th><th>Tablas</th><th>Puerto</th><th>WAL</th><th>Estado</th><th>Backups</th></tr></thead>
+        <tbody>
+          <tr><td><strong>plataforma.db</strong></td><td><code>servidor/plataforma.db</code></td><td>3,3 MB</td><td>19</td><td>5001</td><td><span class="badge badge-ok">Sí</span></td><td><span class="badge badge-ok">Producción</span></td><td>10</td></tr>
+          <tr><td><strong>tracker.db</strong></td><td><code>Planificacion.../tracker.db</code></td><td>1,0 MB</td><td>5</td><td>5002</td><td><span class="badge badge-ok">Sí</span></td><td><span class="badge badge-ok">Producción</span></td><td>12</td></tr>
+          <tr><td><strong>codanor_actas.db</strong></td><td><code>Actas.../codanor_actas.db</code></td><td>404 KB</td><td>7</td><td>—</td><td><span class="badge badge-empty">No</span></td><td><span class="badge badge-ok">Activa</span></td><td>0</td></tr>
+          <tr><td><strong>ossint.sqlite</strong></td><td><code>OSSINT/db/ossint.sqlite</code></td><td>52 KB</td><td>7</td><td>—</td><td><span class="badge badge-empty">No</span></td><td><span class="badge badge-warn">Dev</span></td><td>0</td></tr>
+          <tr><td><strong>publications.db</strong></td><td><code>legislacion.../publications.db</code></td><td>40 KB</td><td>1</td><td>—</td><td><span class="badge badge-warn">WAL activo</span></td><td><span class="badge badge-ok">Activa</span></td><td>0</td></tr>
+          <tr><td><strong>chroma.sqlite3</strong></td><td><code>Wiki_CODANOR/vectordb/...</code></td><td>11 MB</td><td>21</td><td>3000</td><td><span class="badge badge-ok">Sí</span></td><td><span class="badge badge-ok">Activa</span></td><td>0</td></tr>
+          <tr><td><strong>webui.db</strong></td><td><code>Wiki_CODANOR/vectordb/webui.db</code></td><td>2,9 MB</td><td>42</td><td>3000</td><td><span class="badge badge-ok">Sí</span></td><td><span class="badge badge-ok">Activa</span></td><td>0</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+
+    <!-- SECCIÓN 2 — PLATAFORMA.DB -->
+    <div class="content-section" id="sec2">
+      <div class="section-number">Sección 2</div>
+      <h1>plataforma.db — Esquema completo (19 tablas)</h1>
+      <p>Base de datos principal del ecosistema CODANOR. SQLite en modo WAL, puerto 5001, HOST 0.0.0.0 (acceso LAN). Clave primaria compuesta en tablas core. Sin FK nativas — integridad lógica en <code>server.py</code>.</p>
+
+      <h2 id="sec2-core">2.1 Tablas core — Motor de proyectos (4)</h2>
+      <div class="table-wrapper"><table>
+        <thead><tr><th>Tabla</th><th>Columna</th><th>Tipo</th><th>Constraint</th><th>Descripción</th></tr></thead>
+        <tbody>
+          <tr><td rowspan="4"><strong>clients</strong></td><td class="col-pk"><code>id</code></td><td>TEXT</td><td>PK (composite)</td><td>ID del cliente</td></tr>
+          <tr><td class="col-pk"><code>app_id</code></td><td>TEXT</td><td>PK (composite) NOT NULL</td><td>Norma: iso27001, ens, rgpd...</td></tr>
+          <tr><td><code>data_json</code></td><td>TEXT</td><td>NOT NULL</td><td>JSON con datos del cliente</td></tr>
+          <tr><td><code>updated_at</code></td><td>TEXT</td><td>NOT NULL</td><td>ISO 8601</td></tr>
+          <tr><td rowspan="4"><strong>projects</strong></td><td class="col-pk"><code>id</code></td><td>TEXT</td><td>PK (composite)</td><td>ID del proyecto</td></tr>
+          <tr><td class="col-pk"><code>app_id</code></td><td>TEXT</td><td>PK (composite) NOT NULL</td><td>Norma del proyecto</td></tr>
+          <tr><td><code>data_json</code></td><td>TEXT</td><td>NOT NULL</td><td>JSON con metadatos del proyecto</td></tr>
+          <tr><td><code>updated_at</code></td><td>TEXT</td><td>NOT NULL</td><td>ISO 8601</td></tr>
+          <tr><td rowspan="5"><strong>phase_data</strong></td><td class="col-pk"><code>project_id</code></td><td>TEXT</td><td>PK (composite)</td><td>Referencia a projects.id</td></tr>
+          <tr><td class="col-pk"><code>app_id</code></td><td>TEXT</td><td>PK (composite) NOT NULL</td><td>Norma</td></tr>
+          <tr><td class="col-pk"><code>phase</code></td><td>TEXT</td><td>PK (composite) NOT NULL</td><td>Clave libre: phase1, gap, soa, mapa_procesos...</td></tr>
+          <tr><td><code>data_json</code></td><td>TEXT</td><td>NOT NULL</td><td>JSON del estado de la fase</td></tr>
+          <tr><td><code>updated_at</code></td><td>TEXT</td><td>NOT NULL</td><td>ISO 8601</td></tr>
+          <tr><td rowspan="3"><strong>settings</strong></td><td class="col-pk"><code>app_id</code></td><td>TEXT</td><td>PK (composite)</td><td>Dominio: _global, iso27001...</td></tr>
+          <tr><td class="col-pk"><code>key</code></td><td>TEXT</td><td>PK (composite) NOT NULL</td><td>corp_llm_config, ...</td></tr>
+          <tr><td><code>value</code></td><td>TEXT</td><td></td><td>Valor JSON (key LLM XOR+base64 ofuscada)</td></tr>
+        </tbody>
+      </table></div>
+
+      <h2 id="sec2-tiquets">2.2 Módulo Tiquets (6 tablas) — v1.0→v1.4</h2>
+      <div class="table-wrapper"><table>
+        <thead><tr><th>Tabla</th><th>Ver.</th><th>Columnas principales</th><th>Registros</th></tr></thead>
+        <tbody>
+          <tr><td><strong>contadores_tiquets</strong></td><td>v1.0</td><td><span class="col-pk">client_id (PK)</span> · <span class="col-pk">app_id (PK)</span> · ultimo_nnn INT DEF 0</td><td>3</td></tr>
+          <tr><td><strong>tiquets</strong></td><td>v1.0+v1.4</td><td><span class="col-pk">id AUTOINCREMENT</span> · tiquet_id UNIQUE · nnn · client_id · app_id · project_id · titulo · descripcion · tipo CHECK(incidencia|peticion|cambio|problema|vulnerabilidad|ciberincidente) · prioridad CHECK(critica|alta|media|baja) DEF media · estado CHECK(nuevo|asignado|en_progreso|pendiente|resuelto|cerrado) · solicitante · asignado_a · normas_afectadas JSON · control_iso · cvss_score REAL(0-10) · sla_vencimiento · evidencias · creado_en · <span class="col-new">wiki_article_id (v1.4)</span></td><td>3</td></tr>
+          <tr><td><strong>tiquets_historial</strong></td><td>v1.0</td><td>id · tiquet_id FK · usuario · campo · valor_antes · valor_des · fecha</td><td>10</td></tr>
+          <tr><td><strong>tiquets_comentarios</strong></td><td>v1.0</td><td>id · tiquet_id FK · usuario · texto · fecha</td><td>1</td></tr>
+          <tr><td><strong>tiquets_acciones</strong></td><td>v1.2</td><td>id · tiquet_id FK · descripcion · responsable · estado CHECK(pendiente|en_curso|resuelta) · fecha_limite · fecha_resolucion · creado_en · actualizado_en</td><td>4</td></tr>
+          <tr><td><strong>tiquets_adjuntos</strong></td><td>v1.3</td><td>id · tiquet_id FK · nombre · ruta · tipo_mime · tamanyo bytes · usuario · creado_en</td><td>1</td></tr>
+        </tbody>
+      </table></div>
+      <p><strong>Formato ID tiquet:</strong> <code>TIK-{NNN:03d}-{client_id}-{app_id}-{DD-MM-AAAA}</code></p>
+
+      <h2 id="sec2-wiki">2.3 Módulo Wiki (2 tablas)</h2>
+      <div class="table-wrapper"><table>
+        <thead><tr><th>Tabla</th><th>Columnas principales</th><th>Registros</th></tr></thead>
+        <tbody>
+          <tr><td><strong>wiki_articles</strong></td><td>id · title · content · category · tags · app_id · project_id · source_tiquet_id · created_at · updated_at</td><td>7</td></tr>
+          <tr><td><strong>wiki_documents</strong></td><td>id · title · filename · filepath · app_id · project_id · uploaded_at · size · mime_type</td><td>4</td></tr>
+        </tbody>
+      </table></div>
+
+      <h2 id="sec2-riesgos">2.4 Módulo Análisis de Riesgos (5 tablas) <span class="badge badge-new">Nuevo v2026-10-02</span></h2>
+      <div class="alert alert-warning">
+        <div class="alert-title">Tablas creadas, datos pendientes de migración</div>
+        Las 5 tablas existen en plataforma.db pero están vacías. Los datos residen en IndexedDB de los navegadores. La migración se realiza desde los dashboards de riesgos mediante el banner "Migrar a servidor".
+      </div>
+      <div class="table-wrapper"><table>
+        <thead><tr><th>Tabla</th><th>PK</th><th>Columnas clave</th><th>Descripción</th></tr></thead>
+        <tbody>
+          <tr class="row-new"><td><strong>risk_projects</strong></td><td>(id, app_id)</td><td>id · app_id · nombre · cliente · categoria_ens · created_at</td><td>Proyectos de análisis de riesgos por norma (iso27001/ens/lopd)</td></tr>
+          <tr class="row-new"><td><strong>risk_assets</strong></td><td>INTEGER AUTOINCREMENT</td><td>project_id FK · app_id · nombre · tipo · descripcion · 37 cols Magerit v3 (confidencialidad, integridad, disponibilidad, impacto_aut, impacto_traz...)</td><td>Activos/riesgos con esquema Magerit v3 completo + dimensiones ENS</td></tr>
+          <tr class="row-new"><td><strong>risk_seguimiento</strong></td><td>INTEGER AUTOINCREMENT</td><td>activo_id FK · accion · responsable · fecha_inicio · fecha_fin · estado</td><td>Acciones de seguimiento vinculadas a activos</td></tr>
+          <tr class="row-new"><td><strong>eipd_projects</strong></td><td>id TEXT</td><td>id · nombre · cliente · app_id · created_at (formato: EIPD-NNN-CLIENTE)</td><td>Proyectos EIPD (Evaluación de Impacto LOPD-RGPD)</td></tr>
+          <tr class="row-new"><td><strong>eipd_data</strong></td><td>(project_id, seccion)</td><td>project_id FK · seccion · data_json (rat_rt, rat_et, pre_evaluacion, descripcion, factores, medidas, conclusion, consulta_previa)</td><td>Secciones EIPD almacenadas como JSON</td></tr>
+        </tbody>
+      </table></div>
+
+      <h2 id="sec2-sonar">2.5 SonarCloud (1 tabla)</h2>
+      <div class="table-wrapper"><table>
+        <thead><tr><th>Tabla</th><th>Columnas</th><th>Registros</th><th>Estado</th></tr></thead>
+        <tbody>
+          <tr><td><strong>sonar_history</strong></td><td>id · project_key · scan_date · bugs · vulnerabilities · code_smells · coverage · duplications · quality_gate · raw_json</td><td>0</td><td><span class="badge badge-empty">Sin datos</span> — tabla creada, pendiente de poblar via endpoint <code>/api/sonar/save</code></td></tr>
+        </tbody>
+      </table></div>
+    </div>
+
+    <!-- SECCIÓN 3 — OTRAS BDs -->
+    <div class="content-section" id="sec3">
+      <div class="section-number">Sección 3</div>
+      <h1>Otras bases de datos del ecosistema</h1>
+
+      <h2 id="sec3-tracker">3.1 tracker.db — Planificación Diaria (Flask :5002)</h2>
+      <div class="table-wrapper"><table>
+        <thead><tr><th>Tabla</th><th>Filas</th><th>Descripción</th></tr></thead>
+        <tbody>
+          <tr><td><strong>clients</strong></td><td>54</td><td>Clientes del tracker de planificación</td></tr>
+          <tr><td><strong>projects</strong></td><td>77</td><td>Proyectos de planificación diaria</td></tr>
+          <tr><td><strong>sessions</strong></td><td>360</td><td>Sesiones de trabajo / reuniones registradas</td></tr>
+          <tr><td><strong>attachments</strong></td><td>75</td><td>Adjuntos físicos en <code>uploads/tracker/</code></td></tr>
+          <tr><td><strong>settings</strong></td><td>1</td><td>Configuración del tracker</td></tr>
+        </tbody>
+      </table></div>
+
+      <h2 id="sec3-actas">3.2 codanor_actas.db — Actas de Reunión</h2>
+      <div class="table-wrapper"><table>
+        <thead><tr><th>Tabla</th><th>Filas</th><th>Descripción</th></tr></thead>
+        <tbody>
+          <tr><td><strong>clientes</strong></td><td>2</td><td>Clientes</td></tr>
+          <tr><td><strong>proyectos</strong></td><td>2</td><td>Proyectos</td></tr>
+          <tr><td><strong>normas</strong></td><td>5</td><td>Normas de referencia</td></tr>
+          <tr><td><strong>actas</strong></td><td>19</td><td>Actas de reunión</td></tr>
+          <tr><td><strong>puntos_tratados</strong></td><td>120</td><td>Puntos del orden del día</td></tr>
+          <tr><td><strong>acciones</strong></td><td>73</td><td>Acciones derivadas de actas</td></tr>
+          <tr><td><strong>documentos</strong></td><td>18</td><td>Documentos adjuntos</td></tr>
+        </tbody>
+      </table></div>
+      <div class="alert alert-info">
+        <div class="alert-title">Nota de integración</div>
+        Esta BD es anterior a la integración del módulo de actas en plataforma.db. A medio plazo debería migrarse o integrarse en la plataforma central para evitar silos de datos.
+      </div>
+
+      <h2 id="sec3-ossint">3.3 ossint.sqlite — OSSINT (Dev)</h2>
+      <p>7 tablas (clientes, usuarios, investigaciones, hallazgos, informes, contadores, audit_log). BD prácticamente vacía. Sin modo WAL — activar antes de pasar a producción.</p>
+
+      <h2 id="sec3-legislacion">3.4 publications.db — Legislación Monitor</h2>
+      <p>1 tabla (<code>publications</code>, 40 registros). Columnas: <code>id, source, url, title, category, date, vigente, norma, summary, created_at, notified</code>. Archivo <code>.wal</code> activo — verificar que el proceso se cerró limpiamente con <code>sqlite3 publications.db "PRAGMA wal_checkpoint(FULL);"</code></p>
+
+      <h2 id="sec3-vectorial">3.5 ChromaDB + Open-WebUI (Docker :3000)</h2>
+      <div class="table-wrapper"><table>
+        <thead><tr><th>BD</th><th>Tablas</th><th>Datos clave</th><th>Motor</th></tr></thead>
+        <tbody>
+          <tr><td><strong>chroma.sqlite3</strong></td><td>21</td><td>774 embeddings · 14.596 metadatos · 5 colecciones</td><td>ChromaDB (vectorial)</td></tr>
+          <tr><td><strong>webui.db</strong></td><td>42</td><td>10 knowledge bases · 1 usuario · 352 configs</td><td>SQLAlchemy/Alembic</td></tr>
+        </tbody>
+      </table></div>
+      <div class="alert alert-purple">
+        <div class="alert-title">BDs vectoriales — gestión especial</div>
+        No manipular directamente con sqlite3. Gestionar siempre a través de la API ChromaDB o la interfaz Open-WebUI en <code>http://localhost:3000</code>. Las BDs vectoriales tienen índices HNSW que se corrompen si se modifican externamente.
+      </div>
+    </div>
+
+    <!-- SECCIÓN 4 — ENDPOINTS -->
+    <div class="content-section" id="sec4">
+      <div class="section-number">Sección 4</div>
+      <h1>Endpoints Flask — plataforma.db (86 endpoints)</h1>
+
+      <h2 id="sec4-core">4.1 Core + Exportación (13)</h2>
+      <div class="table-wrapper"><table>
+        <thead><tr><th>Método</th><th>Endpoint</th><th>Descripción</th></tr></thead>
+        <tbody>
+          <tr><td><span class="badge badge-ok">GET</span></td><td><code>/api/health</code></td><td>Salud del servidor</td></tr>
+          <tr><td><span class="badge badge-ok">GET</span></td><td><code>/api/&lt;app_id&gt;/clients</code></td><td>Listar clientes</td></tr>
+          <tr><td><span class="badge badge-info">POST</span></td><td><code>/api/&lt;app_id&gt;/clients</code></td><td>Crear/actualizar cliente</td></tr>
+          <tr><td><span class="badge badge-warn">DELETE</span></td><td><code>/api/&lt;app_id&gt;/clients/&lt;id&gt;</code></td><td>Eliminar cliente</td></tr>
+          <tr><td><span class="badge badge-ok">GET</span></td><td><code>/api/&lt;app_id&gt;/projects</code></td><td>Listar proyectos</td></tr>
+          <tr><td><span class="badge badge-info">POST</span></td><td><code>/api/&lt;app_id&gt;/projects</code></td><td>Crear/actualizar proyecto</td></tr>
+          <tr><td><span class="badge badge-warn">DELETE</span></td><td><code>/api/&lt;app_id&gt;/projects/&lt;id&gt;</code></td><td>Eliminar proyecto</td></tr>
+          <tr><td><span class="badge badge-ok">GET</span></td><td><code>/api/&lt;app_id&gt;/phase/&lt;pid&gt;/&lt;fase&gt;</code></td><td>Leer fase</td></tr>
+          <tr><td><span class="badge badge-info">POST</span></td><td><code>/api/&lt;app_id&gt;/phase/&lt;pid&gt;/&lt;fase&gt;</code></td><td>Guardar fase</td></tr>
+          <tr><td><span class="badge badge-ok">GET</span></td><td><code>/api/&lt;app_id&gt;/settings/&lt;key&gt;</code></td><td>Leer setting</td></tr>
+          <tr><td><span class="badge badge-info">POST</span></td><td><code>/api/&lt;app_id&gt;/settings/&lt;key&gt;</code></td><td>Guardar setting</td></tr>
+          <tr><td><span class="badge badge-ok">GET</span></td><td><code>/api/&lt;app_id&gt;/export</code></td><td>Exportar proyecto completo (JSON)</td></tr>
+          <tr><td><span class="badge badge-info">POST</span></td><td><code>/api/&lt;app_id&gt;/import</code></td><td>Importar proyecto (JSON)</td></tr>
+        </tbody>
+      </table></div>
+
+      <h2 id="sec4-tiquets">4.2 Módulo Tiquets (19)</h2>
+      <div class="table-wrapper"><table>
+        <thead><tr><th>Método</th><th>Endpoint</th><th>Versión</th></tr></thead>
+        <tbody>
+          <tr><td><span class="badge badge-ok">GET</span></td><td><code>/api/tiquets/clientes</code></td><td>v1.0</td></tr>
+          <tr><td><span class="badge badge-ok">GET</span></td><td><code>/api/tiquets/proyectos?client_id=X&amp;app_id=Y</code></td><td>v1.0</td></tr>
+          <tr><td><span class="badge badge-ok">GET</span></td><td><code>/api/tiquets?client_id=X&amp;app_id=Y&amp;tipo=Z&amp;estado=W&amp;q=Q&amp;limit=N&amp;offset=M</code></td><td>v1.0</td></tr>
+          <tr><td><span class="badge badge-info">POST</span></td><td><code>/api/tiquets</code></td><td>v1.0</td></tr>
+          <tr><td><span class="badge badge-ok">GET</span></td><td><code>/api/tiquets/&lt;tiquet_id&gt;</code></td><td>v1.0</td></tr>
+          <tr><td><span class="badge badge-info">PUT</span></td><td><code>/api/tiquets/&lt;tiquet_id&gt;</code></td><td>v1.0</td></tr>
+          <tr><td><span class="badge badge-info">POST</span></td><td><code>/api/tiquets/&lt;tiquet_id&gt;/comentarios</code></td><td>v1.0</td></tr>
+          <tr><td><span class="badge badge-ok">GET</span></td><td><code>/api/tiquets/exportar?formato=csv&amp;client_id=X</code></td><td>v1.0</td></tr>
+          <tr><td><span class="badge badge-ok">GET</span></td><td><code>/api/tiquets/&lt;tiquet_id&gt;/acciones</code></td><td>v1.2</td></tr>
+          <tr><td><span class="badge badge-info">POST</span></td><td><code>/api/tiquets/&lt;tiquet_id&gt;/acciones</code></td><td>v1.2</td></tr>
+          <tr><td><span class="badge badge-info">PUT</span></td><td><code>/api/tiquets/&lt;tiquet_id&gt;/acciones/&lt;id&gt;</code></td><td>v1.2</td></tr>
+          <tr><td><span class="badge badge-warn">DELETE</span></td><td><code>/api/tiquets/&lt;tiquet_id&gt;/acciones/&lt;id&gt;</code></td><td>v1.2</td></tr>
+          <tr><td><span class="badge badge-ok">GET</span></td><td><code>/api/tiquets/&lt;tiquet_id&gt;/adjuntos</code></td><td>v1.3</td></tr>
+          <tr><td><span class="badge badge-info">POST</span></td><td><code>/api/tiquets/&lt;tiquet_id&gt;/adjuntos</code></td><td>v1.3</td></tr>
+          <tr><td><span class="badge badge-warn">DELETE</span></td><td><code>/api/tiquets/&lt;tiquet_id&gt;/adjuntos/&lt;id&gt;</code></td><td>v1.3</td></tr>
+          <tr><td><span class="badge badge-ok">GET</span></td><td><code>/api/uploads/tiquets/&lt;filename&gt;</code></td><td>v1.3</td></tr>
+          <tr><td><span class="badge badge-ok">GET</span></td><td><code>/api/tiquets/&lt;tiquet_id&gt;/exportar/word</code></td><td>v1.3</td></tr>
+          <tr><td><span class="badge badge-ok">GET</span></td><td><code>/api/tiquets/&lt;tiquet_id&gt;/exportar/excel</code></td><td>v1.3</td></tr>
+          <tr><td><span class="badge badge-info">POST</span></td><td><code>/api/tiquets/&lt;tiquet_id&gt;/enviar-wiki</code></td><td>v1.4</td></tr>
+        </tbody>
+      </table></div>
+
+      <h2 id="sec4-riesgos">4.3 Módulo Riesgos + EIPD (17) <span class="badge badge-new">Nuevo oct-2026</span></h2>
+      <div class="table-wrapper"><table>
+        <thead><tr><th>Método</th><th>Endpoint</th><th>Descripción</th></tr></thead>
+        <tbody>
+          <tr><td><span class="badge badge-ok">GET</span></td><td><code>/api/riesgos/&lt;app_id&gt;/proyectos</code></td><td>Listar proyectos de riesgo</td></tr>
+          <tr><td><span class="badge badge-info">POST</span></td><td><code>/api/riesgos/&lt;app_id&gt;/proyectos</code></td><td>Crear/actualizar proyecto (upsert)</td></tr>
+          <tr><td><span class="badge badge-ok">GET</span></td><td><code>/api/riesgos/&lt;app_id&gt;/proyectos/&lt;id&gt;</code></td><td>Proyecto completo + activos + seguimiento</td></tr>
+          <tr><td><span class="badge badge-warn">DELETE</span></td><td><code>/api/riesgos/&lt;app_id&gt;/proyectos/&lt;id&gt;</code></td><td>Eliminar proyecto de riesgo</td></tr>
+          <tr><td><span class="badge badge-ok">GET</span></td><td><code>/api/riesgos/&lt;app_id&gt;/proyectos/&lt;id&gt;/activos</code></td><td>Listar activos</td></tr>
+          <tr><td><span class="badge badge-info">POST</span></td><td><code>/api/riesgos/&lt;app_id&gt;/proyectos/&lt;id&gt;/activos</code></td><td>Crear activo</td></tr>
+          <tr><td><span class="badge badge-info">PUT</span></td><td><code>/api/riesgos/&lt;app_id&gt;/proyectos/&lt;id&gt;/activos/&lt;rowid&gt;</code></td><td>Actualizar activo</td></tr>
+          <tr><td><span class="badge badge-warn">DELETE</span></td><td><code>/api/riesgos/&lt;app_id&gt;/proyectos/&lt;id&gt;/activos/&lt;rowid&gt;</code></td><td>Eliminar activo</td></tr>
+          <tr><td><span class="badge badge-ok">GET</span></td><td><code>/api/riesgos/&lt;app_id&gt;/proyectos/&lt;id&gt;/seguimiento</code></td><td>Listar seguimientos</td></tr>
+          <tr><td><span class="badge badge-info">POST</span></td><td><code>/api/riesgos/&lt;app_id&gt;/proyectos/&lt;id&gt;/seguimiento</code></td><td>Crear seguimiento</td></tr>
+          <tr><td><span class="badge badge-info">PUT</span></td><td><code>/api/riesgos/&lt;app_id&gt;/proyectos/&lt;id&gt;/seguimiento/&lt;rowid&gt;</code></td><td>Actualizar seguimiento</td></tr>
+          <tr><td><span class="badge badge-warn">DELETE</span></td><td><code>/api/riesgos/&lt;app_id&gt;/proyectos/&lt;id&gt;/seguimiento/&lt;rowid&gt;</code></td><td>Eliminar seguimiento</td></tr>
+          <tr><td><span class="badge badge-ok">GET</span></td><td><code>/api/eipd/proyectos</code></td><td>Listar proyectos EIPD</td></tr>
+          <tr><td><span class="badge badge-info">POST</span></td><td><code>/api/eipd/proyectos</code></td><td>Crear/actualizar proyecto EIPD</td></tr>
+          <tr><td><span class="badge badge-ok">GET</span></td><td><code>/api/eipd/proyectos/&lt;id&gt;</code></td><td>Proyecto EIPD completo</td></tr>
+          <tr><td><span class="badge badge-info">PUT</span></td><td><code>/api/eipd/proyectos/&lt;id&gt;/&lt;seccion&gt;</code></td><td>Actualizar sección EIPD</td></tr>
+          <tr><td><span class="badge badge-warn">DELETE</span></td><td><code>/api/eipd/proyectos/&lt;id&gt;</code></td><td>Eliminar proyecto EIPD</td></tr>
+        </tbody>
+      </table></div>
+
+      <h2 id="sec4-llm">4.4 LLM Corporativo (3)</h2>
+      <div class="table-wrapper"><table>
+        <thead><tr><th>Método</th><th>Endpoint</th><th>Descripción</th></tr></thead>
+        <tbody>
+          <tr><td><span class="badge badge-ok">GET</span></td><td><code>/api/corp/llm-config</code></td><td>Leer config (key XOR+base64 ofuscada)</td></tr>
+          <tr><td><span class="badge badge-info">POST</span></td><td><code>/api/corp/llm-config</code></td><td>Guardar config (key se ofusca antes)</td></tr>
+          <tr><td><span class="badge badge-warn">DELETE</span></td><td><code>/api/corp/llm-config</code></td><td>Eliminar config (vuelve a localStorage)</td></tr>
+        </tbody>
+      </table></div>
+
+      <h2 id="sec4-otros">4.5 Wiki + Sonar + Estáticos + Riesgos dashboards (34 aprox.)</h2>
+      <p>El resto de endpoints incluyen: <code>/api/wiki/*</code> (documentos y artículos), <code>/api/sonar/*</code> (histórico SonarCloud), servicio de archivos estáticos de los dashboards de riesgos (<code>/riesgos/iso27001/</code>, <code>/riesgos/ens/</code>, <code>/riesgos/lopd/</code>), y endpoints de exportación Word/Excel. Ver <code>server.py</code> (~4276 líneas) para el listado completo.</p>
+    </div>
+
+    <!-- SECCIÓN 5 — DIAGRAMA -->
+    <div class="content-section" id="sec5">
+      <div class="section-number">Sección 5</div>
+      <h1>Diagrama de relaciones lógicas — plataforma.db</h1>
+      <div class="alert alert-info">
+        <div class="alert-title">Sin FK nativas</div>
+        plataforma.db no usa FOREIGN KEY nativas de SQLite. Las relaciones se gestionan lógicamente en <code>server.py</code>. El diagrama muestra relaciones semánticas, no constraints DDL.
+      </div>
+      <pre>clients (id, app_id)
+  └── projects (id, app_id) ──── phase_data (project_id, app_id, phase)
+  └── contadores_tiquets (client_id, app_id)
+  └── tiquets (client_id, app_id)
+        ├── tiquets_historial (tiquet_id)
+        ├── tiquets_comentarios (tiquet_id)
+        ├── tiquets_acciones (tiquet_id)
+        ├── tiquets_adjuntos (tiquet_id)
+        └── wiki_articles (source_tiquet_id) ──── wiki_documents
+
+settings (app_id='_global', key='corp_llm_config')
+sonar_history (project_key)
+
+risk_projects (id, app_id) ─── [iso27001|ens|lopd]
+  └── risk_assets (project_id, app_id)
+        └── risk_seguimiento (activo_id)
+
+eipd_projects (id)
+  └── eipd_data (project_id, seccion)</pre>
+    </div>
+
+    <!-- SECCIÓN 6 — DDL -->
+    <div class="content-section" id="sec6">
+      <div class="section-number">Sección 6</div>
+      <h1>DDL — Comandos de verificación</h1>
+      <pre>-- Verificar integridad de plataforma.db
+sqlite3 ~/Proyectos/Plataforma_Seguimiento_Proyectos/servidor/plataforma.db \
+  "PRAGMA integrity_check;"
+
+-- Listar las 19 tablas
+sqlite3 ~/Proyectos/Plataforma_Seguimiento_Proyectos/servidor/plataforma.db \
+  "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name;"
+
+-- Contar registros por tabla
+sqlite3 ~/Proyectos/Plataforma_Seguimiento_Proyectos/servidor/plataforma.db "
+  SELECT 'clients'              , COUNT(*) FROM clients UNION ALL
+  SELECT 'projects'             , COUNT(*) FROM projects UNION ALL
+  SELECT 'phase_data'           , COUNT(*) FROM phase_data UNION ALL
+  SELECT 'tiquets'              , COUNT(*) FROM tiquets UNION ALL
+  SELECT 'tiquets_historial'    , COUNT(*) FROM tiquets_historial UNION ALL
+  SELECT 'wiki_articles'        , COUNT(*) FROM wiki_articles UNION ALL
+  SELECT 'risk_projects'        , COUNT(*) FROM risk_projects UNION ALL
+  SELECT 'eipd_projects'        , COUNT(*) FROM eipd_projects UNION ALL
+  SELECT 'sonar_history'        , COUNT(*) FROM sonar_history;
+"
+
+-- WAL checkpoint manual
+sqlite3 ~/Proyectos/Plataforma_Seguimiento_Proyectos/servidor/plataforma.db \
+  "PRAGMA wal_checkpoint(FULL);"
+
+-- Tamaño de la BD
+sqlite3 ~/Proyectos/Plataforma_Seguimiento_Proyectos/servidor/plataforma.db \
+  "SELECT page_count * page_size / 1024 || ' KB' FROM pragma_page_count(), pragma_page_size();"</pre>
+
+      <h2>DDL de las tablas nuevas (Riesgos + EIPD)</h2>
+      <pre>-- risk_projects
+CREATE TABLE IF NOT EXISTS risk_projects (
+  id      TEXT NOT NULL,
+  app_id  TEXT NOT NULL,
+  nombre  TEXT,
+  cliente TEXT,
+  categoria_ens TEXT,
+  created_at TEXT DEFAULT (datetime('now')),
+  PRIMARY KEY (id, app_id)
+);
+
+-- risk_assets (37 cols Magerit v3 — extracto)
+CREATE TABLE IF NOT EXISTS risk_assets (
+  id            INTEGER PRIMARY KEY AUTOINCREMENT,
+  project_id    TEXT NOT NULL,
+  app_id        TEXT NOT NULL,
+  nombre        TEXT,
+  tipo          TEXT,
+  descripcion   TEXT,
+  confidencialidad INTEGER DEFAULT 0,
+  integridad    INTEGER DEFAULT 0,
+  disponibilidad INTEGER DEFAULT 0,
+  impacto_aut   INTEGER DEFAULT 0,  -- exclusivo ENS
+  impacto_traz  INTEGER DEFAULT 0,  -- exclusivo ENS
+  probabilidad  INTEGER DEFAULT 0,
+  impacto       INTEGER DEFAULT 0,
+  riesgo_residual INTEGER DEFAULT 0
+  -- ... 23 columnas adicionales Magerit v3
+);
+
+-- eipd_projects
+CREATE TABLE IF NOT EXISTS eipd_projects (
+  id         TEXT PRIMARY KEY,
+  nombre     TEXT,
+  cliente    TEXT,
+  app_id     TEXT,
+  created_at TEXT DEFAULT (datetime('now'))
+);
+
+-- eipd_data
+CREATE TABLE IF NOT EXISTS eipd_data (
+  project_id TEXT NOT NULL,
+  seccion    TEXT NOT NULL,
+  data_json  TEXT,
+  PRIMARY KEY (project_id, seccion)
+);</pre>
+    </div>
+
+    <!-- SECCIÓN 7 — BACKUPS -->
+    <div class="content-section" id="sec7">
+      <div class="section-number">Sección 7</div>
+      <h1>Backups disponibles (22 total)</h1>
+      <div class="alert alert-warning">
+        <div class="alert-title">5 BDs sin backup</div>
+        <code>codanor_actas.db</code>, <code>ossint.sqlite</code>, <code>publications.db</code>, <code>chroma.sqlite3</code> y <code>webui.db</code> no tienen ningún backup automatizado. Ver sección 8 para el plan de mantenimiento.
+      </div>
+      <h2>plataforma.db — 10 backups</h2>
+      <div class="table-wrapper"><table>
+        <thead><tr><th>Archivo</th><th>Tamaño</th><th>Fecha</th><th>Tablas</th><th>Notas</th></tr></thead>
+        <tbody>
+          <tr><td><code>plataforma_antes_seg808_20260928.db</code></td><td>3,0 MB</td><td>28-sep-2026</td><td>13</td><td>Pre módulo riesgos</td></tr>
+          <tr><td><code>plataforma_antes_fix_completo_20260925.db</code></td><td>3,0 MB</td><td>25-sep-2026</td><td>13</td><td></td></tr>
+          <tr><td><code>plataforma_antes_fix_sync_20260925.db</code></td><td>3,0 MB</td><td>25-sep-2026</td><td>—</td><td></td></tr>
+          <tr><td><code>plataforma_antes_fix_norma_20260925.db</code></td><td>2,9 MB</td><td>25-sep-2026</td><td>—</td><td></td></tr>
+          <tr><td><code>plataforma_antes_fix_propuestas_20260924.db</code></td><td>2,9 MB</td><td>24-sep-2026</td><td>—</td><td></td></tr>
+          <tr><td><code>plataforma_antes_fix_docs_20260924.db</code></td><td>2,9 MB</td><td>24-sep-2026</td><td>—</td><td></td></tr>
+          <tr><td><code>plataforma_ROTO_20260826.db</code></td><td>2,5 MB</td><td>26-ago-2026</td><td>—</td><td><span class="badge badge-warn">BD rota</span></td></tr>
+          <tr><td><code>plataforma_post_6apps_20260825.db</code></td><td>2,4 MB</td><td>25-ago-2026</td><td>—</td><td></td></tr>
+          <tr><td><code>plataforma_pre_6apps_20260825.db</code></td><td>2,4 MB</td><td>25-ago-2026</td><td>—</td><td></td></tr>
+        </tbody>
+      </table></div>
+      <p><strong>tracker.db — 12 backups</strong> diarios/mensuales entre 01-sep y 04-oct-2026, todos ~776-800 KB.</p>
+    </div>
+
+    <!-- SECCIÓN 8 — MANTENIMIENTO -->
+    <div class="content-section" id="sec8">
+      <div class="section-number">Sección 8</div>
+      <h1>Plan de mantenimiento</h1>
+
+      <h2>Checklist diario (automatizable con launchd)</h2>
+      <pre>#!/bin/bash
+# Verificar integridad
+for DB in plataforma.db tracker.db codanor_actas.db ossint.sqlite publications.db; do
+  RUTA=$(find ~/Proyectos -name "$DB" 2>/dev/null | head -1)
+  [ -f "$RUTA" ] && echo "$DB: $(sqlite3 "$RUTA" 'PRAGMA integrity_check;')"
+done
+
+# WAL checkpoint en publications.db (WAL activo sin servidor)
+sqlite3 ~/Proyectos/legislacion_monitor-NEW/data/publications.db \
+  "PRAGMA wal_checkpoint(FULL);"
+
+# Backup diario plataforma.db
+DATE=$(date +%Y%m%d)
+sqlite3 ~/Proyectos/Plataforma_Seguimiento_Proyectos/servidor/plataforma.db \
+  ".backup /Volumes/CODANOR/backups/plataforma_${DATE}.db"</pre>
+
+      <h2>Checklist semanal</h2>
+      <ol class="step-list">
+        <li>Verificar integridad de las 7 BDs: <code>PRAGMA integrity_check;</code></li>
+        <li>Comprobar tamaño de plataforma.db — alerta si supera 50 MB</li>
+        <li>Revisar WAL activos: <code>ls -lh *.db-wal *.db-shm</code> en todos los proyectos</li>
+        <li>Ejecutar VACUUM en BDs con muchas inserciones/borrados: <code>PRAGMA vacuum;</code></li>
+        <li>Validar backups de plataforma.db y tracker.db en NAS Synology</li>
+        <li>Añadir backups de codanor_actas.db, chroma.sqlite3 y webui.db al script NAS</li>
+      </ol>
+
+      <h2>Checklist mensual</h2>
+      <ol class="step-list">
+        <li>Purgar backups de plataforma.db con más de 30 días — conservar los 3 más recientes de cada mes</li>
+        <li>Actualizar este documento con el recuento de registros real</li>
+        <li>Verificar que las tablas risk_* y eipd_* se han poblado — si siguen vacías, coordinar migración IndexedDB → servidor</li>
+        <li>Revisar sonar_history — ejecutar un análisis SonarCloud y verificar que el endpoint <code>/api/sonar/save</code> guarda datos</li>
+        <li>Ejecutar <code>PRAGMA optimize;</code> en plataforma.db para actualizar estadísticas del planificador de consultas</li>
+        <li>Auditar logs de acceso Flask — verificar no hay accesos anómalos a la API en LAN</li>
+      </ol>
+
+      <h2>Restauración de emergencia — plataforma.db</h2>
+      <pre># 1. Detener el servidor Flask
+pkill -f "python3 server.py"
+
+# 2. Hacer backup del estado actual (aunque esté dañado)
+cp plataforma.db plataforma_EMERGENCY_$(date +%Y%m%d_%H%M%S).db
+
+# 3. Restaurar desde el backup más reciente del NAS
+sqlite3 /Volumes/CODANOR/backups/plataforma_YYYYMMDD.db \
+  ".backup plataforma.db"
+
+# 4. Verificar integridad del restaurado
+sqlite3 plataforma.db "PRAGMA integrity_check;"
+
+# 5. Reiniciar Flask
+python3 server.py &</pre>
+    </div>
+
+    <!-- SECCIÓN 9 — MEJORAS -->
+    <div class="content-section" id="sec9">
+      <div class="section-number">Sección 9</div>
+      <h1>Mejoras propuestas — plataforma.db</h1>
+
+      <h2>P1 — Críticas</h2>
+      <div class="alert alert-danger prio-p1">
+        <div class="alert-title">1. Índice parcial para wiki_article_id</div>
+        <pre>CREATE INDEX idx_tiquets_wiki ON tiquets(wiki_article_id)
+WHERE wiki_article_id IS NOT NULL;</pre>
+        Actualmente cada consulta de tiquets cerrados con artículo wiki hace full-scan de la tabla.
+      </div>
+      <div class="alert alert-danger prio-p1">
+        <div class="alert-title">2. FOREIGN KEYs nativas en DDL</div>
+        Añadir <code>FOREIGN KEY ... ON DELETE CASCADE</code> en las tablas de tiquets. Activar con <code>PRAGMA foreign_keys = ON;</code> en cada conexión Flask. Actualmente solo hay integridad lógica en server.py.
+      </div>
+      <div class="alert alert-danger prio-p1">
+        <div class="alert-title">3. Índice compuesto para SLA vencido</div>
+        <pre>CREATE INDEX idx_tiquets_sla ON tiquets(sla_vencimiento, estado)
+WHERE sla_vencimiento IS NOT NULL;</pre>
+        Para alertas de SLA vencido en el panel de tiquets.
+      </div>
+      <div class="alert alert-danger prio-p1">
+        <div class="alert-title">4. Migración datos risk_* y eipd_* desde IndexedDB</div>
+        Las 5 tablas de riesgos están vacías. Cada usuario con datos en IndexedDB debe acceder al dashboard correspondiente y pulsar "Migrar a servidor". Crear procedimiento de migración masiva para todos los proyectos activos.
+      </div>
+
+      <h2>P2 — Alta prioridad</h2>
+      <div class="alert alert-warning prio-p2">
+        <div class="alert-title">5. Soft delete (RGPD Art. 17)</div>
+        Añadir columna <code>deleted_at TEXT DEFAULT NULL</code> en <code>tiquets</code> para derecho al olvido. Sustituir DELETE por UPDATE con timestamp.
+      </div>
+      <div class="alert alert-warning prio-p2">
+        <div class="alert-title">6. Autenticación JWT en la API Flask</div>
+        La API está completamente abierta en LAN. Implementar <code>flask-jwt-extended</code> con tokens de corta duración. Crítico si la red LAN va a crecer o si se expone a internet.
+      </div>
+      <div class="alert alert-warning prio-p2">
+        <div class="alert-title">7. Backup automatizado de las 5 BDs sin respaldo</div>
+        codanor_actas.db, ossint.sqlite, publications.db, chroma.sqlite3 y webui.db no tienen backup. Añadir al script <code>backup-opencode.sh</code> del NAS Synology.
+      </div>
+      <div class="alert alert-warning prio-p2">
+        <div class="alert-title">8. Tabla de alertas SLA</div>
+        <code>tiquets_sla_alertas</code> — monitorear vencimientos y notificar vía email/webhook/UI. Evita que los SLAs venzan sin visibilidad.
+      </div>
+
+      <h2>P3 — Media prioridad</h2>
+      <div class="alert alert-info prio-p3">
+        <div class="alert-title">9. Índice compuesto principal para el panel</div>
+        <pre>CREATE INDEX idx_tiquets_main ON tiquets(client_id, app_id, estado, creado_en DESC);</pre>
+        Cubre el 90% de las consultas del panel de tiquets (filtro + orden).
+      </div>
+      <div class="alert alert-info prio-p3">
+        <div class="alert-title">10. VACUUM automático semestral</div>
+        Añadir endpoint <code>POST /admin/vacuum</code> en server.py que ejecute <code>VACUUM</code> y <code>ANALYZE</code> en plataforma.db. Programar vía launchd cada 6 meses o cuando el tamaño supere 100 MB.
+      </div>
+      <div class="alert alert-info prio-p3">
+        <div class="alert-title">11. Poblar sonar_history</div>
+        El endpoint <code>/api/sonar/save</code> existe pero nunca se ha llamado. Integrar en el flujo de <code>/sonar</code> (slash command de OpenCode) para que cada análisis SonarCloud guarde el resultado histórico.
+      </div>
+
+      <h2>P4 — Largo plazo</h2>
+      <div class="alert alert-success prio-p4">
+        <div class="alert-title">12. Tabla audit_log centralizada</div>
+        Extender la auditoría campo a campo (actualmente solo en tiquets_historial) a clients, projects y phase_data. Necesario para ISO 27001 A.16 completo.
+      </div>
+      <div class="alert alert-success prio-p4">
+        <div class="alert-title">13. Columnas materializadas en phase_data</div>
+        Añadir <code>progress INTEGER</code>, <code>total_meetings INTEGER</code>, <code>total_tasks INTEGER</code> en phase_data para KPIs sin parsear JSON. Mejoraría el rendimiento del dashboard.
+      </div>
+      <div class="alert alert-success prio-p4">
+        <div class="alert-title">14. Sharding por app_id cuando &gt; 500 MB</div>
+        Si plataforma.db supera 500 MB o GET /phase tarda más de 200ms, evaluar separar en BDs por app_id. Trigger: monitorear con <code>PRAGMA page_count * page_size;</code>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 10 — CONSULTAS -->
+    <div class="content-section" id="sec10">
+      <div class="section-number">Sección 10</div>
+      <h1>Consultas SQLite de referencia</h1>
+      <pre>-- Tiquets abiertos por cliente y norma
+SELECT t.tiquet_id, t.titulo, t.estado, t.prioridad, t.creado_en
+FROM tiquets t
+WHERE t.client_id = 'CLI-001' AND t.app_id = 'iso27001'
+  AND t.estado NOT IN ('resuelto','cerrado')
+ORDER BY t.prioridad ASC, t.creado_en ASC;
+
+-- SLA vencidos
+SELECT tiquet_id, titulo, sla_vencimiento, estado
+FROM tiquets
+WHERE sla_vencimiento &lt; datetime('now')
+  AND estado NOT IN ('resuelto','cerrado')
+ORDER BY sla_vencimiento ASC;
+
+-- Tiquets sin artículo wiki con estado cerrado
+SELECT tiquet_id, titulo, fecha_resolucion
+FROM tiquets
+WHERE estado = 'cerrado' AND wiki_article_id IS NULL
+ORDER BY fecha_resolucion DESC;
+
+-- Resumen de registros por tabla
+SELECT name, (SELECT COUNT(*) FROM sqlite_master WHERE type='table') AS total_tables
+FROM sqlite_master WHERE type='table'
+UNION ALL
+SELECT 'clients - filas'   , COUNT(*) FROM clients
+UNION ALL
+SELECT 'projects - filas'  , COUNT(*) FROM projects
+UNION ALL
+SELECT 'tiquets - filas'   , COUNT(*) FROM tiquets
+UNION ALL
+SELECT 'risk_projects'     , COUNT(*) FROM risk_projects
+UNION ALL
+SELECT 'wiki_articles'     , COUNT(*) FROM wiki_articles;
+
+-- Estadísticas WAL
+PRAGMA wal_checkpoint;
+PRAGMA page_count;
+PRAGMA page_size;
+PRAGMA freelist_count;</pre>
+    </div>
+
+    <!-- SECCIÓN 11 — UNIFICACIÓN FUTURA -->
+    <div class="content-section" id="sec11">
+      <div class="section-number">Sección 11</div>
+      <h1>Unificación futura del ecosistema de BDs</h1>
+      <p>El ecosistema tiene actualmente <strong>7 BDs independientes</strong>. A medida que el proyecto crezca, conviene valorar la unificación progresiva en plataforma.db para reducir la complejidad operativa.</p>
+
+      <h2>Candidatas a integración</h2>
+      <div class="table-wrapper"><table>
+        <thead><tr><th>BD</th><th>Candidata</th><th>Prioridad</th><th>Consideraciones</th></tr></thead>
+        <tbody>
+          <tr><td><strong>codanor_actas.db</strong></td><td><span class="badge badge-ok">Sí</span></td><td>Media</td><td>7 tablas fácilmente migrables. Evitaría silo de datos. Requiere adaptar el servidor de actas para usar plataforma.db.</td></tr>
+          <tr><td><strong>ossint.sqlite</strong></td><td><span class="badge badge-ok">Sí</span></td><td>Baja</td><td>BD vacía — crear las tablas en plataforma.db directamente cuando el proyecto OSSINT avance.</td></tr>
+          <tr><td><strong>publications.db</strong></td><td><span class="badge badge-warn">Posible</span></td><td>Baja</td><td>Tabla única, fácil de migrar. Pero el monitor de legislación es un proceso independiente — mejor mantener BD separada.</td></tr>
+          <tr><td><strong>tracker.db</strong></td><td><span class="badge badge-warn">Revisar</span></td><td>Media</td><td>5 tablas. Mismo servidor Flask — podría integrarse pero implica refactorizar el app.py del tracker.</td></tr>
+          <tr><td><strong>chroma.sqlite3</strong></td><td><span class="badge badge-empty">No</span></td><td>—</td><td>BD vectorial gestionada por ChromaDB. No compatible con la arquitectura de plataforma.db.</td></tr>
+          <tr><td><strong>webui.db</strong></td><td><span class="badge badge-empty">No</span></td><td>—</td><td>BD gestionada por Open-WebUI. No modificar externamente.</td></tr>
+        </tbody>
+      </table></div>
+
+      <h2>Hoja de ruta de integración</h2>
+      <ol class="step-list">
+        <li><strong>Corto plazo:</strong> Añadir backup de codanor_actas.db al script NAS. Activar WAL en ossint.sqlite y codanor_actas.db.</li>
+        <li><strong>Medio plazo:</strong> Migrar ossint.sqlite a plataforma.db cuando el proyecto OSSINT pase de dev a producción.</li>
+        <li><strong>Largo plazo:</strong> Evaluar migración de codanor_actas.db cuando se renueve el módulo de actas de la Plataforma.</li>
+        <li><strong>Nunca:</strong> chroma.sqlite3 y webui.db — gestionadas por sus respectivos motores.</li>
+      </ol>
+    </div>
+
+    <!-- SECCIÓN 12 — HOJA DE RUTA -->
+    <div class="content-section" id="sec12">
+      <div class="section-number">Sección 12</div>
+      <h1>Hoja de ruta — próximas versiones de plataforma.db</h1>
+      <div class="table-wrapper"><table>
+        <thead><tr><th>Versión</th><th>Cambio previsto</th><th>Impacto</th><th>Prioridad</th></tr></thead>
+        <tbody>
+          <tr><td><strong>v1.5</strong></td><td>Índices P1 (wiki, SLA, main) + FOREIGN KEYs nativas</td><td>Rendimiento + integridad</td><td><span class="badge badge-warn">Alta</span></td></tr>
+          <tr><td><strong>v1.6</strong></td><td>Soft delete en tiquets + columna deleted_at</td><td>RGPD Art. 17</td><td><span class="badge badge-warn">Alta</span></td></tr>
+          <tr><td><strong>v1.7</strong></td><td>Poblar risk_* y eipd_* — migración masiva IndexedDB</td><td>Activar módulo Riesgos en LAN</td><td><span class="badge badge-warn">Alta</span></td></tr>
+          <tr><td><strong>v1.8</strong></td><td>tiquets_sla_alertas + endpoint /api/tiquets/alertas</td><td>Visibilidad SLA</td><td><span class="badge badge-info">Media</span></td></tr>
+          <tr><td><strong>v2.0</strong></td><td>JWT en API Flask + audit_log centralizada + VACUUM automático</td><td>Seguridad + conformidad ISO 27001</td><td><span class="badge badge-info">Media</span></td></tr>
+          <tr><td><strong>v3.0</strong></td><td>Evaluación sharding si &gt; 500 MB + columnas materializadas phase_data</td><td>Escalabilidad</td><td><span class="badge badge-empty">Baja</span></td></tr>
+        </tbody>
+      </table></div>
+    </div>
+
+    <!-- GLOSARIO -->
+    <div class="content-section" id="glosario">
+      <div class="section-number">Glosario</div>
+      <h1>Glosario de términos</h1>
+      <div class="table-wrapper"><table>
+        <thead><tr><th>Término</th><th>Definición</th></tr></thead>
+        <tbody>
+          <tr><td class="glossary-term">plataforma.db</td><td>Base de datos SQLite principal del ecosistema CODANOR. 19 tablas, 3,3 MB, modo WAL, Flask :5001. Fuente de verdad de todos los módulos de la Plataforma ISO/ENS.</td></tr>
+          <tr><td class="glossary-term">WAL</td><td>Write-Ahead Logging. Modo de SQLite que permite lecturas concurrentes durante escrituras. Activo en plataforma.db, tracker.db y chroma.sqlite3. Genera archivos <code>.db-wal</code> y <code>.db-shm</code>.</td></tr>
+          <tr><td class="glossary-term">phase_data</td><td>Tabla de almacenamiento genérico para todas las fases de las 9 apps ISO/ENS. PK compuesta: (project_id, app_id, phase). La clave <code>phase</code> es libre: phase1, gap, soa, mapa_procesos...</td></tr>
+          <tr><td class="glossary-term">PHASE_KEYS</td><td>Constante en store.js de cada app. Lista las claves de phase_data a sincronizar desde Flask al abrir un proyecto. Garantiza que todos los PCs de la LAN vean los mismos datos.</td></tr>
+          <tr><td class="glossary-term">app_id</td><td>Identificador de la norma/aplicación. Valores: iso27001, ens, rgpd, iso27701, iso42001, iso14001, iso9001, tisax. Columna clave en casi todas las tablas para aislar datos entre normas.</td></tr>
+          <tr><td class="glossary-term">FK nativa</td><td>FOREIGN KEY declarada en el DDL de SQLite. plataforma.db no las usa — la integridad referencial se gestiona lógicamente en server.py. Activar con <code>PRAGMA foreign_keys = ON;</code></td></tr>
+          <tr><td class="glossary-term">Magerit v3</td><td>Metodología de análisis y gestión de riesgos del CCN. El esquema de risk_assets tiene 37 columnas siguiendo el modelo Magerit v3 + dimensiones ENS (impacto_aut, impacto_traz).</td></tr>
+          <tr><td class="glossary-term">EIPD</td><td>Evaluación de Impacto en Protección de Datos (DPIA). Módulo LOPD-RGPD en plataforma.db. Tablas eipd_projects y eipd_data almacenan las secciones como JSON.</td></tr>
+          <tr><td class="glossary-term">ChromaDB</td><td>Base de datos vectorial para búsqueda semántica (RAG). Almacenada en chroma.sqlite3. Gestionada exclusivamente por Open-WebUI — no manipular directamente con sqlite3.</td></tr>
+          <tr><td class="glossary-term">RAG</td><td>Retrieval-Augmented Generation. Técnica que combina búsqueda en ChromaDB con generación de texto por LLM. Usada en Wiki_CODANOR para consultar documentación corporativa.</td></tr>
+          <tr><td class="glossary-term">soft delete</td><td>Técnica de borrado lógico — en lugar de DELETE, se marca el registro con deleted_at = timestamp. Requerido por RGPD Art. 17 (derecho al olvido) con trazabilidad de cuándo se "borró".</td></tr>
+          <tr><td class="glossary-term">VACUUM</td><td>Comando SQLite que reconstruye la BD, libera espacio fragmentado y reduce el tamaño del archivo. Recomendado semestralmente. <code>PRAGMA vacuum;</code> o ejecutar al arrancar Flask tras muchas operaciones.</td></tr>
+          <tr><td class="glossary-term">XOR+base64</td><td>Técnica de ofuscación de la clave LLM corporativa. La clave API se cifra con XOR(clave fija) + base64 antes de guardarse en settings. Clave XOR fija desde v20261003a: <code>codanor_llm_2026_xor_key_fixed!!</code></td></tr>
+          <tr><td class="glossary-term">IndexedDB</td><td>Base de datos del navegador web. Solo accesible desde el navegador del mismo PC — no compatible con LAN multiusuario. Los módulos de riesgos han migrado de IndexedDB a plataforma.db.</td></tr>
+          <tr><td class="glossary-term">sharding</td><td>Técnica de particionado de datos en múltiples BDs. Para plataforma.db: separar por app_id si supera 500 MB o si las consultas GET /phase tardan más de 200ms.</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+
+    <!-- PIE -->
+    <footer class="doc-footer">
+      <div class="footer-left">CODANOR &mdash; Jafa, S.L. &mdash; Barcelona, Catalunya</div>
+      <div class="footer-center">Documento interno &mdash; Uso exclusivo CODANOR</div>
+      <div class="footer-right">
+        v2.0 &bull; Octubre 2026
+        <div class="footer-path">servidor/ARQUITECTURA_DB_SQLITE-V02.html &bull; Plataforma_Seguimiento_Proyectos/</div>
+      </div>
+    </footer>
+
+  </main>
+</div>
+
+<!-- BOTÓN PDF -->
+<button class="btn-print" onclick="window.print()" title="Exportar a PDF">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/>
+    <rect x="6" y="14" width="12" height="8"/>
+  </svg>
+  Exportar PDF
+</button>
+
+<!-- BOTÓN WORD -->
+<button class="btn-word" onclick="document.getElementById('wordModal').classList.add('active')" title="Exportar a Word">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+    <polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/>
+    <line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+  </svg>
+  Exportar Word
+</button>
+
+<!-- MODAL WORD -->
+<div class="word-modal-overlay" id="wordModal" onclick="if(event.target===this) this.classList.remove('active')">
+  <div class="word-modal">
+    <h3>Exportar a Word (.docx)</h3>
+    <p>Para generar el documento Word corporativo, ejecuta el script Python desde la terminal:</p>
+    <pre>cd ~/Proyectos/Plataforma_Seguimiento_Proyectos/servidor
+python3 generar_arquitectura-db-v02.py</pre>
+    <p style="font-size:0.82rem;color:var(--gray-500);">
+      Genera <code>ARQUITECTURA_DB_SQLITE-V02.docx</code> en el mismo directorio.<br>
+      Requiere: <code>pip install python-docx</code>
+    </p>
+    <button class="word-modal-close" onclick="document.getElementById('wordModal').classList.remove('active')">Cerrar</button>
+  </div>
+</div>
+
+<!-- TOC ACTIVO -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var sections = document.querySelectorAll('[id]');
+    var navLinks = document.querySelectorAll('.sidebar nav a');
+    if ('IntersectionObserver' in window) {
+      var obs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) {
+          if (e.isIntersecting) {
+            navLinks.forEach(function(a) { a.classList.remove('active'); });
+            var act = document.querySelector('.sidebar nav a[href="#' + e.target.id + '"]');
+            if (act) act.classList.add('active');
+          }
+        });
+      }, { threshold: 0.1, rootMargin: '-52px 0px -55% 0px' });
+      sections.forEach(function(s) { obs.observe(s); });
+    }
+  });
+</script>
+</body>
+</html>

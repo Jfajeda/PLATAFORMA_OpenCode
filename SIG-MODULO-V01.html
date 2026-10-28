@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SIG — Sistema Integrado de Gestión — CODANOR</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600;700&family=Nunito+Sans:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    /* ─── TOKENS DE COLOR (WCAG AA garantizado) ─── */
+    :root {
+      --primary:        #178DC2;
+      --primary-dark:   #1275A3;
+      --primary-light:  #e8f4fa;
+      --accent:         #12A79D;
+      --accent-dark:    #0d7a71;
+      --accent-light:   #e6f7f6;
+      --sig:            #5C35A0;
+      --sig-light:      #EDE7F6;
+      --sig-dark:       #3D1F7A;
+      --dark:           #1a1a2e;
+      --gray-900:       #2d2d44;
+      --gray-700:       #4a4a5a;
+      --gray-600:       #6b6b7b;
+      --gray-500:       #7a7a8a;
+      --gray-300:       #c4c4d0;
+      --gray-100:       #f0f0f5;
+      --white:          #ffffff;
+      --warning-text:   #b7770d;
+      --warning-bg:     #fef9e7;
+      --warning-dark:   #7d6608;
+      --danger-text:    #922b21;
+      --danger-bg:      #fdedec;
+      --success-text:   #0e7a72;
+      --success-bg:     #e6f7f6;
+      --info-text:      #1275A3;
+      --info-bg:        #e8f4fa;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Nunito Sans', sans-serif;
+      font-size: 16px;
+      line-height: 1.7;
+      color: var(--gray-700);
+      background: var(--gray-100);
+    }
+
+    /* ─── CABECERA FIJA ─── */
+    .page-header {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--white);
+      border-bottom: 3px solid var(--sig);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.6rem 2rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .page-header-brand { display: flex; align-items: center; gap: 0.8rem; }
+    .page-header-logo {
+      font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 700;
+      color: var(--sig); letter-spacing: -0.5px;
+    }
+    .page-header-title {
+      font-family: 'Poppins', sans-serif; font-size: 0.82rem;
+      font-weight: 600; color: var(--sig-dark);
+    }
+    .page-header-meta { font-family: 'Poppins', sans-serif; font-size: 0.75rem; color: var(--gray-500); }
+
+    /* ─── LAYOUT ─── */
+    .layout { display: flex; min-height: calc(100vh - 56px); }
+
+    /* ─── SIDEBAR ─── */
+    .sidebar {
+      width: 270px; min-width: 270px;
+      background: var(--white);
+      border-right: 1px solid var(--gray-300);
+      padding: 1.5rem 0;
+      position: sticky; top: 56px;
+      height: calc(100vh - 56px); overflow-y: auto;
+    }
+    .sidebar-label {
+      font-family: 'Poppins', sans-serif; font-size: 0.65rem; font-weight: 600;
+      color: var(--gray-500); text-transform: uppercase; letter-spacing: 0.8px;
+      padding: 0 1.2rem; margin-bottom: 0.5rem;
+    }
+    .sidebar nav a {
+      display: block; font-size: 0.85rem; color: var(--gray-700);
+      text-decoration: none; padding: 0.32rem 1.2rem;
+      border-left: 3px solid transparent; transition: all 0.15s;
+    }
+    .sidebar nav a:hover, .sidebar nav a.active {
+      color: var(--sig); background: var(--sig-light); border-left-color: var(--sig);
+    }
+    .sidebar nav a.toc-sub { font-size: 0.8rem; padding-left: 2rem; }
+    .sidebar nav .sep {
+      height: 1px; background: var(--gray-300);
+      margin: 0.5rem 1.2rem;
+    }
+
+    /* ─── CONTENIDO ─── */
+    .main-content { flex: 1; min-width: 0; }
+
+    /* ─── PORTADA ─── */
+    .cover {
+      background: var(--dark); color: var(--white);
+      padding: 5rem 4rem 4rem; position: relative; overflow: hidden;
+    }
+    .cover::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 5px;
+      background: linear-gradient(90deg, var(--sig), var(--primary), var(--accent));
+    }
+    .cover-logo {
+      font-family: 'Poppins', sans-serif; font-size: 1.4rem; font-weight: 700;
+      color: var(--sig); margin-bottom: 3.5rem;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .cover-logo span { color: var(--primary); }
+    .cover-type {
+      font-family: 'Poppins', sans-serif; font-size: 0.75rem; font-weight: 600;
+      color: var(--accent); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 0.75rem;
+    }
+    .cover-title {
+      font-family: 'Poppins', sans-serif; font-size: 2.6rem; font-weight: 700;
+      color: var(--white); line-height: 1.15; margin-bottom: 0.5rem;
+    }
+    .cover-title em { color: #C3A8F0; font-style: normal; }
+    .cover-subtitle {
+      font-family: 'Poppins', sans-serif; font-size: 1.15rem; font-weight: 300;
+      color: rgba(255,255,255,0.72); margin-bottom: 2.5rem;
+    }
+    .cover-meta { display: flex; gap: 2.5rem; flex-wrap: wrap; margin-bottom: 2rem; }
+    .cover-meta-item .label { font-size: 0.68rem; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 0.2rem; }
+    .cover-meta-item .value { font-family: 'Poppins', sans-serif; font-size: 0.9rem; font-weight: 600; color: var(--white); }
+    .cover-chips { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 2.5rem; }
+    .cover-chip {
+      font-family: 'Poppins', sans-serif; font-size: 0.7rem; font-weight: 600;
+      color: var(--white); padding: 0.2rem 0.65rem; border-radius: 4px;
+      border: 1px solid rgba(255,255,255,0.25);
+    }
+    .cover-footer {
+      margin-top: 3rem; padding-top: 1.5rem;
+      border-top: 1px solid rgba(255,255,255,0.15);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .cover-footer .company { font-size: 0.82rem; color: rgba(255,255,255,0.6); }
+    .cover-footer .classification { font-size: 0.72rem; font-style: italic; color: rgba(255,255,255,0.4); }
+
+    /* ─── SECCIONES ─── */
+    .content-section {
+      background: var(--white); margin: 2rem;
+      border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+      padding: 2.5rem 3rem;
+    }
+    .version-control {
+      background: var(--white); margin: 2rem;
+      border-radius: 8px; padding: 2rem 3rem;
+      border-left: 4px solid var(--sig);
+    }
+    .version-control h2 {
+      font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600;
+      color: var(--sig-dark); margin-bottom: 1rem;
+    }
+
+    /* ─── TIPOGRAFÍA ─── */
+    h1 {
+      font-family: 'Poppins', sans-serif; font-size: 1.85rem; font-weight: 700;
+      color: var(--dark); margin-bottom: 1rem; padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--sig-light);
+    }
+    h2 {
+      font-family: 'Poppins', sans-serif; font-size: 1.35rem; font-weight: 600;
+      color: var(--sig); margin-top: 2rem; margin-bottom: 0.75rem;
+    }
+    h3 {
+      font-family: 'Poppins', sans-serif; font-size: 1.05rem; font-weight: 600;
+      color: var(--gray-900); margin-top: 1.5rem; margin-bottom: 0.5rem;
+    }
+    h4 {
+      font-family: 'Poppins', sans-serif; font-size: 0.92rem; font-weight: 600;
+      color: var(--gray-700); margin-top: 1rem; margin-bottom: 0.3rem;
+    }
+    .section-number {
+      font-family: 'Poppins', sans-serif; font-size: 0.72rem; font-weight: 600;
+      color: var(--sig); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.4rem;
+    }
+
+    p { margin-bottom: 0.85rem; font-size: 0.95rem; }
+    ul, ol { padding-left: 1.5rem; margin-bottom: 0.85rem; }
+    li { font-size: 0.95rem; margin-bottom: 0.3rem; }
+    li > ul, li > ol { margin-top: 0.3rem; margin-bottom: 0.3rem; }
+
+    /* ─── TABLAS ─── */
+    .table-wrapper { overflow-x: auto; margin: 1.2rem 0; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.87rem; }
+    thead th {
+      font-family: 'Poppins', sans-serif; font-size: 0.78rem; font-weight: 600;
+      color: var(--white); background: var(--sig-dark);
+      padding: 0.65rem 0.9rem; text-align: left; white-space: nowrap;
+    }
+    tbody td {
+      padding: 0.6rem 0.9rem; border-bottom: 1px solid var(--gray-300);
+      color: var(--gray-700); vertical-align: top;
+    }
+    tbody tr:hover td { background: var(--sig-light); }
+    tbody tr:nth-child(even) td { background: #f8f8fb; }
+    tbody tr:nth-child(even):hover td { background: var(--sig-light); }
+    td code {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.78rem;
+      color: var(--sig-dark); background: var(--gray-100);
+      padding: 0.1rem 0.3rem; border-radius: 3px;
+    }
+
+    /* ─── CÓDIGO ─── */
+    code {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.83rem;
+      color: var(--sig-dark); background: var(--gray-100);
+      padding: 0.15rem 0.4rem; border-radius: 4px;
+    }
+    pre {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;
+      background: #1e1e2e; color: #cdd6f4;
+      padding: 1.2rem 1.5rem; border-radius: 6px;
+      overflow-x: auto; line-height: 1.65; margin: 1rem 0;
+      border-left: 3px solid var(--sig);
+    }
+    pre code { color: inherit; background: none; padding: 0; font-size: inherit; }
+    .pre-label {
+      font-family: 'Poppins', sans-serif; font-size: 0.7rem; font-weight: 600;
+      color: var(--gray-500); text-transform: uppercase; letter-spacing: 0.8px;
+      margin-bottom: 0.25rem;
+    }
+
+    /* ─── ALERTAS ─── */
+    .alert {
+      padding: 0.9rem 1.1rem; border-radius: 6px;
+      margin: 1rem 0; font-size: 0.9rem; border-left: 4px solid;
+    }
+    .alert-title { font-family: 'Poppins', sans-serif; font-weight: 600; margin-bottom: 0.3rem; }
+    .alert-info    { background: var(--info-bg);    border-color: var(--primary);      color: var(--info-text); }
+    .alert-warning { background: var(--warning-bg); border-color: var(--warning-text); color: var(--warning-dark); }
+    .alert-danger  { background: var(--danger-bg);  border-color: var(--danger-text);  color: var(--danger-text); }
+    .alert-success { background: var(--success-bg); border-color: var(--accent);       color: var(--success-text); }
+    .alert-sig     { background: var(--sig-light);  border-color: var(--sig);          color: var(--sig-dark); }
+
+    /* ─── BADGES ─── */
+    .badge {
+      display: inline-block; font-family: 'Poppins', sans-serif;
+      font-size: 0.68rem; font-weight: 600; padding: 0.15rem 0.5rem;
+      border-radius: 3px; letter-spacing: 0.3px;
+    }
+    .badge-primary { color: var(--primary-dark); background: var(--primary-light); }
+    .badge-sig     { color: var(--sig-dark);      background: var(--sig-light); }
+    .badge-success { color: var(--success-text);  background: var(--success-bg); }
+    .badge-warning { color: var(--warning-dark);  background: var(--warning-bg); }
+    .badge-danger  { color: var(--danger-text);   background: var(--danger-bg); }
+    .badge-dark    { color: var(--white);          background: var(--gray-900); }
+    .badge-new     { color: var(--sig-dark);       background: #F3E5F5; }
+    .badge-accent  { color: var(--accent-dark);    background: var(--accent-light); }
+
+    /* ─── STATUS ─── */
+    .st-ok   { color: #0e7a72; background: #e6f7f6; padding: 0.15rem 0.5rem; border-radius: 3px; font-size: 0.8rem; font-weight: 600; }
+    .st-warn { color: var(--warning-dark); background: var(--warning-bg); padding: 0.15rem 0.5rem; border-radius: 3px; font-size: 0.8rem; font-weight: 600; }
+    .st-fail { color: var(--danger-text); background: var(--danger-bg);   padding: 0.15rem 0.5rem; border-radius: 3px; font-size: 0.8rem; font-weight: 600; }
+    .st-pend { color: var(--sig-dark);    background: var(--sig-light);   padding: 0.15rem 0.5rem; border-radius: 3px; font-size: 0.8rem; font-weight: 600; }
+
+    /* ─── DIAGRAMA CAJA ─── */
+    .arch-box {
+      background: var(--dark); color: #e0e0e0;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.78rem;
+      line-height: 1.6; padding: 1.5rem; border-radius: 8px;
+      overflow-x: auto; margin: 1rem 0;
+    }
+    .arch-box .hl-sig    { color: #C3A8F0; font-weight: 700; }
+    .arch-box .hl-flask  { color: #89DCEB; }
+    .arch-box .hl-db     { color: #A6E3A1; }
+    .arch-box .hl-app    { color: #FAB387; }
+    .arch-box .hl-gray   { color: #9399B2; }
+
+    /* ─── GRID MÓDULOS ─── */
+    .modules-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      gap: 1rem; margin: 1.25rem 0;
+    }
+    .module-card {
+      border: 1.5px solid var(--gray-300); border-radius: 8px;
+      padding: 1rem 1.1rem; background: var(--white);
+      border-top: 3px solid var(--sig);
+    }
+    .module-card h4 {
+      font-family: 'Poppins', sans-serif; font-size: 0.9rem; font-weight: 600;
+      color: var(--sig-dark); margin-bottom: 0.4rem; margin-top: 0;
+      display: flex; align-items: center; gap: 0.4rem;
+    }
+    .module-card p { font-size: 0.82rem; color: var(--gray-700); margin-bottom: 0.4rem; }
+    .module-card code { font-size: 0.72rem; }
+
+    /* ─── MEJORA CARD ─── */
+    .mejora-card {
+      border: 1.5px solid var(--gray-300); border-radius: 8px;
+      padding: 1rem 1.1rem; margin-bottom: 0.75rem;
+      display: flex; gap: 0.85rem; align-items: flex-start;
+    }
+    .mejora-icon { font-size: 1.4rem; flex-shrink: 0; margin-top: 0.1rem; }
+    .mejora-body h4 { margin-top: 0; font-size: 0.9rem; color: var(--dark); }
+    .mejora-body p  { font-size: 0.85rem; margin-bottom: 0.3rem; }
+    .mejora-card.alta   { border-left: 4px solid var(--danger-text); }
+    .mejora-card.media  { border-left: 4px solid var(--warning-text); }
+    .mejora-card.baja   { border-left: 4px solid var(--success-text); }
+
+    /* ─── PIE ─── */
+    .doc-footer {
+      background: var(--white); border-top: 3px solid var(--sig);
+      padding: 1.2rem 2rem;
+      display: grid; grid-template-columns: 1fr auto 1fr;
+      align-items: center; gap: 1rem; margin-top: 2rem;
+    }
+    .doc-footer .footer-left  { font-size: 0.78rem; color: var(--gray-700); font-weight: 600; }
+    .doc-footer .footer-center { font-size: 0.72rem; color: var(--gray-600); font-style: italic; text-align: center; }
+    .doc-footer .footer-right { font-size: 0.72rem; color: var(--gray-600); text-align: right; }
+    .doc-footer .footer-path  { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; color: var(--gray-600); margin-top: 0.2rem; }
+
+    /* ─── BOTÓN IMPRIMIR ─── */
+    .btn-print {
+      position: fixed; bottom: 1.5rem; right: 1.5rem;
+      background: var(--sig); color: var(--white);
+      border: none; border-radius: 6px; padding: 0.6rem 1.1rem;
+      font-family: 'Poppins', sans-serif; font-size: 0.85rem; font-weight: 600;
+      cursor: pointer; box-shadow: 0 2px 8px rgba(92,53,160,0.35);
+      transition: background 0.15s; z-index: 200;
+    }
+    .btn-print:hover { background: var(--sig-dark); }
+
+    .glossary-term { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--sig-dark); font-weight: 500; }
+
+    @media print {
+      .sidebar, .page-header, .btn-print { display: none !important; }
+      .content-section { margin: 0; box-shadow: none; border-radius: 0; }
+      body { font-size: 10pt; background: white; }
+      pre { font-size: 7.5pt; }
+      table { font-size: 8pt; }
+      .doc-footer { position: fixed; bottom: 0; left: 0; right: 0; font-size: 8pt; }
+    }
+    @media (max-width: 900px) {
+      .sidebar { display: none; }
+      .cover-title { font-size: 2rem; }
+      .content-section { margin: 1rem; padding: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- CABECERA FIJA -->
+<header class="page-header">
+  <div class="page-header-brand">
+    <span class="page-header-logo">CODANOR</span>
+    <span class="page-header-title">SIG — Sistema Integrado de Gestión · Documentación técnica v1.0</span>
+  </div>
+  <span class="page-header-meta">v1.0 · 20/10/2026</span>
+</header>
+
+<div class="layout">
+
+  <!-- SIDEBAR TOC -->
+  <aside class="sidebar">
+    <div class="sidebar-label">Índice de contenidos</div>
+    <nav>
+      <a href="#portada">Portada</a>
+      <a href="#versiones">Control de versiones</a>
+      <div class="sep"></div>
+      <a href="#seccion-1">1. Introducción</a>
+      <a href="#seccion-2">2. Alcance</a>
+      <a href="#seccion-3">3. Arquitectura</a>
+      <a class="toc-sub" href="#seccion-3">3.1 Principio anti-duplicación</a>
+      <a class="toc-sub" href="#seccion-3">3.2 Tablas BD</a>
+      <a class="toc-sub" href="#seccion-3">3.3 Endpoints Flask</a>
+      <a href="#seccion-4">4. App SIG-INTEGRACION</a>
+      <a class="toc-sub" href="#seccion-4">4.1 Estructura de archivos</a>
+      <a class="toc-sub" href="#seccion-4">4.2 Módulos JS</a>
+      <a href="#seccion-5">5. Correspondencias HLS</a>
+      <a class="toc-sub" href="#seccion-5">5.1 CSVs disponibles</a>
+      <a class="toc-sub" href="#seccion-5">5.2 Tabla pivot</a>
+      <a href="#seccion-6">6. Badge SIG en 9 apps</a>
+      <a href="#seccion-7">7. Pantalla de inicio</a>
+      <a href="#seccion-8">8. Guía de mantenimiento</a>
+      <a class="toc-sub" href="#seccion-8">8.1 Añadir nueva norma al SIG</a>
+      <a class="toc-sub" href="#seccion-8">8.2 Actualizar CSVs</a>
+      <a class="toc-sub" href="#seccion-8">8.3 Bump de versiones</a>
+      <a href="#seccion-9">9. Mejoras de usabilidad</a>
+      <a href="#seccion-10">10. Mejoras técnicas</a>
+      <a href="#glosario">Glosario</a>
+    </nav>
+  </aside>
+
+  <!-- CONTENIDO -->
+  <main class="main-content">
+
+    <!-- PORTADA -->
+    <div class="cover" id="portada">
+      <div class="cover-logo">CODANOR <span>/ PLATAFORMA ISO·ENS</span></div>
+      <div class="cover-type">Documentación técnica — Módulo nuevo</div>
+      <h1 class="cover-title">S.I.G.<br><em>Sistema Integrado de Gestión</em></h1>
+      <p class="cover-subtitle">Arquitectura, implementación, mantenimiento y hoja de ruta de mejoras</p>
+      <div class="cover-meta">
+        <div class="cover-meta-item">
+          <div class="label">Versión</div>
+          <div class="value">v1.0</div>
+        </div>
+        <div class="cover-meta-item">
+          <div class="label">Fecha</div>
+          <div class="value">20/10/2026</div>
+        </div>
+        <div class="cover-meta-item">
+          <div class="label">Autor</div>
+          <div class="value">Jafa, S.L. · OpenCode</div>
+        </div>
+        <div class="cover-meta-item">
+          <div class="label">Repositorio</div>
+          <div class="value">PLATAFORMA_OpenCode-NEW</div>
+        </div>
+      </div>
+      <div class="cover-chips">
+        <span class="cover-chip" style="background:#5C35A0">Flask 2.0</span>
+        <span class="cover-chip" style="background:#178DC2">SQLite WAL</span>
+        <span class="cover-chip" style="background:#0d7a71">Vanilla JS</span>
+        <span class="cover-chip" style="background:#2E7D32">9 normas ISO/ENS</span>
+        <span class="cover-chip" style="background:#3D1F7A">LAN multi-usuario</span>
+        <span class="cover-chip" style="background:#922b21">WCAG AA</span>
+      </div>
+      <div class="cover-footer">
+        <span class="company">CODANOR — Jafa, S.L. — Barcelona, Catalunya</span>
+        <span class="classification">Documento interno — Uso exclusivo CODANOR</span>
+      </div>
+    </div>
+
+    <!-- CONTROL DE VERSIONES -->
+    <div class="version-control" id="versiones">
+      <h2>Control de versiones</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Versión</th><th>Fecha</th><th>Autor</th><th>Descripción del cambio</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><code>v1.0</code></td>
+              <td>20/10/2026</td>
+              <td>Jafa, S.L. · OpenCode</td>
+              <td>Implementación inicial completa: BD, 14 endpoints Flask, app SIG-INTEGRACION (10 módulos JS), badge en 9 apps, parseo de 3 CSVs de correspondencias normativas.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 1 — INTRODUCCIÓN -->
+    <div class="content-section" id="seccion-1">
+      <div class="section-number">Sección 1</div>
+      <h1>Introducción y objeto</h1>
+
+      <p>El <strong>módulo SIG (Sistema Integrado de Gestión)</strong> es una nueva capa transversal de la Plataforma CODANOR que permite gestionar proyectos que abarcan <strong>dos o más normas ISO/ENS simultáneamente</strong>, sin duplicar los aspectos comunes (reuniones, tareas, formación, documentos) en cada norma.</p>
+
+      <p>Antes del módulo SIG, si un cliente tenía implantadas ISO 27001 + ENS + ISO 9001 + ISO 14001, el consultor debía registrar <em>la misma reunión de seguimiento cuatro veces</em>, una en cada app. Con el SIG, esa reunión se registra <strong>una única vez</strong> y queda vinculada a todas las normas del SIG.</p>
+
+      <div class="alert alert-sig">
+        <div class="alert-title">Principio fundamental</div>
+        <strong>"Lo que es del proyecto SIG vive en el SIG. Lo que es de la norma vive en la norma."</strong><br>
+        Las reuniones, tareas, formación y documentos corporativos son del proyecto (no de una norma concreta) y se almacenan una sola vez. El SoA, el GAP Analysis y los controles específicos siguen siendo propios de cada norma.
+      </div>
+
+      <div class="alert alert-info">
+        <div class="alert-title">Audiencia de este documento</div>
+        Consultores técnicos y administradores de la Plataforma CODANOR que necesiten entender la arquitectura del módulo SIG, operar su mantenimiento o planificar futuras mejoras. Clasificación: Documento interno — Uso exclusivo CODANOR.
+      </div>
+    </div>
+
+    <!-- SECCIÓN 2 — ALCANCE -->
+    <div class="content-section" id="seccion-2">
+      <div class="section-number">Sección 2</div>
+      <h1>Alcance</h1>
+
+      <h2>Dentro del alcance — Implementado en v1.0</h2>
+      <ul>
+        <li>Nueva app <code>SIG-INTEGRACION/</code> accesible desde <code>http://servidor:5001/sig/</code></li>
+        <li>3 nuevas tablas en <code>plataforma.db</code>: <code>sig_projects</code>, <code>sig_phase_data</code>, <code>sig_correspondencias</code></li>
+        <li>14 endpoints Flask en <code>server.py</code> bajo el prefijo <code>/api/sig/</code></li>
+        <li>Módulos JS: overview, meetings, tasks, formación, documentos, normas, tiquets, correspondencias</li>
+        <li>Tarjeta SIG en la pantalla de inicio Flask (posición 10, sección separada, color morado #5C35A0)</li>
+        <li>Badge "INTEGRACIÓN SIG" en el sidebar de las 9 apps individuales (ISO27001, ENS, RGPD, ISO9001, ISO14001, ISO14001-2026, ISO27701, ISO42001, TISAX)</li>
+        <li>Toast anti-duplicación al crear reuniones/tareas en apps cuyo proyecto pertenece a un SIG</li>
+        <li>Tabla pivot de correspondencias HLS (cargada desde 3 CSVs en <code>servidor/data/</code>)</li>
+        <li>Endpoint de recarga de CSVs sin reiniciar el servidor (<code>POST /api/sig/correspondencias/reload</code>)</li>
+        <li>Soporte LAN multi-usuario: todo funciona desde cualquier PC de la red (sin <code>localhost</code> hardcodeado)</li>
+      </ul>
+
+      <h2>Fuera del alcance en v1.0</h2>
+      <ul>
+        <li>Matrices de correspondencias para ISO27701, ISO42001, TISAX, RGPD (pendiente de CSVs)</li>
+        <li>Sincronización automática bidireccional entre SIG y apps individuales</li>
+        <li>Módulo de actas de auditoría compartidas (se puede añadir como fase adicional en <code>sig_phase_data</code>)</li>
+        <li>Exportación Word/PDF del SIG completo</li>
+        <li>Notificaciones/alertas cuando vence una tarea del SIG</li>
+      </ul>
+    </div>
+
+    <!-- SECCIÓN 3 — ARQUITECTURA -->
+    <div class="content-section" id="seccion-3">
+      <div class="section-number">Sección 3</div>
+      <h1>Arquitectura del módulo SIG</h1>
+
+      <h2>3.1 Principio anti-duplicación</h2>
+
+      <div class="arch-box">
+<span class="hl-sig">SIG-INTEGRACION/ (nueva app)</span>
+  ↓ lee/escribe
+<span class="hl-db">sig_projects      </span>← Metadatos SIG, lista de normas, project_ids por norma
+<span class="hl-db">sig_phase_data    </span>← DATOS COMPARTIDOS: meetings | tasks | formacion | documents
+  ↓ lee (proxy — sin duplicar)
+<span class="hl-flask">phase_data iso27001 </span>← SoA, GAP, controles — SIN CAMBIOS
+<span class="hl-flask">phase_data ens      </span>← Medidas ENS, seguimiento808 — SIN CAMBIOS
+<span class="hl-flask">phase_data iso9001  </span>← GAP ISO9001, implementation — SIN CAMBIOS
+<span class="hl-gray">...                 </span>← Cada norma mantiene sus datos específicos intactos
+
+<span class="hl-db">sig_correspondencias</span>← Tabla pivot HLS (cargada desde CSV en /servidor/data/)
+      </div>
+
+      <h3>Qué se comparte en el SIG vs. qué es propio de cada norma</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Entidad</th><th>Dónde vive</th><th>Clave BD</th><th>Justificación</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Reuniones / Actas</strong></td><td><span class="st-ok">SIG</span></td><td><code>sig_phase_data (sig_id, 'meetings')</code></td><td>Estructura 100% genérica entre las 9 apps. Sin campos específicos de norma.</td></tr>
+            <tr><td><strong>Tareas y acciones</strong></td><td><span class="st-ok">SIG</span></td><td><code>sig_phase_data (sig_id, 'tasks')</code></td><td>Idéntica estructura en todas las apps. La tarea no tiene campo de cláusula.</td></tr>
+            <tr><td><strong>Formación</strong></td><td><span class="st-ok">SIG</span></td><td><code>sig_phase_data (sig_id, 'formacion')</code></td><td>El registro de formación es del empleado/empresa, no de la norma.</td></tr>
+            <tr><td><strong>Documentos corporativos</strong></td><td><span class="st-ok">SIG</span></td><td><code>sig_phase_data (sig_id, 'documents')</code></td><td>La Política de Seguridad es un solo documento válido para todas las normas.</td></tr>
+            <tr><td><strong>SoA ISO27001</strong></td><td><span class="st-pend">Norma</span></td><td><code>phase_data (iso27001, 'soa')</code></td><td>93 controles Anexo A — específicos de ISO/IEC 27001:2022.</td></tr>
+            <tr><td><strong>Medidas ENS</strong></td><td><span class="st-pend">Norma</span></td><td><code>phase_data (ens, 'phase1')</code></td><td>75 medidas Anexo II RD 311/2022 + EnsApplicability por categoría.</td></tr>
+            <tr><td><strong>GAP Analysis ISO9001</strong></td><td><span class="st-pend">Norma</span></td><td><code>phase_data (iso9001, 'gap')</code></td><td>ACTIVITY_GROUPS específicos de ISO 9001:2015.</td></tr>
+            <tr><td><strong>Fases exclusivas RGPD</strong></td><td><span class="st-pend">Norma</span></td><td><code>phase_data (rgpd, 'rat'|'eipd'...)</code></td><td>RAT, EIPD, brechas — exclusivo RGPD/LOPD-GDD.</td></tr>
+            <tr><td><strong>Seguimiento808 ENS</strong></td><td><span class="st-pend">Norma</span></td><td><code>phase_data (ens, 'phase2')</code></td><td>Preguntas CCN-STIC 808 — exclusivo ENS.</td></tr>
+            <tr><td><strong>Tiquets</strong></td><td><span class="st-ok">Ambos</span></td><td><code>tiquets (app_id, project_id)</code></td><td>Se crean en la norma pero el SIG los agrega en vista unificada.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>3.2 Nuevas tablas en plataforma.db</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Tabla</th><th>Clave primaria</th><th>Campos principales</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><code>sig_projects</code></td>
+              <td><code>id TEXT</code></td>
+              <td><code>client_id, client_name, nombre, descripcion, normas (JSON array), project_ids (JSON object), status, created_at, updated_at</code></td>
+            </tr>
+            <tr>
+              <td><code>sig_phase_data</code></td>
+              <td><code>(sig_id, phase)</code></td>
+              <td><code>data_json (blob), updated_at</code> — phase: <code>'meetings'|'tasks'|'formacion'|'documents'</code></td>
+            </tr>
+            <tr>
+              <td><code>sig_correspondencias</code></td>
+              <td><code>id INTEGER AUTOINCREMENT</code></td>
+              <td><code>hls_id, hls_titulo, norma, clausula, titulo, descripcion, tipo_relacion, fuente_csv</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="alert alert-info">
+        <div class="alert-title">Índices creados automáticamente</div>
+        <code>idx_sig_corr_hls</code> · <code>idx_sig_corr_norma</code> · <code>idx_sig_proj_client</code> — optimizan las consultas de correspondencias y proyectos por cliente.
+      </div>
+
+      <h2>3.3 Endpoints Flask — <code>/api/sig/</code></h2>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Método</th><th>Ruta</th><th>Descripción</th></tr></thead>
+          <tbody>
+            <tr><td><span class="badge badge-success">GET</span></td><td><code>/api/sig/projects</code></td><td>Lista SIGs. Acepta <code>?client_id=</code> y <code>?project_id=&app_id=</code></td></tr>
+            <tr><td><span class="badge badge-warning">POST</span></td><td><code>/api/sig/projects</code></td><td>Crear nuevo SIG. Body: <code>{nombre, client_id, normas[], project_ids{}}</code></td></tr>
+            <tr><td><span class="badge badge-success">GET</span></td><td><code>/api/sig/projects/&lt;sig_id&gt;</code></td><td>Detalle de un SIG</td></tr>
+            <tr><td><span class="badge badge-primary">PUT</span></td><td><code>/api/sig/projects/&lt;sig_id&gt;</code></td><td>Actualizar SIG (nombre, normas, project_ids)</td></tr>
+            <tr><td><span class="badge badge-danger">DELETE</span></td><td><code>/api/sig/projects/&lt;sig_id&gt;</code></td><td>Soft-delete (status → 'eliminado')</td></tr>
+            <tr><td><span class="badge badge-success">GET</span></td><td><code>/api/sig/&lt;sig_id&gt;/phase/&lt;phase&gt;</code></td><td>Leer datos compartidos (meetings, tasks, formacion, documents)</td></tr>
+            <tr><td><span class="badge badge-warning">POST</span></td><td><code>/api/sig/&lt;sig_id&gt;/phase/&lt;phase&gt;</code></td><td>Guardar datos compartidos (con protección anti-sobreescritura)</td></tr>
+            <tr><td><span class="badge badge-success">GET</span></td><td><code>/api/sig/&lt;sig_id&gt;/norma/&lt;app_id&gt;/phase/&lt;phase&gt;</code></td><td>Proxy transparente → <code>/api/&lt;app_id&gt;/phase/&lt;project_id&gt;/&lt;phase&gt;</code></td></tr>
+            <tr><td><span class="badge badge-success">GET</span></td><td><code>/api/sig/&lt;sig_id&gt;/progress</code></td><td>Progreso de cada norma: <code>{iso27001:{progreso:72, fase_actual:'phase2'}, ...}</code></td></tr>
+            <tr><td><span class="badge badge-success">GET</span></td><td><code>/api/sig/&lt;sig_id&gt;/tiquets</code></td><td>Agrega tiquets de todos los <code>project_ids</code> del SIG</td></tr>
+            <tr><td><span class="badge badge-warning">POST</span></td><td><code>/api/sig/&lt;sig_id&gt;/tiquets</code></td><td>Crea tiquet en la norma especificada (<code>app_id</code> en body)</td></tr>
+            <tr><td><span class="badge badge-success">GET</span></td><td><code>/api/sig/correspondencias</code></td><td>Acepta <code>?normas=iso27001,ens,iso9001</code>. Devuelve grouped por <code>hls_id</code></td></tr>
+            <tr><td><span class="badge badge-success">GET</span></td><td><code>/api/sig/correspondencias/status</code></td><td>Estadísticas: registros por norma, CSVs disponibles</td></tr>
+            <tr><td><span class="badge badge-warning">POST</span></td><td><code>/api/sig/correspondencias/reload</code></td><td>Relee los 3 CSVs de <code>servidor/data/</code> y recarga la tabla</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 4 — APP SIG-INTEGRACION -->
+    <div class="content-section" id="seccion-4">
+      <div class="section-number">Sección 4</div>
+      <h1>App SIG-INTEGRACION</h1>
+
+      <h2>4.1 Estructura de archivos</h2>
+      <div class="pre-label">Árbol de archivos</div>
+      <pre><code>SIG-INTEGRACION/
+├── index.html                    ← SPA: sidebar, modal unificado, routing por hash (#sig/&lt;id&gt;/&lt;section&gt;)
+├── css/
+│   └── styles.css               ← Diseño CODANOR completo (WCAG AA, Poppins + Nunito Sans)
+└── js/
+    ├── store.js                  ← Cliente API LAN-aware → /api/sig/...
+    ├── app.js                    ← Router, CRUD SIGs, modal paso a paso
+    └── modules/
+        ├── sig-overview.js       ← Dashboard: progreso por norma + acceso directo a cada app
+        ├── sig-meetings.js       ← Reuniones compartidas (estructura meeting idéntica a las 9 apps)
+        ├── sig-tasks.js          ← Tareas y acciones compartidas
+        ├── sig-formacion.js      ← Formación compartida
+        ├── sig-documents.js      ← Documentos corporativos compartidos
+        ├── sig-normas.js         ← Vista por norma: fases, acceso directo, proxy a phase_data
+        ├── sig-tiquets.js        ← Tiquets unificados: ver + crear
+        └── sig-correspondencias.js ← Tabla pivot HLS + búsqueda + recarga CSV</code></pre>
+
+      <h2>4.2 Módulos JS — descripción funcional</h2>
+
+      <div class="modules-grid">
+        <div class="module-card">
+          <h4>📊 sig-overview.js</h4>
+          <p>Dashboard de progreso por norma. Cards con barra de progreso, porcentaje y fase actual de cada norma del SIG. Botones "Abrir [ISO27001/ENS/...]" que abren la app individual directamente en el proyecto vinculado.</p>
+          <p>Métricas globales: número de normas integradas, progreso medio, proyectos vinculados.</p>
+          <code>GET /api/sig/&lt;id&gt;/progress</code>
+        </div>
+        <div class="module-card">
+          <h4>📅 sig-meetings.js</h4>
+          <p>Reuniones y actas compartidas. Estructura <code>meeting</code> 100% idéntica a la de las 9 apps (date, subject, status, normas[], notes{info, acuerdos, resumen, tareas[]}).</p>
+          <p>El campo <code>normas[]</code> indica a qué normas del SIG aplica esa reunión concreta.</p>
+          <code>sig_phase_data (sig_id, 'meetings')</code>
+        </div>
+        <div class="module-card">
+          <h4>✅ sig-tasks.js</h4>
+          <p>Tareas y acciones compartidas. Estructura <code>task</code> idéntica: titulo, responsable, fechaLimite, estado, acciones[]. Panel de contadores por estado (pendiente / en_curso / completada).</p>
+          <code>sig_phase_data (sig_id, 'tasks')</code>
+        </div>
+        <div class="module-card">
+          <h4>🎓 sig-formacion.js</h4>
+          <p>Formación compartida. Estructura idéntica a <code>formacion.js</code> de las 9 apps: título, tipo, modalidad, fecha, formador, horas, estado, asistentes. Campo <code>normas[]</code> para indicar a qué normas aplica.</p>
+          <code>sig_phase_data (sig_id, 'formacion')</code>
+        </div>
+        <div class="module-card">
+          <h4>📄 sig-documents.js</h4>
+          <p>Documentos corporativos compartidos (políticas, procedimientos, registros). Campos: nombre, tipo, versión, estado (iniciado / faltaRevision / faltaFirma / finalizado), responsable, fecha.</p>
+          <code>sig_phase_data (sig_id, 'documents')</code>
+        </div>
+        <div class="module-card">
+          <h4>🏛 sig-normas.js</h4>
+          <p>Vista por norma con tabs. Para cada norma del SIG: acceso a fases (SoA, GAP, Implementation), botón "Abrir app completa", métricas de reuniones/tareas propias de esa norma, aviso anti-duplicación.</p>
+          <code>GET /api/sig/&lt;id&gt;/norma/&lt;app_id&gt;/phase/&lt;phase&gt;</code>
+        </div>
+        <div class="module-card">
+          <h4>🎟 sig-tiquets.js</h4>
+          <p>Tiquets unificados de todas las normas del SIG. Resumen por norma (contadores), tabla global con filtro. Creación de tiquets asignando la norma responsable; <code>normas_afectadas[]</code> se rellena con todas las normas del SIG por defecto.</p>
+          <code>GET|POST /api/sig/&lt;id&gt;/tiquets</code>
+        </div>
+        <div class="module-card">
+          <h4>🔗 sig-correspondencias.js</h4>
+          <p>Tabla pivot HLS. Filas = bloques HLS (4.1, 5.1, org.1...), columnas = normas del SIG activo. Chips de colores: azul = relación directa, morado = relativa, gris = HLS genérico. Buscador en tiempo real. Botón "Recargar CSV".</p>
+          <code>GET /api/sig/correspondencias?normas=iso27001,ens</code>
+        </div>
+      </div>
+
+      <h2>4.3 Routing de la SPA</h2>
+      <p>La navegación usa hash-routing nativo (<code>window.location.hash</code>), sin dependencias externas:</p>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Hash</th><th>Vista</th></tr></thead>
+          <tbody>
+            <tr><td><code>#</code> (vacío)</td><td>Página de inicio — lista de todos los SIGs</td></tr>
+            <tr><td><code>#sig/&lt;id&gt;/overview</code></td><td>Dashboard de progreso del SIG</td></tr>
+            <tr><td><code>#sig/&lt;id&gt;/meetings</code></td><td>Reuniones compartidas</td></tr>
+            <tr><td><code>#sig/&lt;id&gt;/tasks</code></td><td>Tareas compartidas</td></tr>
+            <tr><td><code>#sig/&lt;id&gt;/formacion</code></td><td>Formación compartida</td></tr>
+            <tr><td><code>#sig/&lt;id&gt;/documents</code></td><td>Documentos compartidos</td></tr>
+            <tr><td><code>#sig/&lt;id&gt;/normas</code></td><td>Vista por norma (tabs)</td></tr>
+            <tr><td><code>#sig/&lt;id&gt;/tiquets</code></td><td>Tiquets unificados</td></tr>
+            <tr><td><code>#sig/&lt;id&gt;/correspondencias</code></td><td>Tabla pivot HLS</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>4.4 Modal unificado</h2>
+      <p>Hay un único elemento <code>#modal-sig-overlay</code> en el DOM. El campo <code>modal.dataset.mode</code> controla qué formulario se muestra y qué función se llama al pulsar "Guardar":</p>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>mode</th><th>Formulario</th><th>Guardado por</th></tr></thead>
+          <tbody>
+            <tr><td><code>new-sig</code></td><td>Formulario de nuevo/editar SIG (normas + proyectos vinculados)</td><td><code>App.saveSigForm()</code></td></tr>
+            <tr><td><code>meeting</code></td><td>Reunión nueva/editar</td><td><code>SigMeetings.saveFromModal()</code></td></tr>
+            <tr><td><code>task</code></td><td>Tarea nueva/editar</td><td><code>SigTasks.saveFromModal()</code></td></tr>
+            <tr><td><code>formacion</code></td><td>Formación nueva/editar</td><td><code>SigFormacion.saveFromModal()</code></td></tr>
+            <tr><td><code>document</code></td><td>Documento corporativo nuevo/editar</td><td><code>SigDocuments.saveFromModal()</code></td></tr>
+            <tr><td><code>tiquet</code></td><td>Crear tiquet desde el SIG</td><td><code>SigTiquets.saveFromModal()</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 5 — CORRESPONDENCIAS HLS -->
+    <div class="content-section" id="seccion-5">
+      <div class="section-number">Sección 5</div>
+      <h1>Correspondencias normativas HLS</h1>
+
+      <h2>5.1 CSVs disponibles en <code>servidor/data/</code></h2>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Archivo</th><th>Orientación</th><th>Filas</th><th>Normas cubiertas</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><code>99_AGRUPACION_NORMATIVO.csv</code></td>
+              <td>HLS paralelo (N normas en columnas)</td>
+              <td>92 útiles</td>
+              <td>ISO9001 ↔ ISO14001 ↔ ISO27001 ↔ ISO22301 ↔ VDA-3 ↔ UNE19001</td>
+            </tr>
+            <tr>
+              <td><code>ENS_hacia_ISO27001.csv</code></td>
+              <td>ENS → ISO27001</td>
+              <td>84</td>
+              <td>84 medidas ENS (org.x, op.x, mp.x) → controles ISO27001 Anexo A + cláusulas 4-10</td>
+            </tr>
+            <tr>
+              <td><code>ISO27001_hacia_ENS.csv</code></td>
+              <td>ISO27001 → ENS</td>
+              <td>93</td>
+              <td>93 controles ISO27001 (A.5.1 → A.8.34) → medidas ENS Anexo II + artículos RD 311/2022</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="alert alert-warning">
+        <div class="alert-title">Normas activas sin matriz de correspondencias todavía</div>
+        ISO27701, ISO42001, TISAX y RGPD no están cubiertas en los CSVs actuales. Cuando se disponga de las matrices, basta con depositar el CSV en <code>servidor/data/</code> y llamar a <code>POST /api/sig/correspondencias/reload</code> — sin tocar código.
+      </div>
+
+      <h2>5.2 Modelo de datos de la tabla pivot</h2>
+      <p>Los 3 CSVs tienen formatos distintos (horizontal, ENS→ISO, ISO→ENS). El parser <code>_parse_correspondencias_csv()</code> en <code>server.py</code> los normaliza todos al mismo esquema relacional:</p>
+
+      <div class="pre-label">Respuesta de GET /api/sig/correspondencias?normas=iso27001,ens,iso9001</div>
+      <pre><code>[
+  {
+    "hls_id":    "5.1",
+    "hls_titulo": "Políticas para la seguridad de la información",
+    "normas": {
+      "iso27001": [
+        { "clausula": "A.5.1", "titulo": "Políticas...", "tipo_relacion": "hls" }
+      ],
+      "ens": [
+        { "clausula": "org.1", "titulo": "Política de seguridad", "tipo_relacion": "directa" },
+        { "clausula": "org.2", "titulo": "Normativa de seguridad", "tipo_relacion": "directa" }
+      ],
+      "iso9001": [
+        { "clausula": "5.2", "titulo": "Política", "tipo_relacion": "hls" }
+      ]
+    }
+  },
+  ...
+]</code></pre>
+
+      <h2>5.3 Tipos de relación</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>tipo_relacion</th><th>Color en tabla pivot</th><th>Significado</th></tr></thead>
+          <tbody>
+            <tr><td><code>directa</code></td><td><span style="background:#e3f2fd;color:#1275A3;padding:2px 8px;border-radius:4px;font-size:.8rem">azul</span></td><td>El control/medida implementa directamente el requisito de la otra norma</td></tr>
+            <tr><td><code>relativa</code></td><td><span style="background:#f3e5f5;color:#6A1B9A;padding:2px 8px;border-radius:4px;font-size:.8rem">morado</span></td><td>El control tiene relación indirecta o parcial con el requisito</td></tr>
+            <tr><td><code>hls</code></td><td><span style="background:#f0f0f5;color:#6b6b7b;padding:2px 8px;border-radius:4px;font-size:.8rem">gris</span></td><td>Correspondencia posicional por estructura HLS (Annex SL)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>5.4 Cómo actualizar o ampliar las correspondencias</h2>
+      <ol>
+        <li>Preparar el CSV con encoding UTF-8 con BOM y separador <code>;</code></li>
+        <li>Depositar el archivo en <code>Plataforma_Seguimiento_Proyectos/servidor/data/</code></li>
+        <li>Llamar al endpoint (o pulsar "Recargar CSV" en la app SIG):
+          <pre><code>curl -X POST http://localhost:5001/api/sig/correspondencias/reload</code></pre>
+        </li>
+        <li>Verificar el estado: <code>GET /api/sig/correspondencias/status</code> devuelve el conteo por norma</li>
+      </ol>
+    </div>
+
+    <!-- SECCIÓN 6 — BADGE EN 9 APPS -->
+    <div class="content-section" id="seccion-6">
+      <div class="section-number">Sección 6</div>
+      <h1>Badge SIG en las 9 apps individuales</h1>
+
+      <p>Cada una de las 9 apps ISO/ENS tiene una sección "INTEGRACIÓN SIG" en su sidebar. Esta sección se comporta de forma distinta según si el proyecto activo pertenece o no a un SIG:</p>
+
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Estado</th><th>Texto del badge</th><th>Acción al hacer click</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><span class="st-ok">Con SIG asignado</span></td>
+              <td>🔗 <em>[nombre del SIG]</em></td>
+              <td>Abre <code>SIG-INTEGRACION/</code> directamente en el overview de ese SIG</td>
+            </tr>
+            <tr>
+              <td><span class="st-pend">Sin SIG todavía</span></td>
+              <td>+ Crear SIG</td>
+              <td>Abre <code>SIG-INTEGRACION/</code> en la página de inicio para crear un SIG nuevo</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>6.1 Métodos añadidos a <code>app.js</code> de las 9 apps</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Método</th><th>Descripción</th></tr></thead>
+          <tbody>
+            <tr><td><code>_checkSigMembership(projectId)</code></td><td>Consulta <code>GET /api/sig/projects?project_id=X&app_id=Y</code> y actualiza el badge. Asíncrono, no bloquea la carga del proyecto.</td></tr>
+            <tr><td><code>_openSigFromSidebar()</code></td><td>Abre <code>SIG-INTEGRACION/</code> en una nueva pestaña, con el hash correcto si hay SIG asignado.</td></tr>
+            <tr><td><code>_toastSigWarning(action)</code></td><td>Muestra un toast morado con botón "Ir al SIG" cuando el usuario intenta crear una reunión o tarea en una app cuyo proyecto ya pertenece a un SIG.</td></tr>
+            <tr><td><code>_sigInfo</code></td><td>Propiedad del objeto App: <code>null</code> si no hay SIG, <code>{id, nombre}</code> si el proyecto pertenece a uno.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>6.2 Clasificación de los <code>app.js</code> modificados (PROPAGATION_RULES)</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>App</th><th>Tipo</th><th>Método de propagación usado</th><th>Resultado</th></tr></thead>
+          <tbody>
+            <tr><td>ISO27001-SGSI</td><td>BASE</td><td>Edición directa</td><td><span class="st-ok">OK</span></td></tr>
+            <tr><td>ENS-RD311-2022</td><td>TIPO B (clon)</td><td>Python re.sub + script</td><td><span class="st-ok">OK</span></td></tr>
+            <tr><td>RGPD-LOPD-GDD</td><td>TIPO B (clon)</td><td>Python re.sub + script</td><td><span class="st-ok">OK</span></td></tr>
+            <tr><td>ISO27701-SGP</td><td>TIPO B (clon)</td><td>Python re.sub + script</td><td><span class="st-ok">OK</span></td></tr>
+            <tr><td>ISO42001-SGIA</td><td>TIPO B (clon)</td><td>Python re.sub + script</td><td><span class="st-ok">OK</span></td></tr>
+            <tr><td>TISAX</td><td>TIPO D (propio)</td><td>Python re.sub + script</td><td><span class="st-ok">OK</span></td></tr>
+            <tr><td>ISO9001-SGQ_2015</td><td>TIPO D (propio)</td><td>Patch Python sobre cierre <code>locale()</code></td><td><span class="st-ok">OK</span></td></tr>
+            <tr><td>ISO14001-SGMA_2015</td><td>TIPO D (propio)</td><td>Patch Python sobre cierre <code>locale()</code></td><td><span class="st-ok">OK</span></td></tr>
+            <tr><td>ISO14001-SGMA_2026_NEW</td><td>TIPO D (propio)</td><td>Edit directo (cierre sin <code>locale()</code>)</td><td><span class="st-ok">OK</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="alert alert-warning">
+        <div class="alert-title">Nota sobre el toast anti-duplicación</div>
+        El método <code>_toastSigWarning(action)</code> está implementado en los <code>app.js</code> de las 9 apps, pero el toast <strong>no se llama automáticamente todavía</strong> al crear reuniones. Para activarlo, añadir <code>if (App._toastSigWarning('meetings')) return;</code> al inicio de <code>addMeeting()</code> / <code>_crear()</code> en los módulos <code>phase2-*.js</code>. Ver Sección 10 (mejoras pendientes).
+      </div>
+    </div>
+
+    <!-- SECCIÓN 7 — PANTALLA DE INICIO -->
+    <div class="content-section" id="seccion-7">
+      <div class="section-number">Sección 7</div>
+      <h1>Tarjeta SIG en la pantalla de inicio Flask</h1>
+
+      <p>La pantalla de inicio (<code>GET /</code>) tiene una nueva sección separada debajo del grid de las 9 normas:</p>
+
+      <div class="arch-box">
+┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐
+│ ISO 27001│ │ENS RD311 │ │RGPD-LOPD │ │ ISO 9001 │ │ ISO14001 │
+└──────────┘ └──────────┘ └──────────┘ └──────────┘ └──────────┘
+┌──────────┐ ┌──────────┐ ┌──────────┐
+│ ISO27701 │ │ ISO42001 │ │  TISAX   │
+└──────────┘ └──────────┘ └──────────┘
+
+<span class="hl-sig">─── SISTEMA INTEGRADO DE GESTIÓN (SIG) ───────────────</span>
+
+┌────────────────────────────────────────┐
+│ <span class="hl-sig">≡ S.I.G.</span>                                │  ← tarjeta morada #5C35A0
+│ INTEGRACIÓN                            │     fondo degradado lineal
+│ Gestión multi-norma ISO / ENS          │     badge "N SIGs activos"
+└────────────────────────────────────────┘      </div>
+
+      <h2>7.1 Cambios en <code>server.py</code></h2>
+      <ul>
+        <li>Constante <code>SIG_DIR = ROOT_DIR / 'SIG-INTEGRACION'</code> añadida a la configuración</li>
+        <li>Variable <code>SIG_META</code> con los metadatos de la tarjeta SIG dentro de <code>index()</code></li>
+        <li>Consulta <code>n_sigs</code> a <code>sig_projects WHERE status='activo'</code> para el badge</li>
+        <li>HTML <code>sig_card_html</code> generado con degradado morado y badge dinámico</li>
+        <li>Sección <code>&lt;div class="sig-section"&gt;</code> añadida al HTML de la respuesta</li>
+        <li>CSS adicional: <code>.sig-section</code>, <code>.sig-section-title</code>, <code>.proj-badge.sig-badge</code>, <code>.card-sig</code></li>
+        <li>Rutas <code>GET /sig/</code> y <code>GET /sig/&lt;path:filename&gt;</code> que sirven <code>SIG-INTEGRACION/</code></li>
+        <li>Carga automática de CSVs al arrancar: <code>_parse_correspondencias_csv()</code> llamado desde <code>if __name__ == '__main__'</code></li>
+        <li>Mensaje de arranque actualizado: incluye la URL <code>http://localhost:5001/sig/</code></li>
+      </ul>
+    </div>
+
+    <!-- SECCIÓN 8 — GUÍA DE MANTENIMIENTO -->
+    <div class="content-section" id="seccion-8">
+      <div class="section-number">Sección 8</div>
+      <h1>Guía de mantenimiento</h1>
+
+      <h2>8.1 Añadir una nueva norma al SIG (ej: ISO 22301)</h2>
+      <ol>
+        <li>Añadir la norma al diccionario <code>NORMAS_META</code> en <code>SIG-INTEGRACION/js/app.js</code>:
+          <pre><code>'iso22301': { label: 'ISO 22301', color: '#795548', short: 'SGCN' },</code></pre>
+        </li>
+        <li>Añadir la misma entrada al objeto <code>NORMAS_META_LOCAL</code> en <code>SIG-INTEGRACION/index.html</code> (bloque <code>&lt;script&gt;</code> al final)</li>
+        <li>Si existe una app <code>ISO22301/</code> con su propio <code>app_id</code>, añadirla al dict <code>APP_DIRS</code> en <code>server.py</code></li>
+        <li>Añadir la familia de fases en <code>SIG-INTEGRACION/js/modules/sig-normas.js</code> → <code>FASES_META</code></li>
+        <li>Si se dispone de una matriz de correspondencias, copiar el CSV a <code>servidor/data/</code> y añadir su lógica de parseo en <code>_parse_correspondencias_csv()</code> en <code>server.py</code></li>
+        <li>Bump de versión: <code>?v=20261020a</code> → <code>?v=20261020b</code> en los <code>&lt;script src=...&gt;</code> de <code>index.html</code></li>
+      </ol>
+
+      <h2>8.2 Actualizar o añadir CSVs de correspondencias</h2>
+      <ol>
+        <li>Preparar el CSV en UTF-8 con BOM, separador <code>;</code>, mismo formato que los existentes</li>
+        <li>Copiar a <code>Plataforma_Seguimiento_Proyectos/servidor/data/</code></li>
+        <li>Añadir el parseo del nuevo CSV en <code>_parse_correspondencias_csv()</code> en <code>server.py</code> (si el formato es nuevo)</li>
+        <li>Reiniciar el servidor o llamar a: <code>curl -X POST http://localhost:5001/api/sig/correspondencias/reload</code></li>
+        <li>Verificar: <code>curl http://localhost:5001/api/sig/correspondencias/status</code></li>
+      </ol>
+
+      <h2>8.3 Bump de versiones de archivos SIG</h2>
+      <p>El patrón de versión es <code>?v=AAAAMMDDX</code> (año + mes + día + letra incremental). Archivos a actualizar en <code>SIG-INTEGRACION/index.html</code>:</p>
+      <pre><code>&lt;link rel="stylesheet" href="css/styles.css?v=20261020a"&gt;
+&lt;script src="js/store.js?v=20261020a"&gt;&lt;/script&gt;
+&lt;script src="js/modules/sig-overview.js?v=20261020a"&gt;&lt;/script&gt;
+...
+&lt;script src="js/app.js?v=20261020a"&gt;&lt;/script&gt;</code></pre>
+
+      <h2>8.4 Verificaciones post-edición recomendadas</h2>
+      <pre><code># 1. Sintaxis Python
+python3 -c "import ast; ast.parse(open('servidor/server.py').read()); print('OK')"
+
+# 2. Sintaxis JS de los 9 app.js
+for APP in ISO27001-SGSI ENS-RD311-2022 RGPD-LOPD-GDD ISO27701-SGP \
+           ISO42001-SGIA ISO9001-SGQ_2015 ISO14001-SGMA_2015 \
+           ISO14001-SGMA_2026_NEW TISAX; do
+  node --check "$APP/js/app.js" && echo "OK: $APP"
+done
+
+# 3. Verificar badge SIG en todas las apps
+grep -l "sig-badge-item" */js/app.js
+
+# 4. Verificar tablas SIG en BD
+sqlite3 servidor/plataforma.db \
+  "SELECT name FROM sqlite_master WHERE name LIKE 'sig_%' ORDER BY name;"
+
+# 5. Verificar endpoints disponibles
+curl -s http://localhost:5001/api/sig/correspondencias/status | python3 -m json.tool</code></pre>
+
+      <h2>8.5 Backup del módulo SIG</h2>
+      <p>El script <code>backup-opencode.sh</code> debe incluir:</p>
+      <ul>
+        <li><code>Plataforma_Seguimiento_Proyectos/SIG-INTEGRACION/</code> — app completa</li>
+        <li><code>Plataforma_Seguimiento_Proyectos/servidor/data/</code> — CSVs de correspondencias</li>
+        <li><code>Plataforma_Seguimiento_Proyectos/servidor/plataforma.db</code> — tablas <code>sig_*</code></li>
+      </ul>
+    </div>
+
+    <!-- SECCIÓN 9 — MEJORAS DE USABILIDAD -->
+    <div class="content-section" id="seccion-9">
+      <div class="section-number">Sección 9</div>
+      <h1>Mejoras de usabilidad pendientes</h1>
+
+      <div class="mejora-card alta">
+        <div class="mejora-icon">🔴</div>
+        <div class="mejora-body">
+          <h4>Activar el toast anti-duplicación en phase2-*.js</h4>
+          <p><strong>Prioridad: Alta.</strong> El método <code>_toastSigWarning(action)</code> ya está implementado en los 9 <code>app.js</code>, pero no se llama todavía desde los módulos de fase.</p>
+          <p>Añadir al inicio de <code>addMeeting()</code> en cada <code>phase2-*.js</code>:</p>
+          <pre><code>if (typeof App !== 'undefined' && App._toastSigWarning && App._toastSigWarning('meetings')) return;</code></pre>
+          <p>Según <code>PROPAGATION_RULES.md</code>: parche BASE en ISO27001, clones RGPD/ISO27701/ISO42001 con sed, ENS patch quirúrgico, ISO9001/ISO14001/TISAX por separado.</p>
+        </div>
+      </div>
+
+      <div class="mejora-card alta">
+        <div class="mejora-icon">🔴</div>
+        <div class="mejora-body">
+          <h4>Sugerencia automática de SIGs al crear proyecto</h4>
+          <p><strong>Prioridad: Alta.</strong> Cuando el usuario crea un proyecto en ISO27001 y ya existe un proyecto con el mismo ID o del mismo cliente en ENS, sugerir automáticamente vincularlo a un SIG.</p>
+          <p>Implementar en <code>Store.saveProject()</code> o en el modal de nuevo proyecto de cada app: llamar a <code>GET /api/sig/projects?project_id=X</code> y si no está en ningún SIG, ofrecer el modal "¿Desea crear un SIG para este cliente?"</p>
+        </div>
+      </div>
+
+      <div class="mejora-card media">
+        <div class="mejora-icon">🟡</div>
+        <div class="mejora-body">
+          <h4>Panel de progreso global en la página de inicio Flask</h4>
+          <p><strong>Prioridad: Media.</strong> La tarjeta SIG en la pantalla de inicio muestra solo el número de SIGs activos. Añadir en el tooltip o en el cuerpo de la tarjeta un mini-gauge con el progreso medio de todos los SIGs.</p>
+          <p>Llamar a <code>GET /api/sig/projects</code> y para cada SIG a <code>GET /api/sig/&lt;id&gt;/progress</code>, calcular la media global.</p>
+        </div>
+      </div>
+
+      <div class="mejora-card media">
+        <div class="mejora-icon">🟡</div>
+        <div class="mejora-body">
+          <h4>Modal de creación de SIG paso a paso (wizard)</h4>
+          <p><strong>Prioridad: Media.</strong> El modal actual muestra todos los campos en una sola pantalla (nombre + cliente + normas + proyectos). Convertirlo en un wizard de 3 pasos:</p>
+          <ol>
+            <li>Paso 1: Seleccionar cliente → nombre del SIG → descripción</li>
+            <li>Paso 2: Seleccionar normas (multicheck con descripción de cada norma)</li>
+            <li>Paso 3: Vincular proyectos existentes (dropdown por norma) + detección de SIG potenciales</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="mejora-card media">
+        <div class="mejora-icon">🟡</div>
+        <div class="mejora-body">
+          <h4>Exportación PDF del SIG completo</h4>
+          <p><strong>Prioridad: Media.</strong> Añadir un botón "Exportar SIG" en el overview que genere un PDF/Word del estado completo del SIG: progreso por norma, reuniones, tareas, documentos y correspondencias.</p>
+          <p>Implementar como endpoint Flask <code>GET /api/sig/&lt;id&gt;/export/pdf</code> usando <code>weasyprint</code> o <code>reportlab</code>, o como exportación Word con <code>python-docx</code> (misma aproximación que <code>report-builders.js</code>).</p>
+        </div>
+      </div>
+
+      <div class="mejora-card media">
+        <div class="mejora-icon">🟡</div>
+        <div class="mejora-body">
+          <h4>Filtros y búsqueda en la tabla pivot de correspondencias</h4>
+          <p><strong>Prioridad: Media.</strong> La tabla pivot tiene buscador de texto libre. Añadir filtros adicionales:</p>
+          <ul>
+            <li>Filtro por tipo de relación (solo directas / solo relativas / todas)</li>
+            <li>Filtro por capítulo HLS (4.x Contexto, 5.x Liderazgo, 6.x Planificación...)</li>
+            <li>Opción de ver solo filas donde TODAS las normas tienen correspondencia</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="mejora-card media">
+        <div class="mejora-icon">🟡</div>
+        <div class="mejora-body">
+          <h4>Síntesis IA de reuniones SIG con LLM</h4>
+          <p><strong>Prioridad: Media.</strong> El módulo <code>sig-meetings.js</code> tiene el campo <code>notes.resumen</code> pero no integra todavía el LLM. Añadir un botón "Sintetizar con IA" que llame a <code>LLMUtil.callLLM()</code> (los archivos <code>llm.js</code> y <code>llm-models.js</code> ya están disponibles en las apps individuales; copiarlos o enlazarlos desde <code>SIG-INTEGRACION/js/</code>).</p>
+        </div>
+      </div>
+
+      <div class="mejora-card baja">
+        <div class="mejora-icon">🟢</div>
+        <div class="mejora-body">
+          <h4>Vista Kanban de tareas SIG</h4>
+          <p><strong>Prioridad: Baja.</strong> La tabla de tareas es funcional pero una vista Kanban (columnas por estado: Pendiente / En curso / Completada / Desestimada) mejoraría la usabilidad para gestores de proyecto.</p>
+        </div>
+      </div>
+
+      <div class="mejora-card baja">
+        <div class="mejora-icon">🟢</div>
+        <div class="mejora-body">
+          <h4>Notificaciones de vencimiento de tareas SIG</h4>
+          <p><strong>Prioridad: Baja.</strong> Añadir un badge rojo en el nav item "Tareas" cuando hay tareas del SIG con <code>fechaLimite</code> vencida o próxima a vencer (próximos 7 días). El cálculo se puede hacer en el frontend al cargar <code>sig_phase_data</code>.</p>
+        </div>
+      </div>
+
+      <div class="mejora-card baja">
+        <div class="mejora-icon">🟢</div>
+        <div class="mejora-body">
+          <h4>Historial de cambios en el SIG (audit log)</h4>
+          <p><strong>Prioridad: Baja.</strong> Añadir una tabla <code>sig_historial</code> (patrón idéntico a <code>tiquets_historial</code>) para registrar quién y cuándo modificó reuniones, tareas, documentos del SIG. Útil para auditorías ISO 27001 A.16.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 10 — MEJORAS TÉCNICAS -->
+    <div class="content-section" id="seccion-10">
+      <div class="section-number">Sección 10</div>
+      <h1>Mejoras técnicas pendientes</h1>
+
+      <div class="mejora-card alta">
+        <div class="mejora-icon">🔴</div>
+        <div class="mejora-body">
+          <h4>Completar el parseo del CSV 99_AGRUPACION_NORMATIVO para la Parte 2 (filas 133-293)</h4>
+          <p><strong>Prioridad: Alta.</strong> La función <code>_parse_correspondencias_csv()</code> solo procesa las filas 0-96 (mapping horizontal). Las filas 133-180 (ISO14001 completo), 181-230 (ISO27001 cláusulas HLS) y 231-293 (ISO22301) están en formato vertical y no se importan todavía.</p>
+          <p>Añadir un segundo bloque de parseo en <code>_parse_correspondencias_csv()</code> que detecte el cambio de formato (presencia de <code>col[1] == 'INDICE'</code>) y lo procese como secciones verticales.</p>
+        </div>
+      </div>
+
+      <div class="mejora-card alta">
+        <div class="mejora-icon">🔴</div>
+        <div class="mejora-body">
+          <h4>Deduplicación de entradas en sig_correspondencias</h4>
+          <p><strong>Prioridad: Alta.</strong> Los CSVs 2 y 3 (ENS↔ISO27001) son bidireccionales: el mismo par (ENS medida X, ISO27001 control A.5.1) puede aparecer en ambos archivos. Actuar la lógica de <code>INSERT OR IGNORE</code> añadiendo una restricción <code>UNIQUE(hls_id, norma, clausula, tipo_relacion)</code> a la tabla <code>sig_correspondencias</code>.</p>
+        </div>
+      </div>
+
+      <div class="mejora-card alta">
+        <div class="mejora-icon">🔴</div>
+        <div class="mejora-body">
+          <h4>Corrección del error 8.11 duplicado en ISO27001_hacia_ENS.csv</h4>
+          <p><strong>Prioridad: Alta.</strong> El CSV tiene el control <code>8.11</code> dos veces (líneas 76 y 77): "Enmascaramiento de datos" y "Prevención de fugas de datos". El correcto para la segunda entrada es <code>8.12</code>. Corregir directamente en el CSV fuente.</p>
+        </div>
+      </div>
+
+      <div class="mejora-card media">
+        <div class="mejora-icon">🟡</div>
+        <div class="mejora-body">
+          <h4>Añadir <code>sig_projects</code> al export/import de proyectos</h4>
+          <p><strong>Prioridad: Media.</strong> Los endpoints <code>GET /api/&lt;app_id&gt;/export</code> y <code>POST /api/&lt;app_id&gt;/import</code> no incluyen todavía los datos SIG. Añadir un nuevo endpoint <code>GET /api/sig/export</code> que exporte el SIG completo (proyecto + fases compartidas + correspondencias) como un JSON descargable.</p>
+        </div>
+      </div>
+
+      <div class="mejora-card media">
+        <div class="mejora-icon">🟡</div>
+        <div class="mejora-body">
+          <h4>Caché en <code>store.js</code> de SIG-INTEGRACION</h4>
+          <p><strong>Prioridad: Media.</strong> El <code>store.js</code> actual hace fetch directo a Flask sin caché local. En redes LAN lentas esto puede producir parpadeos al navegar entre secciones. Añadir un caché en memoria (<code>Map</code>) para las fases compartidas, con invalidación cuando se hace un POST.</p>
+        </div>
+      </div>
+
+      <div class="mejora-card media">
+        <div class="mejora-icon">🟡</div>
+        <div class="mejora-body">
+          <h4>Test de integración para los endpoints <code>/api/sig/</code></h4>
+          <p><strong>Prioridad: Media.</strong> Añadir un script <code>test_sig_endpoints.py</code> con pruebas usando <code>requests</code> que verifiquen los 14 endpoints: creación de SIG, lectura de fases, proxy a norma, tiquets, correspondencias y reload de CSVs. Ejecutar como comprobación antes de cada despliegue.</p>
+        </div>
+      </div>
+
+      <div class="mejora-card media">
+        <div class="mejora-icon">🟡</div>
+        <div class="mejora-body">
+          <h4>Gestión de errores en <code>_parse_correspondencias_csv()</code></h4>
+          <p><strong>Prioridad: Media.</strong> El parser actual tiene bloques <code>try/except</code> por CSV pero no reporta errores de fila específicos. Mejorar para registrar en un log las filas problemáticas (número de fila, contenido, error) y devolver un resumen detallado desde el endpoint <code>/api/sig/correspondencias/reload</code>.</p>
+        </div>
+      </div>
+
+      <div class="mejora-card media">
+        <div class="mejora-icon">🟡</div>
+        <div class="mejora-body">
+          <h4>Protección de escritura concurrente en <code>sig_phase_data</code></h4>
+          <p><strong>Prioridad: Media.</strong> El endpoint <code>POST /api/sig/&lt;id&gt;/phase/&lt;phase&gt;</code> tiene protección anti-sobreescritura por tamaño (igual que <code>save_phase</code> de las normas). Añadir también protección por listas: si el servidor tiene 5 reuniones y el cliente envía 0, conservar las del servidor (actualmente implementado para <code>meetings</code> y <code>tasks</code>, verificar para <code>formacion</code> y <code>documents</code>).</p>
+        </div>
+      </div>
+
+      <div class="mejora-card baja">
+        <div class="mejora-icon">🟢</div>
+        <div class="mejora-body">
+          <h4>Grafo de correspondencias SVG para ≥ 4 normas</h4>
+          <p><strong>Prioridad: Baja.</strong> Para SIGs con 4 o más normas, la tabla pivot se vuelve muy ancha. Considerar una visualización alternativa como un grafo SVG donde los nodos son normas y las aristas son correspondencias, usando D3.js o una librería ligera similar. La tabla seguiría disponible como vista alternativa.</p>
+        </div>
+      </div>
+
+      <div class="mejora-card baja">
+        <div class="mejora-icon">🟢</div>
+        <div class="mejora-body">
+          <h4>Integración de <code>plataforma-seguimiento.html</code> con el SIG</h4>
+          <p><strong>Prioridad: Baja.</strong> El dashboard <code>plataforma-seguimiento.html</code> no tiene todavía ninguna referencia al módulo SIG. Añadir una nueva página <code>#page-sig</code> con un listado de SIGs y sus métricas, o al menos un enlace en el sidebar a <code>http://servidor:5001/sig/</code>.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- GLOSARIO -->
+    <div class="content-section" id="glosario">
+      <div class="section-number">Glosario</div>
+      <h1>Glosario de términos</h1>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th style="width:220px">Término / Clave</th><th>Definición</th></tr></thead>
+          <tbody>
+            <tr><td class="glossary-term">SIG</td><td>Sistema Integrado de Gestión. Proyecto que agrupa 2 o más normas ISO/ENS gestionadas de forma coordinada para el mismo cliente, evitando la duplicación de aspectos comunes.</td></tr>
+            <tr><td class="glossary-term">sig_projects</td><td>Tabla de plataforma.db que almacena los metadatos de cada SIG: cliente, nombre, lista de normas y mapa de project_ids por norma.</td></tr>
+            <tr><td class="glossary-term">sig_phase_data</td><td>Tabla de plataforma.db que almacena los datos compartidos de un SIG: reuniones, tareas, formación y documentos. Clave primaria (sig_id, phase).</td></tr>
+            <tr><td class="glossary-term">sig_correspondencias</td><td>Tabla de plataforma.db que almacena la tabla pivot de equivalencias normativas HLS, cargada desde los CSVs de servidor/data/.</td></tr>
+            <tr><td class="glossary-term">HLS</td><td>High Level Structure (Estructura de Alto Nivel). Marco común de todos los estándares ISO modernos (ISO/IEC Annex SL) que garantiza la compatibilidad entre normas. Cláusulas 4-10 idénticas en todas las normas.</td></tr>
+            <tr><td class="glossary-term">hls_id</td><td>Identificador canónico de un bloque HLS. Para normas de la familia consulting (ISO27001, ENS): número de cláusula ISO9001 ('4.1', '5.1'...) o código ENS ('org.1', 'op.pl.2'...).</td></tr>
+            <tr><td class="glossary-term">tipo_relacion</td><td>Campo de sig_correspondencias. Valores: 'directa' (el control implementa directamente el requisito), 'relativa' (relación parcial o indirecta), 'hls' (correspondencia posicional por HLS).</td></tr>
+            <tr><td class="glossary-term">project_ids</td><td>Objeto JSON en sig_projects que mapea cada norma del SIG con el ID del proyecto correspondiente en esa norma. Ej: {"iso27001":"PRJ-003-SWHOSTING","ens":"PRJ-003-SWHOSTING"}.</td></tr>
+            <tr><td class="glossary-term">proxy endpoint</td><td>GET /api/sig/&lt;id&gt;/norma/&lt;app_id&gt;/phase/&lt;phase&gt;. Redirige internamente la consulta al endpoint estándar de la norma, obteniendo el project_id desde sig_projects.project_ids[app_id].</td></tr>
+            <tr><td class="glossary-term">anti-duplicación</td><td>Principio arquitectónico del SIG: los datos comunes (reuniones, tareas, formación, documentos) se almacenan una sola vez en sig_phase_data. Los datos específicos de norma no se tocan.</td></tr>
+            <tr><td class="glossary-term">badge SIG</td><td>Elemento del sidebar en cada app individual (ISO27001, ENS, etc.) que muestra si el proyecto activo pertenece a un SIG. Muestra el nombre del SIG (con enlace) o "+ Crear SIG" si no pertenece a ninguno.</td></tr>
+            <tr><td class="glossary-term">_checkSigMembership</td><td>Método asíncrono añadido al objeto App de las 9 apps. Consulta /api/sig/projects?project_id=X&app_id=Y para saber si el proyecto activo pertenece a algún SIG y actualiza el badge.</td></tr>
+            <tr><td class="glossary-term">_toastSigWarning</td><td>Método del objeto App (9 apps). Muestra un toast morado con botón "Ir al SIG" cuando el usuario intenta registrar reuniones o tareas en una app cuyo proyecto ya tiene SIG asignado.</td></tr>
+            <tr><td class="glossary-term">reload CSV</td><td>Operación de recarga de la tabla sig_correspondencias desde los archivos CSV de servidor/data/. Se realiza sin reiniciar el servidor via POST /api/sig/correspondencias/reload.</td></tr>
+            <tr><td class="glossary-term">SIG-INTEGRACION/</td><td>Carpeta de la app SIG: nueva SPA independiente servida por Flask en /sig/. Contiene index.html, store.js, app.js y 8 módulos JS (overview, meetings, tasks, formacion, documents, normas, tiquets, correspondencias).</td></tr>
+            <tr><td class="glossary-term">DATA_DIR</td><td>Constante de server.py: ruta a servidor/data/. Carpeta donde se depositan los CSVs de correspondencias normativas.</td></tr>
+            <tr><td class="glossary-term">SIG_DIR</td><td>Constante de server.py: ruta a SIG-INTEGRACION/. Carpeta de la app SIG servida estáticamente por Flask.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- PIE DE PÁGINA -->
+<footer class="doc-footer">
+  <div class="footer-left">CODANOR — Jafa, S.L. — Barcelona, Catalunya</div>
+  <div class="footer-center">Documento interno — Uso exclusivo CODANOR</div>
+  <div class="footer-right">
+    v1.0 · 20/10/2026
+    <div class="footer-path">PLATAFORMA_OpenCode-NEW/SIG-MODULO-V01.html</div>
+  </div>
+</footer>
+
+<!-- BOTÓN IMPRIMIR -->
+<button class="btn-print" onclick="window.print()">Imprimir / PDF</button>
+
+<!-- TOC HIGHLIGHT -->
+<script>
+  const sections = document.querySelectorAll('[id^="seccion-"], #portada, #versiones, #glosario');
+  const navLinks = document.querySelectorAll('.sidebar nav a');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(a => a.classList.remove('active'));
+        const active = document.querySelector(`.sidebar nav a[href="#${entry.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { threshold: 0.25 });
+  sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>

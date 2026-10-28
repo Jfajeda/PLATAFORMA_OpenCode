@@ -1,11 +1,11 @@
 # Memory.md — PLATAFORMA_OpenCode
-> Ultima actualizacion: 2026-10-07
+> Ultima actualizacion: 2026-10-28
 
 ## Estado actual
 
 - **Fase**: Produccion / mantenimiento activo
 - **Version**: Manual v3.0 (20 capitulos) + Manual IA Actas v1.0
-- **Ultimo cambio significativo**: Groq como proveedor corporativo por defecto — fin de inestabilidad OpenRouter :free (commits `27049f0` + `885e667` 2026-10-07)
+- **Ultimo cambio significativo**: Módulo SIG v1.0 (2026-10-20) + Módulo Capas de Ciberseguridad v1.1.0 (2026-10-21/27) — actualizacion Memory.md/AGENTS.md (2026-10-28)
 - **Issues abiertos**: 72 bugs de reliability + 3 security hotspots detectados por SonarCloud
 
 ## Infraestructura
@@ -16,13 +16,13 @@
 | GitHub | Si | github.com/Jfajeda/PLATAFORMA_OpenCode |
 | SonarCloud | Si | Security A, Reliability B, Maintainability A, 3.5% duplications |
 | .gitignore | Si | Excluye .DS_Store, backups, __pycache__ |
-| AGENTS.md | Si | Actualizado 2026-10-07 — Groq proveedor por defecto, versiones v20261007a/b, IA/LLM module v3.1 |
+| AGENTS.md | Si | Actualizado 2026-10-28 — Módulo SIG v1.0 + Módulo Capas Ciberseguridad v1.1.0 |
 | PROPAGATION_RULES.md | Si | 2026-10-01 — clasificación BASE/CLON/DIVERGENTE/PROPIO + workflows + script verificación ENS |
 | opencode.json | Si | MCP SonarQube + instructions: AGENTS.md + PROPAGATION_RULES.md |
 | Memory.md | Si | Este archivo |
 | `.opencode/commands/documentos-proyectos.md` | Si | Skill plantilla documentos corporativos (HTML + .docx + .md) — 33 KB — 2026-10-05 |
-| plataforma.db | Activa | 19 tablas, WAL mode, 298 clientes, 36 proyectos |
-| server.py | Activo | Puerto 5001, HOST 0.0.0.0, 4276 lineas, 86 endpoints totales |
+| plataforma.db | Activa | **23 tablas**, WAL mode, 298 clientes, 36 proyectos |
+| server.py | Activo | Puerto 5001, HOST 0.0.0.0, **5377 lineas**, **111 endpoints**, APP_DIRS incluye `capas-seguridad` |
 | Ollama | Activo | localhost:11434, v0.35.1. Modelos: qwen2.5-coder:14b, qwen3:8b, llama3.1:latest, gemma3:4b |
 | Wiki_CODANOR | Activa | Open WebUI :3000 (Docker), ChromaDB vectordb/, 10 KBs, Ollama + OpenRouter conectados |
 
@@ -34,178 +34,190 @@
 |---------|-------------|---------|
 | Manual_OpenCode_Codanor.html | Manual v3.0, 20 capitulos | ~137 KB |
 | Manual_IA_Actas_Codanor.html | Manual IA módulo actas v1.0, 10 secciones | ~99 KB |
-| Manual_Seguimiento_Acta_Sintesis_IA-V02.html | **Manual Acta y Síntesis con IA v2.0** — Groq por defecto, TOC sticky, sección mantenimiento | ~60 KB — commit 2026-10-07 |
+| Manual_Seguimiento_Acta_Sintesis_IA-V02.html | Manual Acta y Síntesis con IA v2.0 — Groq por defecto, TOC sticky | ~60 KB |
 | plataforma-seguimiento.html | Dashboard + Kanban + Tiquets + Config IA Corp | ~98 KB |
 | analisis-codigo.html | Panel SonarCloud exportable, 5 pestanas | ~46 KB |
 | plan-homogeneizacion-modulos.html | Plan de homogeneizacion (14 caps) | ~72 KB |
 | homogeneizacion-proyectos.html | Dashboard homogeneizacion (5 pestanas) | ~46 KB |
-| propuesta-herramienta-tiquets.html | Propuesta tecnica tiquets **v1.2** | ~98 KB |
+| propuesta-herramienta-tiquets.html | Propuesta tecnica tiquets v1.2 | ~98 KB |
 | backup-opencode.sh | Script backup NAS CODANOR (8 modos) | ~14 KB |
-| Guia_Wiki_CODANOR_OpenWebUI.docx | Guia configuracion Wiki CODANOR + Open WebUI (13 secciones) | 139 KB |
-| PROPAGATION_RULES.md | Reglas propagación entre 9 apps — BASE/CLON/DIVERGENTE/PROPIO | commit `2026-10-01` |
+| PROPAGATION_RULES.md | Reglas propagación entre 9 apps — BASE/CLON/DIVERGENTE/PROPIO | commit 2026-10-01 |
 | `.opencode/commands/documentos-proyectos.md` | Skill plantilla documentos corporativos (HTML + .docx + .md) | 33 KB — 2026-10-05 |
+| **CAPAS-CIBERSEGURIDAD-V01.html** | **Propuesta técnica módulo Capas de Ciberseguridad** — portada, 10 secciones, tablas ENS/ISO27001/ISO42001 | **Oct 2026** |
+| **SIG-MODULO-V01.html** | **Propuesta técnica módulo SIG** — 10 secciones, arquitectura, endpoints, correspondencias | **71 KB — Oct 2026** |
 
 ### Plataforma_Seguimiento_Proyectos/servidor/
 
 | Archivo | Descripcion | Estado |
 |---------|-------------|--------|
-| server.py | Flask app: 86 endpoints — Core + Tiquets + Wiki + LLM + Riesgos + EIPD + Sonar + Estáticos | 4276 lineas |
-| plataforma.db | SQLite WAL: 19 tablas | Activa |
+| server.py | Flask app: **111 endpoints** — Core + Tiquets + Wiki + LLM + Riesgos + EIPD + Sonar + SIG + **Capas** + Estáticos | **5377 lineas** |
+| plataforma.db | SQLite WAL: **23 tablas** | Activa |
 | migration_tiquets.sql | DDL standalone v1.0→v1.4 | 147 lineas |
 | uploads/tiquets/ | Archivos adjuntos de tiquets (max 10 MB) | Excluido Git |
 | uploads/wiki/ | Documentos wiki (PDF/DOCX/TXT) | Excluido Git |
-| ARQUITECTURA_DB_SQLITE.html | Documentacion BD original v1.4 | 116 KB (histórico) |
-| ARQUITECTURA_DB_SQLITE-V01.html | **Documentacion BD actualizada V01** — 19 tablas, 86 endpoints, 29 proyectos | 58 KB — commit `4fcab16` |
-| GUIA_MANTENIMIENTO_NORMAS-V01.html | **Guia mantenimiento V01** — 9+11 apps, tipos A/B/C/D, checklist | 51 KB — commit `4fcab16` |
-| ARQUITECTURA-SERVIDORES-FLASK-SQLITE-V01.docx | **Arquitectura completa V01** — ecosistema ~/Proyectos/ | 59 KB — commit `19cf949` |
-| DOCS/informes/Guia_Migracion_Clave_Corporativa_IA_CODANOR.docx | Guia reconfigurar key IA tras v20261003a | 45 KB — commit `b60b5bf` |
-| DOCS/informes/Manual_Seguimiento_Reuniones_IA_Codanor-V01.docx | Manual reuniones IA v1.1 | 44 KB |
-| DOCS/informes/Manual_Configuracion_IA_LLM.docx | Manual configuración IA v1 | 44 KB |
-| requirements.txt | flask>=3.0.0, flask-cors>=4.0.0, python-docx>=1.0.0, openpyxl>=3.0.0 | — |
+| ARQUITECTURA_DB_SQLITE-V01.html | Documentacion BD actualizada V01 — 19 tablas, 86 endpoints | 58 KB |
 
-### Plataforma_Seguimiento_Proyectos — 9 apps ISO/ENS (versiones actuales 2026-10-07)
+### Plataforma_Seguimiento_Proyectos/capas-seguridad/ ← NUEVO 2026-10-21
 
-| App | app_id | tiquets.js | phase2-*.js | llm.js | llm-models.js | phase3-audit.js |
-|-----|--------|------------|-------------|--------|---------------|-----------------|
-| ISO27001-SGSI | iso27001 | v=20260829f | v=20261007b | v=20261007a | v=20261007a | v=20260930b |
-| ENS-RD311-2022 | ens | v=20260829f | v=20261007b | v=20261007a | v=20261007a | v=20260930b |
-| RGPD-LOPD-GDD | rgpd | v=20260829f | v=20261007b | v=20261007a | v=20261007a | v=20260930b |
-| ISO27701-SGP | iso27701 | v=20260829f | v=20261007b | v=20261007a | v=20261007a | v=20260930b |
-| ISO42001-SGIA | iso42001 | v=20260829f | v=20261007b | v=20261007a | v=20261007a | v=20260930b |
-| ISO9001-SGQ_2015 | iso9001 | v=20260829f | v=20261007b | v=20261007a | v=20261007a | v=20260930b |
-| ISO14001-SGMA_2015 | iso14001 | v=20260829f | v=20261007b | v=20261007a | v=20261007a | v=20260930b |
-| ISO14001-SGMA_2026_NEW | iso14001-2026 | v=20260829f | v=20261007b | v=20261007a | v=20261007a | v=20260930b |
-| TISAX | tisax | v=20260829f | v=20261007b | v=20261007a | v=20261007a | v=20260930b |
+| Archivo | Descripcion | Estado |
+|---------|-------------|--------|
+| `index.html` | SPA app standalone: 3 vistas + 2 modales | 15 KB |
+| `js/data.js` | 11 capas, 50 controles (ENS+ISO27001+ISO42001), 178 herramientas base | 3540 líneas |
+| `js/app.js` | Store LAN+localStorage, CRUD herramientas, diagrama SVG anillos, leyenda, informe HTML | ~1360 líneas |
+| `css/styles.css` | Paleta CODANOR, responsive, SVG, modales | 24 KB |
 
-## Fix LLM — Groq como proveedor corporativo (v20261007a — commits `27049f0` + `885e667`)
+### Plataforma_Seguimiento_Proyectos — 9 apps ISO/ENS (versiones actuales 2026-10-28)
 
-### Problema raíz
+| App | app_id | app.js | tiquets.js | phase2-*.js | llm.js |
+|-----|--------|--------|------------|-------------|--------|
+| ISO27001-SGSI | iso27001 | **v=20261021a** | v=20260829f | v=20261007b | v=20261007a |
+| ENS-RD311-2022 | ens | **v=20261021a** | v=20260829f | v=20261007b | v=20261007a |
+| ISO42001-SGIA | iso42001 | **v=20261021a** | v=20260829f | v=20261007b | v=20261007a |
+| RGPD-LOPD-GDD | rgpd | v=20260923a | v=20260829f | v=20261007b | v=20261007a |
+| ISO27701-SGP | iso27701 | v=20260904c | v=20260829f | v=20261007b | v=20261007a |
+| ISO9001-SGQ_2015 | iso9001 | v=20260917a | v=20260829f | v=20261007b | v=20261007a |
+| ISO14001-SGMA_2015 | iso14001 | v=20260904c | v=20260829f | v=20261007b | v=20261007a |
+| ISO14001-SGMA_2026_NEW | iso14001-2026 | v=20260904c | v=20260829f | v=20261007b | v=20261007a |
+| TISAX | tisax | v=20260904c | v=20260829f | v=20261007b | v=20261007a |
 
-OpenRouter `:free` rotó modelos sin previo aviso 3 veces durante la semana del 2026-10-07.
-Cada rotación rompía `synthesizeMeeting()` en todas las apps con el error `NOT FOUND`.
-
-### Solución definitiva
-
-| Cambio | Archivo | Detalle |
-|---|---|---|
-| Key corporativa Groq en BD | `plataforma.db` settings `_global/corp_llm_config` | `provider: groq`, `model: openai/gpt-oss-20b`, key `gsk_aM7w6O...uBVQ` (56 chars) |
-| Default `getConfig()` → Groq | `llm.js` × 9 apps | `provider: 'openrouter'` → `provider: 'groq'`, `model: 'openai/gpt-oss-20b'` |
-| `FREE_FALLBACK_CHAIN` actualizada | `llm-models.js` × 9 apps | 7 modelos verificados oct-2026: Gemini, Mistral, Qwen3, Llama3.1, Phi-3, gpt-oss-20b, Hermes |
-| Versiones bumpeadas | 9 `index.html` | `llm.js?v=20261007a`, `llm-models.js?v=20261007a`, `phase2-*.js?v=20261007b` |
-
-### Por qué Groq no rota
-
-Los modelos `openai/gpt-oss-20b` y `openai/gpt-oss-120b` son **modelos propios de Groq**.
-No dependen de acuerdos con terceros proveedores — no pueden ser retirados sin deprecación formal.
-Velocidad: 1000 tokens/segundo. Gratuito con key propia (`gsk_...`).
-
-## Fix LLM LAN — Key Corporativa + Modal (v20261003a — commit `ef5f302`)
-
-### 3 bugs corregidos
-
-| Bug | Causa raíz | Fix aplicado | Archivos |
-|---|---|---|---|
-| Modal "Prompt para la IA" aparecía aunque había key corporativa | `hasApiKey()` síncrono antes de que `loadCorpConfig()` completara el fetch al servidor | `await LLMUtil.loadCorpConfig()` antes de cada `if (!hasApiKey())` en `synthesizeMeeting`, `generateActaSummary`, `generateGlobalSummary` y `switchTab('tracking')` | phase2-consulting.js (5) + phase2-implementation.js (3) + phase2-isms.js (TISAX) |
-| Key corporativa corrupta desde PCs LAN | XOR usaba `socket.gethostname()` (servidor) vs `window.location.hostname` (cliente) — distinto con `127.0.0.1` vs IP de red | Clave XOR **fija**: `b'codanor_llm_2026_xor_key_fixed!!'` en `server.py` Y `llm.js` | server.py + llm.js × 9 apps |
-| Ollama no funcionaba en ENS | `_syncLLMConfigFromForm` en ENS sin guard `isOllamaKey` — la key `'ollama'` (6 chars ≤ 10) era descartada | Guard `isOllamaKey` añadido quirúrgicamente en ENS | ENS-RD311-2022/phase2-consulting.js |
-
-### Acción post-actualización requerida (una sola vez)
-**Reconfigurar la key corporativa IA** desde `plataforma-seguimiento.html → Configuración IA → Guardar`. Las keys guardadas con la clave XOR antigua quedan ilegibles. Ver `DOCS/informes/Guia_Migracion_Clave_Corporativa_IA_CODANOR.docx`.
-
-## Bugs Seguimiento de Tareas — corregidos (commits `c3efe81` + `a9c9035`)
-
-| Bug | Causa | Fix |
-|---|---|---|
-| Cabeceras tabla acciones mostraban `PHASE2.ACCIONDESCRIPCION` | 9 claves i18n ausentes en `lang/*.json` e `i18n-embedded.js`. `I18n.t()` devuelve la clave literal si no la encuentra (string truthy → fallback `|| 'valor'` nunca activa) | 9 claves añadidas en `phase2` de todos los lang × 9 apps × 3 idiomas + embedded |
-| Historial de tareas oculto | Guard `!startsWith('phase2.')` filtraba todas las entradas del historial | Guard eliminado de `phase2-consulting.js` (era parche temporal) |
-| `colspan="8"` incorrecto | La tabla tiene 7 columnas, no 8 | `colspan="7"` en `_renderTaskActionsRow` |
-| Botón "Eliminar reunión" no funcionaba | `window.prompt()` de confirmación palabra clave bloqueado por el navegador silenciosamente | Simplificado a un solo `confirm()` — eliminado el `prompt()` de palabra clave |
-| `LANG_VERSION` no bumpeada en 5 apps | ISO42001, TISAX, ISO9001, ISO14001-2015, ISO14001-2026 no tenían cache-busting en el fetch de lang/*.json | `?v=20260906a` añadido en los 5 `i18n.js` |
-
-## Documentación generada en sesión 2026-10-03
-
-| Documento | Tipo | Tamaño | Descripción |
-|---|---|---|---|
-| `ARQUITECTURA_DB_SQLITE-V01.html` | HTML corporativo | 58 KB | 19 tablas, 86 endpoints, 29 proyectos ~/Proyectos/, TOC sticky, ERD visual |
-| `GUIA_MANTENIMIENTO_NORMAS-V01.html` | HTML corporativo | 51 KB | 9+11 apps, tipos A/B/C/D propagación, procedimiento añadir norma (9 tabs), checklist |
-| `ARQUITECTURA-SERVIDORES-FLASK-SQLITE-V01.docx` | Word corporativo | 59 KB | Ecosistema completo, 86 endpoints, hoja de ruta 13 mejoras |
-| `Guia_Migracion_Clave_Corporativa_IA_CODANOR.docx` | Word corporativo | 45 KB | 11 pasos reconfigurar key XOR, FAQ, checklist 12 ítems |
-| `Manual_Seguimiento_Reuniones_IA_Codanor-V01.docx` | Word corporativo | 44 KB | Manual reuniones IA v1.1 — key corporativa LAN, Ollama, errores actualizados |
-
-## Módulo Análisis de Riesgos (v1.0 — 2026-10-02, commit `2957632`)
+## Módulo Capas de Ciberseguridad (v1.1.0 — 2026-10-21/27)
 
 ### Arquitectura
 
-```
-Plataforma Fase 2 (Diseño SGSI)
-  └── Botón "Análisis de Riesgos" → window.open con ?project=&client=
-        ↓
-  http://IP:5001/riesgos/{iso27001|ens|lopd}/dashboard_riesgos_*.html
-        ↓
-  fetch a window.location.origin/api/riesgos/{app_id}/proyectos
-        ↓
-  plataforma.db → risk_projects / risk_assets / risk_seguimiento
-  (o /api/eipd/* → eipd_projects / eipd_data para EIPD)
-```
+App HTML standalone en `Plataforma_Seguimiento_Proyectos/capas-seguridad/`. Servida por Flask en `/capas-seguridad/`. Accesible desde el sidebar de ISO27001, ENS e ISO42001 con el enlace "🔒 Capas Ciberseguridad".
 
-### Dashboards de riesgos — rutas Flask
+### Datos (data.js)
 
-| URL Flask | Dashboard | app_id API |
-|---|---|---|
-| `/riesgos/iso27001/` | `Gestion_Riesgos_ISO27001/dashboard_riesgos_codanor.html` | `iso27001` |
-| `/riesgos/ens/` | `Gestion_Riesgos_ENS/dashboard_riesgos_codanor_ens.html` | `ens` |
-| `/riesgos/lopd/` | `Gestion_Riesgos_LOPD-RGPD/dashboard_riesgos_codanor.html` | `lopd` |
-| `/riesgos/lopd/dashboard_eipd_rgpd_codanor.html` | EIPD RGPD | `/api/eipd/*` |
+- **11 capas** concéntricas (exterior→interior): Sistemas IA (orden=0, morado) · Ubicación · Proveedores · Comunicaciones · Auxiliares/Soportes · Hardware · Aplicaciones · Personas externas · Personas internas · Servicios · Información (orden=10, más interior)
+- **50 controles** con referencias ENS (mp.*, op.*), ISO 27001 (A.x.y) e ISO 42001 (A.x.y)
+- **178 herramientas base** — 18 corporativas + 160 recomendaciones genéricas (extraídas de 12 CSVs de referencia)
+- Tipo nuevo `'recomendacion'` — badge naranja `#e65100`
 
-### Endpoints API REST — Riesgos (17 rutas)
+### Diagrama SVG
+
+- Técnica: `stroke` en lugar de `fill` — cada anillo es independiente, no se tapa
+- Leyenda lateral izquierda con color + nombre + descripción de cada capa
+- Etiquetas distribuidas en arco superior (-155° → -25°)
+- Clic en anillo o en leyenda → muestra controles + herramientas en panel derecho
+- Título dinámico con `CAPAS_DATA.length`
+- Bug corregido: `centerFill.style.pointerEvents = 'none'` → clic en Información funciona
+
+### Persistencia (Store)
+
+- **Primario**: Flask SQLite (`capas_herramientas` table, endpoint `/api/capas/herramientas`)
+- **Fallback offline**: `localStorage` clave `codanor_capas_v1`
+- Indicador topbar: `● LAN — SQLite` (verde) / `● Offline — localStorage` (naranja)
+- Sync automático de herramientas base al servidor en el primer `load()`
+
+### Endpoints API (5 rutas nuevas en server.py)
 
 | Método | URL | Descripción |
 |---|---|---|
-| GET | `/api/riesgos/<app_id>/proyectos` | Listar proyectos de riesgo |
-| POST | `/api/riesgos/<app_id>/proyectos` | Crear/actualizar proyecto (upsert) |
-| GET | `/api/riesgos/<app_id>/proyectos/<id>` | Proyecto completo + activos + seguimiento |
-| DELETE | `/api/riesgos/<app_id>/proyectos/<id>` | Eliminar proyecto |
-| GET | `/api/riesgos/<app_id>/proyectos/<id>/activos` | Listar activos |
-| POST | `/api/riesgos/<app_id>/proyectos/<id>/activos` | Crear activo |
-| PUT | `/api/riesgos/<app_id>/proyectos/<id>/activos/<rowid>` | Actualizar activo |
-| DELETE | `/api/riesgos/<app_id>/proyectos/<id>/activos/<rowid>` | Eliminar activo |
-| GET | `/api/riesgos/<app_id>/proyectos/<id>/seguimiento` | Listar seguimientos |
-| POST | `/api/riesgos/<app_id>/proyectos/<id>/seguimiento` | Crear seguimiento |
-| PUT | `/api/riesgos/<app_id>/proyectos/<id>/seguimiento/<rowid>` | Actualizar seguimiento |
-| DELETE | `/api/riesgos/<app_id>/proyectos/<id>/seguimiento/<rowid>` | Eliminar seguimiento |
-| GET | `/api/eipd/proyectos` | Listar proyectos EIPD |
-| POST | `/api/eipd/proyectos` | Crear/actualizar proyecto EIPD |
-| GET | `/api/eipd/proyectos/<id>` | Proyecto EIPD completo con secciones |
-| PUT | `/api/eipd/proyectos/<id>/<seccion>` | Actualizar sección EIPD |
-| DELETE | `/api/eipd/proyectos/<id>` | Eliminar proyecto EIPD |
+| GET | `/api/capas/herramientas` | Lista todas las herramientas |
+| POST | `/api/capas/herramientas` | Crear / upsert por id |
+| PUT | `/api/capas/herramientas/<id>` | Actualizar |
+| DELETE | `/api/capas/herramientas/<id>` | Eliminar (protege base) |
+| POST | `/api/capas/herramientas/bulk` | Importación masiva |
 
-### Tablas plataforma.db — Módulo Riesgos (5 nuevas)
+### Tabla nueva en plataforma.db
 
-| Tabla | PK | Descripción |
+`capas_herramientas` — id, nombre, url, logo (dataURL), tipo, descripcion, capas (JSON), controles (JSON), notas, activa, es_base, changelog (JSON), fecha_alta, updated_at
+
+### Informe HTML (botón "📄 Informe")
+
+- Portada con 6 KPIs (capas, controles, herramientas, corporativas, recomendaciones, % cobertura)
+- TOC con enlaces a cada sección
+- Sección 1: mapa de capas ordenado exterior→interior, tabla 5 columnas (ENS / ISO 27001 / ISO 42001 / Herramientas)
+- Sección 2: catálogo completo 178 herramientas por tipo
+- Sección 3: estadísticas de cobertura por capa con barras de progreso
+- Branding CODANOR: Poppins + Nunito Sans, paleta `#1275A3`, badges coloreados
+
+### Reglas críticas
+
+1. **`pointer-events: none`** en `centerFill` y `centerText` del SVG — obligatorio para que el clic en el anillo Información funcione.
+2. **Orden de capas**: `orden=0` = Sistemas IA (exterior, radio máximo). `orden=10` = Información (interior, radio mínimo). El SVG itera `sort((a,b)=>a.orden-b.orden)` para geometría.
+3. **Técnica SVG**: `stroke` en `<circle fill="none">` — NO `fill` en círculos sólidos (provoca efecto de tapado).
+4. **`capas-seguridad` en APP_DIRS**: registrado en `server.py` → accesible en `http://IP:5001/capas-seguridad/`.
+5. **Sidebar**: el enlace usa `window.location.origin+'/capas-seguridad/'` — funciona en localhost y LAN sin hardcodear IP.
+
+## Módulo SIG — Sistema Integrado de Gestión (v1.0 — 2026-10-20)
+
+### Arquitectura
+
+App HTML standalone en `Plataforma_Seguimiento_Proyectos/SIG-INTEGRACION/`. Servida por Flask en `/sig/`. Principio arquitectónico: **"Lo que es del proyecto SIG vive en el SIG. Lo que es de la norma vive en la norma."**
+
+### Archivos del módulo
+
+| Archivo | Rol | Líneas |
 |---|---|---|
-| `risk_projects` | `(id, app_id)` | Proyectos por norma. `categoria_ens` NULL en no-ENS |
-| `risk_assets` | `INTEGER AUTOINCREMENT` | 37 columnas Magerit v3. `impacto_aut/traz` NULL en no-ENS |
-| `risk_seguimiento` | `INTEGER AUTOINCREMENT` | 6 campos: seg_id, activo_id, accion, fechas, responsables |
-| `eipd_projects` | `id TEXT` | Proyectos EIPD (formato EIPD-NNN-CLIENTE) |
-| `eipd_data` | `(project_id, seccion)` | Secciones EIPD como JSON: rat_rt, rat_et, pre_evaluacion, descripcion, necesidad, factores, medidas, conclusion, consulta_previa |
+| `SIG-INTEGRACION/index.html` | SPA: router + layout + sidebar | ~250 |
+| `SIG-INTEGRACION/js/app.js` | Router SPA, CRUD proyectos SIG, `NORMAS_META` (9 normas) | ~377 |
+| `SIG-INTEGRACION/js/store.js` | Cliente API LAN-aware (`window.location.hostname`) | ~136 |
+| `SIG-INTEGRACION/css/styles.css` | Paleta CODANOR morada (#5C35A0) para SIG | ~464 |
+| `SIG-INTEGRACION/js/modules/sig-overview.js` | Dashboard progreso por norma + acceso directo | 127 |
+| `SIG-INTEGRACION/js/modules/sig-meetings.js` | Reuniones unificadas cross-norma | 208 |
+| `SIG-INTEGRACION/js/modules/sig-tasks.js` | Tareas unificadas cross-norma | 221 |
+| `SIG-INTEGRACION/js/modules/sig-formacion.js` | Formación unificada cross-norma | 188 |
+| `SIG-INTEGRACION/js/modules/sig-documents.js` | Documentos unificados cross-norma | 188 |
+| `SIG-INTEGRACION/js/modules/sig-normas.js` | Gestión de normas miembro del SIG | 197 |
+| `SIG-INTEGRACION/js/modules/sig-tiquets.js` | Vista tiquets integrada del SIG | 181 |
+| `SIG-INTEGRACION/js/modules/sig-correspondencias.js` | Tabla pivot HLS + búsqueda + reload | 160 |
 
-### Reglas críticas del módulo de riesgos
+**Versión:** `v20261020a` — todos los archivos congelados a 2026-10-20.
 
-1. **`window.location.origin`** en `_riskApi()` y `_eipdApi()` — NO usar `window.location.hostname:5001` (causa `TypeError: Load failed` en Safari/WebKit).
+### Endpoints API (14 rutas en server.py)
 
-2. **`app_id` válidos para riesgos**: `iso27001`, `ens`, `lopd` — definidos en `RISK_APP_IDS` en `server.py`. Son distintos de los `app_id` de la Plataforma (no existe `lopd` en `APP_DIRS`, solo `rgpd`).
+| Método | URL | Descripción |
+|---|---|---|
+| GET | `/api/sig/projects` | Listar proyectos SIG |
+| POST | `/api/sig/projects` | Crear proyecto SIG |
+| GET | `/api/sig/projects/<sig_id>` | Proyecto SIG completo |
+| PUT | `/api/sig/projects/<sig_id>` | Actualizar proyecto SIG |
+| DELETE | `/api/sig/projects/<sig_id>` | Eliminar proyecto SIG |
+| GET/POST | `/api/sig/<sig_id>/phase/<phase>` | Datos de fase por SIG |
+| GET | `/api/sig/<sig_id>/norma/<app_id>/phase/<phase>` | Datos norma-fase cruzados |
+| GET | `/api/sig/<sig_id>/progress` | Progreso consolidado |
+| GET/POST | `/api/sig/<sig_id>/tiquets` | Tiquets del SIG |
+| GET | `/api/sig/correspondencias` | Tabla de correspondencias |
+| GET | `/api/sig/correspondencias/status` | Estado carga de CSVs |
+| POST | `/api/sig/correspondencias/reload` | Recarga CSVs desde disco |
 
-3. **Botón en Fase 2**: `_renderRiskLink()` se llama desde `renderDesignTab()`. El tab `design` se re-renderiza en `switchTab` → el botón aparece siempre al activar la pestaña.
+**Rutas estáticas:** `GET /sig/` y `GET /sig/<path:filename>` → `SIG-INTEGRACION/` (con `no-cache` para `.js`).
+**Variable:** `SIG_DIR = ROOT_DIR / 'SIG-INTEGRACION'` (fuera de `APP_DIRS`).
 
-4. **Migración IDB→servidor**: cada dashboard detecta automáticamente proyectos en IndexedDB local y ofrece migrarlos con un clic (banner superior). Función `_checkAndOfferMigration()`.
+### CSVs de correspondencias normativas
 
-5. **Pre-carga por URL**: el botón pasa `?project=PRJ-NNN-CLIENTE&client=NOMBRE&_t=TIMESTAMP`. El timestamp evita caché de navegador. El dashboard carga el proyecto directamente si existe en BD.
+Ubicación: `servidor/data/` — cargados automáticamente al arrancar Flask.
 
-6. **Apps sin dashboard propio**: ISO27701, ISO42001, ISO9001, ISO14001-2015, ISO14001-2026 muestran botón desactivado "Próximamente". TISAX no tiene botón.
+| Archivo | Filas |
+|---|---|
+| `99_AGRUPACION_NORMATIVO.csv` | 1.972 (HLS cross-norma) |
+| `ENS_hacia_ISO27001.csv` | 170 |
+| `ISO27001_hacia_ENS.csv` | 173 |
 
-7. **`generateProjectId()` offline**: si el servidor no responde, usa `Date.now().slice(-6)` como número de proyecto. El usuario puede iniciar un nuevo análisis sin servidor disponible y sincronizar después.
+**BD:** 678 filas en `sig_correspondencias`. Ningún proyecto SIG creado en producción aún.
 
-## BD: plataforma.db — 19 tablas (total actual)
+### Integración en 9 apps ISO/ENS
+
+Todos los 9 `app.js` tienen badge SIG y métodos de integración:
+
+| Método | Línea (ISO27001) | Función |
+|---|---|---|
+| `_checkSigMembership()` | L439 | Consulta `/api/sig/projects` para mostrar badge si el proyecto pertenece a un SIG |
+| `_toastSigWarning()` | L477 | Toast anti-duplicación — avisa al usuario que esa sección ya existe en el SIG |
+| `_openSigFromSidebar()` | En sidebar | Abre `/sig/` con `window.open` |
+
+**Nota:** `_toastSigWarning` está implementado en los 9 `app.js` pero **aún no se invoca** desde `phase2-*.js` (pendiente, ver lista de pendientes).
+
+### Tarjeta en pantalla de inicio Flask
+
+Color `#5C35A0` (morado), posición al final del grid, badge dinámico con contador de SIGs activos.
+
+### Documento de propuesta
+
+`PLATAFORMA_OpenCode-NEW/SIG-MODULO-V01.html` — 71 KB, 10 secciones, propuesta técnica completa.
+
+## BD: plataforma.db — 23 tablas (total actual)
 
 **Originales (4):** `clients` · `projects` · `phase_data` · `settings`
 
@@ -217,153 +229,81 @@ Plataforma Fase 2 (Diseño SGSI)
 
 **Riesgos/EIPD (5):** `risk_projects` · `risk_assets` · `risk_seguimiento` · `eipd_projects` · `eipd_data`
 
-**+ 1:** `sqlite_sequence` (gestionada por SQLite automáticamente)
+**SIG (3):** `sig_projects` · `sig_phase_data` · `sig_correspondencias`
 
-## Módulo Wiki_CODANOR (v1.0 — 2026-09-30)
+**Capas Ciberseguridad (1):** `capas_herramientas`
 
-### Arquitectura
+**+ 1:** `sqlite_sequence` (gestionada por SQLite)
 
-```
-Usuarios
-   ↓
-Open WebUI :3000 (Docker — contenedor wiki-codanor)
-   ├── Ollama :11434 (macOS nativo — host.docker.internal:11434)
-   │     ├── qwen3:8b          ← chat general (PREDETERMINADO)
-   │     ├── qwen2.5-coder:14b ← análisis técnico
-   │     ├── llama3.1:latest   ← actas y redacción
-   │     ├── gemma3:4b         ← respuestas rápidas
-   │     └── nomic-embed-text  ← embeddings RAG (NO usar para chat)
-   ├── OpenRouter (nube — https://openrouter.ai/api/v1)
-   │     └── GPT-3.5/GPT-4, Claude, Gemini, Mistral, 100+ modelos
-   └── ChromaDB vectordb/ (embebido en Open WebUI)
-         └── 10 Knowledge Bases CODANOR
-```
+## Fix LLM — Groq como proveedor corporativo (v20261007a)
 
-### Arranque tras reinicio
+- Key corporativa Groq en BD: `provider: groq`, `model: openai/gpt-oss-20b`
+- Default `getConfig()` → Groq en `llm.js` × 9 apps
+- `FREE_FALLBACK_CHAIN` actualizada con 7 modelos verificados oct-2026
+- Versiones: `llm.js?v=20261007a`, `llm-models.js?v=20261007a`, `phase2-*.js?v=20261007b`
 
-```bash
-cd ~/Proyectos/Wiki_CODANOR && docker compose up -d
-# → http://localhost:3000
-```
+## Fix LLM LAN — Key Corporativa + Modal (v20261003a)
 
-### Reglas criticas
+- `await LLMUtil.loadCorpConfig()` antes de cada `if (!hasApiKey())` × 9 apps
+- XOR clave fija `b'codanor_llm_2026_xor_key_fixed!!'` en server.py + llm.js
+- Guard `isOllamaKey` en ENS `_syncLLMConfigFromForm`
 
-1. **RAG no es automatico** — adjuntar KB al chat: `+` → `Adjuntar coneixement`.
-2. **`nomic-embed-text`** solo para embeddings — NUNCA como modelo de chat.
-3. **No PostgreSQL+pgvector** — decisión 2026-09-30, RAM insuficiente.
-
-## Módulo IA/LLM — Arquitectura completa (v3.0 — 2026-09-25)
-
-### Proveedores y modelos activos
-
-| Proveedor | ID | Modelo por defecto | Gratuito | Key prefix |
-|---|---|---|---|---|
-| Groq | groq | openai/gpt-oss-20b | ✅ | gsk_... |
-| OpenRouter | openrouter | openrouter/free | ✅ | sk-or-... |
-| Google Gemini | google | gemini-2.0-flash | ✅ | AIza... |
-| OpenAI | openai | gpt-4o-mini | ❌ | sk-... |
-| Anthropic | anthropic | claude-3-5-haiku-20241022 | ❌ | sk-ant-... |
-| Ollama (Local) | ollama | qwen2.5-coder:14b | ✅ | ollama |
-
-### Config corporativa (server.py endpoints)
-
-```
-GET  /api/corp/llm-config   → config con key XOR+base64
-POST /api/corp/llm-config   → guarda (key ofuscada)
-DELETE /api/corp/llm-config → elimina
-```
-
-## Herramienta de Tiquets — Arquitectura completa (v1.0→v1.4)
-
-**Formato ID tiquet:** `TIK-{NNN:03d}-{client_id}-{app_id}-{DD-MM-AAAA}`
-
-**Tablas:** `contadores_tiquets` · `tiquets` (22 cols + `wiki_article_id`) · `tiquets_historial` · `tiquets_comentarios` · `tiquets_acciones` · `tiquets_adjuntos`
-
-**19 endpoints** en `/api/tiquets/*` — ver AGENTS.md para lista completa.
-
-## Historial de decisiones
+## Historial de decisiones (selección reciente)
 
 | Fecha | Decision | Razon |
 |-------|----------|-------|
-| 2026-04-26 | Mover proyectos a ~/Proyectos/ | iCloud causaba conflictos con Git |
-| 2026-08-28 | Integrar tiquets en plataforma.db (no BD nueva) | Reutilizar clients (298) y projects (32) |
-| 2026-08-29 | TK_API con window.location.hostname | localhost no funciona en equipos LAN remotos |
-| 2026-09-04 | Módulo Mapa de Procesos via phase_data (no IndexedDB) | IndexedDB es local al navegador |
-| 2026-09-06 | acciones[] en modelo de tarea | Registrar pasos concretos de resolución por tarea |
+| 2026-10-27 | `pointer-events:none` en centerFill/centerText SVG | Bug: clic en anillo Información no funcionaba — centerFill tapaba el hitArea |
+| 2026-10-27 | Informe HTML refactorizado: portada + TOC + ISO42001 + catálogo + estadísticas | El informe anterior no tenía columna ISO42001, ni catálogo, ni estadísticas de cobertura |
+| 2026-10-27 | Leyenda lateral izquierda en Vista Diagrama | Mejorar legibilidad — nombre + descripción de cada capa visible sin hacer clic |
+| 2026-10-22 | Técnica SVG stroke en lugar de fill para anillos | fill+círculos sólidos tapaban capas → solo se veía el último círculo (morado IA gigante) |
+| 2026-10-21 | Módulo Capas de Ciberseguridad v1.0 standalone | App standalone sin modificar apps existentes — CRUD herramientas, 11 capas, 178 herramientas |
+| 2026-10-21 | `capas-seguridad` en APP_DIRS de server.py | Necesario para servir la app standalone vía Flask en la LAN |
+| 2026-10-21 | Capa IA orden=0 (exterior) en lugar de orden=11 | ISO 42001 como marco transversal que envuelve las 10 capas de ciberseguridad |
+| 2026-10-21 | 160 herramientas de recomendación + tipo 'recomendacion' | 12 CSVs de referencia con herramientas ENS/ISO27001 → biblioteca de 178 herramientas |
+| 2026-10-21 | Sidebar ISO27001 + ENS + ISO42001: enlace Capas Ciberseguridad | Acceso rápido desde las apps relevantes sin modificar la arquitectura SPA existente |
+| 2026-10-07 | Groq como proveedor corporativo por defecto | OpenRouter :free rotó modelos 3 veces en una semana sin aviso |
+| 2026-10-03 | XOR clave fija server.py + llm.js | XOR dependiente de hostname fallaba desde 127.0.0.1 vs IP LAN |
+| 2026-10-02 | Módulo Análisis de Riesgos v1.0 IndexedDB→Flask | IndexedDB es local al navegador — no compartido en LAN |
 | 2026-09-06 | PHASE_KEYS constante en store.js × 9 apps | ISO9001/ISO14001 usan gap/implementation, no phase1-5 |
-| 2026-09-11 | LLM: dos campos API Key → un solo campo | Campo duplicado desincronizado causaba "Missing Auth header" |
-| 2026-09-11 | Key corporativa LAN vía Flask settings | localStorage no se comparte entre PCs de la LAN |
-| 2026-09-11 | isOllamaKey guard en _syncLLMConfigFromForm | 'ollama' tiene 6 chars → length>10 bloqueaba el guardado |
-| 2026-09-17 | Botón NotebookLM dentro de wiki.js (no sidebar) | Acceso contextual al módulo Conocimiento |
-| 2026-09-21 | Badge IA→C (CODANOR) en phase2-*.js | Imagen corporativa — no mostrar "IA" a clientes |
-| 2026-09-30 | Wiki_CODANOR v1.0 (Open WebUI + ChromaDB + RAG) | Base de conocimiento corporativa con LLM |
-| 2026-10-01 | PROPAGATION_RULES.md como segunda instruction | Incidente: propagación ISO27001→ENS destruyó +608 líneas exclusivas |
-| 2026-10-02 | Riesgos: IndexedDB→Flask/SQLite (plataforma.db) | IndexedDB es local al navegador — no accesible en LAN multiusuario |
-| 2026-10-02 | window.location.origin en _riskApi() | `hostname:5001` explícito causa TypeError: Load failed en Safari/WebKit |
-| 2026-10-02 | Re-render tab 'design' en switchTab() × 8 apps | Tab se renderizaba 1 sola vez en init() — botón riesgos no aparecía al volver al tab |
-| 2026-10-02 | _t=Date.now() en URL botón riesgos | Evita caché agresiva de Safari para el HTML del dashboard |
-| 2026-10-02 | generateProjectId() con fallback offline | Si Flask no responde, el NNN se genera con timestamp local — botón no queda deshabilitado |
-| 2026-10-03 | XOR clave fija en _xor_key() server.py + _deobfuscate() llm.js | XOR dependiente de hostname fallaba desde 127.0.0.1 vs IP de red en LAN — fix ef5f302 |
-| 2026-10-03 | await loadCorpConfig() antes de hasApiKey() en 4 puntos IA × 9 apps | hasApiKey() síncrono antes de la carga async del servidor mostraba modal manual innecesario |
-| 2026-10-03 | removeMeeting() simplificado — solo confirm(), sin prompt() palabra clave | window.prompt() bloqueado silenciosamente por navegador impedía borrar reuniones vacías |
-| 2026-10-03 | 9 claves i18n accionDescripcion etc. añadidas × 9 apps × 3 idiomas | I18n.t() devuelve la clave literal — el fallback `\|\| 'valor'` nunca activa (string truthy) |
-| 2026-10-07 | Manual_Seguimiento_Acta_Sintesis_IA-V02.html — nuevo formato HTML corporativo | Sustituye al .docx anterior. Nuevo formato HTML con branding CODANOR, Groq como proveedor por defecto, sección de mantenimiento del manual (sección 11) para garantizar que no quede obsoleto |
-| 2026-10-07 | Groq como proveedor corporativo por defecto en llm.js + plataforma.db | OpenRouter :free rotó modelos sin aviso 3 veces en una semana — Groq tiene modelos propios que no rotan, 1000 t/s, gratuito |
-| 2026-10-07 | FREE_FALLBACK_CHAIN actualizada con 7 modelos verificados oct-2026 | hermes-3-405b:free y gpt-oss-120b:free ya no están disponibles en OpenRouter |
-| 2026-10-05 | Skill `documentos-proyectos` — plantilla unificada 3 formatos (HTML + .docx + .md) | Todos los documentos del proyecto siguen el mismo patrón visual CODANOR con tipografía estandarizada y colores WCAG AA |
-| 2026-10-05 | Tipografía corporativa: Poppins + Nunito Sans + JetBrains Mono | Muli eliminada (obsoleta). SF Mono / Courier New eliminadas (dependencias de SO). Google Fonts — compatible en todos los equipos |
-| 2026-10-05 | 5 combinaciones de color corregidas por bajo contraste WCAG AA | `#f39c12`→`#b7770d`, `#aaa`→`#6b6b7b`, badge blanco sobre naranja→texto `#1a1a2e`, badge blanco sobre `#12A79D`→texto `#1a1a2e`, `#d68910`→`#7d6608` |
+| 2026-08-29 | TK_API con window.location.hostname | localhost no funciona en equipos LAN remotos |
 
 ## Pendiente
 
-- [ ] Corregir los 18 innerHTML restantes (security hotspots de SonarCloud)
+- [ ] Corregir los 18 innerHTML restantes (security hotspots SonarCloud)
 - [ ] Ejecutar /init en los 7 proyectos restantes para crear AGENTS.md
 - [ ] Subir los otros 7+ proyectos a GitHub
 - [ ] Conceder "Acceso total al disco" en Ajustes → Privacidad para backup NAS
 - [ ] Regenerar token SonarCloud
 - [ ] Dashboard de riesgos para ISO9001, ISO14001, ISO42001, ISO27701 (actualmente "Próximamente")
-- [ ] Ingestar documentos en 9 KBs restantes (ISO27001, LOPD-RGPD, NIS2, OSINT, Logs-SIEM...)
-- [ ] Probar Mapa de Procesos en LAN desde segundo PC
+- [ ] Ingestar documentos en 9 KBs restantes Wiki_CODANOR
 - [ ] Activar Ollama en LAN (`OLLAMA_HOST=0.0.0.0 ollama serve`) — bloqueado por firewall MDM
-- [ ] Activar apps en preparación: ISO9001:2026, NIS2 (documentación ya disponible)
+- [ ] Activar apps en preparación: ISO9001:2026, NIS2
 - [ ] Integrar Gestion_Riesgos_ISO14001, ISO9001, ISO42001 en RISK_DIRS Flask
-- [x] ~~Groq como proveedor corporativo por defecto — fin de inestabilidad OpenRouter~~ (commits `27049f0` + `885e667` 2026-10-07)
-- [x] ~~Reconfigurar key corporativa IA tras v20261003a~~ (key Groq guardada directamente en BD 2026-10-07)
-- [x] ~~Fix LLM LAN: key corporativa + modal innecesario + Ollama ENS~~ (commit `ef5f302` 2026-10-03)
-- [x] ~~Bugs seguimiento tareas: i18n accionDescripcion, historial, colspan, eliminar reunión~~ (commits `c3efe81` + `a9c9035`)
-- [x] ~~Documentación arquitectura V01~~ (HTML + DOCX — commit `4fcab16` 2026-10-03)
-- [x] ~~Módulo Análisis de Riesgos v1.0~~ (migración IndexedDB→Flask, Fase 2 integrada — commit `2957632` 2026-10-02)
-- [x] ~~Herramienta de Tiquets v1.0→v1.4~~ (implementada 2026-08-28/29)
-- [x] ~~Módulo Mapa de Procesos v1.0~~ (commit eb628fe 2026-09-04)
-- [x] ~~Mejora Seguimiento de Tareas v2.0~~ (commit e0c1a08 2026-09-06)
-- [x] ~~Fix LAN persistencia BD~~ (commit e0c1a08 2026-09-06)
-- [x] ~~Módulo IA/LLM v3.0~~ (2026-09-25 — Ollama local + isOllamaKey fix × 9 apps)
-- [x] ~~Wiki_CODANOR v1.0~~ (Open WebUI :3000 + Ollama + ChromaDB + RAG — 2026-09-30)
-- [x] ~~PROPAGATION_RULES.md~~ (clasificación BASE/CLON/DIVERGENTE/PROPIO — 2026-10-01)
+- [ ] Módulo Capas: integrar con proyectos ISO27001/ENS (filtrar herramientas por proyecto)
+- [ ] Módulo Capas: logo upload funcionando en todas las herramientas base
+- [ ] **SIG: activar `_toastSigWarning` desde `phase2-*.js`** — implementado en 9 `app.js` pero aún no invocado desde `addMeeting()` / `addTask()` de los módulos phase2
+- [ ] **SIG: corregir duplicado `8.11` en `ISO27001_hacia_ENS.csv`** (líneas 76-77, el segundo debería ser `8.12`) y añadir `UNIQUE` constraint a `sig_correspondencias`
+- [ ] **SIG: bump `app.js` de 6 apps** a versión unificada — RGPD en `v20260923a`, ISO9001 en `v20260917a`, ISO27701/ISO14001/ISO14001-2026/TISAX en `v20260904c` (tienen el código SIG pero versión desactualizada)
+- [x] ~~Módulo Capas de Ciberseguridad v1.1.0~~ — 11 capas, 50 controles, 178 herramientas, SVG anillos, leyenda, informe HTML (2026-10-21/27)
+- [x] ~~Módulo SIG v1.0~~ — app standalone, 14 endpoints, 8 módulos, 9 apps integradas con badge + toast, 678 correspondencias (2026-10-20)
+- [x] ~~Groq como proveedor corporativo por defecto~~ (commits `27049f0` + `885e667` 2026-10-07)
+- [x] ~~Fix LLM LAN: key corporativa + modal + Ollama ENS~~ (commit `ef5f302` 2026-10-03)
+- [x] ~~Módulo Análisis de Riesgos v1.0~~ (commit `2957632` 2026-10-02)
+- [x] ~~Módulo IA/LLM v3.0~~ (2026-09-25)
+- [x] ~~Wiki_CODANOR v1.0~~ (2026-09-30)
+- [x] ~~PROPAGATION_RULES.md~~ (2026-10-01)
 
-## Notas y descubrimientos
+## Notas técnicas
 
-- **Groq proveedor corporativo por defecto** (desde 2026-10-07): modelos `openai/gpt-oss-20b` y `openai/gpt-oss-120b` son propios de Groq — no rotan. Key `gsk_...` guardada en plataforma.db, compartida automáticamente en toda la LAN. OpenRouter `:free` solo si el usuario lo configura explícitamente.
-- **OpenCode queda bloqueado** si su directorio de trabajo se elimina o mueve.
-- **El usuario NO tiene Node.js, Homebrew ni GitHub CLI**. Git push requiere autenticacion manual.
-- **SonarCloud token**: regenerar desde sonarcloud.io > My Account > Security.
-- **Puerto 5000** en macOS puede estar ocupado por AirPlay Receiver. Usar 5001.
-- **python-docx 1.2.0 y openpyxl 3.1.5** instalados en el sistema.
-- **IndexedDB de la wiki** vive exclusivamente en el navegador — no se sincroniza con plataforma.db.
-- **LAN**: servidor Flask sirve en HOST 0.0.0.0:5001. IP actual: 192.168.0.81. Todos los módulos usan `window.location.hostname` o `window.location.origin` para auto-detectar la IP.
-- **Ollama**: escucha en localhost:11434 por defecto. Para LAN requiere `OLLAMA_HOST=0.0.0.0`. Modelos: qwen2.5-coder:14b (8.5GB), qwen3:8b (5GB), llama3.1:latest (4.7GB), gemma3:4b (3.2GB). Versión: v0.34.4.
-- **Safari/WebKit**: fetch a URLs con `hostname:puerto` explícito puede causar `TypeError: Load failed` aunque sea mismo origen. Usar siempre `window.location.origin` para construir URLs de API.
-- **ISO9001 ≠ ISO14001 en phase2-implementation.js**: ISO9001 usa `ACTIVITY_GROUPS`; ISO14001 usa `CLAUSE_GROUPS`. NUNCA propagar con cp/sed entre ellas — TIPO D PROPIO.
-- **Re-render tab design**: `switchTab` re-renderiza siempre el tab `design` cuando se activa. Necesario porque `renderDesignTab()` contiene el botón de riesgos y otros elementos dinámicos. Sin este re-render el botón no aparece si el módulo ya estaba inicializado.
-- **Riesgos app_id**: los dashboards de riesgos usan `iso27001`, `ens`, `lopd` como app_id en la API. Son distintos de los app_id de la Plataforma (donde RGPD usa `rgpd`, no `lopd`).
-- **Key corporativa LLM**: guardada ofuscada (XOR+base64) en `settings` WHERE `app_id='_global'` AND `key='corp_llm_config'`.
-- **isOllamaKey guard**: la key de Ollama es la cadena `'ollama'` (6 chars). `length > 10` sin el guard bloqueará el guardado → `hasApiKey()` devuelve false.
-- **Groq sept-2026**: modelos gratuitos: `openai/gpt-oss-20b` y `openai/gpt-oss-120b`. Los Llama pasaron a Enterprise.
-- **Key corporativa XOR fija desde v20261003a**: clave `b'codanor_llm_2026_xor_key_fixed!!'` — independiente del hostname del servidor. Funciona desde `localhost`, `127.0.0.1` o cualquier IP de LAN. Tras actualizar el servidor, reconfigurar la key una sola vez desde `plataforma-seguimiento.html → Configuración IA`.
-- **loadCorpConfig() es asíncrono**: `hasApiKey()` es síncrono y no conoce la key corporativa hasta que `loadCorpConfig()` complete su fetch al servidor. Por eso hay que hacer `await LLMUtil.loadCorpConfig()` ANTES de cada `if (!hasApiKey())` en las funciones de síntesis.
-- **I18n.t() devuelve la clave literal**: si una clave no existe en el JSON de idioma, `I18n.t('phase2.accionDescripcion')` devuelve `"phase2.accionDescripcion"` (string truthy). El patrón `t('clave') || 'fallback'` NUNCA activa el fallback — hay que añadir la clave al JSON.
-- **window.prompt() bloqueado en algunos navegadores**: Safari y otros navegadores pueden bloquear silenciosamente `window.prompt()` cuando se llama después de un `confirm()`. El doble diálogo de confirmación para borrar reuniones era la causa de que el botón "Eliminar reunión" no funcionara.
-- **Ecosistema ~/Proyectos/**: 29 proyectos catalogados — 9 apps activas + 11 en preparación + 9 proyectos externos (Gestion_Riesgos ×6, PLATAFORMA_OpenCode-NEW, Mapa_Procesos, Wiki_CODANOR) + herramientas independientes.
-- **Tipografía corporativa documentos** (desde skill v1.0 — 2026-10-05): Poppins (titulares, pesos 300/600/700) + Nunito Sans (cuerpo, 400/600/700) + JetBrains Mono (código/rutas, 400/500). Todas via Google Fonts. Muli eliminada por obsoleta. SF Mono / Courier New eliminadas por dependencia de SO.
-- **Colores WCAG AA en documentos**: 5 combinaciones problemáticas corregidas. Nunca usar `#f39c12` sobre blanco (ratio 2.19) → usar `#b7770d`. Nunca `#aaa` sobre blanco (2.32) → usar `#6b6b7b`. Nunca texto blanco sobre `#f39c12` (2.20) → texto `#1a1a2e`. Nunca texto blanco sobre `#12A79D` en badges pequeños (3.06) → texto `#1a1a2e`. Nunca `#d68910` sobre `#fef9e7` (2.68) → usar `#7d6608`.
-- **Skill documentos-proyectos**: invocarlo con `/documentos-proyectos` o con la frase "crea un documento según el Skill-documentos-proyectos". `Ctrl+P` lista todos los comandos disponibles.
+- **Capas Ciberseguridad — SVG técnica**: `<circle fill="none" stroke="color" stroke-width="step">` — cada anillo completamente independiente, no afecta a los demás.
+- **Capas Ciberseguridad — orden**: `orden=0` es IA (exterior, radio=270px). `orden=10` es Información (interior, radio≈25px). `step = (270-14)/11 ≈ 23.3px`.
+- **Groq proveedor corporativo**: modelos `openai/gpt-oss-20b` y `openai/gpt-oss-120b` son propios de Groq — no rotan. Key `gsk_...` en plataforma.db settings, compartida en LAN.
+- **LAN**: servidor Flask HOST 0.0.0.0:5001. IP: 192.168.0.81. Todos los módulos usan `window.location.hostname` o `window.location.origin`.
+- **BD 23 tablas**: +1 tabla nueva `capas_herramientas` vs. versión anterior (19 tablas + 3 SIG = 22 + sqlite_sequence = 23).
+- **server.py 5377 líneas / 111 endpoints**: +5 endpoints `/api/capas/herramientas*` + ruta estática `/capas-seguridad/`.
+- **app.js versión ISO27001/ENS/ISO42001**: `v=20261021a` — incluye enlace sidebar "🔒 Capas Ciberseguridad".
+- **I18n.t() devuelve clave literal**: si una clave no existe, `t('phase2.x')` devuelve `"phase2.x"` (truthy). El patrón `|| 'fallback'` nunca activa. Siempre añadir la clave al JSON.
+- **Safari/WebKit**: fetch con `hostname:puerto` explícito → `TypeError: Load failed`. Usar `window.location.origin`.
+
+
+

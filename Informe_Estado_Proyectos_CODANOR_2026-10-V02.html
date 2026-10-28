@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Informe de Estado — Ecosistema de Proyectos CODANOR — v2.0</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600;700&family=Nunito+Sans:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    /* ─── TOKENS DE COLOR (WCAG AA garantizado) ─── */
+    :root {
+      --primary:        #178DC2;
+      --primary-dark:   #1275A3;
+      --primary-light:  #e8f4fa;
+      --accent:         #12A79D;
+      --accent-dark:    #0d7a71;
+      --accent-light:   #e6f7f6;
+      --dark:           #1a1a2e;
+      --gray-900:       #2d2d44;
+      --gray-700:       #4a4a5a;
+      --gray-600:       #6b6b7b;
+      --gray-500:       #7a7a8a;
+      --gray-300:       #c4c4d0;
+      --gray-100:       #f0f0f5;
+      --white:          #ffffff;
+      --danger:         #e74c3c;
+      --danger-bg:      #fdedec;
+      --danger-text:    #922b21;
+      --warning-text:   #b7770d;
+      --warning-bg:     #fef9e7;
+      --warning-dark:   #7d6608;
+      --success-text:   #0e7a72;
+      --success-bg:     #e6f7f6;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Nunito Sans', sans-serif;
+      font-size: 16px;
+      line-height: 1.7;
+      color: var(--gray-700);
+      background: var(--gray-100);
+    }
+
+    /* ─── CABECERA FIJA ─── */
+    .page-header {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 200;
+      background: var(--white);
+      border-bottom: 3px solid var(--primary);
+      display: flex; align-items: center;
+      justify-content: space-between;
+      padding: 0.55rem 2rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      height: 52px;
+    }
+    .page-header-brand { display: flex; align-items: center; gap: 0.75rem; }
+    .page-header-logo {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.95rem; font-weight: 700;
+      color: var(--primary); letter-spacing: -0.3px;
+    }
+    .page-header-sep { color: var(--gray-300); font-size: 1.1rem; }
+    .page-header-title {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.82rem; font-weight: 600;
+      color: var(--primary-dark);
+    }
+    .page-header-meta {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.75rem; color: var(--gray-500);
+    }
+
+    /* ─── LAYOUT ─── */
+    .manual-container { display: flex; min-height: 100vh; }
+
+    /* ─── SIDEBAR ─── */
+    .sidebar {
+      width: 300px; background: var(--white);
+      border-right: 1px solid var(--gray-300);
+      position: fixed; top: 52px; left: 0;
+      height: calc(100vh - 52px); overflow-y: auto;
+      z-index: 100; padding: 1.5rem 0;
+    }
+    .sidebar-header {
+      padding: 0 1.5rem 1.2rem;
+      border-bottom: 1px solid var(--gray-100);
+      margin-bottom: 0.75rem;
+    }
+    .sidebar-logo { width: 140px; }
+    .sidebar-label {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.65rem; font-weight: 600;
+      color: var(--gray-500);
+      text-transform: uppercase; letter-spacing: 1.5px;
+      padding: 0.75rem 1.5rem 0.4rem;
+    }
+    .sidebar nav a {
+      display: flex; align-items: center; gap: 0.5rem;
+      font-size: 0.87rem; color: var(--gray-700);
+      text-decoration: none;
+      padding: 0.42rem 1.5rem;
+      border-left: 3px solid transparent;
+      transition: all 0.15s;
+    }
+    .sidebar nav a:hover, .sidebar nav a.active {
+      color: var(--primary); background: var(--primary-light);
+      border-left-color: var(--primary);
+    }
+    .sidebar nav a.toc-sub {
+      font-size: 0.8rem; padding-left: 3rem;
+      color: var(--gray-500);
+    }
+    .sidebar nav a.toc-sub:hover { color: var(--primary); }
+    .sb-badge {
+      margin-left: auto; display: inline-block;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.6rem; font-weight: 700;
+      padding: 0.1rem 0.42rem; border-radius: 3px;
+      letter-spacing: 0.3px;
+    }
+    .sb-critico { background: var(--danger-bg); color: var(--danger-text); }
+    .sb-alto    { background: var(--warning-bg); color: var(--warning-dark); }
+    .sb-ok      { background: var(--success-bg); color: var(--success-text); }
+    .sb-info    { background: var(--primary-light); color: var(--primary-dark); }
+
+    /* ─── CONTENIDO ─── */
+    .main-content { margin-left: 300px; flex: 1; padding-top: 0; }
+
+    /* ─── PORTADA (imagen corporativa — igual que Manual v4.0) ─── */
+    .cover-page {
+      min-height: 100vh;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 40%, var(--dark) 100%);
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+      text-align: center; color: var(--white);
+      position: relative; overflow: hidden; padding: 2rem;
+    }
+    .cover-page::before {
+      content: '';
+      position: absolute; top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background: radial-gradient(ellipse at 30% 50%, rgba(18,167,157,0.15) 0%, transparent 60%),
+                  radial-gradient(ellipse at 70% 20%, rgba(23,141,194,0.1) 0%, transparent 50%);
+      animation: float 20s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0); }
+      50%       { transform: translate(-2%, 2%); }
+    }
+    .cover-content { position: relative; z-index: 1; max-width: 700px; }
+    .cover-logo { width: 220px; margin-bottom: 2rem; filter: brightness(0) invert(1); }
+    .cover-divider { width: 80px; height: 4px; background: var(--accent); margin: 1.5rem auto; border-radius: 2px; }
+    .cover-type {
+      font-family: 'Poppins', sans-serif; font-size: 0.72rem; font-weight: 600;
+      color: var(--accent); text-transform: uppercase; letter-spacing: 2px;
+      margin-bottom: 0.5rem;
+    }
+    .cover-title {
+      font-family: 'Poppins', sans-serif; font-size: 2.8rem; font-weight: 700;
+      color: var(--white); line-height: 1.15; margin-bottom: 0.5rem;
+      border: none; padding: 0;
+    }
+    .cover-subtitle {
+      font-family: 'Poppins', sans-serif; font-size: 1.2rem; font-weight: 300;
+      color: rgba(255,255,255,0.82); margin-bottom: 0.75rem;
+    }
+    .cover-edition { font-size: 1rem; opacity: 0.65; margin-bottom: 1.5rem; }
+    .cover-badge {
+      display: inline-block; background: var(--accent);
+      color: var(--white); padding: 0.5rem 1.5rem;
+      border-radius: 50px; font-size: 0.9rem;
+      font-weight: 600; margin-top: 1.5rem; letter-spacing: 0.5px;
+      font-family: 'Poppins', sans-serif;
+    }
+    .cover-footer {
+      position: absolute; bottom: 2rem; left: 0; right: 0;
+      text-align: center; z-index: 1;
+    }
+    .cover-footer p { font-size: 0.85rem; opacity: 0.5; }
+
+    /* ─── SECCIONES ─── */
+    .content-section {
+      background: var(--white); margin: 2rem 2rem 2rem calc(300px + 2rem);
+      border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+      padding: 2.5rem 3rem;
+    }
+    .section-number {
+      font-family: 'Poppins', sans-serif; font-size: 0.72rem; font-weight: 600;
+      color: var(--primary); text-transform: uppercase; letter-spacing: 1px;
+      margin-bottom: 0.35rem;
+    }
+
+    /* ─── CONTROL DE VERSIONES ─── */
+    .version-control {
+      background: var(--white);
+      margin: 2rem 2rem 2rem calc(300px + 2rem);
+      border-radius: 8px; padding: 2rem 3rem;
+      border-left: 4px solid var(--primary);
+    }
+    .version-control h2 {
+      font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600;
+      color: var(--primary-dark); margin-bottom: 1rem;
+    }
+
+    /* ─── DASHBOARD KPI ─── */
+    .dashboard {
+      margin-left: 300px;
+      margin-top: 52px;
+      background: linear-gradient(180deg, var(--gray-100) 0%, var(--white) 100%);
+      border-bottom: 3px solid var(--primary);
+      padding: 2.5rem 4rem;
+    }
+    .dashboard-title {
+      font-family: 'Poppins', sans-serif; font-size: 1.3rem; font-weight: 700;
+      color: var(--dark); margin-bottom: 0.3rem;
+    }
+    .dashboard-subtitle { font-size: 0.88rem; color: var(--gray-500); margin-bottom: 1.8rem; }
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem; margin-bottom: 1.5rem;
+    }
+    .kpi-card {
+      background: var(--white); border: 1px solid var(--gray-300);
+      border-radius: 8px; padding: 1.2rem;
+      border-top: 4px solid var(--gray-300);
+    }
+    .kpi-card.kpi-ok    { border-top-color: var(--accent); }
+    .kpi-card.kpi-warn  { border-top-color: var(--warning-text); }
+    .kpi-card.kpi-fail  { border-top-color: var(--danger); }
+    .kpi-value {
+      font-family: 'Poppins', sans-serif; font-size: 2rem; font-weight: 700;
+      line-height: 1; margin-bottom: 0.3rem; color: var(--gray-900);
+    }
+    .kpi-value.v-ok   { color: var(--accent); }
+    .kpi-value.v-warn { color: var(--warning-text); }
+    .kpi-value.v-fail { color: var(--danger); }
+    .kpi-label { font-family: 'Poppins', sans-serif; font-size: 0.82rem; font-weight: 600; color: var(--gray-900); }
+    .kpi-sub   { font-size: 0.72rem; color: var(--gray-500); margin-top: 0.2rem; }
+
+    /* ─── TIPOGRAFÍA ─── */
+    h1 {
+      font-family: 'Poppins', sans-serif; font-size: 1.8rem; font-weight: 700;
+      color: var(--dark); margin-bottom: 0.75rem; padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--primary-light);
+    }
+    h2 {
+      font-family: 'Poppins', sans-serif; font-size: 1.3rem; font-weight: 600;
+      color: var(--primary); margin-top: 2rem; margin-bottom: 0.65rem;
+    }
+    h3 {
+      font-family: 'Poppins', sans-serif; font-size: 1.05rem; font-weight: 600;
+      color: var(--gray-900); margin-top: 1.5rem; margin-bottom: 0.5rem;
+    }
+    p { margin-bottom: 0.85rem; font-size: 0.95rem; }
+    ul, ol { padding-left: 1.5rem; margin-bottom: 0.85rem; }
+    li { font-size: 0.93rem; margin-bottom: 0.3rem; }
+
+    /* ─── TABLAS ─── */
+    .table-wrapper { overflow-x: auto; margin: 1.2rem 0; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.87rem; }
+    thead th {
+      font-family: 'Poppins', sans-serif; font-size: 0.8rem; font-weight: 600;
+      color: var(--white); background: var(--primary-dark);
+      padding: 0.65rem 0.9rem; text-align: left; white-space: nowrap;
+    }
+    tbody td {
+      padding: 0.58rem 0.9rem; border-bottom: 1px solid var(--gray-300);
+      color: var(--gray-700); vertical-align: top;
+    }
+    tbody tr:hover td { background: var(--primary-light); }
+    tbody tr:nth-child(even) td { background: #f8f8fb; }
+    tbody tr:nth-child(even):hover td { background: var(--primary-light); }
+    td code, th code {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.78rem;
+      color: var(--primary-dark); background: var(--gray-100);
+      padding: 0.1rem 0.3rem; border-radius: 3px;
+    }
+
+    /* ─── BADGES RIESGO ─── */
+    .badge {
+      display: inline-block; font-family: 'Poppins', sans-serif;
+      font-size: 0.68rem; font-weight: 700;
+      padding: 0.15rem 0.55rem; border-radius: 3px; letter-spacing: 0.3px;
+    }
+    .badge-critico { background: var(--danger-bg); color: var(--danger-text); }
+    .badge-alto    { background: var(--warning-bg); color: var(--warning-dark); }
+    .badge-medio   { background: var(--primary-light); color: var(--primary-dark); }
+    .badge-bajo    { background: var(--success-bg); color: var(--success-text); }
+    .badge-ok      { background: var(--success-bg); color: var(--success-text); }
+    .badge-new     { background: var(--primary-light); color: var(--primary-dark); }
+
+    /* ─── ALERTAS ─── */
+    .alert {
+      padding: 0.9rem 1.1rem; border-radius: 6px; margin: 1rem 0;
+      font-size: 0.9rem; border-left: 4px solid;
+    }
+    .alert-title { font-family: 'Poppins', sans-serif; font-weight: 600; margin-bottom: 0.3rem; }
+    .alert-danger  { background: var(--danger-bg);  border-color: var(--danger-text); color: var(--danger-text); }
+    .alert-warning { background: var(--warning-bg); border-color: var(--warning-text); color: var(--warning-dark); }
+    .alert-info    { background: var(--primary-light); border-color: var(--primary); color: var(--primary-dark); }
+    .alert-success { background: var(--success-bg); border-color: var(--accent); color: var(--success-text); }
+    .alert-update  { background: #f3e8f9; border-color: #7d3c98; color: #5b2c6f; }
+
+    /* ─── CÓDIGO ─── */
+    code {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.83rem;
+      color: var(--primary-dark); background: var(--gray-100);
+      padding: 0.15rem 0.4rem; border-radius: 4px;
+    }
+    pre {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.82rem;
+      background: var(--dark); color: #e0e0e0;
+      padding: 1.2rem 1.5rem; border-radius: 6px;
+      overflow-x: auto; line-height: 1.6; margin: 1rem 0;
+    }
+    pre code { color: inherit; background: none; padding: 0; }
+
+    /* ─── STEP LIST ─── */
+    .step-list { counter-reset: step; list-style: none; padding-left: 0; margin-bottom: 1rem; }
+    .step-list li {
+      counter-increment: step; padding: 0.85rem 1rem 0.85rem 3.2rem;
+      position: relative; margin-bottom: 0.6rem;
+      background: var(--white); border-radius: 6px;
+      border: 1px solid var(--gray-300);
+      font-size: 0.92rem;
+    }
+    .step-list li::before {
+      content: counter(step); position: absolute; left: 0.8rem; top: 0.85rem;
+      width: 26px; height: 26px; background: var(--primary); color: var(--white);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 0.78rem;
+    }
+    .step-list.critico li::before { background: var(--danger); }
+    .step-list.alto li::before    { background: var(--warning-text); }
+    .step-list.medio li::before   { background: var(--primary); }
+    .step-list.bajo li::before    { background: var(--accent); }
+
+    /* ─── NOTA DE ACTUALIZACIÓN (oct-2026) ─── */
+    .nota-update {
+      background: #f3e8f9; border-left: 4px solid #7d3c98;
+      color: #5b2c6f; padding: 0.75rem 1rem; border-radius: 0 6px 6px 0;
+      font-size: 0.85rem; margin: 0.75rem 0;
+    }
+    .nota-update strong { font-family: 'Poppins', sans-serif; }
+
+    /* ─── GLOSARIO ─── */
+    .glossary-term { font-family: 'JetBrains Mono', monospace; font-size: 0.83rem; color: var(--primary-dark); font-weight: 500; }
+
+    /* ─── PIE DE PÁGINA ─── */
+    .doc-footer {
+      background: var(--white); border-top: 3px solid var(--primary);
+      padding: 1.2rem 2rem 1.2rem calc(300px + 2rem);
+      display: grid; grid-template-columns: 1fr auto 1fr;
+      align-items: center; gap: 1rem; margin-top: 2rem;
+    }
+    .footer-left  { font-size: 0.78rem; color: var(--gray-700); font-weight: 600; }
+    .footer-center { font-size: 0.72rem; color: var(--gray-600); font-style: italic; text-align: center; }
+    .footer-right { font-size: 0.72rem; color: var(--gray-600); text-align: right; }
+    .footer-path  { font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; color: var(--gray-600); margin-top: 0.2rem; }
+
+    /* ─── BOTÓN IMPRIMIR ─── */
+    .btn-print {
+      position: fixed; bottom: 1.5rem; right: 1.5rem;
+      background: var(--primary); color: var(--white);
+      border: none; border-radius: 50px; padding: 0.65rem 1.3rem;
+      font-family: 'Poppins', sans-serif; font-size: 0.85rem; font-weight: 600;
+      cursor: pointer; box-shadow: 0 4px 12px rgba(23,141,194,0.3);
+      transition: all 0.2s; z-index: 300;
+      display: flex; align-items: center; gap: 0.4rem;
+    }
+    .btn-print:hover { background: var(--primary-dark); transform: translateY(-2px); }
+
+    /* ─── BOTÓN WORD ─── */
+    .btn-word {
+      position: fixed; bottom: 1.5rem; right: 10rem;
+      background: var(--white); color: var(--primary-dark);
+      border: 2px solid var(--primary); border-radius: 50px; padding: 0.65rem 1.3rem;
+      font-family: 'Poppins', sans-serif; font-size: 0.85rem; font-weight: 600;
+      cursor: pointer; box-shadow: 0 4px 12px rgba(23,141,194,0.15);
+      transition: all 0.2s; z-index: 300;
+      display: flex; align-items: center; gap: 0.4rem;
+    }
+    .btn-word:hover { background: var(--primary-light); transform: translateY(-2px); }
+
+    /* ─── MODAL WORD ─── */
+    .word-modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(26,26,46,0.7); z-index: 500;
+      align-items: center; justify-content: center;
+    }
+    .word-modal-overlay.active { display: flex; }
+    .word-modal {
+      background: var(--white); border-radius: 10px;
+      padding: 2rem 2.5rem; max-width: 540px; width: 90%;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    }
+    .word-modal h3 {
+      font-family: 'Poppins', sans-serif; font-size: 1.1rem;
+      font-weight: 700; color: var(--dark);
+      margin-bottom: 0.75rem; border: none; padding: 0;
+    }
+    .word-modal p  { font-size: 0.9rem; color: var(--gray-700); margin-bottom: 0.75rem; }
+    .word-modal pre {
+      background: var(--dark); color: #e0e0e0;
+      padding: 0.9rem 1.1rem; border-radius: 6px;
+      font-size: 0.78rem; overflow-x: auto; margin: 0.75rem 0;
+      border-left: 4px solid var(--accent);
+    }
+    .word-modal-close {
+      margin-top: 1.25rem; background: var(--primary); color: var(--white);
+      border: none; padding: 0.55rem 1.4rem; border-radius: 50px;
+      font-family: 'Poppins', sans-serif; font-size: 0.85rem;
+      font-weight: 600; cursor: pointer; transition: background 0.15s;
+    }
+    .word-modal-close:hover { background: var(--primary-dark); }
+
+    /* ─── PRINT ─── */
+    @media print {
+      @page { size: A4; margin: 2cm 1.5cm; }
+      @page :first { margin-top: 0; }
+      .sidebar, .page-header, .btn-print, .btn-word, .word-modal-overlay { display: none !important; }
+      .main-content { margin-left: 0; padding: 0; max-width: 100%; }
+      .dashboard, .content-section, .version-control { margin-left: 0; padding: 1rem; }
+      .cover-page { page-break-after: always; min-height: 100vh; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      body { font-size: 10pt; background: white; }
+      pre  { font-size: 8pt; white-space: pre-wrap; }
+      table { font-size: 8pt; }
+      .doc-footer { position: fixed; bottom: 0; left: 0; right: 0; padding: 0.4rem 1.5rem; border-top: 2px solid var(--primary); background: white; }
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 900px) {
+      .sidebar { display: none; }
+      .cover-page { padding: 3rem 1.5rem 2.5rem; }
+      .cover-title { font-size: 1.8rem; }
+      .dashboard { margin-left: 0; padding: 1.5rem; }
+      .content-section, .version-control { margin: 1rem; padding: 1.5rem; }
+      .doc-footer { padding: 1rem; grid-template-columns: 1fr; }
+      .kpi-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- CABECERA FIJA -->
+<header class="page-header">
+  <div class="page-header-brand">
+    <span class="page-header-logo">(CODANOR 50)</span>
+    <span class="page-header-sep">|</span>
+    <span class="page-header-title">Informe de Estado &mdash; Ecosistema de Proyectos CODANOR</span>
+  </div>
+  <span class="page-header-meta">v2.0 &bull; Octubre 2026</span>
+</header>
+
+<!-- ======================================================================
+     PORTADA (fuera del manual-container — igual que Manual v4.0)
+     ====================================================================== -->
+<div class="cover-page" id="portada">
+  <div class="cover-content">
+    <img src="https://codanor.com/assets/img/logo-light.png" alt="CODANOR" class="cover-logo">
+    <div class="cover-divider"></div>
+    <div class="cover-type">Informe T&eacute;cnico</div>
+    <h1 class="cover-title">Informe de Estado<br>Ecosistema de Proyectos CODANOR</h1>
+    <p class="cover-subtitle">An&aacute;lisis de repositorios, documentaci&oacute;n y estado de commits</p>
+    <p class="cover-edition">Revisi&oacute;n: 15 repositorios &bull; 20 proyectos &bull; 5 normas ISO/ENS activas</p>
+    <span class="cover-badge">v2.0 &bull; Octubre 2026</span>
+    <div style="margin-top:2rem; display:flex; gap:2.5rem; justify-content:center; flex-wrap:wrap;">
+      <div style="text-align:left;">
+        <div style="font-size:0.65rem; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:0.2rem;">Versi&oacute;n</div>
+        <div style="font-family:'Poppins',sans-serif; font-size:0.88rem; font-weight:600; color:#fff;">v2.0 (HTML)</div>
+      </div>
+      <div style="text-align:left;">
+        <div style="font-size:0.65rem; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:0.2rem;">Base de datos</div>
+        <div style="font-family:'Poppins',sans-serif; font-size:0.88rem; font-weight:600; color:#fff;">Septiembre 2026</div>
+      </div>
+      <div style="text-align:left;">
+        <div style="font-size:0.65rem; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:0.2rem;">Actualizado</div>
+        <div style="font-family:'Poppins',sans-serif; font-size:0.88rem; font-weight:600; color:#fff;">Octubre 2026</div>
+      </div>
+      <div style="text-align:left;">
+        <div style="font-size:0.65rem; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:0.2rem;">Autor</div>
+        <div style="font-family:'Poppins',sans-serif; font-size:0.88rem; font-weight:600; color:#fff;">Jafa, S.L. &mdash; CODANOR</div>
+      </div>
+      <div style="text-align:left;">
+        <div style="font-size:0.65rem; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:0.2rem;">Clasificaci&oacute;n</div>
+        <div style="font-family:'Poppins',sans-serif; font-size:0.88rem; font-weight:600; color:#fff;">Documento interno &mdash; Uso exclusivo CODANOR</div>
+      </div>
+    </div>
+  </div>
+  <div class="cover-footer">
+    <p>Jafa, S.L. &mdash; CODANOR &bull; Barcelona, Catalunya</p>
+  </div>
+</div>
+
+<!-- ======================================================================
+     CONTENIDO CON SIDEBAR
+     ====================================================================== -->
+<div class="manual-container">
+
+  <!-- SIDEBAR TOC -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <img src="https://codanor.com/assets/img/logo_web-50.png" alt="CODANOR" class="sidebar-logo">
+    </div>
+    <p class="sidebar-label">&Iacute;ndice del Informe</p>
+    <nav>
+      <a href="#portada">Portada</a>
+      <a href="#versiones">Control de versiones</a>
+      <a href="#dashboard">Dashboard KPI <span class="sb-badge sb-critico">8</span></a>
+      <a href="#sec1">1. Resumen Ejecutivo</a>
+      <a href="#sec2">2. Mapa del Ecosistema</a>
+      <a href="#sec3">3. Estado por Proyecto <span class="sb-badge sb-critico">CR&Iacute;T</span></a>
+      <a href="#sec3-1" class="toc-sub">3.1 Con remote GitHub</a>
+      <a href="#sec3-2" class="toc-sub">3.2 Solo locales</a>
+      <a href="#sec4">4. An&aacute;lisis AGENTS.md</a>
+      <a href="#sec5">5. An&aacute;lisis Memory.md</a>
+      <a href="#sec6">6. An&aacute;lisis Git &amp; Commits <span class="sb-badge sb-critico">CR&Iacute;T</span></a>
+      <a href="#sec7">7. Deuda T&eacute;cnica <span class="sb-badge sb-critico">7</span></a>
+      <a href="#sec8">8. Plan de Acci&oacute;n <span class="sb-badge sb-alto">25</span></a>
+      <a href="#apA">Ap. A &mdash; Versiones m&oacute;dulos <span class="sb-badge sb-info">oct</span></a>
+      <a href="#apB">Ap. B &mdash; Historial commits</a>
+      <a href="#glosario">Glosario</a>
+    </nav>
+  </aside>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="main-content">
+
+    <!-- CONTROL DE VERSIONES -->
+    <div class="version-control" id="versiones">
+      <h2>Control de versiones</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Versi&oacute;n</th><th>Fecha</th><th>Formato</th><th>Autor</th><th>Descripci&oacute;n</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><code>v1.0</code></td>
+              <td>01/10/2026</td>
+              <td>.docx</td>
+              <td>CODANOR</td>
+              <td>Versi&oacute;n inicial — Informe de estado septiembre 2026. An&aacute;lisis completo de 15 repositorios, cobertura AGENTS.md/Memory.md, deuda t&eacute;cnica y plan de acci&oacute;n.</td>
+            </tr>
+            <tr style="background:var(--primary-light);">
+              <td><code>v2.0</code></td>
+              <td>05/10/2026</td>
+              <td>HTML</td>
+              <td>CODANOR</td>
+              <td><strong>Conversi&oacute;n HTML corporativa</strong> — Skill <code>documentos-proyectos</code> aplicado: tipograf&iacute;a Poppins + Nunito Sans + JetBrains Mono, paleta WCAG AA corregida, cabecera fija, dashboard KPI, glosario. Datos base: sept-2026. Notas de actualizaci&oacute;n oct-2026 en secciones afectadas.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- DASHBOARD KPI -->
+    <div class="dashboard" id="dashboard">
+      <div class="dashboard-title">Dashboard &mdash; Estado del Ecosistema</div>
+      <div class="dashboard-subtitle">Datos de septiembre 2026 &bull; 15 repositorios analizados</div>
+      <div class="kpi-grid">
+        <div class="kpi-card kpi-ok">
+          <div class="kpi-value v-ok">20</div>
+          <div class="kpi-label">Proyectos totales</div>
+          <div class="kpi-sub">5 categor&iacute;as &bull; 5 normas ISO/ENS activas</div>
+        </div>
+        <div class="kpi-card kpi-fail">
+          <div class="kpi-value v-fail">2/15</div>
+          <div class="kpi-label">Con remote GitHub</div>
+          <div class="kpi-sub">13 solo locales &mdash; riesgo p&eacute;rdida total</div>
+        </div>
+        <div class="kpi-card kpi-warn">
+          <div class="kpi-value v-warn">19/20</div>
+          <div class="kpi-label">Con AGENTS.md</div>
+          <div class="kpi-sub">1 proyecto sin documentaci&oacute;n</div>
+        </div>
+        <div class="kpi-card kpi-warn">
+          <div class="kpi-value v-warn">19/20</div>
+          <div class="kpi-label">Con Memory.md</div>
+          <div class="kpi-sub">1 proyecto sin estado funcional</div>
+        </div>
+        <div class="kpi-card kpi-fail">
+          <div class="kpi-value v-fail">8</div>
+          <div class="kpi-label">Commits sin push</div>
+          <div class="kpi-sub">PSP: 7 &bull; OpenCode: 1</div>
+        </div>
+        <div class="kpi-card kpi-fail">
+          <div class="kpi-value v-fail">126+</div>
+          <div class="kpi-label">Archivos sin commit</div>
+          <div class="kpi-sub">ENS: 77 &bull; PSP: 38 &bull; PreSIEM: 79</div>
+        </div>
+        <div class="kpi-card kpi-fail">
+          <div class="kpi-value v-fail">7</div>
+          <div class="kpi-label">Vulnerabilidades cr&iacute;ticas</div>
+          <div class="kpi-sub">4 legislacion + 3 licitaciones</div>
+        </div>
+        <div class="kpi-card kpi-warn">
+          <div class="kpi-value v-warn">72</div>
+          <div class="kpi-label">Bugs reliability</div>
+          <div class="kpi-sub">SonarCloud &bull; PLATAFORMA_OpenCode-NEW</div>
+        </div>
+      </div>
+      <div class="alert alert-danger">
+        <div class="alert-title">&#9888; Riesgo cr&iacute;tico — P&eacute;rdida de c&oacute;digo</div>
+        Los <strong>13 repositorios sin remote de GitHub</strong> representan un riesgo de p&eacute;rdida total de c&oacute;digo ante cualquier fallo de hardware. Acci&oacute;n prioritaria: crear repositorios en GitHub y ejecutar <code>git push</code> inicial.
+      </div>
+    </div>
+
+    <!-- SECCIÓN 1 — RESUMEN EJECUTIVO -->
+    <div class="content-section" id="sec1">
+      <div class="section-number">Secci&oacute;n 1</div>
+      <h1>Resumen Ejecutivo</h1>
+      <p class="chapter-intro" style="font-size:1rem;color:var(--gray-500);margin-bottom:1.5rem;">
+        An&aacute;lisis del estado del ecosistema CODANOR a septiembre 2026. 15 repositorios Git analizados, 20 proyectos categorizados.
+      </p>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Indicador</th><th>Total</th><th>Estado OK</th><th>Requieren acci&oacute;n</th></tr></thead>
+          <tbody>
+            <tr><td>Repositorios Git analizados</td><td>15</td><td>15 inicializados</td><td><span class="badge badge-critico">13 sin remote GitHub</span></td></tr>
+            <tr><td>Proyectos con AGENTS.md</td><td>19 / 20</td><td>19</td><td><span class="badge badge-alto">1 sin AGENTS.md</span></td></tr>
+            <tr><td>Proyectos con Memory.md</td><td>19 / 20</td><td>19</td><td><span class="badge badge-alto">1 sin Memory.md</span></td></tr>
+            <tr><td>Repositorios con remote GitHub</td><td>2 / 15</td><td>2 (PLATAFORMA_OpenCode + PSP)</td><td><span class="badge badge-critico">13 solo locales &mdash; riesgo p&eacute;rdida</span></td></tr>
+            <tr><td>Commits sin push</td><td>8</td><td>—</td><td><span class="badge badge-critico">7 (PSP) + 1 (OpenCode)</span></td></tr>
+            <tr><td>Archivos modificados sin commit</td><td>126+</td><td>—</td><td><span class="badge badge-critico">ENS (77) &bull; PSP (38) &bull; PreSIEM (79)</span></td></tr>
+            <tr><td>Vulnerabilidades cr&iacute;ticas</td><td>7</td><td>—</td><td><span class="badge badge-critico">4 legislacion + 3 licitaciones</span></td></tr>
+            <tr><td>SonarCloud &mdash; bugs reliability</td><td>72</td><td>Security A &bull; Maintainability A</td><td><span class="badge badge-alto">Reliability B &bull; 3 hotspots</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 2 — MAPA DEL ECOSISTEMA -->
+    <div class="content-section" id="sec2">
+      <div class="section-number">Secci&oacute;n 2</div>
+      <h1>Mapa del Ecosistema de Proyectos</h1>
+      <p>20 proyectos distribuidos en 5 categor&iacute;as funcionales. La Plataforma Central concentra el mayor volumen de c&oacute;digo activo.</p>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Categor&iacute;a</th><th>Proyectos</th><th>Estado</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><strong>Plataforma Central</strong></td>
+              <td>PSP + 9 apps: iso27001, ens, rgpd, iso27701, iso42001, iso14001-2015, iso14001-2026, iso9001, tisax</td>
+              <td><span class="badge badge-critico">7 commits sin push</span></td>
+            </tr>
+            <tr>
+              <td><strong>Herramientas de Gesti&oacute;n</strong></td>
+              <td>PLATAFORMA_OpenCode-NEW, Planificacion_Diaria_Proyectos</td>
+              <td><span class="badge badge-alto">1 commit sin push</span></td>
+            </tr>
+            <tr>
+              <td><strong>Inteligencia Normativa</strong></td>
+              <td>legislacion_monitor-NEW, Seguimiento_licitaciones, Wiki_CODANOR</td>
+              <td><span class="badge badge-critico">Vulnerabilidades cr&iacute;ticas</span></td>
+            </tr>
+            <tr>
+              <td><strong>Herramientas de Riesgos</strong></td>
+              <td>7 proyectos Gestion_Riesgos + Mapa_Procesos</td>
+              <td><span class="badge badge-alto">Sin remote GitHub</span></td>
+            </tr>
+            <tr>
+              <td><strong>Ciberseguridad</strong></td>
+              <td>OSSINT, Mantenimiento-PreSIEM</td>
+              <td><span class="badge badge-alto">79 archivos sin commit</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 3 — ESTADO POR PROYECTO -->
+    <div class="content-section" id="sec3">
+      <div class="section-number">Secci&oacute;n 3</div>
+      <h1>Estado Detallado por Proyecto</h1>
+
+      <h2 id="sec3-1">3.1 Proyectos con remote GitHub (2)</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Proyecto</th><th>&Uacute;lt. commit</th><th>Hash</th><th>Commits sin push</th><th>Archivos sin commit</th><th>Riesgo</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><strong>PLATAFORMA_OpenCode-NEW</strong></td>
+              <td>2026-09-21</td>
+              <td><code>c424828</code></td>
+              <td>1</td>
+              <td>11</td>
+              <td><span class="badge badge-alto">ALTO</span></td>
+            </tr>
+            <tr>
+              <td><strong>Plataforma_Seguimiento_Proyectos</strong></td>
+              <td>2026-09-28</td>
+              <td><code>6a54233</code></td>
+              <td>7</td>
+              <td>38</td>
+              <td><span class="badge badge-critico">CR&Iacute;TICO</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="nota-update">
+        <strong>&#x1F4CC; Actualizaci&oacute;n oct-2026:</strong> PLATAFORMA_OpenCode-NEW ha recibido m&uacute;ltiples commits desde sept-2026. Estado actual: Manual OpenCode v4.0, Skill documentos-proyectos v1.0, fix LLM LAN (commit <code>ef5f302</code>), bugs seguimiento tareas (commits <code>c3efe81</code> + <code>a9c9035</code>). Commits pendientes de push: revisar con <code>git status</code>.
+      </div>
+
+      <h2 id="sec3-2">3.2 Proyectos solo locales — sin remote (13)</h2>
+      <div class="alert alert-danger">
+        <div class="alert-title">Riesgo de p&eacute;rdida total</div>
+        Estos 13 proyectos <strong>no tienen backup remoto</strong>. Un fallo de disco implica la p&eacute;rdida irreversible de todo el c&oacute;digo. Prioridad m&aacute;xima: crear repositorios en GitHub y hacer push inicial.
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Proyecto</th><th>&Uacute;lt. commit</th><th>Archivos sin commit</th><th>Riesgo</th></tr></thead>
+          <tbody>
+            <tr><td>Gestion_Riesgos_ENS</td><td>2026-06-07</td><td>77 (reorganizaci&oacute;n)</td><td><span class="badge badge-alto">ALTO</span></td></tr>
+            <tr><td>Mantenimiento-PreSIEM</td><td>2026-06-07</td><td>79 (reorganizaci&oacute;n)</td><td><span class="badge badge-alto">ALTO</span></td></tr>
+            <tr><td>Planificacion_Diaria_Proyectos</td><td>2026-09-01</td><td>10 (6 modificados)</td><td><span class="badge badge-alto">ALTO</span></td></tr>
+            <tr><td>legislacion_monitor-NEW</td><td>2026-06-07</td><td>0 &mdash; limpio</td><td><span class="badge badge-critico">ALTO &bull; Vulnerabilidades</span></td></tr>
+            <tr><td>Seguimiento_licitaciones</td><td>2026-06-07</td><td>0 &mdash; limpio</td><td><span class="badge badge-critico">ALTO &bull; Vulnerabilidades</span></td></tr>
+            <tr><td>Wiki_CODANOR</td><td>—</td><td>—</td><td><span class="badge badge-alto">ALTO</span></td></tr>
+            <tr><td>OSSINT</td><td>—</td><td>—</td><td><span class="badge badge-medio">MEDIO</span></td></tr>
+            <tr><td>Gestion_Riesgos_ISO27001</td><td>—</td><td>—</td><td><span class="badge badge-alto">ALTO</span></td></tr>
+            <tr><td>Gestion_Riesgos_LOPD-RGPD</td><td>—</td><td>—</td><td><span class="badge badge-alto">ALTO</span></td></tr>
+            <tr><td>Gestion_Riesgos_ISO9001</td><td>—</td><td>—</td><td><span class="badge badge-alto">ALTO</span></td></tr>
+            <tr><td>Gestion_Riesgos_ISO14001</td><td>—</td><td>—</td><td><span class="badge badge-alto">ALTO</span></td></tr>
+            <tr><td>Gestion_Riesgos_ISO42001</td><td>—</td><td>—</td><td><span class="badge badge-alto">ALTO</span></td></tr>
+            <tr><td>Mapa_Procesos</td><td>—</td><td>—</td><td><span class="badge badge-medio">MEDIO</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 4 — AGENTS.md -->
+    <div class="content-section" id="sec4">
+      <div class="section-number">Secci&oacute;n 4</div>
+      <h1>An&aacute;lisis AGENTS.md &mdash; Cobertura de documentaci&oacute;n</h1>
+      <p>Cobertura del archivo de instrucciones para el agente IA en cada repositorio. Determina la calidad de contexto que OpenCode recibe al trabajar en cada proyecto.</p>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Proyecto</th><th>AGENTS.md</th><th>Contenido</th><th>Estado</th></tr></thead>
+          <tbody>
+            <tr><td>PLATAFORMA_OpenCode-NEW</td><td><span class="badge badge-ok">S&Iacute;</span></td><td>Arquitectura completa, reglas cr&iacute;ticas, comandos verificaci&oacute;n</td><td><span class="badge badge-ok">COMPLETO</span></td></tr>
+            <tr><td>Plataforma_Seguimiento_Proyectos (PSP)</td><td><span class="badge badge-ok">S&Iacute;</span></td><td>9 apps, m&oacute;dulos, BD, endpoints Flask</td><td><span class="badge badge-ok">COMPLETO</span></td></tr>
+            <tr><td>ISO27001-SGSI</td><td><span class="badge badge-ok">S&Iacute;</span></td><td>SoA, TaskHistory v2, LAN race condition, 44 plantillas</td><td><span class="badge badge-ok">360 L&iacute;neas</span></td></tr>
+            <tr><td>ENS-RD311-2022</td><td><span class="badge badge-ok">S&Iacute;</span></td><td>CCN-808, Categorizaci&oacute;n ENS, 69 medidas, pitfalls F3</td><td><span class="badge badge-ok">334 L&iacute;neas</span></td></tr>
+            <tr><td>ISO9001-SGQ_2015</td><td><span class="badge badge-ok">S&Iacute;</span></td><td>ACTIVITY_GROUPS, IIFE, DB v5, Wiki Grupo B</td><td><span class="badge badge-ok">494 L&iacute;neas</span></td></tr>
+            <tr><td>ISO14001-SGMA_2015</td><td><span class="badge badge-ok">S&Iacute;</span></td><td>CLAUSE_GROUPS, unif. corporativa ISO9001</td><td><span class="badge badge-ok">406 L&iacute;neas</span></td></tr>
+            <tr><td>ISO14001-SGMA_2026_NEW</td><td><span class="badge badge-ok">S&Iacute;</span></td><td>Norma ISO 14001:2026, diferencias vs 2015</td><td><span class="badge badge-ok">384 L&iacute;neas</span></td></tr>
+            <tr><td>TISAX</td><td><span class="badge badge-ok">S&Iacute;</span></td><td>ISA catalog 80 controles, phase2-isms.js</td><td><span class="badge badge-ok">361 L&iacute;neas</span></td></tr>
+            <tr><td>ISO27701-SGP</td><td><span class="badge badge-ok">S&Iacute;</span></td><td>organizationRole, 78 controles Anexo A</td><td><span class="badge badge-ok">435 L&iacute;neas</span></td></tr>
+            <tr><td>ISO42001-SGIA</td><td><span class="badge badge-ok">S&Iacute;</span></td><td>AIIA module, 46 tests forenses IA</td><td><span class="badge badge-ok">298 L&iacute;neas</span></td></tr>
+            <tr><td>RGPD-LOPD-GDD</td><td><span class="badge badge-ok">S&Iacute;</span></td><td>WebCheck, forensic-tests RGPD</td><td><span class="badge badge-ok">164 L&iacute;neas</span></td></tr>
+            <tr><td>legislacion_monitor-NEW</td><td><span class="badge badge-ok">S&Iacute;</span></td><td>Monitor BOE/DOUE, scraper, Flask API</td><td><span class="badge badge-medio">Parcial</span></td></tr>
+            <tr><td>Seguimiento_licitaciones</td><td><span class="badge badge-ok">S&Iacute;</span></td><td>PCSP, PLACE, parsing, exportaci&oacute;n</td><td><span class="badge badge-medio">Parcial</span></td></tr>
+            <tr><td>Wiki_CODANOR</td><td><span class="badge badge-ok">S&Iacute;</span></td><td>Open WebUI, ChromaDB, Ollama, RAG</td><td><span class="badge badge-ok">Completo</span></td></tr>
+            <tr><td>OSSINT</td><td><span class="badge badge-ok">S&Iacute;</span></td><td>Maltego TRX, fuentes OSINT</td><td><span class="badge badge-medio">Parcial</span></td></tr>
+            <tr><td>Planificacion_Diaria_Proyectos</td><td><span class="badge badge-ok">S&Iacute;</span></td><td>Planificador diario, JWT</td><td><span class="badge badge-medio">Parcial</span></td></tr>
+            <tr><td>Mantenimiento-PreSIEM</td><td><span class="badge badge-ok">S&Iacute;</span></td><td>SIEM, alertas, monitorizaci&oacute;n</td><td><span class="badge badge-medio">Parcial</span></td></tr>
+            <tr><td>Gestion_Riesgos (×6)</td><td><span class="badge badge-ok">S&Iacute;</span></td><td>Magerit v3, dashboards riesgo</td><td><span class="badge badge-medio">B&aacute;sico</span></td></tr>
+            <tr><td>Mapa_Procesos</td><td><span class="badge badge-ok">S&Iacute;</span></td><td>Motor visual procesos</td><td><span class="badge badge-medio">B&aacute;sico</span></td></tr>
+            <tr><td>Actas_Seguimiento</td><td><span class="badge badge-critico">NO</span></td><td>&mdash;</td><td><span class="badge badge-critico">PENDIENTE</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 5 — MEMORY.md -->
+    <div class="content-section" id="sec5">
+      <div class="section-number">Secci&oacute;n 5</div>
+      <h1>An&aacute;lisis Memory.md &mdash; Estado funcional</h1>
+      <p>El archivo <code>Memory.md</code> recoge el historial de decisiones, versiones de m&oacute;dulos y tareas pendientes. Evaluar su completitud permite conocer la madurez documental de cada proyecto.</p>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Proyecto</th><th>Memory.md</th><th>Secci&oacute;n historial</th><th>Tareas pendientes</th><th>Estado</th></tr></thead>
+          <tbody>
+            <tr><td>PLATAFORMA_OpenCode-NEW</td><td><span class="badge badge-ok">S&Iacute;</span></td><td><span class="badge badge-ok">25 decisiones</span></td><td>10 ítems activos</td><td><span class="badge badge-ok">COMPLETO</span></td></tr>
+            <tr><td>Plataforma_Seguimiento_Proyectos</td><td><span class="badge badge-ok">S&Iacute;</span></td><td><span class="badge badge-ok">Detallado</span></td><td>9 ítems activos</td><td><span class="badge badge-ok">COMPLETO</span></td></tr>
+            <tr><td>ISO27001-SGSI</td><td><span class="badge badge-ok">S&Iacute;</span></td><td><span class="badge badge-ok">Presente</span></td><td>Actualizados</td><td><span class="badge badge-ok">COMPLETO</span></td></tr>
+            <tr><td>ENS-RD311-2022</td><td><span class="badge badge-ok">S&Iacute;</span></td><td><span class="badge badge-ok">Presente</span></td><td>Actualizados</td><td><span class="badge badge-ok">COMPLETO</span></td></tr>
+            <tr><td>Resto apps ISO/ENS (×7)</td><td><span class="badge badge-ok">S&Iacute;</span></td><td><span class="badge badge-medio">Parcial</span></td><td>Variables</td><td><span class="badge badge-medio">PARCIAL</span></td></tr>
+            <tr><td>legislacion_monitor-NEW</td><td><span class="badge badge-ok">S&Iacute;</span></td><td><span class="badge badge-medio">B&aacute;sico</span></td><td>Varios</td><td><span class="badge badge-medio">PARCIAL</span></td></tr>
+            <tr><td>Seguimiento_licitaciones</td><td><span class="badge badge-ok">S&Iacute;</span></td><td><span class="badge badge-medio">B&aacute;sico</span></td><td>Varios</td><td><span class="badge badge-medio">PARCIAL</span></td></tr>
+            <tr><td>Actas_Seguimiento</td><td><span class="badge badge-critico">NO</span></td><td>&mdash;</td><td>&mdash;</td><td><span class="badge badge-critico">PENDIENTE</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 6 — ANÁLISIS GIT -->
+    <div class="content-section" id="sec6">
+      <div class="section-number">Secci&oacute;n 6</div>
+      <h1>An&aacute;lisis Git &mdash; Commits y riesgo de p&eacute;rdida</h1>
+      <div class="alert alert-danger">
+        <div class="alert-title">&#9888; Situaci&oacute;n cr&iacute;tica</div>
+        13 de 15 repositorios <strong>no tienen remote configurado</strong>. Cualquier fallo de hardware resultaría en la p&eacute;rdida total e irrecuperable de todo el c&oacute;digo de esos proyectos.
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Proyecto</th><th>Remote GitHub</th><th>Commits pendientes push</th><th>Archivos sin commit</th><th>Riesgo</th></tr></thead>
+          <tbody>
+            <tr><td>PLATAFORMA_OpenCode-NEW</td><td><span class="badge badge-ok">S&Iacute;</span></td><td>1</td><td>11</td><td><span class="badge badge-alto">ALTO</span></td></tr>
+            <tr><td>Plataforma_Seguimiento_Proyectos</td><td><span class="badge badge-ok">S&Iacute;</span></td><td><strong>7</strong></td><td>38</td><td><span class="badge badge-critico">CR&Iacute;TICO</span></td></tr>
+            <tr><td>Gestion_Riesgos_ENS</td><td><span class="badge badge-critico">NO</span></td><td>—</td><td>77</td><td><span class="badge badge-alto">ALTO</span></td></tr>
+            <tr><td>Mantenimiento-PreSIEM</td><td><span class="badge badge-critico">NO</span></td><td>—</td><td>79</td><td><span class="badge badge-alto">ALTO</span></td></tr>
+            <tr><td>Planificacion_Diaria_Proyectos</td><td><span class="badge badge-critico">NO</span></td><td>—</td><td>10</td><td><span class="badge badge-alto">ALTO</span></td></tr>
+            <tr><td>legislacion_monitor-NEW</td><td><span class="badge badge-critico">NO</span></td><td>—</td><td>0</td><td><span class="badge badge-alto">ALTO</span></td></tr>
+            <tr><td>Seguimiento_licitaciones</td><td><span class="badge badge-critico">NO</span></td><td>—</td><td>0</td><td><span class="badge badge-alto">ALTO</span></td></tr>
+            <tr><td>Gestion_Riesgos (×5 restantes)</td><td><span class="badge badge-critico">NO</span></td><td>—</td><td>Variables</td><td><span class="badge badge-alto">ALTO</span></td></tr>
+            <tr><td>Wiki_CODANOR, OSSINT, Mapa_Procesos</td><td><span class="badge badge-critico">NO</span></td><td>—</td><td>Variables</td><td><span class="badge badge-alto">ALTO</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="nota-update">
+        <strong>&#x1F4CC; Actualizaci&oacute;n oct-2026:</strong> PLATAFORMA_OpenCode-NEW ha acumulado m&uacute;ltiples commits adicionales (fix LLM, bugs tareas, manual v4.0, skill documentos). Ejecutar <code>git log --oneline -10</code> para ver el estado actual antes de hacer push.
+      </div>
+    </div>
+
+    <!-- SECCIÓN 7 — DEUDA TÉCNICA -->
+    <div class="content-section" id="sec7">
+      <div class="section-number">Secci&oacute;n 7</div>
+      <h1>Deuda T&eacute;cnica y Vulnerabilidades de Seguridad</h1>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Proyecto</th><th>Vulnerabilidad</th><th>Tipo OWASP</th><th>Riesgo</th></tr></thead>
+          <tbody>
+            <tr><td>legislacion_monitor-NEW</td><td>XSS reflejado en emails HTML (innerHTML)</td><td>A3 — Injection</td><td><span class="badge badge-critico">CR&Iacute;TICO</span></td></tr>
+            <tr><td>legislacion_monitor-NEW</td><td>XSS en ejecutar.html (innerHTML sin sanitizar)</td><td>A3 — Injection</td><td><span class="badge badge-critico">CR&Iacute;TICO</span></td></tr>
+            <tr><td>legislacion_monitor-NEW</td><td>Sin protecci&oacute;n CSRF en POST /ejecutar</td><td>A1 — Broken Access Control</td><td><span class="badge badge-alto">ALTO</span></td></tr>
+            <tr><td>legislacion_monitor-NEW</td><td>/exportar sin autenticaci&oacute;n &mdash; acceso libre</td><td>A1 — Broken Access Control</td><td><span class="badge badge-alto">ALTO</span></td></tr>
+            <tr><td>Seguimiento_licitaciones</td><td>Path traversal en ruta catch-all de Flask</td><td>A5 — Security Misconfiguration</td><td><span class="badge badge-critico">CR&Iacute;TICO</span></td></tr>
+            <tr><td>Seguimiento_licitaciones</td><td>XSS en Index02.html (innerHTML)</td><td>A3 — Injection</td><td><span class="badge badge-alto">ALTO</span></td></tr>
+            <tr><td>Seguimiento_licitaciones</td><td>CORS completamente abierto (<code>*</code>)</td><td>A5 — Security Misconfiguration</td><td><span class="badge badge-alto">ALTO</span></td></tr>
+            <tr><td>PLATAFORMA_OpenCode-NEW</td><td>18 innerHTML potencialmente inseguros</td><td>A3 — Injection</td><td><span class="badge badge-medio">MEDIO</span></td></tr>
+            <tr><td>PLATAFORMA_OpenCode-NEW</td><td>72 bugs reliability (SonarCloud)</td><td>A9 — Logging &amp; Monitoring</td><td><span class="badge badge-medio">MEDIO</span></td></tr>
+            <tr><td>OSSINT</td><td>SQLite sin cifrado (SQLCipher pendiente)</td><td>A2 — Cryptographic Failures</td><td><span class="badge badge-medio">MEDIO</span></td></tr>
+            <tr><td>Todos (13 repos)</td><td>Sin backup remoto &mdash; riesgo p&eacute;rdida total</td><td>A9 — Logging &amp; Monitoring</td><td><span class="badge badge-critico">CR&Iacute;TICO</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>M&eacute;tricas SonarCloud &mdash; PLATAFORMA_OpenCode-NEW</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Dimensi&oacute;n</th><th>Rating</th><th>Detalle</th></tr></thead>
+          <tbody>
+            <tr><td>Security</td><td><span class="badge badge-ok">A</span></td><td>0 vulnerabilidades</td></tr>
+            <tr><td>Reliability</td><td><span class="badge badge-alto">B</span></td><td>72 bugs detectados</td></tr>
+            <tr><td>Maintainability</td><td><span class="badge badge-ok">A</span></td><td>Code smells menores</td></tr>
+            <tr><td>Duplicaciones</td><td><span class="badge badge-ok">3,5%</span></td><td>Dentro del umbral aceptable (&lt; 5%)</td></tr>
+            <tr><td>Security Hotspots</td><td><span class="badge badge-alto">3</span></td><td>18 innerHTML pendientes de revisar</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 8 — PLAN DE ACCIÓN -->
+    <div class="content-section" id="sec8">
+      <div class="section-number">Secci&oacute;n 8</div>
+      <h1>Plan de Acci&oacute;n &mdash; Prioridades</h1>
+
+      <h2>&#x1F534; Inmediato &mdash; CR&Iacute;TICO</h2>
+      <ol class="step-list critico">
+        <li><code>git push</code> Plataforma_Seguimiento_Proyectos (7 commits acumulados &mdash; riesgo m&aacute;ximo)</li>
+        <li><code>git push</code> PLATAFORMA_OpenCode-NEW (1+ commits + AGENTS.md, Memory.md actualizados)</li>
+        <li><code>git add + commit</code> m&oacute;dulo LLM v3.0 &times; 8 apps + server.py (38 archivos PSP)</li>
+        <li>Crear 13 repositorios privados en GitHub y configurar remote con <code>git remote add origin &lt;URL&gt;</code></li>
+        <li><code>git push --set-upstream origin main</code> en los 13 repos sin remote</li>
+        <li><code>git add + commit</code> Gestion_Riesgos_ENS (77 entradas reorganizaci&oacute;n pendientes)</li>
+        <li><code>git add + commit</code> Mantenimiento-PreSIEM (79 entradas reorganizaci&oacute;n pendientes)</li>
+      </ol>
+
+      <h2>&#x1F7E0; Corto plazo &mdash; ALTO</h2>
+      <ol class="step-list alto">
+        <li>Corregir 4 vulnerabilidades cr&iacute;ticas en <code>legislacion_monitor-NEW</code> (XSS + CSRF + autenticaci&oacute;n)</li>
+        <li>Corregir path traversal + CORS en <code>Seguimiento_licitaciones</code></li>
+        <li>Regenerar token SonarCloud y conectar todos los repositorios activos</li>
+        <li>Instalar Node.js (prerequisito para SonarCloud CI/CD y npm en proyectos)</li>
+        <li>Configurar Key corporativa LLM desde <code>plataforma-seguimiento.html &rarr; Configuraci&oacute;n IA</code></li>
+        <li>Activar Ollama en LAN: <code>OLLAMA_HOST=0.0.0.0 ollama serve</code> (bloqueado por firewall MDM)</li>
+        <li>Probar Mapa de Procesos desde segundo PC en LAN</li>
+      </ol>
+
+      <h2>&#x1F7E1; Medio plazo &mdash; MEDIO</h2>
+      <ol class="step-list medio">
+        <li>Corregir los 18 <code>innerHTML</code> restantes (security hotspots SonarCloud)</li>
+        <li>Ingestar documentos en 9 KBs restantes de Wiki_CODANOR (ISO27001, LOPD-RGPD, NIS2, OSINT, Logs-SIEM...)</li>
+        <li>Implementar exportaci&oacute;n jsPDF en Planificacion_Diaria (informes PDF mensuales)</li>
+        <li>Pruebas de carga LAN con 3+ usuarios simult&aacute;neos en PSP</li>
+        <li>M&oacute;dulo LLM en iso14001-2026 e iso9001-2026 (apps en preparaci&oacute;n)</li>
+        <li>AGENTS.md propio para Actas_Seguimiento (/init pendiente)</li>
+        <li>JWT en Planificacion_Diaria (autenticaci&oacute;n usuarios)</li>
+      </ol>
+
+      <h2>&#x1F7E2; Largo plazo &mdash; BAJO</h2>
+      <ol class="step-list bajo">
+        <li>Maltego TRX API en OSSINT (integraci&oacute;n avanzada)</li>
+        <li>Visualizaci&oacute;n D3.js para grafos de relaciones OSSINT</li>
+        <li>Calendario festivos auton&oacute;micos en Planificacion_Diaria</li>
+        <li>Nginx reverse proxy para acceso LAN seguro (HTTPS)</li>
+        <li>SQLCipher en OSSINT (cifrado base de datos)</li>
+        <li>i18n catal&agrave;/castellano/ingl&eacute;s en todos los m&oacute;dulos</li>
+        <li>Dashboard riesgos para ISO9001, ISO14001, ISO42001, ISO27701 (actualmente "Pr&oacute;ximamente")</li>
+        <li>Activar apps en preparaci&oacute;n: ISO9001:2026, NIS2</li>
+        <li>Integrar Gestion_Riesgos_ISO14001, ISO9001, ISO42001 en RISK_DIRS Flask</li>
+      </ol>
+
+      <div class="nota-update">
+        <strong>&#x1F4CC; Actualizaci&oacute;n oct-2026:</strong> Varios &iacute;tems del plan ya completados desde la publicaci&oacute;n de v1.0: Fix LLM LAN + key corporativa XOR (commit <code>ef5f302</code>), bugs seguimiento de tareas (commits <code>c3efe81</code> + <code>a9c9035</code>), M&oacute;dulo An&aacute;lisis de Riesgos v1.0 (commit <code>2957632</code>), PROPAGATION_RULES.md, Wiki_CODANOR v1.0, documentaci&oacute;n arquitectura V01 (commit <code>4fcab16</code>).
+      </div>
+    </div>
+
+    <!-- APÉNDICE A — VERSIONES -->
+    <div class="content-section" id="apA">
+      <div class="section-number">Ap&eacute;ndice A</div>
+      <h1>Versiones de m&oacute;dulos activos (9 apps)</h1>
+      <p>Versiones registradas en septiembre 2026. Ver nota de actualizaci&oacute;n para los valores oct-2026.</p>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>App</th><th>app_id</th><th>tiquets.js</th><th>phase2-*.js</th><th>llm.js</th><th>llm-models.js</th><th>phase3-audit.js</th></tr></thead>
+          <tbody>
+            <tr><td>ISO27001-SGSI</td><td><code>iso27001</code></td><td><code>20260829f</code></td><td><code>20260925c</code></td><td><code>20260911h</code></td><td><code>20260911g</code></td><td><code>20260913a</code></td></tr>
+            <tr><td>ENS-RD311-2022</td><td><code>ens</code></td><td><code>20260829f</code></td><td><code>20260928c</code></td><td><code>20260911h</code></td><td><code>20260911g</code></td><td><code>20260913a</code></td></tr>
+            <tr><td>RGPD-LOPD-GDD</td><td><code>rgpd</code></td><td><code>20260829f</code></td><td><code>20260925c</code></td><td><code>20260911h</code></td><td><code>20260911g</code></td><td><code>20260913a</code></td></tr>
+            <tr><td>ISO27701-SGP</td><td><code>iso27701</code></td><td><code>20260829f</code></td><td><code>20260925c</code></td><td><code>20260911h</code></td><td><code>20260911g</code></td><td><code>20260913a</code></td></tr>
+            <tr><td>ISO42001-SGIA</td><td><code>iso42001</code></td><td><code>20260829f</code></td><td><code>20260925c</code></td><td><code>20260911h</code></td><td><code>20260911g</code></td><td><code>20260913a</code></td></tr>
+            <tr><td>ISO9001-SGQ_2015</td><td><code>iso9001</code></td><td><code>20260829f</code></td><td><code>20260925c</code></td><td><code>20260911h</code></td><td><code>20260911g</code></td><td><code>20260913a</code></td></tr>
+            <tr><td>ISO14001-SGMA_2015</td><td><code>iso14001</code></td><td><code>20260829f</code></td><td><code>20260925c</code></td><td><code>20260911h</code></td><td><code>20260911g</code></td><td><code>20260913a</code></td></tr>
+            <tr><td>ISO14001-SGMA_2026_NEW</td><td><code>iso14001-2026</code></td><td><code>20260829f</code></td><td><code>20260925c</code></td><td><code>20260911h</code></td><td><code>20260911g</code></td><td><code>20260913a</code></td></tr>
+            <tr><td>TISAX</td><td><code>tisax</code></td><td><code>20260829f</code></td><td><code>20260925c</code></td><td><code>20260911h</code></td><td><code>20260911g</code></td><td><code>20260913a</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="nota-update">
+        <strong>&#x1F4CC; Actualizaci&oacute;n oct-2026:</strong> Versiones actuales seg&uacute;n AGENTS.md (2026-10-05):
+        <code>phase2-consulting.js?v=20261003a</code> (5 apps consulting) &bull;
+        <code>phase2-implementation.js?v=20261003a</code> (ISO9001, ISO14001-2015, ISO14001-2026) &bull;
+        <code>phase2-isms.js?v=20261003a</code> (TISAX) &bull;
+        <code>llm.js?v=20261003a</code> (9 apps) &bull;
+        <code>llm-models.js?v=20260911g</code> (sin cambios) &bull;
+        <code>phase3-audit.js?v=20260930b</code> (9 apps).
+      </div>
+    </div>
+
+    <!-- APÉNDICE B — HISTORIAL COMMITS -->
+    <div class="content-section" id="apB">
+      <div class="section-number">Ap&eacute;ndice B</div>
+      <h1>Historial de commits recientes</h1>
+
+      <h2>PLATAFORMA_OpenCode-NEW (a sept-2026)</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Hash</th><th>Fecha</th><th>Mensaje</th></tr></thead>
+          <tbody>
+            <tr><td><code>c424828</code></td><td>2026-09-21</td><td>Actualizar AGENTS.md y Memory.md — m&oacute;dulo NotebookLM v1.0 + pantalla inicio Flask</td></tr>
+            <tr><td><code>—</code></td><td>2026-09-17</td><td>Bot&oacute;n NotebookLM en wiki.js (9 apps) + pantalla inicio Flask con grid tarjetas</td></tr>
+            <tr><td><code>—</code></td><td>2026-09-11</td><td>M&oacute;dulo LLM v3.0 — Fix LAN: Ollama URL, isOllamaKey, campo &uacute;nico API Key</td></tr>
+            <tr><td><code>—</code></td><td>2026-09-06</td><td>Seguimiento Tareas v2.0 — acciones por tarea, edici&oacute;n inline, exportaci&oacute;n Word</td></tr>
+            <tr><td><code>—</code></td><td>2026-09-04</td><td>M&oacute;dulo Mapa de Procesos v1.0 — persistencia Flask/SQLite, propagaci&oacute;n 9 apps</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>Plataforma_Seguimiento_Proyectos (a sept-2026)</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Hash</th><th>Fecha</th><th>Mensaje</th></tr></thead>
+          <tbody>
+            <tr><td><code>6a54233</code></td><td>2026-09-28</td><td>&Uacute;ltimo commit registrado en sept-2026</td></tr>
+            <tr><td colspan="3" style="color:var(--gray-500);font-style:italic;font-size:0.82rem;">7 commits adicionales sin push desde esta fecha</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="nota-update">
+        <strong>&#x1F4CC; Actualizaci&oacute;n oct-2026:</strong> Commits adicionales en PLATAFORMA_OpenCode-NEW desde sept-2026:
+        <code>ef5f302</code> (fix LLM LAN XOR + Ollama ENS) &bull;
+        <code>c3efe81</code> (bugs seguimiento tareas i18n + historial) &bull;
+        <code>a9c9035</code> (colspan + eliminar reuni&oacute;n) &bull;
+        <code>4fcab16</code> (documentaci&oacute;n arquitectura V01) &bull;
+        <code>2957632</code> (m&oacute;dulo an&aacute;lisis riesgos v1.0) &bull;
+        <code>b60b5bf</code> (gu&iacute;a migraci&oacute;n XOR) &bull;
+        m&aacute;s commits skill + manual v4.0 (oct-2026).
+      </div>
+    </div>
+
+    <!-- GLOSARIO -->
+    <div class="content-section" id="glosario">
+      <div class="section-number">Glosario</div>
+      <h1>Glosario de t&eacute;rminos</h1>
+      <p class="chapter-intro" style="font-size:0.95rem;color:var(--gray-500);margin-bottom:1.5rem;">
+        Definiciones de los t&eacute;rminos t&eacute;cnicos utilizados en este informe.
+      </p>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>T&eacute;rmino</th><th>Definici&oacute;n</th></tr></thead>
+          <tbody>
+            <tr><td class="glossary-term">Remote</td><td>Repositorio remoto configurado en Git. Sin remote, el c&oacute;digo solo existe en local y no tiene backup autom&aacute;tico. Se configura con <code>git remote add origin &lt;URL&gt;</code>.</td></tr>
+            <tr><td class="glossary-term">git push</td><td>Comando que env&iacute;a los commits locales al repositorio remoto (GitHub). Sin ejecutarlo, los commits solo existen en el disco local.</td></tr>
+            <tr><td class="glossary-term">Commit</td><td>Instant&aacute;nea del estado del c&oacute;digo en un momento dado. Cada commit tiene un hash &uacute;nico (ej: <code>c424828</code>), fecha y mensaje descriptivo.</td></tr>
+            <tr><td class="glossary-term">OWASP Top 10</td><td>Lista de las 10 vulnerabilidades de seguridad web m&aacute;s cr&iacute;ticas publicada por OWASP. A3 = Injection, A1 = Broken Access Control, A5 = Security Misconfiguration.</td></tr>
+            <tr><td class="glossary-term">XSS</td><td>Cross-Site Scripting. Inyecci&oacute;n de c&oacute;digo JavaScript malicioso en p&aacute;ginas web. En el contexto CODANOR, ocurre cuando se usa <code>innerHTML</code> con datos no sanitizados.</td></tr>
+            <tr><td class="glossary-term">CSRF</td><td>Cross-Site Request Forgery. Ataque que fuerza a un usuario autenticado a ejecutar acciones no deseadas. Se mitiga con tokens de sesi&oacute;n &uacute;nicos en formularios POST.</td></tr>
+            <tr><td class="glossary-term">Path traversal</td><td>Vulnerabilidad que permite a un atacante acceder a archivos fuera del directorio previsto del servidor. Se produce con rutas como <code>../../../etc/passwd</code>.</td></tr>
+            <tr><td class="glossary-term">SonarCloud</td><td>Plataforma de an&aacute;lisis est&aacute;tico de c&oacute;digo en la nube. Detecta bugs, vulnerabilidades y code smells. Ofrece ratings A-E por dimensi&oacute;n de calidad.</td></tr>
+            <tr><td class="glossary-term">AGENTS.md</td><td>Archivo de instrucciones para el agente IA OpenCode en un repositorio. Define arquitectura, reglas cr&iacute;ticas y contexto del proyecto para que el agente opere correctamente.</td></tr>
+            <tr><td class="glossary-term">Memory.md</td><td>Archivo de estado del proyecto. Registra el historial de decisiones t&eacute;cnicas, versiones de m&oacute;dulos, componentes activos y tareas pendientes.</td></tr>
+            <tr><td class="glossary-term">PSP</td><td>Plataforma_Seguimiento_Proyectos. Backend Flask + 9 apps ISO/ENS. El repositorio m&aacute;s activo con mayor volumen de c&oacute;digo en el ecosistema CODANOR.</td></tr>
+            <tr><td class="glossary-term">plataforma.db</td><td>Base de datos SQLite en modo WAL. 19 tablas. Fuente de verdad de todos los m&oacute;dulos: tiquets, wiki, riesgos, fases de proyecto, configuraci&oacute;n LLM corporativa.</td></tr>
+            <tr><td class="glossary-term">LAN</td><td>Red de &aacute;rea local. El servidor Flask (puerto 5001, HOST 0.0.0.0) es accesible desde cualquier PC de la misma red. IP actual del servidor: 192.168.0.81.</td></tr>
+            <tr><td class="glossary-term">Magerit v3</td><td>Metodolog&iacute;a de an&aacute;lisis y gesti&oacute;n de riesgos del Consejo Superior de Administraci&oacute;n Electr&oacute;nica. Base del m&oacute;dulo de riesgos ISO27001/ENS/LOPD de CODANOR.</td></tr>
+            <tr><td class="glossary-term">RAG</td><td>Retrieval-Augmented Generation. T&eacute;cnica que combina b&uacute;squeda en una base de conocimiento (ChromaDB) con generaci&oacute;n de texto por LLM. Usado en Wiki_CODANOR (Open WebUI + Ollama).</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PIE DE PÁGINA -->
+    <footer class="doc-footer">
+      <div class="footer-left">CODANOR &mdash; Jafa, S.L. &mdash; Barcelona, Catalunya</div>
+      <div class="footer-center">Documento interno &mdash; Uso exclusivo CODANOR</div>
+      <div class="footer-right">
+        v2.0 &bull; Octubre 2026
+        <div class="footer-path">Informe_Estado_Proyectos_CODANOR_2026-10-V02.html</div>
+      </div>
+    </footer>
+
+  </main>
+</div>
+
+<!-- BOTÓN PDF -->
+<button class="btn-print" onclick="window.print()">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/>
+    <rect x="6" y="14" width="12" height="8"/>
+  </svg>
+  Exportar PDF
+</button>
+
+<!-- BOTÓN WORD -->
+<button class="btn-word" onclick="document.getElementById('wordModal').classList.add('active')" title="Exportar a Word">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+    <polyline points="14 2 14 8 20 8"/>
+    <line x1="16" y1="13" x2="8" y2="13"/>
+    <line x1="16" y1="17" x2="8" y2="17"/>
+    <polyline points="10 9 9 9 8 9"/>
+  </svg>
+  Exportar Word
+</button>
+
+<!-- MODAL EXPORTAR WORD -->
+<div class="word-modal-overlay" id="wordModal" onclick="if(event.target===this) this.classList.remove('active')">
+  <div class="word-modal">
+    <h3>Exportar a Word (.docx)</h3>
+    <p>Para generar el documento Word corporativo, ejecuta el script Python desde la terminal:</p>
+    <pre>cd ~/Proyectos/PLATAFORMA_OpenCode-NEW
+python3 generar_informe-estado-proyectos.py</pre>
+    <p style="font-size:0.82rem; color:var(--gray-500);">
+      El script usa <code>python-docx</code> y genera <code>Informe_Estado_Proyectos_CODANOR_2026-10-V02.docx</code>
+      en el mismo directorio. Requiere: <code>pip install python-docx</code>
+    </p>
+    <button class="word-modal-close" onclick="document.getElementById('wordModal').classList.remove('active')">Cerrar</button>
+  </div>
+</div>
+
+<!-- TOC ACTIVO -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var sections = document.querySelectorAll('[id]');
+    var navLinks = document.querySelectorAll('.sidebar nav a');
+    if ('IntersectionObserver' in window) {
+      var obs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) {
+          if (e.isIntersecting) {
+            navLinks.forEach(function(a) { a.classList.remove('active'); });
+            var act = document.querySelector('.sidebar nav a[href="#' + e.target.id + '"]');
+            if (act) act.classList.add('active');
+          }
+        });
+      }, { threshold: 0.15, rootMargin: '-52px 0px -60% 0px' });
+      sections.forEach(function(s) { obs.observe(s); });
+    }
+  });
+</script>
+
+</body>
+</html>

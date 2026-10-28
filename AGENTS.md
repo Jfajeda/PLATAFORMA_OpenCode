@@ -2,7 +2,7 @@
 
 > Instructions for AI coding agents operating in this repository.
 > Maintained by Jafa, S.L. (CODANOR), Barcelona, Catalunya.
-> Last updated: 2026-10-07
+> Last updated: 2026-10-27
 
 ## Project Overview
 
@@ -30,6 +30,13 @@ data migrated from IndexedDB (local) to plataforma.db (Flask/SQLite, LAN shared)
 accessible from any PC on the network. Button "Análisis de Riesgos" added to
 Phase 2 Design tab of all 9 ISO/ENS apps.
 
+The **Capas de Ciberseguridad module** (v1.1.0 — 2026-10-21/27) is a standalone
+HTML app that maps security controls (ENS RD 311/2022, ISO 27001:2022,
+ISO 42001:2023) across 11 concentric layers with 50 controls and 178 tools
+(18 corporate + 160 generic recommendations). Accessible from the sidebar of
+ISO27001, ENS and ISO42001 apps. Data persisted in `capas_herramientas` table
+in plataforma.db (LAN-shared) with localStorage fallback for offline use.
+
 ## Build / Lint / Test Commands
 
 ```bash
@@ -42,7 +49,7 @@ python3 server.py
 # Verify DB integrity
 sqlite3 servidor/plataforma.db "PRAGMA integrity_check;"
 
-# Check all 19 tables exist (4 orig + 6 tiquets + 2 wiki + 1 sonar + 5 riesgos/EIPD + 1 sqlite_sequence)
+# Check all 23 tables exist
 sqlite3 servidor/plataforma.db \
   "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name;"
 
@@ -109,6 +116,49 @@ curl -s http://localhost:11434/api/tags | python3 -c \
 
 # Test Corp LLM endpoint
 curl -s http://localhost:5001/api/corp/llm-config
+
+# Verify Capas Ciberseguridad module (standalone app)
+curl -s -o /dev/null -w "%{http_code}" http://localhost:5001/capas-seguridad/
+# → 200
+
+# Verify Capas API (herramientas CRUD)
+curl -s http://localhost:5001/api/capas/herramientas | python3 -c \
+  'import json,sys; d=json.load(sys.stdin); print(f"Herramientas en BD: {len(d[\"herramientas\"])}")'
+
+# Verify sidebar links in ISO27001, ENS, ISO42001
+python3 -c "
+BASE='/Users/jaimefajeda/Proyectos/Plataforma_Seguimiento_Proyectos'
+for app in ['ISO27001-SGSI','ENS-RD311-2022','ISO42001-SGIA']:
+    src = open(f'{BASE}/{app}/js/app.js').read()
+    has = 'Capas Ciberseguridad' in src
+    print(f'{app}: capas_link={has}')
+"
+
+# Verify SIG module — Flask routes + badge in 9 apps
+curl -s -o /dev/null -w "%{http_code}" http://localhost:5001/sig/
+# → 200
+
+python3 -c "
+import sqlite3
+con = sqlite3.connect('/Users/jaimefajeda/Proyectos/Plataforma_Seguimiento_Proyectos/servidor/plataforma.db')
+cur = con.cursor()
+cur.execute('SELECT COUNT(*) FROM sig_correspondencias')
+print(f'sig_correspondencias: {cur.fetchone()[0]} filas')
+cur.execute('SELECT COUNT(*) FROM sig_projects')
+print(f'sig_projects: {cur.fetchone()[0]} filas')
+con.close()
+"
+
+python3 -c "
+BASE='/Users/jaimefajeda/Proyectos/Plataforma_Seguimiento_Proyectos'
+APPS = ['ISO27001-SGSI','ENS-RD311-2022','RGPD-LOPD-GDD','ISO9001-SGQ_2015',
+        'ISO14001-SGMA_2015','ISO14001-SGMA_2026_NEW','ISO27701-SGP','ISO42001-SGIA','TISAX']
+for app in APPS:
+    src = open(f'{BASE}/{app}/js/app.js').read()
+    has_check = '_checkSigMembership' in src
+    has_toast  = '_toastSigWarning' in src
+    print(f'{app}: checkSig={has_check} | toastSig={has_toast}')
+"
 ```
 
 ## Repository Structure
@@ -126,6 +176,8 @@ PLATAFORMA_OpenCode-NEW/
   plan-homogeneizacion-modulos.html       # Module homogenization plan (~72 KB)
   homogeneizacion-proyectos.html          # Project homogenization dashboard (~46 KB)
   propuesta-herramienta-tiquets.html      # Tiquets tool proposal v1.2 (~98 KB)
+  CAPAS-CIBERSEGURIDAD-V01.html           # Capas Ciberseguridad technical proposal (~Oct 2026)
+  SIG-MODULO-V01.html                     # SIG module technical proposal (~71 KB, Oct 2026)
   backup-opencode.sh                      # Backup script (8 modes, executable)
   sonar-project.properties                # SonarCloud scanner config
   Prompt.docx                             # Project prompt specification
@@ -145,12 +197,12 @@ PLATAFORMA_OpenCode-NEW/
 
 | File | Role |
 |---|---|
-| `server.py` | Flask app, port 5001, HOST 0.0.0.0. Contains ALL routes including 19 tiquets endpoints + 3 corp LLM endpoints. **~3000 lines** — do NOT create a separate file. |
-| `plataforma.db` | SQLite WAL. **10 tables**: 4 original + 6 tiquets. See ARQUITECTURA_DB_SQLITE.html. |
+| `server.py` | Flask app, port 5001, HOST 0.0.0.0. Contains ALL routes including 19 tiquets endpoints + 3 corp LLM endpoints + 5 capas endpoints. **~5377 lines, 111 endpoints** — do NOT create a separate file. |
+| `plataforma.db` | SQLite WAL. **23 tables**: 4 original + 6 tiquets + 2 wiki + 1 sonar + 5 riesgos/EIPD + 3 SIG + 1 capas_herramientas + sqlite_sequence. |
 | `migration_tiquets.sql` | DDL standalone v1.0→v1.4. Safe to re-run (IF NOT EXISTS). |
 | `uploads/tiquets/` | Physical files for ticket attachments. Max 10 MB. Excluded from Git. |
 
-### DB Tables — plataforma.db (10 tables)
+### DB Tables — plataforma.db (23 tables)
 
 **Original (4):** `clients` (298) · `projects` (32) · `phase_data` (35) · `settings` (corp LLM config stored here under app_id='_global', key='corp_llm_config')
 
@@ -165,6 +217,10 @@ PLATAFORMA_OpenCode-NEW/
 | `tiquets_acciones` | v1.2 | Resolution actions: pendiente→en_curso→resuelta |
 | `tiquets_adjuntos` | v1.3 | File attachments stored in uploads/tiquets/ |
 
+**Wiki (2):** `wiki_documents` · `wiki_articles`
+
+**Sonar (1):** `sonar_history`
+
 **Risk Analysis module (5):**
 
 | Table | Description |
@@ -174,6 +230,16 @@ PLATAFORMA_OpenCode-NEW/
 | `risk_seguimiento` | Risk follow-up actions linked to assets |
 | `eipd_projects` | EIPD (Impact Assessment) projects for LOPD-RGPD |
 | `eipd_data` | EIPD sections as JSON: rat_rt, rat_et, pre_evaluacion, descripcion, factores, medidas, conclusion |
+
+**SIG module (3):** `sig_projects` · `sig_phase_data` · `sig_correspondencias`
+
+**Capas de Ciberseguridad (1):**
+
+| Table | Description |
+|---|---|
+| `capas_herramientas` | Security tools per layer — id (UUID), nombre, url, logo (dataURL), tipo (corporativa/proyecto/cliente/recomendacion), descripcion, capas (JSON array), controles (JSON array), notas, activa, es_base, changelog (JSON), fecha_alta, updated_at |
+
+**+ 1:** `sqlite_sequence` (managed by SQLite automatically)
 
 **Ticket ID format:** `TIK-{NNN:03d}-{client_id}-{app_id}-{DD-MM-AAAA}`
 
@@ -718,6 +784,147 @@ if (key && key.value) {
 ### Versiones v20261003a
 `llm.js`, `phase2-consulting.js` (5 apps), `phase2-implementation.js` (3 apps), `phase2-isms.js` (TISAX) — todos a `?v=20261003a`.
 
+## Módulo Capas de Ciberseguridad (v1.1.0 — 2026-10-21/27)
+
+### Arquitectura
+
+- **Ubicación**: `Plataforma_Seguimiento_Proyectos/capas-seguridad/` — app HTML standalone
+- **Servida por Flask**: ruta `/capas-seguridad/` (registrada en `APP_DIRS` de `server.py`)
+- **Acceso**: sidebar de ISO27001, ENS e ISO42001 → enlace "🔒 Capas Ciberseguridad" (`window.open`)
+- **Persistencia primaria**: Flask/SQLite tabla `capas_herramientas` → compartida en LAN
+- **Persistencia fallback**: `localStorage` clave `codanor_capas_v1` → offline
+- **Indicador topbar**: `● LAN — SQLite` (verde) / `● Offline — localStorage` (naranja)
+
+### Archivos del módulo
+
+| Archivo | Rol | Líneas |
+|---|---|---|
+| `capas-seguridad/index.html` | SPA: 3 vistas + 2 modales + leyenda lateral | ~390 |
+| `capas-seguridad/js/data.js` | 11 capas, 50 controles, 178 herramientas base + helpers | ~3540 |
+| `capas-seguridad/js/app.js` | Store LAN, CRUD, SVG anillos, leyenda, informe HTML | ~1360 |
+| `capas-seguridad/css/styles.css` | Paleta CODANOR, responsive, SVG, modales, leyenda | ~1090 |
+
+### Datos (data.js)
+
+- **11 capas** concéntricas — orden=0 (IA, exterior) → orden=10 (Información, interior)
+- **50 controles** con refs ENS (`mp.*`, `op.*`), ISO 27001 (`A.x.y`) e ISO 42001 (`A.x.y`)
+- **178 herramientas base**: 18 corporativas + 160 recomendaciones genéricas
+- Tipo `'recomendacion'` — badge naranja `#e65100` en UI
+
+### Endpoints API (5 rutas en server.py)
+
+| Método | URL | Descripción |
+|---|---|---|
+| GET | `/api/capas/herramientas` | Lista todas las herramientas |
+| POST | `/api/capas/herramientas` | Crear / upsert por id |
+| PUT | `/api/capas/herramientas/<id>` | Actualizar |
+| DELETE | `/api/capas/herramientas/<id>` | Eliminar (protege herramientas base) |
+| POST | `/api/capas/herramientas/bulk` | Importación masiva (merge) |
+
+### Diagrama SVG — reglas técnicas
+
+1. **Técnica de renderizado**: `<circle fill="none" stroke="color" stroke-width="step">` — cada anillo es independiente, no tapa a otros. NUNCA usar `fill` en círculos sólidos (provoca tapado en cascada).
+2. **`pointer-events: none`** en `centerFill` y `centerText` — obligatorio para que el clic en el anillo Información funcione (el círculo central decorativo tapaba el hitArea).
+3. **Orden de capas**: `orden=0` = Sistemas IA (exterior, radio máximo ~270px). `orden=10` = Información (interior, radio mínimo ~25px). Geometría: `step = (maxR - minR) / N`.
+4. **Etiquetas**: distribuidas en arco superior (-155° → -25°) con `text-anchor` adaptativo (`end`/`middle`/`start` según posición horizontal).
+5. **Leyenda lateral izquierda**: generada dinámicamente por `DiagramView._renderLegend()`. Sincroniza selección con clic en anillo SVG.
+
+### Reglas críticas del módulo
+
+1. **`capas-seguridad` debe estar en `APP_DIRS`** de `server.py` para que Flask lo sirva. Sin esto, la URL `/capas-seguridad/` devuelve 404.
+2. **Sidebar enlaces** en ISO27001/ENS/ISO42001 `app.js`: usan `window.open(window.location.origin+'/capas-seguridad/','_blank')` — NO hardcodear IP ni localhost.
+3. **Store.load() es async**: al abrir el módulo, intenta `GET /api/capas/herramientas` (timeout 4s). Si Flask no responde, usa localStorage. Las herramientas base se sincronizan automáticamente al servidor con `_syncBaseToServer()`.
+4. **Herramientas base (`esBase: true`)**: no se pueden eliminar desde la API (server.py devuelve 403). Sí se pueden editar y desactivar.
+5. **Informe HTML** (botón "📄 Informe"): genera documento completo con portada, TOC, mapa de capas (5 columnas incl. ISO 42001), catálogo de herramientas por tipo y estadísticas de cobertura con barras de progreso.
+6. **Versiones app.js sidebar**: ISO27001/ENS/ISO42001 usan `v=20261021a`. Bump obligatorio si se modifica el enlace.
+
+## Módulo SIG — Sistema Integrado de Gestión (v1.0 — 2026-10-20)
+
+### Descripción
+
+App HTML standalone que gestiona proyectos con 2+ normas ISO/ENS sin duplicar aspectos comunes (reuniones, tareas, formación, documentos). Principio: **"Lo que es del proyecto SIG vive en el SIG. Lo que es de la norma vive en la norma."**
+
+### Arquitectura — archivos
+
+| Archivo | Rol | Líneas |
+|---|---|---|
+| `SIG-INTEGRACION/index.html` | SPA: router + layout + sidebar | ~250 |
+| `SIG-INTEGRACION/js/app.js` | Router, CRUD, `NORMAS_META` (9 normas) | ~377 |
+| `SIG-INTEGRACION/js/store.js` | Cliente API LAN-aware | ~136 |
+| `SIG-INTEGRACION/css/styles.css` | Paleta morada `#5C35A0` para SIG | ~464 |
+| `SIG-INTEGRACION/js/modules/sig-overview.js` | Dashboard progreso por norma | 127 |
+| `SIG-INTEGRACION/js/modules/sig-meetings.js` | Reuniones unificadas cross-norma | 208 |
+| `SIG-INTEGRACION/js/modules/sig-tasks.js` | Tareas unificadas cross-norma | 221 |
+| `SIG-INTEGRACION/js/modules/sig-formacion.js` | Formación unificada cross-norma | 188 |
+| `SIG-INTEGRACION/js/modules/sig-documents.js` | Documentos unificados cross-norma | 188 |
+| `SIG-INTEGRACION/js/modules/sig-normas.js` | Gestión de normas miembro | 197 |
+| `SIG-INTEGRACION/js/modules/sig-tiquets.js` | Vista tiquets integrada | 181 |
+| `SIG-INTEGRACION/js/modules/sig-correspondencias.js` | Tabla pivot HLS + búsqueda + reload | 160 |
+
+**Versión:** `v20261020a`. **Variable Flask:** `SIG_DIR = ROOT_DIR / 'SIG-INTEGRACION'` (fuera de `APP_DIRS`).
+
+### Endpoints API (14 rutas en server.py)
+
+| Método | URL | Descripción |
+|---|---|---|
+| GET + POST | `/api/sig/projects` | Listar / Crear proyectos SIG |
+| GET + PUT + DELETE | `/api/sig/projects/<sig_id>` | CRUD individual |
+| GET + POST | `/api/sig/<sig_id>/phase/<phase>` | Datos de fase por SIG |
+| GET | `/api/sig/<sig_id>/norma/<app_id>/phase/<phase>` | Datos norma-fase cruzados |
+| GET | `/api/sig/<sig_id>/progress` | Progreso consolidado |
+| GET + POST | `/api/sig/<sig_id>/tiquets` | Tiquets del SIG |
+| GET | `/api/sig/correspondencias` | Tabla de correspondencias normativas |
+| GET | `/api/sig/correspondencias/status` | Estado carga de CSVs |
+| POST | `/api/sig/correspondencias/reload` | Recarga CSVs desde disco |
+
+**Rutas estáticas:** `GET /sig/` y `GET /sig/<path:filename>` (con `no-cache` para archivos `.js`).
+
+### DB Tables — plataforma.db (módulo SIG)
+
+| Tabla | Descripción |
+|---|---|
+| `sig_projects` | Proyectos SIG — id, nombre, normas (JSON), clientes, estado |
+| `sig_phase_data` | Datos de fase por SIG — (sig_id, phase, data JSON) |
+| `sig_correspondencias` | 678 filas cargadas de 3 CSVs — hls_id, norma, clausula, tipo_relacion |
+
+### CSVs de correspondencias normativas
+
+Ubicación: `servidor/data/` — cargados automáticamente al arrancar Flask.
+
+| Archivo | Filas | Contenido |
+|---|---|---|
+| `99_AGRUPACION_NORMATIVO.csv` | 1.972 | Tabla HLS cross-norma |
+| `ENS_hacia_ISO27001.csv` | 170 | Mapeo ENS → ISO 27001 |
+| `ISO27001_hacia_ENS.csv` | 173 | Mapeo ISO 27001 → ENS |
+
+### Integración en 9 apps ISO/ENS
+
+Todos los `app.js` tienen:
+
+| Método | Función |
+|---|---|
+| `_checkSigMembership()` | Consulta `/api/sig/projects` al cargar un proyecto; muestra badge "SIG" en sidebar si pertenece a un SIG activo |
+| `_toastSigWarning()` | Toast anti-duplicación — avisa que la sección ya existe en el SIG (implementado pero **pendiente de invocar** desde `phase2-*.js`) |
+| `_openSigFromSidebar()` | Abre `/sig/` con `window.open` — enlace en sidebar "INTEGRACIÓN SIG" |
+
+### Tarjeta en pantalla de inicio Flask
+
+Color `#5C35A0` (morado), posición final del grid, badge dinámico con contador de SIGs activos.
+
+### Reglas críticas del módulo SIG
+
+1. **`SIG_DIR` fuera de `APP_DIRS`**: registrado separadamente en `server.py`. No añadir a `APP_DIRS` — tiene su propia lógica de caché `no-cache` para `.js`.
+
+2. **`_toastSigWarning` aún no activo en `phase2-*.js`**: implementado en los 9 `app.js` pero la llamada desde `addMeeting()` / `addTask()` de los módulos phase2 está pendiente. Requiere consultar `PROPAGATION_RULES.md` antes de propagar.
+
+3. **Duplicado `8.11` en `ISO27001_hacia_ENS.csv`**: líneas 76-77 tienen el mismo código. La línea 77 debería ser `8.12`. Corregir antes de añadir `UNIQUE` constraint a `sig_correspondencias`.
+
+4. **`store.js` LAN-aware**: usa `window.location.hostname + ':5001'` — NO hardcodear `localhost`.
+
+5. **Versiones `app.js` de 6 apps desincronizadas**: RGPD (`v20260923a`), ISO9001 (`v20260917a`), ISO27701/ISO14001/ISO14001-2026/TISAX (`v20260904c`) tienen el código SIG correcto pero versión antigua en `index.html`. Pendiente de bump.
+
+6. **`NORMAS_META`** en `SIG-INTEGRACION/js/app.js`: define las 9 normas con sus `app_id`, nombres, colores y URL. Actualizar si se añade una nueva norma a la Plataforma.
+
 ## Bugs Seguimiento de Tareas (commits `c3efe81` + `a9c9035`)
 
 ### Bug 1 — Cabeceras tabla acciones = claves raw (`PHASE2.ACCIONDESCRIPCION`)
@@ -866,5 +1073,5 @@ contents into this section.
 
 ---
 
-*Last updated: 2026-10-05*
+*Last updated: 2026-10-28*
 

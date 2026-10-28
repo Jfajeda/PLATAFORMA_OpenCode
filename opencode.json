@@ -1,6 +1,15 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "instructions": ["AGENTS.md", "PROPAGATION_RULES.md"],
+  "permission": {
+    "edit": {
+      ".opencode/commands/documentos-proyectos.md": "ask",
+      "Manual_OpenCode_Codanor.html": "ask",
+      "AGENTS.md": "ask",
+      "PROPAGATION_RULES.md": "ask",
+      "*": "allow"
+    }
+  },
   "mcp": {
     "sonarqube": {
       "type": "local",
