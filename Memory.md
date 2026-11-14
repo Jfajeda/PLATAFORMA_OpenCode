@@ -1,11 +1,11 @@
 # Memory.md — PLATAFORMA_OpenCode
-> Ultima actualizacion: 2026-10-28
+> Ultima actualizacion: 2026-10-30
 
 ## Estado actual
 
 - **Fase**: Produccion / mantenimiento activo
 - **Version**: Manual v3.0 (20 capitulos) + Manual IA Actas v1.0
-- **Ultimo cambio significativo**: Documento `PENDIENTES-PLATAFORMA-V01.html` generado (2026-10-28) — 15 pendientes con prioridad, estado, pasos de mejora y dependencias
+- **Ultimo cambio significativo**: P-03 resuelto (CSV `8.11`→`8.12`) + `PENDIENTES-PLATAFORMA-V02.html` (2026-10-30) — 16 pendientes (15 abiertos, 1 resuelto), filtros, roadmap, nuevo P-16
 - **Issues abiertos**: 72 bugs de reliability + 3 security hotspots detectados por SonarCloud
 
 ## Infraestructura
@@ -18,6 +18,7 @@
 | .gitignore | Si | Excluye .DS_Store, backups, __pycache__ |
 | AGENTS.md | Si | Actualizado 2026-10-28 — Módulo SIG v1.0 + Módulo Capas Ciberseguridad v1.1.0 |
 | PENDIENTES-PLATAFORMA-V01.html | Si | Informe seguimiento 15 pendientes — prioridad, estado, pasos mejora — 79 KB — 2026-10-28 |
+| PENDIENTES-PLATAFORMA-V02.html | Si | v2.0 — P-03 resuelto, P-16 nuevo, columnas Ejecutor/Resolución, filtros, sección 9 Roadmap — 99 KB — 2026-10-30 |
 | PROPAGATION_RULES.md | Si | 2026-10-01 — clasificación BASE/CLON/DIVERGENTE/PROPIO + workflows + script verificación ENS |
 | opencode.json | Si | MCP SonarQube + instructions: AGENTS.md + PROPAGATION_RULES.md |
 | Memory.md | Si | Este archivo |
@@ -46,6 +47,7 @@
 | `.opencode/commands/documentos-proyectos.md` | Skill plantilla documentos corporativos (HTML + .docx + .md) | 33 KB — 2026-10-05 |
 | **CAPAS-CIBERSEGURIDAD-V01.html** | **Propuesta técnica módulo Capas de Ciberseguridad** — portada, 10 secciones, tablas ENS/ISO27001/ISO42001 | **Oct 2026** |
 | **SIG-MODULO-V01.html** | **Propuesta técnica módulo SIG** — 10 secciones, arquitectura, endpoints, correspondencias | **71 KB — Oct 2026** |
+| **PENDIENTES-PLATAFORMA-V02.html** | **Seguimiento v2.0** — 16 pendientes, filtros interactivos (área/prioridad/estado/ejecutor), barra de progreso, grafo de dependencias y roadmap por oleadas (sección 9) | **99 KB — 2026-10-30** |
 | **PENDIENTES-PLATAFORMA-V01.html** | **Informe de seguimiento de 15 pendientes activos** — prioridad, estado, archivos afectados, pasos de mejora, dependencias. 8 secciones por área temática + glosario | **79 KB — 2026-10-28** |
 
 ### Plataforma_Seguimiento_Proyectos/servidor/
@@ -254,6 +256,9 @@ Color `#5C35A0` (morado), posición al final del grid, badge dinámico con conta
 
 | Fecha | Decision | Razon |
 |-------|----------|-------|
+| 2026-10-30 | P-03: `ISO27001_hacia_ENS.csv` fila «Prevención de fugas de datos» `8.11`→`8.12` (backup `.bak-20261030`), `sig_correspondencias` recargada (678 filas, 0 errores) | ID duplicado colgaba 4 relaciones ENS del control equivocado |
+| 2026-10-30 | `UNIQUE(hls_id, norma, clausula)` NO aplicado → nuevo P-16 | 14 colisiones: CSV 3 usa IDs Anexo A sin prefijo `A.` (5.2, 7.1…) que chocan con cláusulas HLS de `99_AGRUPACION`; `7.1.5/iso9001` ×5 |
+| 2026-10-30 | Generado `PENDIENTES-PLATAFORMA-V02.html` (99 KB) | Estado actualizado + filtros + roadmap |
 | 2026-10-28 | Generado `PENDIENTES-PLATAFORMA-V01.html` (79 KB) | Documento de seguimiento de los 15 pendientes activos con prioridad, estado, pasos de mejora y dependencias |
 | 2026-10-27 | `pointer-events:none` en centerFill/centerText SVG | Bug: clic en anillo Información no funcionaba — centerFill tapaba el hitArea |
 | 2026-10-27 | Informe HTML refactorizado: portada + TOC + ISO42001 + catálogo + estadísticas | El informe anterior no tenía columna ISO42001, ni catálogo, ni estadísticas de cobertura |
@@ -278,7 +283,7 @@ Color `#5C35A0` (morado), posición al final del grid, badge dinámico con conta
 
 ### Prioridad Alta
 - [ ] **[P-02]** **SIG: activar `_toastSigWarning` desde `phase2-*.js`** — implementado en 9 `app.js` pero aún no invocado desde `addMeeting()` / `addTask()` de los módulos phase2
-- [ ] **[P-03]** **SIG: corregir duplicado `8.11` en `ISO27001_hacia_ENS.csv`** (líneas 76-77, el segundo debería ser `8.12`) y añadir `UNIQUE` constraint a `sig_correspondencias`
+- [x] ~~**[P-03]** SIG: corregir duplicado `8.11` en `ISO27001_hacia_ENS.csv`~~ (2026-10-30) — el `UNIQUE` pasa a P-16
 - [ ] **[P-07]** Dashboard de riesgos para ISO9001, ISO14001, ISO42001, ISO27701 (actualmente "Próximamente")
 - [ ] **[P-08]** Conceder "Acceso total al disco" en Ajustes → Privacidad para backup NAS — acción manual macOS
 - [ ] **[P-10]** Activar Ollama en LAN (`OLLAMA_HOST=0.0.0.0 ollama serve`) — bloqueado por firewall MDM
@@ -287,6 +292,7 @@ Color `#5C35A0` (morado), posición al final del grid, badge dinámico con conta
 - [ ] **[P-04]** **SIG: bump `app.js` de 6 apps** a versión unificada — RGPD en `v20260923a`, ISO9001 en `v20260917a`, ISO27701/ISO14001/ISO14001-2026/TISAX en `v20260904c` (tienen el código SIG pero versión desactualizada)
 - [ ] **[P-05]** Módulo Capas: integrar con proyectos ISO27001/ENS (filtrar herramientas por proyecto)
 - [ ] **[P-06]** Módulo Capas: logo upload funcionando en todas las herramientas base
+- [ ] **[P-16]** **SIG: colisión IDs Anexo A vs. cláusulas HLS** — normalizar prefijo `A.` en el parser CSV 3 de `server.py` (~L5260), revisar `7.1.5` iso9001 ×5 en `99_AGRUPACION`, después añadir `UNIQUE(hls_id, norma, clausula)`
 - [ ] **[P-11]** Ejecutar /init en los 7 proyectos restantes para crear AGENTS.md
 - [ ] **[P-12]** Subir los otros 7+ proyectos a GitHub — requiere P-11
 
@@ -315,5 +321,6 @@ Color `#5C35A0` (morado), posición al final del grid, badge dinámico con conta
 - **I18n.t() devuelve clave literal**: si una clave no existe, `t('phase2.x')` devuelve `"phase2.x"` (truthy). El patrón `|| 'fallback'` nunca activa. Siempre añadir la clave al JSON.
 - **Safari/WebKit**: fetch con `hostname:puerto` explícito → `TypeError: Load failed`. Usar `window.location.origin`.
 
+---
 
-
+> **Revisado 2026-11-13** — sin cambios de código en esta sesión (trabajo centrado en `Plataforma_Seguimiento_Proyectos`).
