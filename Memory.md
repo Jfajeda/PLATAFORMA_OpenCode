@@ -256,6 +256,7 @@ Color `#5C35A0` (morado), posición al final del grid, badge dinámico con conta
 
 | Fecha | Decision | Razon |
 |-------|----------|-------|
+| 2026-11-14 | Generados `REVISION-DIRECTORIOS-PROYECTO-V01.html`+`.docx`+`generar_revision-directorios-proyecto.py` (skill) y `REVISION-DIRECTORIO-PROYECTO-V01.html` (maqueta estilo ARQUITECTURA-SERVIDORES) | Inventario y clasificación de los 61 ficheros del repo en 3 categorías: Para el desarrollo / Manuales / Biblioteca. El `REVISION-DIRECTORIO-PROYECTO-V01.html` lo mueve el usuario a `~/Proyectos/` manualmente |
 | 2026-10-30 | P-03: `ISO27001_hacia_ENS.csv` fila «Prevención de fugas de datos» `8.11`→`8.12` (backup `.bak-20261030`), `sig_correspondencias` recargada (678 filas, 0 errores) | ID duplicado colgaba 4 relaciones ENS del control equivocado |
 | 2026-10-30 | `UNIQUE(hls_id, norma, clausula)` NO aplicado → nuevo P-16 | 14 colisiones: CSV 3 usa IDs Anexo A sin prefijo `A.` (5.2, 7.1…) que chocan con cláusulas HLS de `99_AGRUPACION`; `7.1.5/iso9001` ×5 |
 | 2026-10-30 | Generado `PENDIENTES-PLATAFORMA-V02.html` (99 KB) | Estado actualizado + filtros + roadmap |

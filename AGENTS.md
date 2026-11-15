@@ -2,7 +2,7 @@
 
 > Instructions for AI coding agents operating in this repository.
 > Maintained by Jafa, S.L. (CODANOR), Barcelona, Catalunya.
-> Last updated: 2026-10-27
+> Last updated: 2026-11-14
 
 ## Project Overview
 
@@ -178,6 +178,10 @@ PLATAFORMA_OpenCode-NEW/
   propuesta-herramienta-tiquets.html      # Tiquets tool proposal v1.2 (~98 KB)
   CAPAS-CIBERSEGURIDAD-V01.html           # Capas Ciberseguridad technical proposal (~Oct 2026)
   SIG-MODULO-V01.html                     # SIG module technical proposal (~71 KB, Oct 2026)
+  REVISION-DIRECTORIOS-PROYECTO-V01.html  # Repo inventory & file classification (skill template, ~44 KB, 2026-11-14)
+  REVISION-DIRECTORIOS-PROYECTO-V01.docx  # Word version of the inventory (python-docx, ~44 KB)
+  generar_revision-directorios-proyecto.py # Generator script for the .docx (python-docx, ~24 KB)
+  REVISION-DIRECTORIO-PROYECTO-V01.html   # Same inventory, ARQUITECTURA-SERVIDORES layout (~36 KB) — user moves it to ~/Proyectos/
   backup-opencode.sh                      # Backup script (8 modes, executable)
   sonar-project.properties                # SonarCloud scanner config
   Prompt.docx                             # Project prompt specification
@@ -1073,5 +1077,5 @@ contents into this section.
 
 ---
 
-*Last updated: 2026-10-28*
+*Last updated: 2026-11-14*
 

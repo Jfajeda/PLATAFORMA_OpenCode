@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Revisión y Clasificación de Directorios y Ficheros del Proyecto — CODANOR</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600;700&family=Nunito+Sans:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary:        #178DC2;
+      --primary-dark:   #1275A3;
+      --primary-light:  #e8f4fa;
+      --accent:         #12A79D;
+      --accent-dark:    #0d7a71;
+      --accent-light:   #e6f7f6;
+      --dark:           #1a1a2e;
+      --gray-900:       #2d2d44;
+      --gray-700:       #4a4a5a;
+      --gray-600:       #6b6b7b;
+      --gray-500:       #7a7a8a;
+      --gray-300:       #c4c4d0;
+      --gray-100:       #f0f0f5;
+      --white:          #ffffff;
+      --warning-text:   #b7770d;
+      --warning-bg:     #fef9e7;
+      --warning-dark:   #7d6608;
+      --danger-text:    #922b21;
+      --danger-bg:      #fdedec;
+      --success-text:   #0e7a72;
+      --success-bg:     #e6f7f6;
+      --info-text:      #1275A3;
+      --info-bg:        #e8f4fa;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Nunito Sans', sans-serif;
+      font-size: 16px;
+      line-height: 1.7;
+      color: var(--gray-700);
+      background: var(--gray-100);
+    }
+
+    .page-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--white);
+      border-bottom: 3px solid var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.6rem 2rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .page-header-brand { display: flex; align-items: center; gap: 0.8rem; }
+    .page-header-logo {
+      font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 700;
+      color: var(--primary); letter-spacing: -0.5px;
+    }
+    .page-header-title {
+      font-family: 'Poppins', sans-serif; font-size: 0.82rem; font-weight: 600;
+      color: var(--primary-dark);
+    }
+    .page-header-meta { font-family: 'Poppins', sans-serif; font-size: 0.75rem; color: var(--gray-500); }
+
+    .layout { display: flex; min-height: calc(100vh - 56px); }
+
+    .sidebar {
+      width: 260px; min-width: 260px; background: var(--white);
+      border-right: 1px solid var(--gray-300); padding: 1.5rem 0;
+      position: sticky; top: 56px; height: calc(100vh - 56px); overflow-y: auto;
+    }
+    .sidebar-label {
+      font-family: 'Poppins', sans-serif; font-size: 0.65rem; font-weight: 600;
+      color: var(--gray-500); text-transform: uppercase; letter-spacing: 0.8px;
+      padding: 0 1.2rem; margin-bottom: 0.5rem;
+    }
+    .sidebar nav a {
+      display: block; font-size: 0.88rem; color: var(--gray-700); text-decoration: none;
+      padding: 0.35rem 1.2rem; border-left: 3px solid transparent; transition: all 0.15s;
+    }
+    .sidebar nav a:hover, .sidebar nav a.active {
+      color: var(--primary); background: var(--primary-light); border-left-color: var(--primary);
+    }
+    .sidebar nav a.toc-sub { font-size: 0.82rem; padding-left: 2rem; color: var(--gray-700); }
+
+    .main-content { flex: 1; padding: 0; min-width: 0; }
+
+    .cover {
+      background: var(--dark); color: var(--white); padding: 5rem 4rem 4rem;
+      position: relative; overflow: hidden; page-break-after: always;
+    }
+    .cover::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 5px;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+    }
+    .cover-logo { font-family: 'Poppins', sans-serif; font-size: 1.4rem; font-weight: 700; color: var(--primary); margin-bottom: 4rem; }
+    .cover-type { font-family: 'Poppins', sans-serif; font-size: 0.75rem; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 1rem; }
+    .cover-title { font-family: 'Poppins', sans-serif; font-size: 2.8rem; font-weight: 700; color: var(--white); line-height: 1.15; margin-bottom: 1rem; }
+    .cover-subtitle { font-family: 'Poppins', sans-serif; font-size: 1.2rem; font-weight: 300; color: rgba(255,255,255,0.75); margin-bottom: 3rem; }
+    .cover-meta { display: flex; gap: 2.5rem; flex-wrap: wrap; }
+    .cover-meta-item .label { font-size: 0.68rem; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 0.2rem; }
+    .cover-meta-item .value { font-family: 'Poppins', sans-serif; font-size: 0.92rem; font-weight: 600; color: var(--white); }
+    .cover-footer { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.15); display: flex; justify-content: space-between; align-items: center; }
+    .cover-footer .company { font-size: 0.82rem; color: rgba(255,255,255,0.6); }
+    .cover-footer .classification { font-size: 0.72rem; font-style: italic; color: rgba(255,255,255,0.45); }
+
+    .content-section {
+      background: var(--white); margin: 2rem; border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06); padding: 2.5rem 3rem; page-break-inside: avoid;
+    }
+
+    .version-control {
+      background: var(--white); margin: 2rem; border-radius: 8px; padding: 2rem 3rem;
+      border-left: 4px solid var(--primary);
+    }
+    .version-control h2 { font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; color: var(--primary-dark); margin-bottom: 1rem; }
+
+    h1 { font-family: 'Poppins', sans-serif; font-size: 1.9rem; font-weight: 700; color: var(--dark); margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--primary-light); }
+    h2 { font-family: 'Poppins', sans-serif; font-size: 1.4rem; font-weight: 600; color: var(--primary); margin-top: 2rem; margin-bottom: 0.75rem; }
+    h3 { font-family: 'Poppins', sans-serif; font-size: 1.1rem; font-weight: 600; color: var(--gray-900); margin-top: 1.5rem; margin-bottom: 0.5rem; }
+    h4 { font-family: 'Poppins', sans-serif; font-size: 0.95rem; font-weight: 600; color: var(--gray-700); margin-top: 1rem; margin-bottom: 0.4rem; }
+    .section-number { font-family: 'Poppins', sans-serif; font-size: 0.75rem; font-weight: 600; color: var(--primary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.4rem; }
+
+    p { margin-bottom: 0.85rem; font-size: 0.95rem; }
+    ul, ol { padding-left: 1.5rem; margin-bottom: 0.85rem; }
+    li { font-size: 0.95rem; margin-bottom: 0.3rem; }
+
+    .table-wrapper { overflow-x: auto; margin: 1.2rem 0; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    thead th {
+      font-family: 'Poppins', sans-serif; font-size: 0.82rem; font-weight: 600;
+      color: var(--white); background: var(--primary-dark); padding: 0.65rem 0.9rem;
+      text-align: left; white-space: nowrap;
+    }
+    tbody td { padding: 0.6rem 0.9rem; border-bottom: 1px solid var(--gray-300); color: var(--gray-700); vertical-align: top; }
+    tbody tr:hover td { background: var(--primary-light); }
+    tbody tr:nth-child(even) td { background: #f8f8fb; }
+    tbody tr:nth-child(even):hover td { background: var(--primary-light); }
+    td code { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--primary-dark); background: var(--gray-100); padding: 0.1rem 0.3rem; border-radius: 3px; }
+
+    code { font-family: 'JetBrains Mono', monospace; font-size: 0.83rem; color: var(--primary-dark); background: var(--gray-100); padding: 0.15rem 0.4rem; border-radius: 4px; }
+    pre { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; background: var(--dark); color: #e0e0e0; padding: 1.2rem 1.5rem; border-radius: 6px; overflow-x: auto; line-height: 1.6; margin: 1rem 0; }
+    pre code { color: inherit; background: none; padding: 0; font-size: inherit; }
+
+    .alert { padding: 0.9rem 1.1rem; border-radius: 6px; margin: 1rem 0; font-size: 0.9rem; border-left: 4px solid; }
+    .alert-title { font-family: 'Poppins', sans-serif; font-weight: 600; margin-bottom: 0.3rem; }
+    .alert-info    { background: var(--info-bg);    border-color: var(--primary);      color: var(--info-text); }
+    .alert-warning { background: var(--warning-bg); border-color: var(--warning-text); color: var(--warning-dark); }
+    .alert-danger  { background: var(--danger-bg);  border-color: var(--danger-text);  color: var(--danger-text); }
+    .alert-success { background: var(--success-bg); border-color: var(--accent);       color: var(--success-text); }
+
+    .badge { display: inline-block; font-family: 'Poppins', sans-serif; font-size: 0.68rem; font-weight: 600; padding: 0.15rem 0.5rem; border-radius: 3px; letter-spacing: 0.3px; }
+    .badge-primary { color: var(--primary-dark);  background: var(--primary-light); }
+    .badge-accent  { color: var(--accent-dark);   background: var(--accent-light); }
+    .badge-success { color: var(--success-text);  background: var(--success-bg); }
+    .badge-warning { color: var(--warning-dark);  background: var(--warning-bg); }
+    .badge-danger  { color: var(--danger-text);   background: var(--danger-bg); }
+    .badge-dark    { color: var(--white);         background: var(--gray-900); }
+
+    .cat-dev  { color: var(--white); background: var(--primary-dark); padding: 0.15rem 0.5rem; border-radius: 3px; font-size: 0.72rem; font-weight: 600; font-family:'Poppins',sans-serif; }
+    .cat-man  { color: var(--white); background: var(--accent-dark);  padding: 0.15rem 0.5rem; border-radius: 3px; font-size: 0.72rem; font-weight: 600; font-family:'Poppins',sans-serif; }
+    .cat-bib  { color: var(--white); background: var(--warning-dark); padding: 0.15rem 0.5rem; border-radius: 3px; font-size: 0.72rem; font-weight: 600; font-family:'Poppins',sans-serif; }
+
+    .doc-footer {
+      background: var(--white); border-top: 3px solid var(--primary); padding: 1.2rem 2rem;
+      display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 1rem; margin-top: 2rem;
+    }
+    .doc-footer .footer-left   { font-size: 0.78rem; color: var(--gray-700); font-weight: 600; }
+    .doc-footer .footer-center { font-size: 0.72rem; color: var(--gray-600); font-style: italic; text-align: center; }
+    .doc-footer .footer-right  { font-size: 0.72rem; color: var(--gray-600); text-align: right; }
+    .doc-footer .footer-path   { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; color: var(--gray-600); margin-top: 0.2rem; }
+
+    .btn-print {
+      position: fixed; bottom: 1.5rem; right: 1.5rem; background: var(--primary); color: var(--white);
+      border: none; border-radius: 6px; padding: 0.6rem 1.1rem; font-family: 'Poppins', sans-serif;
+      font-size: 0.85rem; font-weight: 600; cursor: pointer; box-shadow: 0 2px 8px rgba(23,141,194,0.35);
+      transition: background 0.15s; z-index: 200;
+    }
+    .btn-print:hover { background: var(--primary-dark); }
+
+    .glossary-term { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--primary-dark); font-weight: 500; }
+
+    .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin: 1.2rem 0; }
+    .stat-card { border-radius: 8px; padding: 1.2rem 1.4rem; border-left: 4px solid; }
+    .stat-card.dev { background: var(--primary-light); border-color: var(--primary-dark); }
+    .stat-card.man { background: var(--accent-light);  border-color: var(--accent-dark); }
+    .stat-card.bib { background: var(--warning-bg);    border-color: var(--warning-dark); }
+    .stat-card .num { font-family: 'Poppins', sans-serif; font-size: 2rem; font-weight: 700; color: var(--dark); line-height: 1; }
+    .stat-card .lbl { font-family: 'Poppins', sans-serif; font-size: 0.8rem; font-weight: 600; color: var(--gray-700); margin-top: 0.3rem; }
+    .stat-card .sub { font-size: 0.78rem; color: var(--gray-600); margin-top: 0.2rem; }
+
+    @media print {
+      .sidebar, .page-header, .btn-print { display: none !important; }
+      .main-content { padding: 0; }
+      .content-section { margin: 0; box-shadow: none; border-radius: 0; page-break-inside: avoid; }
+      body { font-size: 10pt; background: white; }
+      pre { font-size: 8pt; }
+      table { font-size: 8pt; }
+      .cover { page-break-after: always; }
+      .doc-footer { position: fixed; bottom: 0; left: 0; right: 0; border-top: 2px solid var(--primary); background: white; padding: 0.5rem 1.5rem; font-size: 8pt; }
+    }
+
+    @media (max-width: 900px) {
+      .sidebar { display: none; }
+      .cover-title { font-size: 2rem; }
+      .content-section { margin: 1rem; padding: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="page-header">
+    <div class="page-header-brand">
+      <span class="page-header-logo">CODANOR</span>
+      <span class="page-header-title">Revisión y Clasificación de Directorios y Ficheros</span>
+    </div>
+    <span class="page-header-meta">v1.0 · 14/11/2026</span>
+  </header>
+
+  <div class="layout">
+
+    <aside class="sidebar">
+      <div class="sidebar-label">Índice de contenidos</div>
+      <nav>
+        <a href="#portada">Portada</a>
+        <a href="#versiones">Control de versiones</a>
+        <a href="#seccion-1">1. Introducción y objeto</a>
+        <a href="#seccion-2">2. Alcance</a>
+        <a href="#seccion-3">3. Metodología de clasificación</a>
+        <a href="#seccion-4">4. Resumen cuantitativo</a>
+        <a href="#seccion-5">5. Para el desarrollo</a>
+        <a href="#seccion-6">6. Manuales</a>
+        <a href="#seccion-7">7. Biblioteca</a>
+        <a href="#seccion-8">8. Estructura de directorios</a>
+        <a href="#seccion-9">9. Observaciones</a>
+        <a href="#glosario">Glosario</a>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+
+      <!-- PORTADA -->
+      <div class="cover" id="portada">
+        <div class="cover-logo">CODANOR</div>
+        <div class="cover-type">Informe técnico</div>
+        <h1 class="cover-title">Revisión y Clasificación de Directorios y Ficheros del Proyecto</h1>
+        <p class="cover-subtitle">Inventario completo del repositorio PLATAFORMA_OpenCode-NEW, clasificado en Para el desarrollo · Manuales · Biblioteca</p>
+        <div class="cover-meta">
+          <div class="cover-meta-item"><div class="label">Versión</div><div class="value">v1.0</div></div>
+          <div class="cover-meta-item"><div class="label">Fecha</div><div class="value">14/11/2026</div></div>
+          <div class="cover-meta-item"><div class="label">Autor</div><div class="value">CODANOR — Jafa, S.L.</div></div>
+        </div>
+        <div class="cover-footer">
+          <span class="company">CODANOR — Jafa, S.L. — Barcelona, Catalunya</span>
+          <span class="classification">Documento interno — Uso exclusivo CODANOR</span>
+        </div>
+      </div>
+
+      <!-- CONTROL DE VERSIONES -->
+      <div class="version-control" id="versiones">
+        <h2>Control de versiones</h2>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr><th>Versión</th><th>Fecha</th><th>Autor</th><th>Descripción del cambio</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>v1.0</code></td><td>14/11/2026</td><td>CODANOR — Jafa, S.L.</td><td>Versión inicial — inventario completo y clasificación de los 35 elementos raíz + subdirectorios</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- SECCIÓN 1 -->
+      <div class="content-section" id="seccion-1">
+        <div class="section-number">Sección 1</div>
+        <h1>Introducción y objeto</h1>
+        <p>Este informe presenta la revisión exhaustiva del repositorio <code>PLATAFORMA_OpenCode-NEW</code>,
+        el directorio de documentación y tooling corporativo de la Plataforma de Seguimiento de Proyectos
+        ISO/ENS de CODANOR. Se inventaría cada directorio y fichero con sus características principales
+        (tipo, tamaño, fecha de última modificación y propósito) y se clasifica en tres categorías de utilidad.</p>
+        <p>El objetivo es ofrecer una visión ordenada del contenido del repositorio que permita identificar
+        rápidamente qué ficheros son <strong>fundamentales para el desarrollo</strong> de cada aplicación,
+        cuáles son <strong>manuales importantes</strong> para entender la funcionalidad y el mantenimiento
+        de todas las apps, y cuáles constituyen <strong>material de biblioteca conveniente</strong> como
+        apoyo al desarrollo.</p>
+        <div class="alert alert-info">
+          <div class="alert-title">Audiencia</div>
+          Equipo técnico de CODANOR, agentes de IA (OpenCode) y responsables de mantenimiento de la Plataforma.
+          Documento interno — Uso exclusivo CODANOR. v1.0 — 14/11/2026.
+        </div>
+      </div>
+
+      <!-- SECCIÓN 2 -->
+      <div class="content-section" id="seccion-2">
+        <div class="section-number">Sección 2</div>
+        <h1>Alcance</h1>
+        <p>Este documento cubre la raíz del repositorio <code>PLATAFORMA_OpenCode-NEW</code> y todos
+        sus subdirectorios con contenido relevante.</p>
+        <h2>Dentro del alcance</h2>
+        <ul>
+          <li>Los 35 elementos de la raíz del repositorio (ficheros y directorios).</li>
+          <li>El contenido de <code>.opencode/</code> (comandos y skill de documentos).</li>
+          <li>El contenido de <code>servidor/</code> y <code>tools/</code>.</li>
+          <li>Los 25 ficheros del directorio <code>Biblioteca/</code>, uno a uno.</li>
+          <li>Características de cada fichero: tipo, tamaño, fecha y propósito.</li>
+        </ul>
+        <h2>Fuera del alcance</h2>
+        <ul>
+          <li>El contenido interno del repositorio hermano <code>Plataforma_Seguimiento_Proyectos/</code>
+          (las 9 apps ISO/ENS y el <code>servidor/server.py</code>:5001), que reside en otra ruta.</li>
+          <li>Ficheros excluidos por <code>.gitignore</code> (<code>.DS_Store</code>, <code>__pycache__/</code>,
+          <code>node_modules/</code>, secretos).</li>
+          <li>El historial interno de Git (<code>.git/</code>).</li>
+          <li>Auditoría de código fuente de las apps (cubierta por SonarCloud y <code>analisis-codigo.html</code>).</li>
+        </ul>
+      </div>
+
+      <!-- SECCIÓN 3 -->
+      <div class="content-section" id="seccion-3">
+        <div class="section-number">Sección 3</div>
+        <h1>Metodología de clasificación</h1>
+        <p>Cada fichero se asigna a una única categoría según su utilidad primaria para el ciclo de vida
+        de la Plataforma. Los tres criterios son:</p>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr><th>Categoría</th><th>Nivel de utilidad</th><th>Definición</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="cat-dev">Para el desarrollo</span></td>
+                <td><strong>FUNDAMENTALES</strong></td>
+                <td>Ficheros imprescindibles para el desarrollo y operación de cada App: configuración,
+                instrucciones de agentes, reglas de propagación, scripts de servidor/backup, skills y herramientas de generación.</td>
+              </tr>
+              <tr>
+                <td><span class="cat-man">Manuales</span></td>
+                <td><strong>IMPORTANTES</strong></td>
+                <td>Documentos que permiten entender la funcionalidad y el mantenimiento de TODAS las Apps:
+                manuales de usuario, informes de estado, propuestas técnicas, planes y dashboards de referencia.</td>
+              </tr>
+              <tr>
+                <td><span class="cat-bib">Biblioteca</span></td>
+                <td><strong>CONVENIENTES</strong></td>
+                <td>Material de apoyo que ayuda al desarrollo de TODAS las Apps: referencias, capturas,
+                hojas de cálculo normativas, logos y documentos de trabajo auxiliares.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="alert alert-warning">
+          <div class="alert-title">Criterio de desempate</div>
+          Cuando un fichero podría pertenecer a dos categorías, prevalece su <em>uso operativo</em>: un
+          <code>.html</code> que es referencia visual de diseño (p. ej. el manual corporativo) se clasifica
+          como <span class="cat-man">Manual</span>; un <code>.py</code> que genera documentos se clasifica como
+          <span class="cat-dev">Para el desarrollo</span> por ser herramienta de trabajo.
+        </div>
+      </div>
+
+      <!-- SECCIÓN 4 -->
+      <div class="content-section" id="seccion-4">
+        <div class="section-number">Sección 4</div>
+        <h1>Resumen cuantitativo</h1>
+        <p>Distribución de los ficheros inventariados por categoría (se contabilizan ficheros, no directorios
+        contenedores). Tamaños aproximados, redondeados.</p>
+        <div class="stat-grid">
+          <div class="stat-card dev">
+            <div class="num">20</div>
+            <div class="lbl">Para el desarrollo</div>
+            <div class="sub">FUNDAMENTALES · ~0,30 MB</div>
+          </div>
+          <div class="stat-card man">
+            <div class="num">16</div>
+            <div class="lbl">Manuales</div>
+            <div class="sub">IMPORTANTES · ~1,25 MB</div>
+          </div>
+          <div class="stat-card bib">
+            <div class="num">25</div>
+            <div class="lbl">Biblioteca</div>
+            <div class="sub">CONVENIENTES · material de apoyo</div>
+          </div>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr><th>Categoría</th><th>Nº de ficheros</th><th>Tamaño aprox.</th><th>Tipos predominantes</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><span class="cat-dev">Para el desarrollo</span></td><td>20</td><td>~0,30 MB</td><td><code>.md</code>, <code>.json</code>, <code>.py</code>, <code>.sh</code>, <code>.plist</code>, <code>.properties</code></td></tr>
+              <tr><td><span class="cat-man">Manuales</span></td><td>16</td><td>~1,25 MB</td><td><code>.html</code></td></tr>
+              <tr><td><span class="cat-bib">Biblioteca</span></td><td>25</td><td>mixto</td><td><code>.docx</code>, <code>.pdf</code>, <code>.xlsx</code>, <code>.csv</code>, <code>.png</code>, <code>.md</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p><strong>Total inventariado:</strong> 61 ficheros (más directorios contenedores <code>.opencode/</code>,
+        <code>servidor/</code>, <code>tools/</code>, <code>Biblioteca/</code>).</p>
+      </div>
+
+      <!-- SECCIÓN 5 -->
+      <div class="content-section" id="seccion-5">
+        <div class="section-number">Sección 5</div>
+        <h1>Para el desarrollo <span class="cat-dev">FUNDAMENTALES</span></h1>
+        <p>Ficheros imprescindibles para el desarrollo, configuración y operación de cada App.</p>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr><th>Fichero / Ruta</th><th>Tipo</th><th>Tamaño</th><th>Fecha</th><th>Propósito</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>AGENTS.md</code></td><td>Markdown</td><td>54 KB</td><td>28/10/2026</td><td>Instrucciones maestras para agentes de IA: arquitectura, módulos, reglas críticas, comandos de verificación. Archivo protegido.</td></tr>
+              <tr><td><code>PROPAGATION_RULES.md</code></td><td>Markdown</td><td>8,8 KB</td><td>28/10/2026</td><td>Reglas de propagación entre las 9 apps ISO/ENS: clasificación BASE/CLON/DIVERGENTE/PROPIO y workflows. Archivo protegido.</td></tr>
+              <tr><td><code>Memory.md</code></td><td>Markdown</td><td>21 KB</td><td>13/11/2026</td><td>Estado del proyecto, historial, infraestructura y tareas pendientes. Memoria persistente de la sesión.</td></tr>
+              <tr><td><code>opencode.json</code></td><td>JSON</td><td>660 B</td><td>05/10/2026</td><td>Configuración de OpenCode: instructions (AGENTS.md + PROPAGATION_RULES.md), permisos de edición y MCP SonarQube.</td></tr>
+              <tr><td><code>.gitignore</code></td><td>Config</td><td>372 B</td><td>14/11/2026</td><td>Exclusiones de Git: .DS_Store, node_modules, __pycache__, secretos y datos RGPD.</td></tr>
+              <tr><td><code>sonar-project.properties</code></td><td>Properties</td><td>762 B</td><td>18/05/2026</td><td>Configuración del scanner SonarCloud (organización Jfajeda).</td></tr>
+              <tr><td><code>backup-opencode.sh</code></td><td>Bash (ejec.)</td><td>40 KB</td><td>21/10/2026</td><td>Script de backup al NAS CODANOR con 8 modos de operación.</td></tr>
+              <tr><td><code>com.codanor.opencode-backup.plist</code></td><td>plist (launchd)</td><td>2,7 KB</td><td>21/10/2026</td><td>Agente launchd de macOS que programa la ejecución automática del backup.</td></tr>
+              <tr><td><code>com.codanor.opencode-testrestore.plist</code></td><td>plist (launchd)</td><td>2,4 KB</td><td>21/10/2026</td><td>Agente launchd que programa el test de restauración del backup.</td></tr>
+              <tr><td><code>generar_guia_wiki_codanor.py</code></td><td>Python</td><td>64 KB</td><td>30/09/2026</td><td>Generador de la Guía Wiki CODANOR (Open WebUI) en formato Word.</td></tr>
+              <tr><td><code>generar_informe_incidente_propagacion.py</code></td><td>Python</td><td>40 KB</td><td>05/10/2026</td><td>Generador del informe de incidente de propagación en formato Word.</td></tr>
+              <tr><td><code>generar_manual_seguimiento.py</code></td><td>Python</td><td>19 KB</td><td>25/06/2026</td><td>Generador del manual de seguimiento de reuniones con IA en formato Word.</td></tr>
+              <tr><td><code>servidor/dashboard_server.py</code></td><td>Python (Flask)</td><td>~82 líneas</td><td>29/09/2026</td><td>Servidor Flask :5003 que sirve plataforma-seguimiento.html y assets estáticos (sin BD propia).</td></tr>
+              <tr><td><code>tools/generar-docx.py</code></td><td>Python</td><td>—</td><td>24/06/2026</td><td>Herramienta auxiliar de generación de documentos Word (python-docx).</td></tr>
+              <tr><td><code>.opencode/commands/documentos-proyectos.md</code></td><td>Markdown (skill)</td><td>33 KB</td><td>05/10/2026</td><td>Comando/skill de plantilla de documentos corporativos (HTML + .docx + .md). Archivo protegido.</td></tr>
+              <tr><td><code>.opencode/commands/sonar.md</code></td><td>Markdown (cmd)</td><td>—</td><td>05/10/2026</td><td>Slash command <code>/sonar</code> — análisis SonarCloud.</td></tr>
+              <tr><td><code>.opencode/commands/sonar-report.md</code></td><td>Markdown (cmd)</td><td>—</td><td>05/10/2026</td><td>Slash command <code>/sonar-report</code> — informe SonarCloud.</td></tr>
+              <tr><td><code>.opencode/skills/documentos-proyectos/SKILL.md</code></td><td>Markdown (skill)</td><td>34 KB</td><td>05/10/2026</td><td>Definición del skill documentos-proyectos: plantillas A/B/C, paleta WCAG AA y nomenclatura.</td></tr>
+              <tr><td><code>.opencode/package.json</code></td><td>JSON</td><td>—</td><td>05/10/2026</td><td>Dependencia del plugin de OpenCode.</td></tr>
+              <tr><td><code>.opencode/.gitignore</code></td><td>Config</td><td>—</td><td>05/10/2026</td><td>Exclusiones específicas de .opencode (node_modules, lock).</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- SECCIÓN 6 -->
+      <div class="content-section" id="seccion-6">
+        <div class="section-number">Sección 6</div>
+        <h1>Manuales <span class="cat-man">IMPORTANTES</span></h1>
+        <p>Documentos para entender la funcionalidad y el mantenimiento de todas las Apps.</p>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr><th>Fichero</th><th>Tipo</th><th>Tamaño</th><th>Fecha</th><th>Propósito</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>Manual_OpenCode_Codanor.html</code></td><td>HTML</td><td>190 KB</td><td>05/10/2026</td><td>Manual corporativo OpenCode v3.0 (20 capítulos). Fuente de verdad del diseño. Archivo protegido.</td></tr>
+              <tr><td><code>Manual_Seguimiento_Acta_Sintesis_IA-V02.html</code></td><td>HTML</td><td>61 KB</td><td>07/10/2026</td><td>Manual de Acta y Síntesis con IA v2.0 — Groq por defecto, TOC sticky.</td></tr>
+              <tr><td><code>plataforma-seguimiento.html</code></td><td>HTML</td><td>125 KB</td><td>29/09/2026</td><td>Dashboard principal + Kanban + Gestor de Tiquets + Configuración IA Corporativa.</td></tr>
+              <tr><td><code>analisis-codigo.html</code></td><td>HTML</td><td>85 KB</td><td>29/09/2026</td><td>Panel de análisis SonarCloud exportable (5 pestañas).</td></tr>
+              <tr><td><code>homogeneizacion-proyectos.html</code></td><td>HTML</td><td>47 KB</td><td>29/09/2026</td><td>Dashboard de homogeneización de proyectos (5 pestañas).</td></tr>
+              <tr><td><code>plan-homogeneizacion-modulos.html</code></td><td>HTML</td><td>72 KB</td><td>17/05/2026</td><td>Plan de homogeneización de módulos (14 capítulos).</td></tr>
+              <tr><td><code>propuesta-herramienta-tiquets.html</code></td><td>HTML</td><td>103 KB</td><td>28/08/2026</td><td>Propuesta técnica de la herramienta de Tiquets v1.2.</td></tr>
+              <tr><td><code>CAPAS-CIBERSEGURIDAD-V01.html</code></td><td>HTML</td><td>46 KB</td><td>21/10/2026</td><td>Propuesta técnica del módulo Capas de Ciberseguridad (ENS/ISO27001/ISO42001).</td></tr>
+              <tr><td><code>SIG-MODULO-V01.html</code></td><td>HTML</td><td>73 KB</td><td>20/10/2026</td><td>Propuesta técnica del módulo SIG — arquitectura, endpoints, correspondencias normativas.</td></tr>
+              <tr><td><code>ARQUITECTURA_DB_SQLITE-V02.html</code></td><td>HTML</td><td>81 KB</td><td>06/10/2026</td><td>Referencia de la arquitectura de plataforma.db: tablas, ERD y endpoints.</td></tr>
+              <tr><td><code>Documento-Copias-Seguridad.html</code></td><td>HTML</td><td>33 KB</td><td>25/06/2026</td><td>Documento de copias de seguridad v1 (histórico).</td></tr>
+              <tr><td><code>Documento-Copias-Seguridad-V02.html</code></td><td>HTML</td><td>49 KB</td><td>06/10/2026</td><td>Documento de copias de seguridad v2.</td></tr>
+              <tr><td><code>Documento-Copias-Seguridad-V03.html</code></td><td>HTML</td><td>72 KB</td><td>19/10/2026</td><td>Documento de copias de seguridad v3 (versión vigente).</td></tr>
+              <tr><td><code>INFORME-INCIDENTE-PROPAGACION-V01.html</code></td><td>HTML</td><td>58 KB</td><td>05/10/2026</td><td>Informe del incidente de propagación entre apps.</td></tr>
+              <tr><td><code>Informe_Estado_Proyectos_CODANOR_2026-10-V02.html</code></td><td>HTML</td><td>66 KB</td><td>05/10/2026</td><td>Informe de estado de proyectos CODANOR (octubre 2026).</td></tr>
+              <tr><td><code>PENDIENTES-PLATAFORMA-V02.html</code></td><td>HTML</td><td>102 KB</td><td>30/10/2026</td><td>Seguimiento de pendientes v2.0 — 16 pendientes, filtros interactivos, roadmap por oleadas (versión vigente). La V01 (80 KB, 28/10/2026) queda como histórico.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="alert alert-info">
+          <div class="alert-title">Nota</div>
+          <code>PENDIENTES-PLATAFORMA-V01.html</code> (80 KB, 28/10/2026) es la versión previa del informe de
+          pendientes. Se mantiene como histórico; la versión vigente es la V02.
+        </div>
+      </div>
+
+      <!-- SECCIÓN 7 -->
+      <div class="content-section" id="seccion-7">
+        <div class="section-number">Sección 7</div>
+        <h1>Biblioteca <span class="cat-bib">CONVENIENTES</span></h1>
+        <p>Material de apoyo convenientes para ayudar en el desarrollo de todas las Apps. Directorio <code>Biblioteca/</code> (25 ficheros).</p>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr><th>Fichero</th><th>Tipo</th><th>Propósito</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>Estructura_PROYECTOS.pdf</code></td><td>PDF</td><td>Diagrama de jerarquía de módulos y proyectos.</td></tr>
+              <tr><td><code>NIVELES DE JERARQUIA DE LOS PROYECTOS .docx</code></td><td>Word</td><td>Descripción de niveles de jerarquía de los proyectos.</td></tr>
+              <tr><td><code>Prompt.docx</code></td><td>Word</td><td>Especificación del prompt del proyecto.</td></tr>
+              <tr><td><code>PROPAGATION_RULES.md</code></td><td>Markdown</td><td>Copia de referencia de las reglas de propagación.</td></tr>
+              <tr><td><code>codanor_logo.png</code></td><td>Imagen</td><td>Logotipo corporativo CODANOR.</td></tr>
+              <tr><td><code>Captura de pantalla 2026-04-12 a les 17.40.43.png</code></td><td>Imagen</td><td>Captura de pantalla de referencia.</td></tr>
+              <tr><td><code>Captura de pantalla 2026-04-12 a les 19.05.49.png</code></td><td>Imagen</td><td>Captura de pantalla de referencia.</td></tr>
+              <tr><td><code>99_AGRUPACIÓN NORMATIVO (1).xlsx</code></td><td>Excel</td><td>Tabla HLS de agrupación normativa cross-norma.</td></tr>
+              <tr><td><code>99_AGRUPACIÓN NORMATIVO-CSV.xlsx</code></td><td>Excel</td><td>Agrupación normativa (variante CSV→XLSX).</td></tr>
+              <tr><td><code>99_AGRUPACIÓN NORMATIVO-CSV.csv</code></td><td>CSV</td><td>Agrupación normativa en CSV (origen de sig_correspondencias).</td></tr>
+              <tr><td><code>Cambios al crear la BD.docx</code></td><td>Word</td><td>Notas sobre cambios al crear la base de datos.</td></tr>
+              <tr><td><code>documento-copias-seguridad.docx</code></td><td>Word</td><td>Versión Word del documento de copias de seguridad.</td></tr>
+              <tr><td><code>DOCUMENTOS DE SEGUIMIENTO A MANTENER .docx</code></td><td>Word</td><td>Listado de documentos de seguimiento a mantener.</td></tr>
+              <tr><td><code>Guia_Wiki_CODANOR_OpenWebUI.docx</code></td><td>Word</td><td>Guía Wiki CODANOR sobre Open WebUI (salida del generador).</td></tr>
+              <tr><td><code>Informe_Estado_Proyectos_CODANOR_2026-09.docx</code></td><td>Word</td><td>Informe de estado de proyectos (septiembre 2026).</td></tr>
+              <tr><td><code>Informe_SonarCloud_CODANOR_2026-09.docx</code></td><td>Word</td><td>Informe SonarCloud (septiembre 2026).</td></tr>
+              <tr><td><code>INFORME-INCIDENTE-PROPAGACION-V01.docx</code></td><td>Word</td><td>Versión Word del informe de incidente de propagación.</td></tr>
+              <tr><td><code>Manual_Seguimiento_Reuniones_IA_Codanor.docx</code></td><td>Word</td><td>Manual de seguimiento de reuniones con IA (Word).</td></tr>
+              <tr><td><code>Manual_Seguimiento_Reuniones_IA_Codanor.pdf</code></td><td>PDF</td><td>Manual de seguimiento de reuniones con IA (PDF).</td></tr>
+              <tr><td><code>06-25_Gestió_del_Codi_Backups_i_Desplegament...docx</code></td><td>Word</td><td>Resumen sobre gestión del código, backups y despliegue de apps.</td></tr>
+              <tr><td><code>Estrategia de uso OpenClode.docx</code></td><td>Word</td><td>Notas de estrategia de uso de OpenCode.</td></tr>
+              <tr><td><code>Ese error-Request blocked by upstream provider .docx</code></td><td>Word</td><td>Nota de incidencia: error "Request blocked by upstream provider".</td></tr>
+              <tr><td><code>Hay una mejora que quiero que me ayudes a Implementar.docx</code></td><td>Word</td><td>Nota de trabajo sobre una mejora a implementar.</td></tr>
+              <tr><td><code>Transferencia de informacion entre fasas Consultoria Auditoria docx.docx</code></td><td>Word</td><td>Nota sobre transferencia de información entre fases Consultoría/Auditoría.</td></tr>
+              <tr><td><code>Utilizacion modelo en local o En la Nube .docx</code></td><td>Word</td><td>Notas sobre uso de modelos LLM en local (Ollama) vs. nube.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- SECCIÓN 8 -->
+      <div class="content-section" id="seccion-8">
+        <div class="section-number">Sección 8</div>
+        <h1>Estructura de directorios</h1>
+        <p>Árbol del repositorio con la categoría asignada a cada elemento
+        (<span class="badge badge-primary">D</span> Para el desarrollo ·
+        <span class="badge badge-accent">M</span> Manuales ·
+        <span class="badge badge-warning">B</span> Biblioteca).</p>
+<pre><code>PLATAFORMA_OpenCode-NEW/
+├── AGENTS.md                                 [D]
+├── PROPAGATION_RULES.md                      [D]
+├── Memory.md                                 [D]
+├── opencode.json                             [D]
+├── .gitignore                                [D]
+├── sonar-project.properties                  [D]
+├── backup-opencode.sh                        [D]
+├── com.codanor.opencode-backup.plist         [D]
+├── com.codanor.opencode-testrestore.plist    [D]
+├── generar_guia_wiki_codanor.py              [D]
+├── generar_informe_incidente_propagacion.py  [D]
+├── generar_manual_seguimiento.py             [D]
+├── .opencode/                                [D]
+│   ├── commands/
+│   │   ├── documentos-proyectos.md           [D] (protegido)
+│   │   ├── sonar.md                          [D]
+│   │   └── sonar-report.md                   [D]
+│   ├── skills/documentos-proyectos/SKILL.md  [D]
+│   ├── package.json                          [D]
+│   └── .gitignore                            [D]
+├── servidor/
+│   └── dashboard_server.py                   [D]
+├── tools/
+│   └── generar-docx.py                       [D]
+├── Manual_OpenCode_Codanor.html              [M] (protegido)
+├── Manual_Seguimiento_Acta_Sintesis_IA-V02.html  [M]
+├── plataforma-seguimiento.html               [M]
+├── analisis-codigo.html                      [M]
+├── homogeneizacion-proyectos.html            [M]
+├── plan-homogeneizacion-modulos.html         [M]
+├── propuesta-herramienta-tiquets.html        [M]
+├── CAPAS-CIBERSEGURIDAD-V01.html             [M]
+├── SIG-MODULO-V01.html                       [M]
+├── ARQUITECTURA_DB_SQLITE-V02.html           [M]
+├── Documento-Copias-Seguridad.html           [M]
+├── Documento-Copias-Seguridad-V02.html       [M]
+├── Documento-Copias-Seguridad-V03.html       [M]
+├── INFORME-INCIDENTE-PROPAGACION-V01.html    [M]
+├── Informe_Estado_Proyectos_CODANOR_2026-10-V02.html  [M]
+├── PENDIENTES-PLATAFORMA-V01.html            [M]
+├── PENDIENTES-PLATAFORMA-V02.html            [M]
+└── Biblioteca/                               [B] (25 ficheros .docx/.pdf/.xlsx/.csv/.png/.md)</code></pre>
+      </div>
+
+      <!-- SECCIÓN 9 -->
+      <div class="content-section" id="seccion-9">
+        <div class="section-number">Sección 9</div>
+        <h1>Observaciones</h1>
+        <h2>Versiones duplicadas</h2>
+        <p>Existen varias familias de ficheros con múltiples versiones conviviendo en la raíz. Conviene
+        mantener claramente identificada la versión vigente:</p>
+        <ul>
+          <li><code>Documento-Copias-Seguridad</code>: v1, V02 y V03 — vigente <strong>V03</strong>.</li>
+          <li><code>PENDIENTES-PLATAFORMA</code>: V01 y V02 — vigente <strong>V02</strong>.</li>
+          <li><code>ARQUITECTURA_DB_SQLITE</code>: vigente <strong>V02</strong>.</li>
+        </ul>
+        <h2>Ficheros generados frente a fuente</h2>
+        <p>Los scripts <code>generar_*.py</code> (raíz) y <code>tools/generar-docx.py</code> producen
+        documentos <code>.docx</code> que residen en <code>Biblioteca/</code> (p. ej.
+        <code>Guia_Wiki_CODANOR_OpenWebUI.docx</code>). El script es la fuente; el <code>.docx</code> es
+        el entregable. Mantener la trazabilidad entre ambos.</p>
+        <h2>Exclusiones de control de versiones</h2>
+        <p>Según <code>.gitignore</code>, quedan fuera del repositorio: <code>.DS_Store</code>,
+        <code>__pycache__/</code>, <code>node_modules/</code>, <code>*.log</code>, backups locales y
+        secretos (<code>.env</code>, <code>auth.json</code>, <code>clientes_codanor.json</code>).
+        El directorio <code>servidor/__pycache__/</code> existe en disco pero no se versiona.</p>
+        <h2>Archivos protegidos</h2>
+        <div class="alert alert-danger">
+          <div class="alert-title">No modificar sin aprobación explícita</div>
+          <code>AGENTS.md</code>, <code>PROPAGATION_RULES.md</code>, <code>Manual_OpenCode_Codanor.html</code>
+          y <code>.opencode/commands/documentos-proyectos.md</code> son referencia corporativa. El sistema de
+          permisos de <code>opencode.json</code> solicita confirmación (<code>ask</code>) antes de editarlos.
+        </div>
+      </div>
+
+      <!-- GLOSARIO -->
+      <div class="content-section" id="glosario">
+        <div class="section-number">Glosario</div>
+        <h1>Glosario de términos</h1>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr><th>Término / Clave</th><th>Definición</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="glossary-term">App</td><td>Cada una de las 9 aplicaciones ISO/ENS de la Plataforma de Seguimiento de Proyectos.</td></tr>
+              <tr><td class="glossary-term">AGENTS.md</td><td>Fichero de instrucciones maestras para los agentes de IA que operan en el repositorio.</td></tr>
+              <tr><td class="glossary-term">BASE/CLON/DIVERGENTE/PROPIO</td><td>Clasificación de los archivos JS de las apps para decidir cómo propagar cambios (ver PROPAGATION_RULES.md).</td></tr>
+              <tr><td class="glossary-term">launchd / .plist</td><td>Sistema de arranque de macOS y sus ficheros de configuración de agentes programados (backup, test-restore).</td></tr>
+              <tr><td class="glossary-term">MCP</td><td>Model Context Protocol — protocolo para conectar herramientas externas (aquí, SonarQube/SonarCloud) a OpenCode.</td></tr>
+              <tr><td class="glossary-term">plataforma.db</td><td>Base de datos SQLite (WAL) de la Plataforma, servida por Flask en el puerto 5001.</td></tr>
+              <tr><td class="glossary-term">Skill</td><td>Conjunto de instrucciones especializadas que OpenCode carga para una tarea concreta (p. ej. documentos-proyectos).</td></tr>
+              <tr><td class="glossary-term">SonarCloud</td><td>Plataforma de análisis estático de código usada para medir calidad, seguridad y fiabilidad.</td></tr>
+              <tr><td class="glossary-term">WAL</td><td>Write-Ahead Logging — modo de journaling de SQLite que mejora la concurrencia.</td></tr>
+              <tr><td class="glossary-term">WCAG AA</td><td>Nivel de accesibilidad web que exige, entre otros, ratio de contraste mínimo 4.5:1 para texto normal.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <footer class="doc-footer">
+    <div class="footer-left">CODANOR — Jafa, S.L. — Barcelona, Catalunya</div>
+    <div class="footer-center">Documento interno — Uso exclusivo CODANOR</div>
+    <div class="footer-right">
+      v1.0 · 14/11/2026
+      <div class="footer-path">PLATAFORMA_OpenCode-NEW/REVISION-DIRECTORIOS-PROYECTO-V01.html</div>
+    </div>
+  </footer>
+
+  <button class="btn-print" onclick="window.print()">Imprimir / PDF</button>
+
+  <script>
+    const sections = document.querySelectorAll('[id^="seccion-"], #portada, #versiones, #glosario');
+    const navLinks = document.querySelectorAll('.sidebar nav a');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          navLinks.forEach(a => a.classList.remove('active'));
+          const active = document.querySelector(`.sidebar nav a[href="#${entry.target.id}"]`);
+          if (active) active.classList.add('active');
+        }
+      });
+    }, { threshold: 0.3 });
+    sections.forEach(s => observer.observe(s));
+  </script>
+
+</body>
+</html>
