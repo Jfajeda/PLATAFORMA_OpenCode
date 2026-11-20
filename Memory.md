@@ -1,11 +1,11 @@
 # Memory.md — PLATAFORMA_OpenCode
-> Ultima actualizacion: 2026-10-30
+> Ultima actualizacion: 2026-11-20
 
 ## Estado actual
 
 - **Fase**: Produccion / mantenimiento activo
 - **Version**: Manual v3.0 (20 capitulos) + Manual IA Actas v1.0
-- **Ultimo cambio significativo**: P-03 resuelto (CSV `8.11`→`8.12`) + `PENDIENTES-PLATAFORMA-V02.html` (2026-10-30) — 16 pendientes (15 abiertos, 1 resuelto), filtros, roadmap, nuevo P-16
+- **Ultimo cambio significativo**: **Modulo Gobierno y Monitorizacion v1.0 (2026-11-20)** — `dashboard_server.py` (:5003) ampliado: raiz subida a `~/Proyectos`, BD propia `gov.db` (5 tablas), 12 endpoints `/api/gov/*` + `/api/mon/*`, escaner `gov_scanner.py`, seccion "Seguridad y Gobierno" en `plataforma-seguimiento.html` (3 paginas). Path-traversal preexistente del :5003 CORREGIDO.
 - **Issues abiertos**: 72 bugs de reliability + 3 security hotspots detectados por SonarCloud
 
 ## Infraestructura
@@ -256,6 +256,8 @@ Color `#5C35A0` (morado), posición al final del grid, badge dinámico con conta
 
 | Fecha | Decision | Razon |
 |-------|----------|-------|
+| 2026-11-20 | **Modulo Gobierno/Monitorizacion v1.0** — `dashboard_server.py` (:5003) deja de ser estatico: raiz `~/Proyectos`, `gov.db` propia (5 tablas), 12 endpoints, `gov_scanner.py` (escaneo metadatos + hash hibrido <20MB, clasificacion ISO 27001 A.5.12, fichas por proyecto, alertas), seccion dashboard (3 paginas), health-check 6 servidores Flask. OSSINT restringido (solo metadatos). Backups `.bak-20261120` + commit checkpoint. Validado end-to-end por curl + JS node --check. Docs: `PLAN-GOBIERNO-MONITORIZACION-PROYECTOS-V01.{md,html}` | Vision tecnica de toda la carpeta ~/Proyectos + monitorizacion del ecosistema, ejecutable en LAN desde :5003 |
+| 2026-11-20 | Path-traversal del :5003 CORREGIDO (`_safe_static` con `Path.resolve()` + `is_relative_to`) | El :5003 servia ficheros fuera de su raiz (`/../Memory.md` daba 200). Hallazgo al capturar linea base. Ahora 403 |
 | 2026-11-14 | Generados `REVISION-DIRECTORIOS-PROYECTO-V01.html`+`.docx`+`generar_revision-directorios-proyecto.py` (skill) y `REVISION-DIRECTORIO-PROYECTO-V01.html` (maqueta estilo ARQUITECTURA-SERVIDORES) | Inventario y clasificación de los 61 ficheros del repo en 3 categorías: Para el desarrollo / Manuales / Biblioteca. El `REVISION-DIRECTORIO-PROYECTO-V01.html` lo mueve el usuario a `~/Proyectos/` manualmente |
 | 2026-10-30 | P-03: `ISO27001_hacia_ENS.csv` fila «Prevención de fugas de datos» `8.11`→`8.12` (backup `.bak-20261030`), `sig_correspondencias` recargada (678 filas, 0 errores) | ID duplicado colgaba 4 relaciones ENS del control equivocado |
 | 2026-10-30 | `UNIQUE(hls_id, norma, clausula)` NO aplicado → nuevo P-16 | 14 colisiones: CSV 3 usa IDs Anexo A sin prefijo `A.` (5.2, 7.1…) que chocan con cláusulas HLS de `99_AGRUPACION`; `7.1.5/iso9001` ×5 |

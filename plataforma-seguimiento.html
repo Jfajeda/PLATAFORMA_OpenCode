@@ -809,6 +809,20 @@
         <span id="llmCorpBadge" style="display:none;font-size:0.65rem;background:#12A79D;color:#fff;padding:0.1rem 0.45rem;border-radius:50px;margin-left:auto;font-weight:700">Corp</span>
       </div>
 
+      <div class="nav-label">Seguridad y Gobierno</div>
+      <div class="nav-item" data-page="gov-proyectos" onclick="showPage('gov-proyectos')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Fichas de Proyectos
+      </div>
+      <div class="nav-item" data-page="gov-inventario" onclick="showPage('gov-inventario')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+        Inventario
+      </div>
+      <div class="nav-item" data-page="gov-salud" onclick="showPage('gov-salud')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        Salud y Alertas
+      </div>
+
       <div class="nav-label">Herramientas</div>
       <a class="nav-item" href="/analisis-codigo" target="_blank" rel="noopener noreferrer" style="text-decoration:none;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
@@ -1383,6 +1397,66 @@
   </div>
 </div><!-- /page-llm-admin -->
 
+<!-- ===== SEGURIDAD Y GOBIERNO: FICHAS DE PROYECTOS ===== -->
+<div class="page" id="page-gov-proyectos" style="display:none;position:fixed;top:var(--header-h);left:var(--sidebar-w);right:0;bottom:0;overflow-y:auto;background:var(--gray-100);padding:1.5rem;z-index:10">
+  <div style="max-width:1200px;margin:0 auto">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1rem">
+      <div>
+        <h2 style="font-family:'Poppins',sans-serif;font-size:1.1rem;font-weight:600;color:var(--gray-900)">Fichas técnicas de proyectos</h2>
+        <p style="font-size:0.82rem;color:#6b6b7b;margin:0.2rem 0 0">Visión técnica de <code>~/Proyectos</code> — madurez de gobierno, líneas de código y estado git.</p>
+      </div>
+      <div style="display:flex;gap:0.5rem;align-items:center">
+        <label style="font-size:0.78rem;color:#4a4a5a;display:flex;align-items:center;gap:0.3rem"><input type="checkbox" id="govHash"> calcular hash</label>
+        <button onclick="govScan()" id="govScanBtn" style="background:#178DC2;color:#fff;border:none;border-radius:6px;padding:0.5rem 1rem;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif;font-size:0.82rem">Escanear ahora</button>
+      </div>
+    </div>
+    <div id="govScanProgress" style="display:none;background:#e8f4fa;border-left:4px solid #178DC2;border-radius:6px;padding:0.6rem 1rem;margin-bottom:1rem;font-size:0.85rem;color:#1275A3"></div>
+    <div id="govProyGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:1rem">
+      <p style="color:#6b6b7b">Pulsa «Escanear ahora» para generar el inventario.</p>
+    </div>
+  </div>
+</div><!-- /page-gov-proyectos -->
+
+<!-- ===== SEGURIDAD Y GOBIERNO: INVENTARIO ===== -->
+<div class="page" id="page-gov-inventario" style="display:none;position:fixed;top:var(--header-h);left:var(--sidebar-w);right:0;bottom:0;overflow-y:auto;background:var(--gray-100);padding:1.5rem;z-index:10">
+  <div style="max-width:1200px;margin:0 auto">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1rem">
+      <h2 style="font-family:'Poppins',sans-serif;font-size:1.1rem;font-weight:600;color:var(--gray-900)">Inventario de ficheros</h2>
+      <div style="display:flex;gap:0.4rem;flex-wrap:wrap">
+        <select id="govFiltNivel" onchange="govLoadInventario()" style="padding:0.4rem;border:1px solid #c4c4d0;border-radius:6px;font-size:0.8rem">
+          <option value="">Todos los niveles</option>
+          <option value="publico">Público</option>
+          <option value="interno">Interno</option>
+          <option value="confidencial">Confidencial</option>
+          <option value="restringido">Restringido</option>
+        </select>
+        <input id="govFiltQ" oninput="govLoadInventario()" placeholder="Buscar ruta…" style="padding:0.4rem 0.6rem;border:1px solid #c4c4d0;border-radius:6px;font-size:0.8rem">
+        <a href="/api/gov/export/excel" style="background:#12A79D;color:#fff;text-decoration:none;border-radius:6px;padding:0.45rem 0.8rem;font-weight:600;font-size:0.78rem;font-family:'Poppins',sans-serif">Excel</a>
+        <a href="/api/gov/export/word" style="background:#1275A3;color:#fff;text-decoration:none;border-radius:6px;padding:0.45rem 0.8rem;font-weight:600;font-size:0.78rem;font-family:'Poppins',sans-serif">Word</a>
+      </div>
+    </div>
+    <div id="govResumen" style="display:flex;gap:0.8rem;flex-wrap:wrap;margin-bottom:1rem"></div>
+    <div style="background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06)">
+      <table style="width:100%;border-collapse:collapse;font-size:0.82rem">
+        <thead><tr style="background:#1275A3;color:#fff;font-family:'Poppins',sans-serif;font-size:0.76rem">
+          <th style="text-align:left;padding:0.55rem 0.8rem">Ruta</th><th style="text-align:right;padding:0.55rem 0.8rem">Tamaño</th><th style="text-align:left;padding:0.55rem 0.8rem">Categoría</th><th style="text-align:left;padding:0.55rem 0.8rem">Nivel</th><th style="text-align:center;padding:0.55rem 0.8rem">Git</th>
+        </tr></thead>
+        <tbody id="govInvBody"><tr><td colspan="5" style="padding:1rem;color:#6b6b7b">Sin datos. Lanza un escaneo primero.</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div><!-- /page-gov-inventario -->
+
+<!-- ===== SEGURIDAD Y GOBIERNO: SALUD Y ALERTAS ===== -->
+<div class="page" id="page-gov-salud" style="display:none;position:fixed;top:var(--header-h);left:var(--sidebar-w);right:0;bottom:0;overflow-y:auto;background:var(--gray-100);padding:1.5rem;z-index:10">
+  <div style="max-width:1000px;margin:0 auto">
+    <h2 style="font-family:'Poppins',sans-serif;font-size:1.1rem;font-weight:600;color:var(--gray-900);margin-bottom:1rem">Salud del ecosistema</h2>
+    <div id="govServidores" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:0.8rem;margin-bottom:1.5rem"></div>
+    <h2 style="font-family:'Poppins',sans-serif;font-size:1.05rem;font-weight:600;color:var(--gray-900);margin-bottom:0.8rem">Alertas de gobierno <span id="govAlertCount" style="font-size:0.75rem;background:#fdedec;color:#922b21;padding:0.1rem 0.5rem;border-radius:50px"></span></h2>
+    <div id="govAlertas"></div>
+  </div>
+</div><!-- /page-gov-salud -->
+
 <!-- ===== MODAL CREAR/EDITAR TIQUET ===== -->
 <div id="tk-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:500;align-items:center;justify-content:center">
   <div style="background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow-lg);width:100%;max-width:520px;max-height:90vh;overflow-y:auto;padding:1.75rem">
@@ -1581,23 +1655,29 @@
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
 
-    // Ocultar/mostrar páginas fuera del contenedor SPA (tiquets y llm-admin)
+    // Ocultar/mostrar páginas fuera del contenedor SPA (tiquets, llm-admin, gobierno)
     const tkPage      = document.getElementById('page-tickets');
     const llmAdminPage = document.getElementById('page-llm-admin');
     const mainContent = document.querySelector('.content');
+    const fixedPages  = ['tickets', 'llm-admin', 'gov-proyectos', 'gov-inventario', 'gov-salud'];
 
-    if (pageId === 'tickets') {
-      if (tkPage)       tkPage.style.display = 'block';
-      if (llmAdminPage) llmAdminPage.style.display = 'none';
-      if (mainContent)  mainContent.style.visibility = 'hidden';
-    } else if (pageId === 'llm-admin') {
-      if (tkPage)       tkPage.style.display = 'none';
-      if (llmAdminPage) llmAdminPage.style.display = 'block';
-      if (mainContent)  mainContent.style.visibility = 'hidden';
-      corpLoadStatus();
+    // Reset de las páginas fijas
+    if (tkPage)       tkPage.style.display = 'none';
+    if (llmAdminPage) llmAdminPage.style.display = 'none';
+    ['gov-proyectos', 'gov-inventario', 'gov-salud'].forEach(id => {
+      const el = document.getElementById('page-' + id);
+      if (el) el.style.display = 'none';
+    });
+
+    if (fixedPages.includes(pageId)) {
+      const el = document.getElementById('page-' + pageId);
+      if (el) el.style.display = 'block';
+      if (mainContent) mainContent.style.visibility = 'hidden';
+      if (pageId === 'llm-admin') corpLoadStatus();
+      if (pageId === 'gov-proyectos') govLoadProyectos();
+      if (pageId === 'gov-inventario') { govLoadResumen(); govLoadInventario(); }
+      if (pageId === 'gov-salud') govLoadSalud();
     } else {
-      if (tkPage)       tkPage.style.display = 'none';
-      if (llmAdminPage) llmAdminPage.style.display = 'none';
       if (mainContent)  mainContent.style.visibility = 'visible';
       document.getElementById('page-' + pageId).classList.add('active');
     }
@@ -1609,7 +1689,10 @@
       kanban: 'Gestor de Incidencias',
       docs: 'Centro de Documentacion',
       changelog: 'Changelog',
-      tickets: 'Gestor de Tiquets'
+      tickets: 'Gestor de Tiquets',
+      'gov-proyectos': 'Fichas de Proyectos',
+      'gov-inventario': 'Inventario de Gobierno',
+      'gov-salud': 'Salud y Alertas'
     };
     document.getElementById('pageTitle').textContent = titles[pageId] || pageId;
 
@@ -1619,6 +1702,149 @@
     if (pageId === 'kanban') renderKanban();
     if (pageId === 'dashboard') renderDashboard();
     if (pageId === 'tickets') initTickets();
+  }
+
+  // ============================================================
+  // SEGURIDAD Y GOBIERNO (API en el mismo :5003 → rutas relativas)
+  // ============================================================
+  const GOV_API = '/api/gov';
+  const MON_API = '/api/mon';
+
+  function govFmtSize(bytes) {
+    if (!bytes) return '0 B';
+    const u = ['B','KB','MB','GB']; let i = 0, n = bytes;
+    while (n >= 1024 && i < u.length - 1) { n /= 1024; i++; }
+    return n.toFixed(n < 10 && i > 0 ? 1 : 0) + ' ' + u[i];
+  }
+  const GOV_NIVEL_COLOR = {
+    publico: '#0e7a72', interno: '#4a4a5a',
+    confidencial: '#b7770d', restringido: '#922b21'
+  };
+
+  async function govScan() {
+    const btn = document.getElementById('govScanBtn');
+    const prog = document.getElementById('govScanProgress');
+    const conHash = document.getElementById('govHash').checked;
+    btn.disabled = true; btn.textContent = 'Escaneando…';
+    prog.style.display = 'block'; prog.textContent = 'Iniciando escaneo…';
+    try {
+      const r = await fetch(GOV_API + '/scan', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ con_hash: conHash })
+      });
+      if (r.status === 409) { prog.textContent = 'Ya hay un escaneo en curso.'; }
+      const poll = setInterval(async () => {
+        const s = await (await fetch(GOV_API + '/scan/status')).json();
+        prog.textContent = `Fase: ${s.fase} · ${s.n_ficheros} ficheros` +
+          (s.proyecto_actual ? ` · ${s.proyecto_actual}` : '');
+        if (!s.running && (s.fase === 'completado' || s.fase === 'error')) {
+          clearInterval(poll);
+          btn.disabled = false; btn.textContent = 'Escanear ahora';
+          if (s.fase === 'error') { prog.textContent = 'Error: ' + s.error; return; }
+          prog.textContent = `Escaneo completado: ${s.n_ficheros} ficheros.`;
+          setTimeout(() => { prog.style.display = 'none'; }, 4000);
+          govLoadProyectos();
+        }
+      }, 1000);
+    } catch (e) {
+      btn.disabled = false; btn.textContent = 'Escanear ahora';
+      prog.textContent = 'No se pudo contactar con el servidor :5003. ' + e.message;
+    }
+  }
+
+  async function govLoadProyectos() {
+    const grid = document.getElementById('govProyGrid');
+    try {
+      const d = await (await fetch(GOV_API + '/proyectos')).json();
+      if (!d.items.length) { grid.innerHTML = '<p style="color:#6b6b7b">Sin datos. Pulsa «Escanear ahora».</p>'; return; }
+      grid.innerHTML = d.items.map(p => {
+        const mad = [
+          ['git', p.tiene_git], ['AGENTS', p.tiene_agents],
+          ['Memory', p.tiene_memory], ['opencode', p.tiene_opencode]
+        ].map(([lbl, ok]) => `<span style="font-size:0.66rem;padding:0.1rem 0.4rem;border-radius:3px;font-weight:600;background:${ok?'#e6f7f6':'#fdedec'};color:${ok?'#0e7a72':'#922b21'}">${ok?'✓':'✗'} ${lbl}</span>`).join(' ');
+        const loc = Object.entries(p.loc || {}).sort((a,b)=>b[1]-a[1]).slice(0,4)
+          .map(([e,n]) => `${e} ${n}`).join(' · ') || '—';
+        const nivelColor = GOV_NIVEL_COLOR[p.nivel_dominante] || '#4a4a5a';
+        const tag = p.es_proyecto ? '' : '<span style="font-size:0.62rem;background:#f0f0f5;color:#6b6b7b;padding:0.05rem 0.4rem;border-radius:3px;margin-left:0.3rem">no-proyecto</span>';
+        return `<div style="background:#fff;border-radius:8px;padding:1rem 1.1rem;box-shadow:0 1px 4px rgba(0,0,0,.06);border-top:3px solid ${nivelColor}">
+          <div style="font-family:'Poppins',sans-serif;font-weight:600;color:#1a1a2e;font-size:0.9rem;margin-bottom:0.1rem">${p.nombre}${tag}</div>
+          <div style="font-size:0.72rem;color:#6b6b7b;margin-bottom:0.5rem">${p.n_ficheros} ficheros · ${govFmtSize(p.tamanyo)}${p.puerto?' · :'+p.puerto:''} · <span style="color:${nivelColor};font-weight:600">${p.nivel_dominante}</span></div>
+          <div style="margin-bottom:0.5rem">${mad}</div>
+          <div style="font-size:0.72rem;color:#4a4a5a"><strong>LOC:</strong> ${loc}</div>
+          <div style="font-size:0.7rem;color:#6b6b7b;margin-top:0.3rem">${p.rama && p.rama!=='—' ? '⎇ '+p.rama : ''} ${p.cambios_pendientes>0 ? '· <span style=\"color:#b7770d\">'+p.cambios_pendientes+' cambios sin commit</span>' : ''}</div>
+        </div>`;
+      }).join('');
+    } catch (e) {
+      grid.innerHTML = '<p style="color:#922b21">No se pudo contactar con :5003. ' + e.message + '</p>';
+    }
+  }
+
+  async function govLoadResumen() {
+    const box = document.getElementById('govResumen');
+    try {
+      const r = await (await fetch(GOV_API + '/resumen')).json();
+      const kpi = (label, val) => `<div style="background:#fff;border-radius:8px;padding:0.6rem 1rem;box-shadow:0 1px 4px rgba(0,0,0,.06);min-width:120px"><div style="font-family:'Poppins',sans-serif;font-size:1.3rem;font-weight:700;color:#178DC2">${val}</div><div style="font-size:0.72rem;color:#6b6b7b">${label}</div></div>`;
+      box.innerHTML = kpi('Ficheros', r.n_ficheros) + kpi('Tamaño', govFmtSize(r.tamanyo_total)) +
+        kpi('Proyectos', r.n_proyectos) + kpi('Alertas abiertas', r.n_alertas_abiertas);
+    } catch (e) { box.innerHTML = ''; }
+  }
+
+  async function govLoadInventario() {
+    const body = document.getElementById('govInvBody');
+    const nivel = document.getElementById('govFiltNivel').value;
+    const q = document.getElementById('govFiltQ').value;
+    const params = new URLSearchParams();
+    if (nivel) params.set('nivel', nivel);
+    if (q) params.set('q', q);
+    params.set('limit', '300');
+    try {
+      const d = await (await fetch(GOV_API + '/inventario?' + params)).json();
+      if (!d.items.length) { body.innerHTML = '<tr><td colspan="5" style="padding:1rem;color:#6b6b7b">Sin resultados.</td></tr>'; return; }
+      body.innerHTML = d.items.map(it => {
+        const nc = GOV_NIVEL_COLOR[it.nivel_confidencialidad] || '#4a4a5a';
+        return `<tr style="border-bottom:1px solid #eee">
+          <td style="padding:0.45rem 0.8rem;font-family:'JetBrains Mono',monospace;font-size:0.76rem;color:#2d2d44">${it.ruta}</td>
+          <td style="padding:0.45rem 0.8rem;text-align:right;color:#6b6b7b">${govFmtSize(it.tamanyo)}</td>
+          <td style="padding:0.45rem 0.8rem;color:#4a4a5a">${it.categoria}</td>
+          <td style="padding:0.45rem 0.8rem"><span style="color:${nc};font-weight:600;font-size:0.78rem">${it.nivel_confidencialidad}</span></td>
+          <td style="padding:0.45rem 0.8rem;text-align:center">${it.en_git?'✓':'—'}</td>
+        </tr>`;
+      }).join('');
+    } catch (e) {
+      body.innerHTML = '<tr><td colspan="5" style="padding:1rem;color:#922b21">No se pudo contactar con :5003.</td></tr>';
+    }
+  }
+
+  async function govLoadSalud() {
+    const srvBox = document.getElementById('govServidores');
+    const alBox = document.getElementById('govAlertas');
+    const cnt = document.getElementById('govAlertCount');
+    try {
+      const s = await (await fetch(MON_API + '/salud')).json();
+      srvBox.innerHTML = s.servidores.map(sv => {
+        const up = sv.estado === 'up';
+        return `<div style="background:#fff;border-radius:8px;padding:0.7rem 0.9rem;box-shadow:0 1px 4px rgba(0,0,0,.06);border-left:4px solid ${up?'#12A79D':'#922b21'}">
+          <div style="display:flex;align-items:center;gap:0.4rem"><span style="width:9px;height:9px;border-radius:50%;background:${up?'#12A79D':'#922b21'}"></span><strong style="font-family:'Poppins',sans-serif;font-size:0.82rem;color:#1a1a2e">:${sv.puerto}</strong></div>
+          <div style="font-size:0.76rem;color:#4a4a5a;margin-top:0.2rem">${sv.nombre}</div>
+          <div style="font-size:0.68rem;color:#6b6b7b">${up?'activo '+sv.ms+'ms':'parado'} · ${sv.bind==='lan'?'LAN':'solo local'}</div>
+        </div>`;
+      }).join('');
+      const d = await (await fetch(MON_API + '/alertas?estado=abierta')).json();
+      cnt.textContent = d.count;
+      if (!d.count) { alBox.innerHTML = '<p style="color:#0e7a72">Sin alertas abiertas.</p>'; return; }
+      const sevColor = { alta: '#922b21', media: '#b7770d', baja: '#6b6b7b' };
+      alBox.innerHTML = d.items.map(a => `<div style="background:#fff;border-radius:6px;padding:0.6rem 0.9rem;margin-bottom:0.5rem;box-shadow:0 1px 3px rgba(0,0,0,.05);display:flex;align-items:center;justify-content:space-between;gap:1rem;border-left:4px solid ${sevColor[a.severidad]||'#6b6b7b'}">
+        <div style="min-width:0"><span style="font-size:0.66rem;font-weight:700;color:${sevColor[a.severidad]||'#6b6b7b'};text-transform:uppercase">${a.severidad} · ${a.tipo}</span><div style="font-size:0.78rem;color:#2d2d44;font-family:'JetBrains Mono',monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${a.ruta||''}</div><div style="font-size:0.74rem;color:#6b6b7b">${a.mensaje}</div></div>
+        <button onclick="govResolver(${a.id})" style="background:#f0f0f5;border:none;border-radius:5px;padding:0.3rem 0.7rem;font-size:0.72rem;cursor:pointer;color:#4a4a5a;white-space:nowrap">Resolver</button>
+      </div>`).join('');
+    } catch (e) {
+      srvBox.innerHTML = '<p style="color:#922b21">No se pudo contactar con :5003. ' + e.message + '</p>';
+    }
+  }
+
+  async function govResolver(id) {
+    try { await fetch(MON_API + '/alertas/' + id + '/resolver', { method: 'POST' }); govLoadSalud(); }
+    catch (e) { alert('Error al resolver: ' + e.message); }
   }
 
   // ============================================================
