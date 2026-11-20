@@ -4,7 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Plataforma de Seguimiento OpenCode - CODANOR</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Nunito+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <!-- Plataforma de Seguimiento (OpenCode Tracker) v1.1 — CODANOR, Jafa S.L. -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Nunito+Sans:ital,wght@0,300;0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     :root {
       --primary: #178DC2;
@@ -820,7 +821,8 @@
     </nav>
     <div class="sidebar-footer">
       Jafa, S.L. &mdash; CODANOR<br>
-      Barcelona, Catalunya
+      Barcelona, Catalunya<br>
+      <span style="opacity:.7">OpenCode Tracker v1.1</span>
     </div>
   </aside>
 
@@ -851,6 +853,10 @@
 
       <!-- ===== PAGE: DASHBOARD ===== -->
       <div class="page active" id="page-dashboard">
+        <!-- Fuente de datos de las métricas (servidor vs Kanban local) -->
+        <div style="display:flex;justify-content:flex-end;align-items:center;margin-bottom:0.6rem">
+          <span id="dashboardSource" style="font-size:0.78rem;font-weight:600;color:var(--gray-500)">&#9679; Comprobando fuente de datos...</span>
+        </div>
         <!-- Metricas -->
         <div class="metrics-grid">
           <div class="metric-card">
@@ -891,35 +897,20 @@
           </div>
         </div>
 
-        <!-- Progreso del manual -->
+        <!-- Progreso del manual (render dinámico desde el array MANUAL en JS) -->
         <div class="panel">
           <div class="panel-header">
-            <span class="panel-title">Progreso del Manual v2.1</span>
-            <span style="font-size:0.85rem;color:var(--accent);font-weight:600" id="manualPercent">100%</span>
+            <span class="panel-title" id="manualTitle">Progreso del Manual</span>
+            <span style="font-size:0.85rem;color:var(--accent);font-weight:600" id="manualPercent">0%</span>
           </div>
           <div class="panel-body">
-            <div class="progress-bar"><div class="progress-fill green" id="manualProgress" style="width:100%"></div></div>
+            <div class="progress-bar"><div class="progress-fill green" id="manualProgress" style="width:0%"></div></div>
             <div class="progress-label">
-              <span>16 de 16 capitulos completados</span>
-              <span>v2.1 Abril 2026</span>
+              <span id="manualCount">0 de 0 capitulos completados</span>
+              <span id="manualMeta">—</span>
             </div>
-            <div style="margin-top:1rem;display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;font-size:0.82rem;">
-              <div><span style="color:var(--accent);">&#9679;</span> Cap 1. Introduccion (actualizado)</div>
-              <div><span style="color:var(--primary);">&#9679;</span> Cap 2. Agentes (nuevo)</div>
-              <div><span style="color:var(--primary);">&#9679;</span> Cap 3. Permisos (nuevo)</div>
-              <div><span style="color:var(--primary);">&#9679;</span> Cap 4. Configuracion (nuevo)</div>
-              <div><span style="color:var(--primary);">&#9679;</span> Cap 5. Servidores MCP (nuevo)</div>
-              <div><span style="color:var(--primary);">&#9679;</span> Cap 6. Comandos/Skills (nuevo)</div>
-              <div><span style="color:var(--primary);">&#9679;</span> Cap 7. OpenCode Zen (nuevo)</div>
-              <div><span style="color:var(--gray-500);">&#9679;</span> Cap 8. Error Imagen</div>
-              <div><span style="color:var(--accent);">&#9679;</span> Cap 9. Historico (actualizado)</div>
-              <div><span style="color:var(--gray-500);">&#9679;</span> Cap 10. Procesos bloqueados</div>
-              <div><span style="color:var(--accent);">&#9679;</span> Cap 11. Rendimiento (actualizado)</div>
-              <div><span style="color:var(--primary);">&#9679;</span> Cap 12. Tool Aborted (nuevo)</div>
-              <div><span style="color:var(--primary);">&#9679;</span> Cap 13. Troubleshooting (nuevo)</div>
-              <div><span style="color:var(--accent);">&#9679;</span> Cap 14. Buenas Practicas (actualizado)</div>
-              <div><span style="color:var(--accent);">&#9679;</span> Cap 15. Referencia Rapida (actualizado)</div>
-              <div><span style="color:var(--primary);">&#9679;</span> Cap 16. Copias de Seguridad (nuevo)</div>
+            <div id="manualChapters" style="margin-top:1rem;display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;font-size:0.82rem;">
+              <!-- JS populated desde renderManualProgress() -->
             </div>
           </div>
         </div>
@@ -956,6 +947,10 @@
 
       <!-- ===== PAGE: KANBAN ===== -->
       <div class="page" id="page-kanban">
+        <div style="background:var(--primary-light);border-left:3px solid var(--primary);border-radius:6px;padding:0.6rem 0.9rem;margin-bottom:1rem;font-size:0.8rem;color:var(--primary-dark)">
+          <strong>Tablero local.</strong> Este Kanban se guarda en el navegador (localStorage) y es independiente del
+          <strong>Gestor de Tiquets</strong>, que vive en el servidor :5001 y se comparte en la LAN.
+        </div>
         <div class="kanban">
           <!-- Backlog -->
           <div class="kanban-col">
@@ -1063,6 +1058,20 @@
           </div>
           <div class="panel-body">
             <div class="timeline">
+              <div class="timeline-item accent">
+                <div class="timeline-date">16 Noviembre 2026</div>
+                <div class="timeline-title">Plataforma de Seguimiento v1.1</div>
+                <div class="timeline-body">
+                  <ul>
+                    <li>Dashboard hibrido: las metricas usan los tiquets reales del servidor (:5001) cuando esta online, con fallback al Kanban local offline. Indicador de fuente de datos.</li>
+                    <li>Progreso del Manual dinamico: se calcula desde el array <code>MANUAL</code> (ya no esta hardcodeado al 100%).</li>
+                    <li>CVSS realmente condicionado al tipo: se habilita/deshabilita y limpia segun VUL/CIB.</li>
+                    <li>Configuracion IA: nuevo proveedor <code>Ollama (Local)</code> y mensaje claro si el backend :5001 no esta accesible.</li>
+                    <li>Tipografia corporativa: incorporada <code>JetBrains Mono</code> para codigo, IDs y rutas.</li>
+                    <li>Aviso en el Kanban aclarando que es un tablero local, distinto del Gestor de Tiquets.</li>
+                  </ul>
+                </div>
+              </div>
               <div class="timeline-item">
                 <div class="timeline-date">10 Abril 2026</div>
                 <div class="timeline-title">Modulo Analisis de Codigo (SonarQube)</div>
@@ -1236,7 +1245,7 @@
     <div id="tk-detalle" style="display:none;width:340px;flex-shrink:0;background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:1.25rem;font-size:.83rem;max-height:calc(100vh - 14rem);overflow-y:auto">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem">
         <div>
-          <div id="tk-det-id" style="font-family:monospace;font-size:.72rem;color:var(--primary-dark);margin-bottom:.2rem"></div>
+          <div id="tk-det-id" style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--primary-dark);margin-bottom:.2rem"></div>
           <div id="tk-det-titulo" style="font-family:'Poppins',sans-serif;font-weight:600;font-size:.92rem;color:var(--gray-900)"></div>
         </div>
         <button onclick="document.getElementById('tk-detalle').style.display='none'" style="background:none;border:none;cursor:pointer;color:var(--gray-400);font-size:1.1rem">&#x2715;</button>
@@ -1307,7 +1316,7 @@
           <div style="font-size:0.78rem;color:var(--gray-500)" id="llmCorpStatusDetail"></div>
         </div>
       </div>
-      <div id="llmCorpCurrentCfg" style="display:none;background:var(--gray-100);border-radius:6px;padding:0.65rem 0.85rem;font-size:0.8rem;font-family:monospace;color:var(--gray-700)"></div>
+      <div id="llmCorpCurrentCfg" style="display:none;background:var(--gray-100);border-radius:6px;padding:0.65rem 0.85rem;font-size:0.8rem;font-family:'JetBrains Mono',monospace;color:var(--gray-700)"></div>
     </div>
 
     <!-- Formulario de configuración -->
@@ -1325,11 +1334,12 @@
             <option value="google">Google Gemini (Gratis)</option>
             <option value="openai">OpenAI (GPT)</option>
             <option value="anthropic">Anthropic (Claude)</option>
+            <option value="ollama">Ollama (Local)</option>
           </select>
         </div>
         <div>
           <label style="display:block;font-size:0.78rem;font-weight:600;color:var(--gray-700);margin-bottom:0.3rem">Modelo</label>
-          <input id="corpModel" type="text" list="corpModelList" style="width:100%;padding:0.45rem 0.7rem;border:1px solid var(--gray-300);border-radius:6px;font-size:0.84rem;font-family:monospace" placeholder="openrouter/free">
+          <input id="corpModel" type="text" list="corpModelList" style="width:100%;padding:0.45rem 0.7rem;border:1px solid var(--gray-300);border-radius:6px;font-size:0.84rem;font-family:'JetBrains Mono',monospace" placeholder="openrouter/free">
           <datalist id="corpModelList"></datalist>
         </div>
       </div>
@@ -1614,24 +1624,93 @@
   // ============================================================
   // DASHBOARD
   // ============================================================
-  function renderDashboard() {
-    const tickets = loadTickets();
 
-    const total = tickets.length;
-    const done = tickets.filter(t => t.status === 'done').length;
-    const progress = tickets.filter(t => t.status === 'progress').length;
-    const high = tickets.filter(t => t.priority === 'high' && t.status !== 'done').length;
+  // Capítulos del Manual OpenCode — fuente única de verdad del progreso.
+  // Estados: 'nuevo' (azul) · 'actualizado' (accent/verde) · '' (gris, sin etiqueta).
+  // Para publicar una nueva versión, editar este array (no hay que tocar el HTML).
+  const MANUAL = {
+    version: 'v2.1',
+    meta: 'v2.1 Abril 2026',
+    capitulos: [
+      { n: 1,  titulo: 'Introduccion',        estado: 'actualizado' },
+      { n: 2,  titulo: 'Agentes',             estado: 'nuevo' },
+      { n: 3,  titulo: 'Permisos',            estado: 'nuevo' },
+      { n: 4,  titulo: 'Configuracion',       estado: 'nuevo' },
+      { n: 5,  titulo: 'Servidores MCP',      estado: 'nuevo' },
+      { n: 6,  titulo: 'Comandos/Skills',     estado: 'nuevo' },
+      { n: 7,  titulo: 'OpenCode Zen',        estado: 'nuevo' },
+      { n: 8,  titulo: 'Error Imagen',        estado: '' },
+      { n: 9,  titulo: 'Historico',           estado: 'actualizado' },
+      { n: 10, titulo: 'Procesos bloqueados', estado: '' },
+      { n: 11, titulo: 'Rendimiento',         estado: 'actualizado' },
+      { n: 12, titulo: 'Tool Aborted',        estado: 'nuevo' },
+      { n: 13, titulo: 'Troubleshooting',     estado: 'nuevo' },
+      { n: 14, titulo: 'Buenas Practicas',    estado: 'actualizado' },
+      { n: 15, titulo: 'Referencia Rapida',   estado: 'actualizado' },
+      { n: 16, titulo: 'Copias de Seguridad', estado: 'nuevo' }
+    ]
+  };
 
-    document.getElementById('metricTotal').textContent = total;
-    document.getElementById('metricDone').textContent = done;
-    document.getElementById('metricProgress').textContent = progress;
-    document.getElementById('metricHigh').textContent = high;
+  function renderManualProgress() {
+    const caps  = MANUAL.capitulos;
+    const total = caps.length;
+    // Un capítulo "completado" es cualquiera que tenga estado (nuevo o actualizado).
+    const done  = caps.filter(c => c.estado === 'nuevo' || c.estado === 'actualizado').length;
+    const pct   = total > 0 ? Math.round((done / total) * 100) : 0;
+    const color = { nuevo: 'var(--primary)', actualizado: 'var(--accent)', '': 'var(--gray-500)' };
 
-    // Activity
+    const titleEl = document.getElementById('manualTitle');
+    const pctEl   = document.getElementById('manualPercent');
+    const barEl   = document.getElementById('manualProgress');
+    const cntEl   = document.getElementById('manualCount');
+    const metaEl  = document.getElementById('manualMeta');
+    const gridEl  = document.getElementById('manualChapters');
+    if (!gridEl) return;
+
+    if (titleEl) titleEl.textContent = `Progreso del Manual ${MANUAL.version}`;
+    if (pctEl)   pctEl.textContent   = pct + '%';
+    if (barEl)   barEl.style.width   = pct + '%';
+    if (cntEl)   cntEl.textContent   = `${done} de ${total} capitulos completados`;
+    if (metaEl)  metaEl.textContent  = MANUAL.meta;
+
+    gridEl.innerHTML = caps.map(c => {
+      const etiqueta = c.estado ? ` (${c.estado})` : '';
+      return `<div><span style="color:${color[c.estado] || 'var(--gray-500)'};">&#9679;</span> `
+           + `Cap ${c.n}. ${c.titulo}${etiqueta}</div>`;
+    }).join('');
+  }
+
+  async function renderDashboard() {
+    renderManualProgress();
+
+    // Fuente de datos híbrida: tiquets del servidor (:5001) si está online,
+    // o Kanban local (localStorage) como fallback offline.
+    let online = false;
+    if (typeof tkDetectarModo === 'function') {
+      try { online = await tkDetectarModo(); } catch { online = false; }
+    }
+
+    let metrics;
+    if (online) {
+      metrics = await dashboardFromServer();
+    }
+    if (!metrics) {            // offline o fallo de red → Kanban local
+      metrics = dashboardFromLocal();
+      online = false;
+    }
+
+    document.getElementById('metricTotal').textContent    = metrics.total;
+    document.getElementById('metricDone').textContent     = metrics.done;
+    document.getElementById('metricProgress').textContent = metrics.progress;
+    document.getElementById('metricHigh').textContent     = metrics.high;
+
+    _renderDashboardSource(online);
+    _renderTypeSummary(metrics.types, metrics.typeLabels, metrics.typeColors, metrics.total);
+
+    // Actividad reciente (siempre local)
     const activities = loadActivity();
     const list = document.getElementById('activityList');
     const empty = document.getElementById('activityEmpty');
-
     if (activities.length === 0) {
       list.innerHTML = '';
       empty.style.display = 'block';
@@ -1648,14 +1727,74 @@
       `).join('');
     }
 
-    // Type summary
+    updateBadge();
+  }
+
+  // ── Métricas desde el Kanban local (localStorage) ──────────────
+  function dashboardFromLocal() {
+    const tickets = loadTickets();
+    const total = tickets.length;
+    const done = tickets.filter(t => t.status === 'done').length;
+    const progress = tickets.filter(t => t.status === 'progress').length;
+    const high = tickets.filter(t => t.priority === 'high' && t.status !== 'done').length;
+
     const types = { bug: 0, feature: 0, docs: 0, config: 0, perf: 0 };
     const typeLabels = { bug: 'Bugs', feature: 'Features', docs: 'Documentacion', config: 'Configuracion', perf: 'Rendimiento' };
     const typeColors = { bug: 'var(--danger)', feature: 'var(--primary)', docs: 'var(--purple)', config: 'var(--warning)', perf: 'var(--accent)' };
-
     tickets.forEach(t => { if (types[t.type] !== undefined) types[t.type]++; });
 
+    return { total, done, progress, high, types, typeLabels, typeColors };
+  }
+
+  // ── Métricas desde los tiquets del servidor (:5001) ────────────
+  async function dashboardFromServer() {
+    try {
+      const r = await fetch(TK_API, { signal: AbortSignal.timeout(3000) });
+      if (!r.ok) return null;
+      const j = await r.json();
+      const tiquets = (j && j.ok && j.data && Array.isArray(j.data.tiquets)) ? j.data.tiquets : [];
+
+      const total = tiquets.length;
+      const done = tiquets.filter(t => ['resuelto', 'cerrado'].includes(t.estado)).length;
+      const progress = tiquets.filter(t => ['en_progreso', 'asignado'].includes(t.estado)).length;
+      const high = tiquets.filter(t =>
+        ['critica', 'alta'].includes(t.prioridad) && !['resuelto', 'cerrado'].includes(t.estado)
+      ).length;
+
+      const types = { incidencia: 0, peticion: 0, cambio: 0, problema: 0, vulnerabilidad: 0, ciberincidente: 0 };
+      const typeLabels = {
+        incidencia: 'Incidencias', peticion: 'Peticiones', cambio: 'Cambios',
+        problema: 'Problemas', vulnerabilidad: 'Vulnerabilidades', ciberincidente: 'Ciberincidentes'
+      };
+      const typeColors = {
+        incidencia: 'var(--primary)', peticion: 'var(--accent)', cambio: 'var(--purple)',
+        problema: 'var(--warning)', vulnerabilidad: 'var(--danger)', ciberincidente: 'var(--danger)'
+      };
+      tiquets.forEach(t => { if (types[t.tipo] !== undefined) types[t.tipo]++; });
+
+      return { total, done, progress, high, types, typeLabels, typeColors };
+    } catch { return null; }
+  }
+
+  // ── Badge de fuente de datos del Dashboard ─────────────────────
+  function _renderDashboardSource(online) {
+    const el = document.getElementById('dashboardSource');
+    if (!el) return;
+    if (online) {
+      el.textContent = '\u25CF Tiquets (servidor :5001)';
+      el.style.color = 'var(--accent)';
+      el.title = 'Métricas en tiempo real desde el backend Flask :5001';
+    } else {
+      el.textContent = '\u25CF Kanban local (offline)';
+      el.style.color = 'var(--warning)';
+      el.title = 'El backend :5001 no está accesible; mostrando el tablero Kanban local';
+    }
+  }
+
+  // ── Resumen por tipo (reutilizable para ambas fuentes) ─────────
+  function _renderTypeSummary(types, typeLabels, typeColors, total) {
     const summary = document.getElementById('typeSummary');
+    if (!summary) return;
     summary.innerHTML = Object.entries(types).map(([key, count]) => {
       const pct = total > 0 ? Math.round((count / total) * 100) : 0;
       return `
@@ -1670,8 +1809,6 @@
         </div>
       `;
     }).join('');
-
-    updateBadge();
   }
 
   function timeAgo(isoString) {
@@ -2070,7 +2207,14 @@
   // INIT
   // ============================================================
   seedData();
-  renderDashboard();
+  // Render inicial del dashboard tras cargar TODOS los <script> (incluido el
+  // de Tiquets, que define tkDetectarModo/TK_API). Así el modo híbrido también
+  // aplica en la primera carga, no solo al re-renderizar.
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', renderDashboard);
+  } else {
+    renderDashboard();
+  }
   updateBadge();
 </script>
 
@@ -2543,17 +2687,26 @@ function tkAbrirModal(tiquetIdONull) {
     : '';
   document.getElementById('tk-f-normas').value = normas;
   document.getElementById('tk-f-cvss').value   = t ? (t.cvss_score || '') : '';
-  // Mostrar CVSS solo para VUL y CIB
+  // CVSS solo aplica a VUL y CIB: se habilita/deshabilita (y limpia) según el tipo.
   const tipo = t ? t.tipo : 'incidencia';
-  document.getElementById('tk-f-cvss-wrap').style.opacity =
-    ['vulnerabilidad','ciberincidente'].includes(tipo) ? '1' : '0.4';
-  // Actualizar visibilidad CVSS al cambiar tipo
+  tkToggleCvss(tipo);
   document.getElementById('tk-f-tipo').onchange = function() {
-    document.getElementById('tk-f-cvss-wrap').style.opacity =
-      ['vulnerabilidad','ciberincidente'].includes(this.value) ? '1' : '0.4';
+    tkToggleCvss(this.value);
   };
   modal.style.display = 'flex';
   document.getElementById('tk-f-titulo').focus();
+}
+
+// Habilita/deshabilita el campo CVSS según el tipo de tiquet.
+function tkToggleCvss(tipo) {
+  const aplica = ['vulnerabilidad', 'ciberincidente'].includes(tipo);
+  const wrap   = document.getElementById('tk-f-cvss-wrap');
+  const input  = document.getElementById('tk-f-cvss');
+  if (wrap)  wrap.style.opacity = aplica ? '1' : '0.4';
+  if (input) {
+    input.disabled = !aplica;
+    if (!aplica) input.value = '';   // limpiar valor si el tipo ya no es VUL/CIB
+  }
 }
 
 function tkCerrarModal() {
@@ -2569,10 +2722,14 @@ async function tkGuardarModal() {
 
   if (!titulo) { showToast('El título es obligatorio', 'error'); return; }
 
+  const tipoSel = document.getElementById('tk-f-tipo').value;
+  const cvssAplica = ['vulnerabilidad', 'ciberincidente'].includes(tipoSel);
+  const cvssVal = document.getElementById('tk-f-cvss').value;
+
   const datos = {
     titulo,
     descripcion:       document.getElementById('tk-f-desc').value.trim(),
-    tipo:              document.getElementById('tk-f-tipo').value,
+    tipo:              tipoSel,
     prioridad:         document.getElementById('tk-f-prioridad').value,
     estado:            document.getElementById('tk-f-estado').value,
     asignado_a:        document.getElementById('tk-f-asignado').value.trim(),
@@ -2582,9 +2739,8 @@ async function tkGuardarModal() {
     normas_afectadas:  document.getElementById('tk-f-normas').value.trim()
       ? document.getElementById('tk-f-normas').value.split(',').map(s => s.trim()).filter(Boolean)
       : [],
-    cvss_score:        document.getElementById('tk-f-cvss').value !== ''
-      ? parseFloat(document.getElementById('tk-f-cvss').value)
-      : null,
+    // CVSS solo se envía para VUL/CIB; en el resto, null.
+    cvss_score:        (cvssAplica && cvssVal !== '') ? parseFloat(cvssVal) : null,
   };
 
   let resultado;
@@ -2649,7 +2805,8 @@ const CORP_MODELS = {
   groq:       ['openai/gpt-oss-20b','openai/gpt-oss-120b','llama-3.3-70b-versatile','llama-3.1-8b-instant'],
   google:     ['gemini-2.0-flash','gemini-1.5-flash'],
   openai:     ['gpt-4o-mini','gpt-4o','gpt-3.5-turbo'],
-  anthropic:  ['claude-3-5-haiku-20241022','claude-3-5-sonnet-20241022','claude-3-opus-20240229']
+  anthropic:  ['claude-3-5-haiku-20241022','claude-3-5-sonnet-20241022','claude-3-opus-20240229'],
+  ollama:     ['qwen2.5-coder:14b','qwen3:8b','llama3.1:latest','gemma3:4b']
 };
 
 const CORP_DEFAULTS = {
@@ -2657,7 +2814,8 @@ const CORP_DEFAULTS = {
   groq:       'openai/gpt-oss-20b',
   google:     'gemini-2.0-flash',
   openai:     'gpt-4o-mini',
-  anthropic:  'claude-3-5-haiku-20241022'
+  anthropic:  'claude-3-5-haiku-20241022',
+  ollama:     'qwen2.5-coder:14b'
 };
 
 function corpUpdateModelSuggestions() {
@@ -2706,19 +2864,30 @@ async function corpLoadStatus() {
       corpUpdateModelSuggestions();
     }
   } catch (e) {
-    icon.textContent = '❌';
-    title.textContent = 'Error al conectar con el servidor';
-    detail.textContent = `Asegúrate de que el servidor Flask está en marcha (puerto 5001). ${e.message}`;
+    const isNetwork = (e instanceof TypeError) || /Failed to fetch|NetworkError|timeout/i.test(e.message || '');
+    icon.textContent = isNetwork ? '🔌' : '❌';
+    title.textContent = isNetwork
+      ? 'Servidor :5001 no accesible'
+      : 'Error al conectar con el servidor';
+    detail.textContent = isNetwork
+      ? 'La configuración corporativa de IA requiere el backend Flask en el puerto 5001. '
+        + 'Arráncalo con: python3 server.py (en Plataforma_Seguimiento_Proyectos/servidor/).'
+      : `Asegúrate de que el servidor Flask está en marcha (puerto 5001). ${e.message}`;
     cfgBox.style.display = 'none';
+    if (badge) badge.style.display = 'none';
   }
 }
 
 async function corpSaveConfig() {
   const provider = document.getElementById('corpProvider').value;
   const model    = document.getElementById('corpModel').value.trim();
-  const apiKey   = document.getElementById('corpApiKey').value.trim();
+  let   apiKey   = document.getElementById('corpApiKey').value.trim();
   const setBy    = document.getElementById('corpSetBy').value.trim() || 'admin';
   const resultEl = document.getElementById('corpTestResult');
+
+  // Ollama es local y no requiere clave: se usa la cadena fija 'ollama'.
+  const isOllama = provider === 'ollama';
+  if (isOllama && !apiKey) apiKey = 'ollama';
 
   if (!apiKey) {
     resultEl.innerHTML = '<span style="color:var(--danger)">⚠ Introduce la API Key antes de guardar.</span>';
@@ -2748,8 +2917,11 @@ async function corpSaveConfig() {
 async function corpTestConfig() {
   const provider = document.getElementById('corpProvider').value;
   const model    = document.getElementById('corpModel').value.trim();
-  const apiKey   = document.getElementById('corpApiKey').value.trim();
+  let   apiKey   = document.getElementById('corpApiKey').value.trim();
   const resultEl = document.getElementById('corpTestResult');
+
+  const isOllama = provider === 'ollama';
+  if (isOllama && !apiKey) apiKey = 'ollama';
 
   if (!apiKey) {
     resultEl.innerHTML = '<span style="color:var(--danger)">⚠ Introduce la API Key para probar.</span>';
@@ -2758,19 +2930,21 @@ async function corpTestConfig() {
 
   resultEl.innerHTML = '<span style="color:var(--gray-500)">⏳ Probando conexión...</span>';
 
-  // Resolver baseUrl según proveedor
+  // Resolver baseUrl según proveedor. Ollama es local y LAN-aware.
   const baseUrls = {
     openrouter: 'https://openrouter.ai/api/v1',
     groq:       'https://api.groq.com/openai/v1',
     google:     'https://generativelanguage.googleapis.com/v1beta/openai',
     openai:     'https://api.openai.com/v1',
-    anthropic:  'https://api.anthropic.com'
+    anthropic:  'https://api.anthropic.com',
+    ollama:     `http://${window.location.hostname}:11434/v1`
   };
   const baseUrl = baseUrls[provider] || '';
   const effectiveModel = model || CORP_DEFAULTS[provider];
 
   try {
-    const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` };
+    const headers = { 'Content-Type': 'application/json' };
+    if (!isOllama) headers['Authorization'] = `Bearer ${apiKey}`;
     if (provider === 'openrouter') {
       headers['HTTP-Referer'] = 'https://codanor.com';
       headers['X-Title'] = 'CODANOR Plataforma';

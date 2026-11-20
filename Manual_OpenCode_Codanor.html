@@ -3,31 +3,37 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Manual OpenCode v2.0 - CODANOR</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Nunito+Sans:wght@300;400;600;700&family=Muli:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <title>Manual OpenCode v4.0 — CODANOR</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600;700&family=Nunito+Sans:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     :root {
-      --primary: #178DC2;
-      --primary-dark: #1275A3;
+      --primary:       #178DC2;
+      --primary-dark:  #1275A3;
       --primary-light: #e8f4fa;
-      --accent: #12A79D;
-      --accent-light: #e6f7f6;
-      --dark: #1a1a2e;
-      --gray-900: #2d2d44;
-      --gray-700: #4a4a5a;
-      --gray-500: #7a7a8a;
-      --gray-300: #c4c4d0;
-      --gray-100: #f0f0f5;
-      --white: #ffffff;
-      --danger: #e74c3c;
-      --warning: #f39c12;
-      --success: #12A79D;
+      --accent:        #12A79D;
+      --accent-dark:   #0d7a71;
+      --accent-light:  #e6f7f6;
+      --dark:          #1a1a2e;
+      --gray-900:      #2d2d44;
+      --gray-700:      #4a4a5a;
+      --gray-600:      #6b6b7b;
+      --gray-500:      #7a7a8a;
+      --gray-300:      #c4c4d0;
+      --gray-100:      #f0f0f5;
+      --white:         #ffffff;
+      --danger:        #e74c3c;
+      --danger-bg:     #fdedec;
+      --danger-text:   #922b21;
+      --warning:       #b7770d;  /* corregido: era #f39c12, ratio 4.52 sobre blanco */
+      --warning-bg:    #fef9e7;
+      --warning-dark:  #7d6608;
+      --success:       #12A79D;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      font-family: 'Nunito Sans', 'Muli', sans-serif;
+      font-family: 'Nunito Sans', sans-serif;
       color: var(--gray-700);
       line-height: 1.7;
       background: var(--gray-100);
@@ -67,25 +73,34 @@
     .cover-logo { width: 220px; margin-bottom: 2rem; filter: brightness(0) invert(1); }
     .cover-divider { width: 80px; height: 4px; background: var(--accent); margin: 1.5rem auto; border-radius: 2px; }
 
+    .cover-type {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.72rem; font-weight: 600;
+      color: var(--accent); text-transform: uppercase;
+      letter-spacing: 2px; margin-bottom: 0.5rem;
+    }
+
     .cover-title {
       font-family: 'Poppins', sans-serif;
-      font-size: 3rem; font-weight: 700;
+      font-size: 2.8rem; font-weight: 700;
       letter-spacing: -0.5px; margin-bottom: 0.5rem;
+      border: none; padding: 0; color: var(--white);
     }
 
     .cover-subtitle {
       font-family: 'Poppins', sans-serif;
-      font-size: 1.4rem; font-weight: 300;
-      opacity: 0.9; margin-bottom: 1rem;
+      font-size: 1.2rem; font-weight: 300;
+      color: rgba(255,255,255,0.82); margin-bottom: 0.75rem;
     }
 
-    .cover-edition { font-size: 1rem; opacity: 0.7; margin-top: 1rem; }
+    .cover-edition { font-size: 1rem; opacity: 0.65; margin-bottom: 1.5rem; }
 
     .cover-badge {
       display: inline-block; background: var(--accent);
       color: var(--white); padding: 0.5rem 1.5rem;
       border-radius: 50px; font-size: 0.9rem;
-      font-weight: 600; margin-top: 2rem; letter-spacing: 0.5px;
+      font-weight: 600; margin-top: 1.5rem; letter-spacing: 0.5px;
+      font-family: 'Poppins', sans-serif;
     }
 
     .cover-footer {
@@ -94,14 +109,95 @@
     }
     .cover-footer p { font-size: 0.85rem; opacity: 0.5; }
 
+    /* ===== CABECERA FIJA (v4.0) ===== */
+    .page-header {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 200;
+      background: var(--white);
+      border-bottom: 3px solid var(--primary);
+      display: flex; align-items: center;
+      justify-content: space-between;
+      padding: 0.55rem 2rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      height: 52px;
+    }
+    .page-header-brand {
+      display: flex; align-items: center; gap: 0.75rem;
+    }
+    .page-header-logo {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.95rem; font-weight: 700;
+      color: var(--primary); letter-spacing: -0.3px;
+    }
+    .page-header-sep {
+      color: var(--gray-300); font-size: 1.1rem;
+    }
+    .page-header-title {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.82rem; font-weight: 600;
+      color: var(--primary-dark);
+    }
+    .page-header-meta {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.75rem; color: var(--gray-500);
+    }
+    @media print { .page-header { display: none !important; } }
+    @media (max-width: 900px) { .page-header { padding: 0.5rem 1rem; } }
+
+    /* ===== CONTROL DE VERSIONES (v4.0) ===== */
+    .version-control-section {
+      margin-left: 300px;
+      padding: 2rem 4rem;
+      background: var(--white);
+      border-bottom: 1px solid var(--gray-300);
+    }
+    .version-control-section h2 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1rem; font-weight: 600;
+      color: var(--primary-dark);
+      margin-bottom: 1rem;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .version-control-section h2::before {
+      content: ''; width: 4px; height: 18px;
+      background: var(--primary); border-radius: 2px;
+    }
+    @media (max-width: 900px) {
+      .version-control-section { margin-left: 0; padding: 1.5rem; }
+    }
+    @media print { .version-control-section { margin-left: 0; padding: 0; } }
+
+    /* ===== PIE DE PÁGINA MEJORADO (v4.0) ===== */
+    .manual-footer {
+      margin-top: 4rem; padding: 2rem 0;
+      border-top: 3px solid var(--primary);
+      text-align: center; color: var(--gray-700); font-size: 0.85rem;
+    }
+    .manual-footer img { width: 100px; margin-bottom: 0.5rem; }
+    .manual-footer-meta {
+      margin-top: 1rem;
+      color: var(--gray-600);
+      font-size: 0.78rem;
+    }
+    .manual-footer-path {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.68rem; color: var(--gray-600);
+      margin-top: 0.3rem;
+    }
+
+    /* ===== PRINT PIE DE PÁGINA ===== */
+    @media print {
+      .manual-footer-meta, .manual-footer-path { display: block !important; }
+    }
+
     /* ===== NAVEGACION LATERAL ===== */
     .manual-container { display: flex; min-height: 100vh; }
 
     .sidebar {
       width: 300px; background: var(--white);
       border-right: 1px solid var(--gray-300);
-      position: fixed; top: 0; left: 0;
-      height: 100vh; overflow-y: auto;
+      position: fixed; top: 52px; left: 0;
+      height: calc(100vh - 52px); overflow-y: auto;
       z-index: 100; padding: 1.5rem 0;
     }
 
@@ -143,6 +239,7 @@
     .main-content {
       margin-left: 300px; flex: 1;
       padding: 3rem 4rem; max-width: 960px;
+      padding-top: 2rem;
     }
 
     /* ===== TIPOGRAFIA ===== */
@@ -182,8 +279,8 @@
       text-transform: uppercase; letter-spacing: 0.5px;
       vertical-align: middle; margin-left: 0.5rem;
     }
-    .badge-new { background: var(--accent); color: var(--white); }
-    .badge-updated { background: var(--warning); color: var(--white); }
+    .badge-new { background: var(--accent-light); color: var(--accent-dark); }
+    .badge-updated { background: var(--warning-bg); color: var(--warning-dark); }
     .badge-priority { background: var(--danger); color: var(--white); }
 
     /* ===== SECCIONES ===== */
@@ -196,7 +293,7 @@
       border-radius: 8px; overflow: hidden;
       box-shadow: 0 1px 3px rgba(0,0,0,0.08);
     }
-    thead { background: var(--primary); color: var(--white); }
+    thead { background: var(--primary-dark); color: var(--white); }
     th {
       font-family: 'Poppins', sans-serif; font-weight: 600;
       padding: 0.85rem 1rem; text-align: left;
@@ -208,16 +305,17 @@
 
     /* ===== CODIGO ===== */
     code {
-      font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
-      font-size: 0.85rem; background: var(--gray-100);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.83rem; background: var(--gray-100);
       color: var(--primary-dark); padding: 0.15rem 0.45rem; border-radius: 4px;
     }
     pre {
       background: var(--dark); color: #e0e0e0;
       padding: 1.25rem 1.5rem; border-radius: 8px;
       overflow-x: auto; margin: 1rem 0 1.5rem;
-      font-size: 0.85rem; line-height: 1.6;
+      font-size: 0.82rem; line-height: 1.6;
       border-left: 4px solid var(--accent);
+      font-family: 'JetBrains Mono', monospace;
     }
     pre code { background: none; color: inherit; padding: 0; }
 
@@ -252,7 +350,7 @@
     /* ===== SHORTCUTS ===== */
     kbd {
       display: inline-block; padding: 0.15rem 0.5rem;
-      font-family: 'SF Mono', monospace; font-size: 0.8rem;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;
       color: var(--gray-700); background: var(--gray-100);
       border: 1px solid var(--gray-300); border-radius: 4px;
       box-shadow: 0 1px 0 var(--gray-300);
@@ -289,6 +387,52 @@
     .btn-print:hover { background: var(--primary-dark); transform: translateY(-2px); }
     .btn-print svg { width: 18px; height: 18px; }
 
+    /* ===== BOTON WORD ===== */
+    .btn-word {
+      position: fixed; bottom: 2rem; right: 11rem;
+      background: var(--white); color: var(--primary-dark);
+      border: 2px solid var(--primary); padding: 0.75rem 1.5rem;
+      border-radius: 50px; font-family: 'Poppins', sans-serif;
+      font-size: 0.9rem; font-weight: 600; cursor: pointer;
+      box-shadow: 0 4px 12px rgba(23,141,194,0.15);
+      transition: all 0.2s; z-index: 200;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .btn-word:hover { background: var(--primary-light); transform: translateY(-2px); }
+    .btn-word svg { width: 18px; height: 18px; }
+
+    /* ===== MODAL WORD ===== */
+    .word-modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(26,26,46,0.7); z-index: 500;
+      align-items: center; justify-content: center;
+    }
+    .word-modal-overlay.active { display: flex; }
+    .word-modal {
+      background: var(--white); border-radius: 10px;
+      padding: 2rem 2.5rem; max-width: 540px; width: 90%;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    }
+    .word-modal h3 {
+      font-family: 'Poppins', sans-serif; font-size: 1.1rem;
+      font-weight: 700; color: var(--dark); margin-bottom: 0.75rem;
+      border: none; padding: 0;
+    }
+    .word-modal p { font-size: 0.9rem; color: var(--gray-700); margin-bottom: 0.75rem; }
+    .word-modal pre {
+      background: var(--dark); color: #e0e0e0;
+      padding: 0.9rem 1.1rem; border-radius: 6px;
+      font-size: 0.78rem; overflow-x: auto; margin: 0.75rem 0;
+      border-left: 4px solid var(--accent);
+    }
+    .word-modal-close {
+      margin-top: 1.25rem; background: var(--primary); color: var(--white);
+      border: none; padding: 0.55rem 1.4rem; border-radius: 50px;
+      font-family: 'Poppins', sans-serif; font-size: 0.85rem;
+      font-weight: 600; cursor: pointer; transition: background 0.15s;
+    }
+    .word-modal-close:hover { background: var(--primary-dark); }
+
     /* ===== PRINT / PDF ===== */
     @media print {
       @page { size: A4; margin: 2cm 1.5cm; }
@@ -296,7 +440,7 @@
 
       body { background: white; font-size: 11pt; }
 
-      .sidebar, .btn-print { display: none !important; }
+      .sidebar, .btn-print, .btn-word, .word-modal-overlay { display: none !important; }
       .main-content { margin-left: 0; padding: 0; max-width: 100%; }
 
       .cover-page {
@@ -355,6 +499,7 @@
     /* ===== DASHBOARD DEL ECOSISTEMA (BLOQUE A) ===== */
     .dashboard-section {
       margin-left: 300px;
+      margin-top: 52px;
       padding: 3rem 4rem;
       background: linear-gradient(180deg, var(--gray-100) 0%, var(--white) 100%);
       border-bottom: 3px solid var(--primary);
@@ -518,9 +663,9 @@
       font-weight: 700;
       letter-spacing: 0.3px;
     }
-    .sidebar-badge-ok { background: var(--accent); color: var(--white); }
-    .sidebar-badge-info { background: var(--primary); color: var(--white); }
-    .sidebar-badge-warn { background: var(--warning); color: var(--white); }
+    .sidebar-badge-ok   { background: var(--accent-light); color: var(--accent-dark); }
+    .sidebar-badge-info { background: var(--primary-light); color: var(--primary-dark); }
+    .sidebar-badge-warn { background: var(--warning-bg); color: var(--warning-dark); }
 
     /* ===== PROGRESS BARS (BLOQUE B) ===== */
     .progress-list {
@@ -540,7 +685,7 @@
       flex: 1;
     }
     .progress-stats {
-      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-family: 'JetBrains Mono', monospace;
       font-size: 0.78rem;
       color: var(--gray-500);
       white-space: nowrap;
@@ -646,16 +791,51 @@
 <body>
 
 <!-- ======================================================================
+     CABECERA FIJA (v4.0)
+     ====================================================================== -->
+<header class="page-header">
+  <div class="page-header-brand">
+    <span class="page-header-logo">(CODANOR 50)</span>
+    <span class="page-header-sep">|</span>
+    <span class="page-header-title">Manual de Usuario OpenCode</span>
+  </div>
+  <span class="page-header-meta">v4.0 &bull; Octubre 2026</span>
+</header>
+
+<!-- ======================================================================
      PORTADA
      ====================================================================== -->
 <div class="cover-page">
   <div class="cover-content">
     <img src="https://codanor.com/assets/img/logo-light.png" alt="CODANOR" class="cover-logo">
     <div class="cover-divider"></div>
-    <h1 class="cover-title">Manual de Usuario</h1>
-    <p class="cover-subtitle">OpenCode &mdash; Agente de Codificacion IA</p>
+    <div class="cover-type">Manual de Usuario</div>
+    <h1 class="cover-title">OpenCode</h1>
+    <p class="cover-subtitle">Agente de Codificacion IA</p>
     <p class="cover-edition">Guia completa de uso, configuracion, agentes, resolucion de problemas y buenas practicas</p>
-    <span class="cover-badge">Version 3.1 &bull; Julio 2026</span>
+    <span class="cover-badge">v4.0 &bull; Octubre 2026</span>
+    <div style="margin-top:2rem; display:flex; gap:2.5rem; justify-content:center; flex-wrap:wrap;">
+      <div style="text-align:left;">
+        <div style="font-size:0.65rem; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:0.2rem;">Versi&oacute;n</div>
+        <div style="font-family:'Poppins',sans-serif; font-size:0.88rem; font-weight:600; color:#fff;">v4.0</div>
+      </div>
+      <div style="text-align:left;">
+        <div style="font-size:0.65rem; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:0.2rem;">Fecha</div>
+        <div style="font-family:'Poppins',sans-serif; font-size:0.88rem; font-weight:600; color:#fff;">Octubre 2026</div>
+      </div>
+      <div style="text-align:left;">
+        <div style="font-size:0.65rem; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:0.2rem;">Autor</div>
+        <div style="font-family:'Poppins',sans-serif; font-size:0.88rem; font-weight:600; color:#fff;">Jafa, S.L. &mdash; CODANOR</div>
+      </div>
+      <div style="text-align:left;">
+        <div style="font-size:0.65rem; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:0.2rem;">Clasificaci&oacute;n</div>
+        <div style="font-family:'Poppins',sans-serif; font-size:0.88rem; font-weight:600; color:#fff;">Documento interno &mdash; Uso exclusivo CODANOR</div>
+      </div>
+      <div style="text-align:left;">
+        <div style="font-size:0.65rem; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:0.2rem;">Cap&iacute;tulos</div>
+        <div style="font-family:'Poppins',sans-serif; font-size:0.88rem; font-weight:600; color:#fff;">21 cap&iacute;tulos + Glosario</div>
+      </div>
+    </div>
   </div>
   <div class="cover-footer">
     <p>Jafa, S.L. &mdash; CODANOR &bull; Barcelona, Catalunya</p>
@@ -712,7 +892,7 @@
   <div class="status-current-project">
     <h3>Estado de este modulo (PLATAFORMA_OpenCode-NEW)</h3>
     <div class="status-grid">
-      <span class="status-badge">Manual v3.0 &bull; 20 capitulos</span>
+      <span class="status-badge">Manual v4.0 &bull; 21 cap&iacute;tulos + Glosario</span>
       <span class="status-badge">Git: 7 commits</span>
       <span class="status-badge status-ok">Security A</span>
       <span class="status-badge status-warn">Reliability B</span>
@@ -744,6 +924,50 @@
 </section>
 
 <!-- ======================================================================
+     CONTROL DE VERSIONES (v4.0)
+     ====================================================================== -->
+<section class="version-control-section">
+  <h2>Control de versiones</h2>
+  <table>
+    <thead>
+      <tr><th>Versi&oacute;n</th><th>Fecha</th><th>Autor</th><th>Descripci&oacute;n del cambio</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>v1.0</code></td>
+        <td>26/04/2026</td>
+        <td>CODANOR</td>
+        <td>Versi&oacute;n inicial — fundamentos y configuraci&oacute;n b&aacute;sica de OpenCode</td>
+      </tr>
+      <tr>
+        <td><code>v2.0</code></td>
+        <td>05/05/2026</td>
+        <td>CODANOR</td>
+        <td>Expansi&oacute;n — agentes, permisos, MCP, comandos personalizados y Skills</td>
+      </tr>
+      <tr>
+        <td><code>v3.0</code></td>
+        <td>05/07/2026</td>
+        <td>CODANOR</td>
+        <td>20 cap&iacute;tulos — OpenCode Zen, SonarQube, centralizaci&oacute;n proyectos, infraestructura, Memory.md</td>
+      </tr>
+      <tr>
+        <td><code>v3.1</code></td>
+        <td>05/07/2026</td>
+        <td>CODANOR</td>
+        <td>Cap&iacute;tulo 21 a&ntilde;adido — Homogeneizaci&oacute;n de Proyectos</td>
+      </tr>
+      <tr style="background:var(--primary-light);">
+        <td><code>v4.0</code></td>
+        <td>05/10/2026</td>
+        <td>CODANOR</td>
+        <td><strong>Redise&ntilde;o completo</strong> — Skill documentos-proyectos aplicado: tipograf&iacute;a corporativa (Poppins + Nunito Sans + JetBrains Mono), paleta WCAG AA corregida, cabecera fija persistente, control de versiones, glosario a&ntilde;adido</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ======================================================================
      CONTENIDO CON SIDEBAR
      ====================================================================== -->
 <div class="manual-container">
@@ -757,6 +981,7 @@
     <p class="sidebar-label">Indice del Manual</p>
     <nav>
       <ul>
+        <li><a href="#versiones"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> Control de versiones <span class="sidebar-badge sidebar-badge-ok">v4.0</span></a></li>
         <li><a href="#cap1"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg> 1. Introduccion</a>
           <ul>
             <li><a href="#cap1-que-es">Que es OpenCode</a></li>
@@ -790,7 +1015,8 @@
         <li><a href="#cap18"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg> 18. Centralizacion de Proyectos</a></li>
         <li><a href="#cap19"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg> 19. Mapa de Infraestructura <span class="sidebar-badge sidebar-badge-info">21</span></a></li>
         <li><a href="#cap20"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg> 20. Memory.md y Seguridad <span class="sidebar-badge sidebar-badge-warn">18</span></a></li>
-        <li><a href="#cap21"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg> 21. Homogeneizacion de Proyectos <span class="sidebar-badge sidebar-badge-ok">85%</span></a></li>
+        <li><a href="#cap21"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg> 21. Homogeneizacion <span class="sidebar-badge sidebar-badge-ok">85%</span></a></li>
+        <li><a href="#glosario"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg> Glosario <span class="sidebar-badge sidebar-badge-ok">Nuevo</span></a></li>
       </ul>
     </nav>
   </aside>
@@ -3008,7 +3234,7 @@ SonarCloud (analisis de calidad)</code></pre>
             <td style="color:var(--danger);">NO</td>
             <td style="color:var(--danger);">NO</td>
             <td style="color:var(--success);">SI</td>
-            <td style="color:#f39c12;">Revisado (pendiente corregir)</td>
+            <td style="color:#b7770d;">Revisado (pendiente corregir)</td>
           </tr>
         </tbody>
       </table>
@@ -3463,6 +3689,47 @@ git push -u origin main</code></pre>
       </div>
     </div>
 
+    <!-- ============================================================
+         GLOSARIO (v4.0)
+         ============================================================ -->
+    <div class="section" id="glosario">
+      <h1>Glosario de t&eacute;rminos <span class="badge badge-new">Nuevo v4.0</span></h1>
+      <p class="chapter-intro">Definiciones de los t&eacute;rminos t&eacute;cnicos y conceptos clave utilizados a lo largo del manual.</p>
+
+      <table>
+        <thead>
+          <tr><th>T&eacute;rmino / Clave</th><th>Definici&oacute;n</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>OpenCode</code></td><td>Agente de codificaci&oacute;n IA de c&oacute;digo abierto. Integra m&uacute;ltiples modelos LLM (Claude, GPT, Gemini, Ollama) para asistir en tareas de desarrollo de software directamente en el terminal.</td></tr>
+          <tr><td><code>Agent / Agente</code></td><td>Modo de operaci&oacute;n de OpenCode. Cada agente tiene capacidades distintas: <code>build</code> puede ejecutar comandos y modificar archivos; <code>plan</code> solo lee y planifica; <code>general</code> y <code>explore</code> son subagentes especializados.</td></tr>
+          <tr><td><code>MCP</code></td><td>Model Context Protocol. Protocolo que permite a OpenCode conectarse con servidores externos (SonarQube, bases de datos, APIs) para ampliar sus capacidades m&aacute;s all&aacute; del c&oacute;digo local.</td></tr>
+          <tr><td><code>Skill</code></td><td>Archivo <code>.md</code> ubicado en <code>.opencode/commands/</code> que define un flujo de trabajo reutilizable. Se invoca con <code>/nombre-del-skill</code>. Ejemplo: <code>/documentos-proyectos</code> genera documentos corporativos CODANOR.</td></tr>
+          <tr><td><code>Slash command</code></td><td>Comando personalizado que se invoca con <code>/</code> seguido del nombre. Definido en <code>.opencode/commands/*.md</code>. Equivalente a un skill con instrucciones espec&iacute;ficas para el agente.</td></tr>
+          <tr><td><code>AGENTS.md</code></td><td>Archivo de instrucciones para el agente IA en un repositorio. OpenCode lo carga autom&aacute;ticamente al inicio de cada sesi&oacute;n si est&aacute; referenciado en <code>opencode.json</code>. Contiene arquitectura, reglas cr&iacute;ticas y comandos de verificaci&oacute;n.</td></tr>
+          <tr><td><code>Memory.md</code></td><td>Archivo de estado del proyecto. Registra el historial de decisiones, versiones actuales de los m&oacute;dulos, componentes del ecosistema y tareas pendientes. Se consulta y actualiza manualmente o por el agente.</td></tr>
+          <tr><td><code>opencode.json</code></td><td>Archivo de configuraci&oacute;n de OpenCode en la ra&iacute;z del proyecto. Define qu&eacute; archivos de instrucciones cargar (<code>instructions</code>), qu&eacute; servidores MCP conectar y permisos del agente.</td></tr>
+          <tr><td><code>/compact</code></td><td>Comando de OpenCode que comprime el historial de la sesi&oacute;n actual para liberar contexto. &Uacute;til cuando la sesi&oacute;n se vuelve lenta o el agente empieza a perder contexto de conversaciones largas.</td></tr>
+          <tr><td><code>PROPAGATION_RULES.md</code></td><td>Archivo de reglas de propagaci&oacute;n entre las 9 apps ISO/ENS. Clasifica cada archivo JS como BASE, CLON, DIVERGENTE o PROPIO. Obligatorio consultar antes de propagar cambios entre apps.</td></tr>
+          <tr><td><code>SonarQube / SonarCloud</code></td><td>Plataforma de an&aacute;lisis est&aacute;tico de c&oacute;digo. Detecta bugs, vulnerabilidades, code smells y duplicaciones. CODANOR usa SonarCloud (cloud) con el MCP server integrado en OpenCode.</td></tr>
+          <tr><td><code>Quality Gate</code></td><td>Umbral de calidad configurado en SonarQube. Si el c&oacute;digo no supera las condiciones m&iacute;nimas (cobertura, bugs cr&iacute;ticos, duplicaciones), el gate falla y bloquea el despliegue.</td></tr>
+          <tr><td><code>WCAG AA</code></td><td>Web Content Accessibility Guidelines nivel AA. Est&aacute;ndar de accesibilidad web. Para texto normal exige ratio de contraste m&iacute;nimo 4.5:1 entre el color del texto y el fondo. Para texto grande (&ge;18px bold) el m&iacute;nimo es 3:1.</td></tr>
+          <tr><td><code>plataforma.db</code></td><td>Base de datos SQLite en modo WAL del servidor Flask. Contiene 19 tablas: clientes, proyectos, datos de fases, tiquets, wiki, sonar y an&aacute;lisis de riesgos. Es la fuente de verdad de todos los m&oacute;dulos de la Plataforma.</td></tr>
+          <tr><td><code>Flask</code></td><td>Framework web Python usado como backend de la Plataforma ISO/ENS. Sirve en el puerto 5001 (HOST 0.0.0.0 para acceso LAN). Contiene 86 endpoints REST y sirve los dashboards de riesgos como archivos est&aacute;ticos.</td></tr>
+          <tr><td><code>LAN</code></td><td>Red de &aacute;rea local. El servidor Flask es accesible desde cualquier PC de la misma red. Las URLs de API siempre usan <code>window.location.hostname</code> (nunca <code>localhost</code> hardcodeado) para compatibilidad LAN.</td></tr>
+          <tr><td><code>Ollama</code></td><td>Motor de modelos LLM local. Ejecuta modelos como qwen2.5-coder, llama3.1 o gemma3 directamente en el hardware sin conexi&oacute;n a internet. Escucha en <code>localhost:11434</code> (requiere <code>OLLAMA_HOST=0.0.0.0</code> para acceso LAN).</td></tr>
+          <tr><td><code>Tiquet / TIK</code></td><td>Registro de incidencia, tarea o petici&oacute;n en el m&oacute;dulo de Tiquets. Formato de ID: <code>TIK-{NNN}-{cliente}-{app}-{fecha}</code>. Incluye historial de cambios, acciones de resoluci&oacute;n y adjuntos.</td></tr>
+          <tr><td><code>PHASE_KEYS</code></td><td>Constante en <code>store.js</code> de cada app ISO/ENS. Lista las claves de <code>phase_data</code> que se sincronizan desde el servidor Flask al abrir un proyecto. Garantiza que todos los PCs de la LAN vean los mismos datos.</td></tr>
+          <tr><td><code>IndexedDB</code></td><td>Base de datos del navegador web. Solo accesible desde el navegador del mismo PC — no se comparte en LAN. Los m&oacute;dulos de la Plataforma han migrado de IndexedDB a Flask/SQLite para soporte multiusuario LAN.</td></tr>
+          <tr><td><code>JetBrains Mono</code></td><td>Fuente tipogr&aacute;fica monoespaciada dise&ntilde;ada para c&oacute;digo. Disponible en Google Fonts. Sustituye a SF Mono / Courier New (dependientes del sistema operativo) en todos los documentos corporativos CODANOR desde v4.0.</td></tr>
+          <tr><td><code>Poppins</code></td><td>Fuente tipogr&aacute;fica corporativa CODANOR para t&iacute;tulos y encabezados. Geom&eacute;trica y moderna. Cargada desde Google Fonts con pesos 300, 600 y 700.</td></tr>
+          <tr><td><code>Nunito Sans</code></td><td>Fuente tipogr&aacute;fica corporativa CODANOR para cuerpo de texto, tablas e interfaz. Humanista, alta legibilidad en tama&ntilde;os peque&ntilde;os. Cargada desde Google Fonts con pesos 400, 600 y 700.</td></tr>
+          <tr><td><code>XOR ofuscaci&oacute;n</code></td><td>T&eacute;cnica de ofuscaci&oacute;n de claves API. El servidor Flask cifra la clave corporativa LLM con XOR+base64 antes de guardarla en la BD. La clave XOR es fija (<code>codanor_llm_2026_xor_key_fixed!!</code>) desde v20261003a.</td></tr>
+          <tr><td><code>isOllamaKey</code></td><td>Guard en <code>_syncLLMConfigFromForm()</code> de los m&oacute;dulos phase2. Detecta si el proveedor es Ollama (cuya clave es la cadena <code>'ollama'</code>, de solo 6 caracteres) para evitar que el filtro <code>length &gt; 10</code> la descarte silenciosamente.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
     <!-- FOOTER -->
     <div class="manual-footer">
       <img src="https://codanor.com/assets/img/logo_web-50.png" alt="CODANOR">
@@ -3471,9 +3738,10 @@ git push -u origin main</code></pre>
         Consultoria Organizativa y Legal<br>
         Barcelona, Catalunya &bull; info@codanor.com &bull; +34 616 947 274
       </p>
-      <p style="margin-top: 1rem; color: #aaa;">
-        Manual generado el 27 de Abril de 2026 &bull; Actualizado el 5 de Julio de 2026 &bull; Version 3.1 (21 capitulos)
+      <p class="manual-footer-meta">
+        Manual generado el 26 de Abril de 2026 &bull; Actualizado el 5 de Octubre de 2026 &bull; v4.0 (21 cap&iacute;tulos + Glosario) &bull; Documento interno &mdash; Uso exclusivo CODANOR
       </p>
+      <p class="manual-footer-path">Manual_OpenCode_Codanor.html &bull; PLATAFORMA_OpenCode-NEW/</p>
     </div>
 
   </main>
@@ -3488,10 +3756,38 @@ git push -u origin main</code></pre>
   Exportar PDF
 </button>
 
+<!-- BOTON EXPORTAR WORD -->
+<button class="btn-word" onclick="document.getElementById('wordModal').classList.add('active')" title="Exportar a Word">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+    <polyline points="14 2 14 8 20 8"/>
+    <line x1="16" y1="13" x2="8" y2="13"/>
+    <line x1="16" y1="17" x2="8" y2="17"/>
+    <polyline points="10 9 9 9 8 9"/>
+  </svg>
+  Exportar Word
+</button>
+
+<!-- MODAL EXPORTAR WORD -->
+<div class="word-modal-overlay" id="wordModal" onclick="if(event.target===this) this.classList.remove('active')">
+  <div class="word-modal">
+    <h3>Exportar a Word (.docx)</h3>
+    <p>Para generar el documento Word corporativo, ejecuta el script Python desde la terminal:</p>
+    <pre>cd ~/Proyectos/PLATAFORMA_OpenCode-NEW
+python3 generar_manual-opencode.py</pre>
+    <p style="font-size:0.82rem; color:var(--gray-500);">
+      El script usa <code>python-docx</code> y genera <code>Manual_OpenCode_Codanor.docx</code>
+      en el mismo directorio. Requiere: <code>pip install python-docx</code>
+    </p>
+    <button class="word-modal-close" onclick="document.getElementById('wordModal').classList.remove('active')">Cerrar</button>
+  </div>
+</div>
+
 <!-- ======================================================================
      BLOQUE D: SCRIPT BOTON REFRESCAR DASHBOARD
      ====================================================================== -->
 <script>
+  // ── Botón Refrescar Dashboard ──
   document.addEventListener('DOMContentLoaded', function() {
     var btn = document.getElementById('btnRefreshDashboard');
     if (!btn) return;
@@ -3501,9 +3797,31 @@ git push -u origin main</code></pre>
     } else {
       btn.title = 'Refrescar datos del dashboard (sin accion por ahora)';
       btn.addEventListener('click', function() {
-        // Placeholder para futura integracion con API
-        alert('Funcionalidad futura: refrescar datos via API.\n\nPor ahora los datos son estaticos.\nUltima actualizacion: 5 julio 2026');
+        alert('Funcionalidad futura: refrescar datos via API.\n\nPor ahora los datos son estaticos.\nUltima actualizacion: 5 octubre 2026');
       });
+    }
+
+    // ── IntersectionObserver — TOC activo (v4.0) ──
+    var sections = document.querySelectorAll(
+      '.section[id], #versiones, #glosario'
+    );
+    var navLinks = document.querySelectorAll('.sidebar nav a');
+
+    if ('IntersectionObserver' in window) {
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            navLinks.forEach(function(a) { a.style.borderLeftColor = 'transparent'; a.style.background = ''; a.style.color = ''; });
+            var active = document.querySelector('.sidebar nav a[href="#' + entry.target.id + '"]');
+            if (active) {
+              active.style.borderLeftColor = 'var(--primary)';
+              active.style.background = 'var(--primary-light)';
+              active.style.color = 'var(--primary)';
+            }
+          }
+        });
+      }, { threshold: 0.15, rootMargin: '-52px 0px -60% 0px' });
+      sections.forEach(function(s) { observer.observe(s); });
     }
   });
 </script>

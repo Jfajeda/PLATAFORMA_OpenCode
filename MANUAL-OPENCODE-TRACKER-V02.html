@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manual de la Plataforma OpenCode Tracker — CODANOR</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600;700&family=Nunito+Sans:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    /* ─── TOKENS DE COLOR (WCAG AA garantizado) ─── */
+    :root {
+      --primary:        #178DC2;
+      --primary-dark:   #1275A3;
+      --primary-light:  #e8f4fa;
+      --accent:         #12A79D;
+      --accent-dark:    #0d7a71;
+      --accent-light:   #e6f7f6;
+      --dark:           #1a1a2e;
+      --gray-900:       #2d2d44;
+      --gray-700:       #4a4a5a;
+      --gray-600:       #6b6b7b;
+      --gray-500:       #7a7a8a;
+      --gray-300:       #c4c4d0;
+      --gray-100:       #f0f0f5;
+      --white:          #ffffff;
+      --warning-text:   #b7770d;
+      --warning-bg:     #fef9e7;
+      --warning-dark:   #7d6608;
+      --danger-text:    #922b21;
+      --danger-bg:      #fdedec;
+      --success-text:   #0e7a72;
+      --success-bg:     #e6f7f6;
+      --info-text:      #1275A3;
+      --info-bg:        #e8f4fa;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Nunito Sans', sans-serif;
+      font-size: 16px;
+      line-height: 1.7;
+      color: var(--gray-700);
+      background: var(--gray-100);
+    }
+
+    /* ─── CABECERA FIJA ─── */
+    .page-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--white);
+      border-bottom: 3px solid var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.6rem 2rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .page-header-brand { display: flex; align-items: center; gap: 0.8rem; }
+    .page-header-logo {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--primary);
+      letter-spacing: -0.5px;
+    }
+    .page-header-title {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--primary-dark);
+    }
+    .page-header-meta {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.75rem;
+      color: var(--gray-500);
+    }
+
+    /* ─── LAYOUT ─── */
+    .layout { display: flex; min-height: calc(100vh - 56px); }
+
+    /* ─── SIDEBAR TOC ─── */
+    .sidebar {
+      width: 280px;
+      min-width: 280px;
+      background: var(--white);
+      border-right: 1px solid var(--gray-300);
+      padding: 1.5rem 0;
+      position: sticky;
+      top: 56px;
+      height: calc(100vh - 56px);
+      overflow-y: auto;
+    }
+    .sidebar-label {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.65rem;
+      font-weight: 600;
+      color: var(--gray-500);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      padding: 0 1.2rem;
+      margin-bottom: 0.5rem;
+    }
+    .sidebar nav a {
+      display: block;
+      font-size: 0.88rem;
+      color: var(--gray-700);
+      text-decoration: none;
+      padding: 0.35rem 1.2rem;
+      border-left: 3px solid transparent;
+      transition: all 0.15s;
+    }
+    .sidebar nav a:hover,
+    .sidebar nav a.active {
+      color: var(--primary);
+      background: var(--primary-light);
+      border-left-color: var(--primary);
+    }
+
+    /* ─── CONTENIDO ─── */
+    .main-content { flex: 1; padding: 0; min-width: 0; }
+
+    /* ─── PORTADA ─── */
+    .cover {
+      background: var(--dark);
+      color: var(--white);
+      padding: 5rem 4rem 4rem;
+      position: relative;
+      overflow: hidden;
+      page-break-after: always;
+    }
+    .cover::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 5px;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+    }
+    .cover-logo {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 4rem;
+    }
+    .cover-type {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 1rem;
+    }
+    .cover-title {
+      font-family: 'Poppins', sans-serif;
+      font-size: 2.8rem;
+      font-weight: 700;
+      color: var(--white);
+      line-height: 1.15;
+      margin-bottom: 1rem;
+    }
+    .cover-subtitle {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 300;
+      color: rgba(255,255,255,0.75);
+      margin-bottom: 3rem;
+    }
+    .cover-meta { display: flex; gap: 2.5rem; flex-wrap: wrap; }
+    .cover-meta-item .label {
+      font-size: 0.68rem;
+      color: rgba(255,255,255,0.5);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 0.2rem;
+    }
+    .cover-meta-item .value {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--white);
+    }
+    .cover-footer {
+      margin-top: 4rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid rgba(255,255,255,0.15);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .cover-footer .company { font-size: 0.82rem; color: rgba(255,255,255,0.6); }
+    .cover-footer .classification { font-size: 0.72rem; font-style: italic; color: rgba(255,255,255,0.45); }
+
+    /* ─── SECCIONES ─── */
+    .content-section {
+      background: var(--white);
+      margin: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+      padding: 2.5rem 3rem;
+      page-break-inside: avoid;
+    }
+
+    /* ─── CONTROL DE VERSIONES ─── */
+    .version-control {
+      background: var(--white);
+      margin: 2rem;
+      border-radius: 8px;
+      padding: 2rem 3rem;
+      border-left: 4px solid var(--primary);
+    }
+    .version-control h2 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--primary-dark);
+      margin-bottom: 1rem;
+    }
+
+    /* ─── HEADINGS ─── */
+    h1 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.9rem;
+      font-weight: 700;
+      color: var(--dark);
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--primary-light);
+    }
+    h2 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: var(--primary);
+      margin-top: 2rem;
+      margin-bottom: 0.75rem;
+    }
+    h3 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--gray-900);
+      margin-top: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+    h4 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--gray-700);
+      margin-top: 1rem;
+      margin-bottom: 0.4rem;
+    }
+    .section-number {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 0.4rem;
+    }
+
+    p { margin-bottom: 0.85rem; font-size: 0.95rem; }
+    ul, ol { padding-left: 1.5rem; margin-bottom: 0.85rem; }
+    li { font-size: 0.95rem; margin-bottom: 0.3rem; }
+
+    /* ─── TABLAS ─── */
+    .table-wrapper { overflow-x: auto; margin: 1.2rem 0; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    thead th {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--white);
+      background: var(--primary-dark);
+      padding: 0.65rem 0.9rem;
+      text-align: left;
+      white-space: nowrap;
+    }
+    tbody td {
+      padding: 0.6rem 0.9rem;
+      border-bottom: 1px solid var(--gray-300);
+      color: var(--gray-700);
+      vertical-align: top;
+    }
+    tbody tr:hover td { background: var(--primary-light); }
+    tbody tr:nth-child(even) td { background: #f8f8fb; }
+    tbody tr:nth-child(even):hover td { background: var(--primary-light); }
+    td code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      color: var(--primary-dark);
+      background: var(--gray-100);
+      padding: 0.1rem 0.3rem;
+      border-radius: 3px;
+    }
+
+    /* ─── CÓDIGO ─── */
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.83rem;
+      color: var(--primary-dark);
+      background: var(--gray-100);
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+    }
+    pre {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+      background: var(--dark);
+      color: #e0e0e0;
+      padding: 1.2rem 1.5rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      line-height: 1.6;
+      margin: 1rem 0;
+    }
+    pre code { color: inherit; background: none; padding: 0; font-size: inherit; }
+
+    /* ─── ALERTAS ─── */
+    .alert {
+      padding: 0.9rem 1.1rem;
+      border-radius: 6px;
+      margin: 1rem 0;
+      font-size: 0.9rem;
+      border-left: 4px solid;
+    }
+    .alert-title { font-family: 'Poppins', sans-serif; font-weight: 600; margin-bottom: 0.3rem; }
+    .alert-info    { background: var(--info-bg);    border-color: var(--primary);      color: var(--info-text); }
+    .alert-warning { background: var(--warning-bg); border-color: var(--warning-text); color: var(--warning-dark); }
+    .alert-danger  { background: var(--danger-bg);  border-color: var(--danger-text);  color: var(--danger-text); }
+    .alert-success { background: var(--success-bg); border-color: var(--accent);       color: var(--success-text); }
+
+    /* ─── BADGES ─── */
+    .badge {
+      display: inline-block;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.68rem;
+      font-weight: 600;
+      padding: 0.15rem 0.5rem;
+      border-radius: 3px;
+      letter-spacing: 0.3px;
+    }
+    .badge-primary { color: var(--primary-dark);  background: var(--primary-light); }
+    .badge-accent  { color: var(--accent-dark);   background: var(--accent-light); }
+    .badge-success { color: var(--success-text);  background: var(--success-bg); }
+    .badge-warning { color: var(--warning-dark);  background: var(--warning-bg); }
+    .badge-danger  { color: var(--danger-text);   background: var(--danger-bg); }
+    .badge-dark    { color: var(--white);         background: var(--gray-900); }
+    .badge-new     { color: var(--dark);          background: var(--accent-light); }
+
+    /* ─── STATUS CELLS ─── */
+    .st-ok   { color: #0e7a72; background: #e6f7f6; padding: 0.15rem 0.5rem; border-radius: 3px; font-size: 0.8rem; font-weight: 600; }
+    .st-warn { color: var(--warning-dark); background: var(--warning-bg); padding: 0.15rem 0.5rem; border-radius: 3px; font-size: 0.8rem; font-weight: 600; }
+    .st-fail { color: var(--danger-text);  background: var(--danger-bg);  padding: 0.15rem 0.5rem; border-radius: 3px; font-size: 0.8rem; font-weight: 600; }
+    .st-na   { color: var(--gray-700);    background: var(--gray-100);   padding: 0.15rem 0.5rem; border-radius: 3px; font-size: 0.8rem; font-weight: 600; }
+
+    /* ─── PIE ─── */
+    .doc-footer {
+      background: var(--white);
+      border-top: 3px solid var(--primary);
+      padding: 1.2rem 2rem;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+    .doc-footer .footer-left   { font-size: 0.78rem; color: var(--gray-700); font-weight: 600; }
+    .doc-footer .footer-center { font-size: 0.72rem; color: var(--gray-600); font-style: italic; text-align: center; }
+    .doc-footer .footer-right  { font-size: 0.72rem; color: var(--gray-600); text-align: right; }
+    .doc-footer .footer-path   { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; color: var(--gray-600); margin-top: 0.2rem; }
+
+    /* ─── BOTÓN IMPRIMIR ─── */
+    .btn-print {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      background: var(--primary);
+      color: var(--white);
+      border: none;
+      border-radius: 6px;
+      padding: 0.6rem 1.1rem;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(23,141,194,0.35);
+      transition: background 0.15s;
+      z-index: 200;
+    }
+    .btn-print:hover { background: var(--primary-dark); }
+
+    .glossary-term { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--primary-dark); font-weight: 500; }
+
+    @media print {
+      .sidebar, .page-header, .btn-print { display: none !important; }
+      .main-content { padding: 0; }
+      .content-section { margin: 0; box-shadow: none; border-radius: 0; page-break-inside: avoid; }
+      body { font-size: 10pt; background: white; }
+      pre { font-size: 8pt; }
+      table { font-size: 8pt; }
+      .cover { page-break-after: always; }
+      .doc-footer {
+        position: fixed;
+        bottom: 0; left: 0; right: 0;
+        border-top: 2px solid var(--primary);
+        background: white;
+        padding: 0.5rem 1.5rem;
+        font-size: 8pt;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .sidebar { display: none; }
+      .cover-title { font-size: 2rem; }
+      .content-section { margin: 1rem; padding: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- CABECERA FIJA -->
+  <header class="page-header">
+    <div class="page-header-brand">
+      <span class="page-header-logo">(CODANOR 50)</span>
+      <span class="page-header-title">Manual de la Plataforma OpenCode Tracker</span>
+    </div>
+    <span class="page-header-meta">v2.0 · 16/11/2026</span>
+  </header>
+
+  <div class="layout">
+
+    <!-- SIDEBAR TOC -->
+    <aside class="sidebar">
+      <div class="sidebar-label">Índice de contenidos</div>
+      <nav>
+        <a href="#portada">Portada</a>
+        <a href="#versiones">Control de versiones</a>
+        <a href="#seccion-1">1. Introducción y objeto</a>
+        <a href="#seccion-2">2. Alcance</a>
+        <a href="#seccion-3">3. Arquitectura y tecnologías</a>
+        <a href="#seccion-4">4. Interfaz y navegación</a>
+        <a href="#seccion-5">5. Dashboard</a>
+        <a href="#seccion-6">6. Incidencias (Kanban local)</a>
+        <a href="#seccion-7">7. Gestor de Tiquets</a>
+        <a href="#seccion-8">8. Configuración IA corporativa</a>
+        <a href="#seccion-9">9. Herramientas enlazadas</a>
+        <a href="#seccion-10">10. Persistencia de datos</a>
+        <a href="#seccion-11">11. Estado actual y observaciones</a>
+        <a href="#glosario">Glosario</a>
+      </nav>
+    </aside>
+
+    <!-- CONTENIDO -->
+    <main class="main-content">
+
+      <!-- PORTADA -->
+      <div class="cover" id="portada">
+        <div class="cover-logo">(CODANOR 50)</div>
+        <div class="cover-type">Manual de usuario</div>
+        <h1 class="cover-title">Manual de la Plataforma<br>OpenCode Tracker</h1>
+        <p class="cover-subtitle">Guía de uso y estado actual (app v1.1) — Dashboard, Incidencias, Tiquets y Configuración IA</p>
+        <div class="cover-meta">
+          <div class="cover-meta-item">
+            <div class="label">Versión</div>
+            <div class="value">v2.0</div>
+          </div>
+          <div class="cover-meta-item">
+            <div class="label">Fecha</div>
+            <div class="value">16/11/2026</div>
+          </div>
+          <div class="cover-meta-item">
+            <div class="label">Autor</div>
+            <div class="value">CODANOR — Jafa, S.L.</div>
+          </div>
+          <div class="cover-meta-item">
+            <div class="label">Aplicación</div>
+            <div class="value">plataforma-seguimiento.html · v1.1 · :5003</div>
+          </div>
+        </div>
+        <div class="cover-footer">
+          <span class="company">CODANOR — Jafa, S.L. — Barcelona, Catalunya</span>
+          <span class="classification">Documento interno — Uso exclusivo CODANOR</span>
+        </div>
+      </div>
+
+      <!-- CONTROL DE VERSIONES -->
+      <div class="version-control" id="versiones">
+        <h2>Control de versiones</h2>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr><th>Versión</th><th>Fecha</th><th>Autor</th><th>Descripción del cambio</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>v1.0</code></td>
+                <td>15/11/2026</td>
+                <td>CODANOR — Jafa, S.L.</td>
+                <td>Versión inicial. Documenta el estado actual de la app OpenCode Tracker (plataforma-seguimiento.html, 2822 líneas) para su uso y actualización.</td>
+              </tr>
+              <tr>
+                <td><code>v2.0</code></td>
+                <td>16/11/2026</td>
+                <td>CODANOR — Jafa, S.L.</td>
+                <td>Actualización al estado <strong>app v1.1</strong>: Dashboard híbrido (tiquets :5001 / Kanban local) con badge de fuente, progreso del Manual dinámico (array <code>MANUAL</code>), CVSS condicionado al tipo, proveedor Ollama en Config IA, tipografía JetBrains Mono y versionado explícito del HTML.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- SECCIÓN 1 — INTRODUCCIÓN -->
+      <div class="content-section" id="seccion-1">
+        <div class="section-number">Sección 1</div>
+        <h1>Introducción y objeto</h1>
+        <p><strong>OpenCode Tracker</strong> (título interno <em>«Plataforma de Seguimiento OpenCode — CODANOR»</em>) es la
+        aplicación web de panel de control (dashboard) corporativo de CODANOR para el seguimiento del trabajo con
+        la herramienta OpenCode. Está implementada como una <strong>SPA (Single Page Application)</strong> monolítica
+        en un único archivo HTML (<code>plataforma-seguimiento.html</code>, 2822 líneas), con CSS embebido y
+        JavaScript vanilla sin frameworks externos.</p>
+
+        <p>La aplicación integra cuatro bloques funcionales: un <strong>Dashboard</strong> de métricas, un tablero
+        <strong>Kanban de incidencias</strong> local, un <strong>Gestor de Tiquets</strong> conectado al backend Flask
+        de la Plataforma, y un panel de <strong>Configuración IA corporativa</strong>. Además enlaza con herramientas
+        externas de análisis de código y homogeneización de proyectos.</p>
+
+        <h2>Arquitectura de servicio en dos puertos</h2>
+        <p>Es crítico entender la separación de responsabilidades entre dos servidores Flask:</p>
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>Puerto</th><th>Servidor</th><th>Rol</th></tr></thead>
+            <tbody>
+              <tr><td><code>:5003</code></td><td><code>servidor/dashboard_server.py</code></td><td>Sirve el HTML y los assets estáticos. <strong>No tiene base de datos propia.</strong></td></tr>
+              <tr><td><code>:5001</code></td><td><code>Plataforma_Seguimiento_Proyectos/servidor/server.py</code></td><td>Provee todas las APIs consumidas en red: tiquets (<code>/api/tiquets/*</code>) y configuración IA corporativa (<code>/api/corp/llm-config</code>).</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="alert alert-info">
+          <div class="alert-title">Audiencia</div>
+          Personal técnico y de gestión de CODANOR que utiliza la Plataforma de Seguimiento OpenCode. Documento interno — Uso exclusivo CODANOR. v1.0 — 15/11/2026.
+        </div>
+      </div>
+
+      <!-- SECCIÓN 2 — ALCANCE -->
+      <div class="content-section" id="seccion-2">
+        <div class="section-number">Sección 2</div>
+        <h1>Alcance</h1>
+        <p>Este manual describe el estado actual de la aplicación OpenCode Tracker tal y como está implementada en
+        <code>plataforma-seguimiento.html</code>, con el objetivo de servir como guía de uso y base para futuras
+        actualizaciones.</p>
+
+        <h2>Dentro del alcance</h2>
+        <ul>
+          <li>Navegación general y estructura de la interfaz (sidebar, header, buscador, atajos).</li>
+          <li>Funcionamiento del Dashboard y sus métricas.</li>
+          <li>Gestión de incidencias en el Kanban local (localStorage).</li>
+          <li>Uso del Gestor de Tiquets conectado al backend Flask <code>:5001</code>.</li>
+          <li>Configuración de la clave LLM corporativa compartida en LAN.</li>
+          <li>Persistencia de datos y endpoints consumidos.</li>
+          <li>Observaciones del estado actual y puntos de mejora para la actualización.</li>
+        </ul>
+
+        <h2>Fuera del alcance</h2>
+        <ul>
+          <li>Detalle interno del servidor <code>server.py</code> (:5001) y el esquema completo de <code>plataforma.db</code> — ver <code>ARQUITECTURA_DB_SQLITE-V01.html</code>.</li>
+          <li>El módulo IA/LLM de las 9 apps ISO/ENS (este manual solo cubre el panel corporativo del Tracker).</li>
+          <li>El contenido del Manual OpenCode v2.1 (los 16 capítulos documentados en el Dashboard).</li>
+          <li>La herramienta de análisis de código (<code>analisis-codigo.html</code>) y la de homogeneización, que se enlazan pero no se documentan aquí.</li>
+        </ul>
+      </div>
+
+      <!-- SECCIÓN 3 — ARQUITECTURA Y TECNOLOGÍAS -->
+      <div class="content-section" id="seccion-3">
+        <div class="section-number">Sección 3</div>
+        <h1>Arquitectura y tecnologías</h1>
+
+        <h2>Tipo de aplicación</h2>
+        <p>SPA de un solo archivo. La navegación entre páginas se gestiona con la función <code>showPage(pageId)</code>,
+        que alterna la clase <code>active</code> sobre los elementos <code>.page</code>. Dos páginas especiales —el
+        <strong>Gestor de Tiquets</strong> y la <strong>Configuración IA</strong>— viven fuera del contenedor principal como
+        overlays <code>position:fixed</code> y ocultan el contenido subyacente con <code>visibility:hidden</code> para
+        no romper el scroll.</p>
+
+        <h2>Tecnologías empleadas</h2>
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>Componente</th><th>Tecnología</th><th>Notas</th></tr></thead>
+            <tbody>
+              <tr><td>Lógica</td><td>JavaScript vanilla</td><td>Sin frameworks ni librerías (no Chart.js, jQuery, React…).</td></tr>
+              <tr><td>Estilos</td><td>CSS embebido en <code>&lt;style&gt;</code></td><td>Variables <code>:root</code> de la paleta CODANOR.</td></tr>
+              <tr><td>Fuentes</td><td>Google Fonts</td><td>Poppins (titulares) + Nunito Sans (cuerpo) + <strong>JetBrains Mono</strong> (código, IDs y rutas) <span class="badge badge-new">v1.1</span>.</td></tr>
+              <tr><td>Iconografía</td><td>SVG inline (estilo Feather)</td><td>Sin icon-font.</td></tr>
+              <tr><td>Logo</td><td>Recurso remoto</td><td><code>codanor.com/assets/img/logo_web-50.png</code></td></tr>
+              <tr><td>Persistencia local</td><td>localStorage</td><td>3 claves (ver Sección 10).</td></tr>
+              <tr><td>Backend</td><td>Flask <code>:5001</code></td><td>APIs de tiquets y config IA.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2>Paleta corporativa</h2>
+        <p>Definida en <code>:root</code>: <code>--primary #178DC2</code>, <code>--accent #12A79D</code>,
+        <code>--dark #1a1a2e</code>. Incluye <code>@media print</code> que oculta sidebar y header al imprimir.</p>
+      </div>
+
+      <!-- SECCIÓN 4 — INTERFAZ Y NAVEGACIÓN -->
+      <div class="content-section" id="seccion-4">
+        <div class="section-number">Sección 4</div>
+        <h1>Interfaz y navegación</h1>
+
+        <h2>Sidebar (barra lateral)</h2>
+        <p>La barra lateral está encabezada por el logo CODANOR y la marca <strong>OpenCode Tracker</strong>, y se
+        organiza en cuatro grupos:</p>
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>Grupo</th><th>Ítem</th><th>Destino</th><th>Indicador</th></tr></thead>
+            <tbody>
+              <tr><td rowspan="2"><strong>Principal</strong></td><td>Dashboard</td><td>Página SPA <code>dashboard</code></td><td>—</td></tr>
+              <tr><td>Incidencias</td><td>Página SPA <code>kanban</code></td><td>Badge contador <code>#kanbanBadge</code></td></tr>
+              <tr><td rowspan="2"><strong>Recursos</strong></td><td>Documentación</td><td>Página SPA <code>docs</code></td><td>—</td></tr>
+              <tr><td>Changelog</td><td>Página SPA <code>changelog</code></td><td>—</td></tr>
+              <tr><td rowspan="2"><strong>Acciones</strong></td><td>Gestor de Tiquets</td><td>Overlay <code>tickets</code></td><td>Badge <code>#ticketsBadge</code></td></tr>
+              <tr><td>Configuración IA</td><td>Overlay <code>llm-admin</code></td><td>Badge «Corp» <code>#llmCorpBadge</code></td></tr>
+              <tr><td rowspan="2"><strong>Herramientas</strong></td><td>Análisis de Código</td><td>Enlace externo <code>/analisis-codigo</code></td><td>Nueva pestaña</td></tr>
+              <tr><td>Homogeneización de Proyectos</td><td>Enlace externo <code>homogeneizacion-proyectos.html</code></td><td>Nueva pestaña</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>El pie de la barra muestra <strong>Jafa, S.L. — CODANOR</strong> / <strong>Barcelona, Catalunya</strong>.</p>
+
+        <h2>Cabecera (header)</h2>
+        <ul>
+          <li>Botón hamburguesa para alternar la barra lateral en móvil (<code>#sidebar.open</code>).</li>
+          <li>Buscador global <code>#globalSearch</code> → <code>handleSearch()</code>.</li>
+          <li>Botón <strong>«+ Nueva incidencia»</strong> → <code>openNewTicketModal()</code>.</li>
+          <li>Título de página dinámico <code>#pageTitle</code> (inicia en «Dashboard»).</li>
+        </ul>
+
+        <h2>Atajos de teclado</h2>
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>Atajo</th><th>Acción</th></tr></thead>
+            <tbody>
+              <tr><td><code>Esc</code></td><td>Cierra el modal abierto.</td></tr>
+              <tr><td><code>Ctrl / Cmd + N</code></td><td>Abre el modal de nueva incidencia.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- SECCIÓN 5 — DASHBOARD -->
+      <div class="content-section" id="seccion-5">
+        <div class="section-number">Sección 5</div>
+        <h1>Dashboard</h1>
+        <p>Página de inicio con un resumen visual del estado del trabajo. Se compone de cuatro bloques.</p>
+
+        <h2>Tarjetas de métricas <span class="badge badge-new">híbrido v1.1</span></h2>
+        <p>Desde la v1.1, <code>renderDashboard()</code> es <strong>asíncrono</strong> y usa una fuente de datos híbrida:
+        cuando el backend <code>:5001</code> está accesible, agrega las métricas desde los <strong>tiquets reales del
+        servidor</strong> (<code>dashboardFromServer()</code>); si no, cae al <strong>Kanban local</strong>
+        (<code>dashboardFromLocal()</code>). Un <strong>badge de fuente</strong> <code>#dashboardSource</code> indica el
+        origen de los datos en cada momento.</p>
+        <div class="alert alert-success">
+          <div class="alert-title">Resuelto en v1.1 — métricas conectadas al servidor</div>
+          Las tarjetas del Dashboard ya reflejan los tiquets del servidor cuando hay conexión. El Kanban local se
+          mantiene como herramienta independiente y actúa de respaldo offline.
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>Tarjeta</th><th>ID</th><th>Online (tiquets :5001)</th><th>Offline (Kanban local)</th></tr></thead>
+            <tbody>
+              <tr><td>Total incidencias</td><td><code>#metricTotal</code></td><td><code>tiquets.length</code></td><td><code>tickets.length</code></td></tr>
+              <tr><td>Completadas</td><td><code>#metricDone</code></td><td><code>estado ∈ {resuelto, cerrado}</code></td><td><code>status === 'done'</code></td></tr>
+              <tr><td>En progreso</td><td><code>#metricProgress</code></td><td><code>estado ∈ {en_progreso, asignado}</code></td><td><code>status === 'progress'</code></td></tr>
+              <tr><td>Prioridad alta</td><td><code>#metricHigh</code></td><td><code>prioridad ∈ {critica, alta}</code> y no cerrado</td><td><code>priority === 'high' &amp;&amp; status !== 'done'</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2>Progreso del Manual <span class="badge badge-new">dinámico v1.1</span></h2>
+        <p>El progreso ya <strong>no está hardcodeado</strong>. Se calcula a partir del array <code>MANUAL</code>
+        (fuente única de verdad) mediante <code>renderManualProgress()</code>, que genera el porcentaje, el conteo
+        «N de M» y la cuadrícula de capítulos. Para publicar una nueva versión del manual basta con editar el array
+        en el <code>&lt;script&gt;</code>, sin tocar el HTML.</p>
+        <div class="alert alert-success">
+          <div class="alert-title">Resuelto en v1.1 — progreso dinámico</div>
+          El array <code>MANUAL = { version, meta, capitulos:[{ n, titulo, estado }] }</code> define los capítulos y su
+          estado (<code>nuevo</code> / <code>actualizado</code> / sin etiqueta). El % se deriva de los capítulos con estado.
+        </div>
+        <p>Contenido actual del manual documentado (16 capítulos): 8 nuevos, 5 actualizados y 3 sin etiqueta.</p>
+
+        <h2>Actividad Reciente</h2>
+        <p>Lista <code>#activityList</code> poblada desde <code>localStorage['codanor_opencode_activity']</code>
+        (<code>loadActivity()</code>). Muestra las últimas 10 entradas con formato relativo («Hace X min/h/d»,
+        <code>timeAgo()</code>). Estado vacío: <code>#activityEmpty</code>.</p>
+
+        <h2>Resumen por Tipo</h2>
+        <p>Barras de progreso por tipo (<code>#typeSummary</code>, vía <code>_renderTypeSummary()</code>). En modo
+        <strong>online</strong> usa los 6 tipos de tiquet (Incidencias, Peticiones, Cambios, Problemas, Vulnerabilidades,
+        Ciberincidentes); en modo <strong>offline</strong>, los tipos del Kanban local (Bugs, Features, Documentación,
+        Configuración, Rendimiento).</p>
+      </div>
+
+      <!-- SECCIÓN 6 — KANBAN -->
+      <div class="content-section" id="seccion-6">
+        <div class="section-number">Sección 6</div>
+        <h1>Incidencias (Kanban local)</h1>
+        <p>Tablero Kanban con arrastrar y soltar (drag-and-drop), totalmente <strong>local</strong> (localStorage). Es un
+        sistema distinto e independiente del Gestor de Tiquets (Sección 7).</p>
+        <div class="alert alert-info">
+          <div class="alert-title">Aviso en la interfaz (v1.1)</div>
+          La página del Kanban muestra ahora un aviso que aclara que es un <strong>tablero local</strong> (guardado en el
+          navegador) e independiente del <strong>Gestor de Tiquets</strong> del servidor :5001, para evitar confusión
+          entre ambos sistemas.
+        </div>
+
+        <h2>Columnas / estados</h2>
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>Estado</th><th>Columna</th></tr></thead>
+            <tbody>
+              <tr><td><code>backlog</code></td><td>Backlog</td></tr>
+              <tr><td><code>progress</code></td><td>En Progreso</td></tr>
+              <tr><td><code>review</code></td><td>Revisión</td></tr>
+              <tr><td><code>done</code></td><td>Completado</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2>Campos de una incidencia</h2>
+        <p>Modelo guardado por <code>saveTicket()</code>:</p>
+        <p><code>id</code> (<code>T-</code> + timestamp base36) · <code>title</code> · <code>desc</code> ·
+        <code>type</code> · <code>priority</code> · <code>status</code> · <code>createdAt</code> · <code>updatedAt</code>.</p>
+
+        <h2>Tipos y prioridades</h2>
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>Tipos</th><th>Prioridades</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><code>bug</code> (Bug) · <code>feature</code> (Feature) · <code>docs</code> (Documentación) · <code>config</code> (Configuración) · <code>perf</code> (Rendimiento)</td>
+                <td><code>high</code> (Alta) · <code>medium</code> (Media, por defecto) · <code>low</code> (Baja)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2>Operaciones</h2>
+        <ul>
+          <li><strong>Crear:</strong> «+ Nueva incidencia» → <code>openNewTicketModal()</code> (valores por defecto <code>bug / medium / backlog</code>).</li>
+          <li><strong>Editar:</strong> <code>editTicket(id)</code> rellena el modal.</li>
+          <li><strong>Guardar:</strong> <code>saveTicket()</code> exige título, registra actividad y re-renderiza.</li>
+          <li><strong>Eliminar:</strong> <code>deleteTicket()</code> con confirmación.</li>
+          <li><strong>Avanzar estado:</strong> <code>moveTicketForward()</code> o arrastre <code>onDrop()</code>.</li>
+        </ul>
+        <div class="alert alert-info">
+          <div class="alert-title">Datos de ejemplo</div>
+          En la primera visita se siembran automáticamente 7 incidencias de ejemplo y 3 actividades (<code>seedData()</code>).
+        </div>
+      </div>
+
+      <!-- SECCIÓN 7 — GESTOR DE TIQUETS -->
+      <div class="content-section" id="seccion-7">
+        <div class="section-number">Sección 7</div>
+        <h1>Gestor de Tiquets</h1>
+        <p>Módulo integrado con el <strong>backend Flask</strong> de la Plataforma (<code>plataforma.db</code>, SQLite),
+        con fallback offline. A diferencia del Kanban, los datos se comparten en LAN.</p>
+
+        <h2>Endpoint base</h2>
+        <pre><code>const TK_API = (() => {
+  const h = window.location.hostname;
+  const host = (!h || h === 'localhost' || h === '127.0.0.1') ? 'localhost' : h;
+  return `http://${host}:5001/api/tiquets`;
+})();</code></pre>
+        <p>El endpoint es <strong>LAN-aware</strong>: usa <code>window.location.hostname</code> para funcionar desde
+        cualquier PC de la red, nunca <code>localhost</code> hardcodeado.</p>
+
+        <h2>Endpoints consumidos</h2>
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>Método</th><th>Ruta (bajo <code>:5001/api/tiquets</code>)</th><th>Función</th></tr></thead>
+            <tbody>
+              <tr><td>GET</td><td><code>/clientes</code></td><td>Detección de modo + carga de clientes</td></tr>
+              <tr><td>GET</td><td><code>/proyectos?client_id=</code></td><td>Carga de proyectos</td></tr>
+              <tr><td>GET</td><td><code>?&lt;filtros&gt;</code></td><td>Lista de tiquets</td></tr>
+              <tr><td>POST</td><td><code>` (base)</code></td><td>Crear / sincronizar</td></tr>
+              <tr><td>PUT</td><td><code>/&lt;id&gt;</code></td><td>Actualizar</td></tr>
+              <tr><td>GET</td><td><code>/&lt;id&gt;</code></td><td>Detalle</td></tr>
+              <tr><td>POST</td><td><code>/&lt;id&gt;/comentarios</code></td><td>Comentar</td></tr>
+              <tr><td>POST</td><td><code>/&lt;id&gt;/acciones</code></td><td>Crear acción</td></tr>
+              <tr><td>PUT</td><td><code>/&lt;id&gt;/acciones/&lt;accionId&gt;</code></td><td>Actualizar acción</td></tr>
+              <tr><td>DELETE</td><td><code>/&lt;id&gt;/acciones/&lt;accionId&gt;</code></td><td>Eliminar acción</td></tr>
+              <tr><td>GET</td><td><code>/exportar?&lt;filtros&gt;</code></td><td>Exportar CSV</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2>Modo online / offline</h2>
+        <p><code>tkDetectarModo()</code> hace un <code>GET /clientes</code> con timeout de 2 s y muestra el indicador
+        <code>#tk-modo-ind</code>: <span class="st-ok">● Online</span> o <span class="st-warn">● Offline</span>. En offline
+        usa la caché <code>localStorage['codanor_tiquets_v2']</code>. Reconecta automáticamente con el evento
+        <code>window 'online'</code>.</p>
+
+        <h2>Tipos, estados y prioridades</h2>
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>Tipos</th><th>Estados</th><th>Prioridades</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><code>incidencia</code> (INC) · <code>peticion</code> (PET) · <code>cambio</code> (CAM) · <code>problema</code> (PRO) · <code>vulnerabilidad</code> (VUL) · <code>ciberincidente</code> (CIB)</td>
+                <td><code>nuevo</code> · <code>asignado</code> · <code>en_progreso</code> · <code>pendiente</code> · <code>resuelto</code> · <code>cerrado</code></td>
+                <td><code>critica</code> · <code>alta</code> · <code>media</code> · <code>baja</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2>Campos del tiquet</h2>
+        <p><code>titulo</code>* · <code>descripcion</code> · <code>tipo</code>* · <code>prioridad</code>* · <code>estado</code> ·
+        <code>asignado_a</code> · <code>solicitante</code> · <code>control_iso</code> (p. ej. <code>A.16.1.1</code>) ·
+        <code>normas_afectadas</code> (array, v1.2) · <code>cvss_score</code> (0–10, solo VUL/CIB) · <code>client_id</code> ·
+        <code>app_id</code>. Al crear exige cliente y norma.</p>
+        <div class="alert alert-success">
+          <div class="alert-title">CVSS condicionado al tipo (v1.1)</div>
+          El campo <code>cvss_score</code> se gestiona con <code>tkToggleCvss()</code>: se <strong>habilita o deshabilita</strong>
+          (y se limpia) según el tipo. Solo aplica a <code>vulnerabilidad</code> y <code>ciberincidente</code>; en otros
+          tipos el valor se envía como <code>null</code>. Antes solo se atenuaba visualmente (opacidad).
+        </div>
+
+        <h3>Formato de ID (modo offline)</h3>
+        <pre><code>TIK-{NNN}-{client_id}-{app_id}-{DD-MM-AAAA}</code></pre>
+
+        <h2>Panel de detalle</h2>
+        <p>Muestra tipo, prioridad, estado, asignado, norma, control ISO, descripción y fecha de creación. Incluye
+        <strong>Acciones de Seguimiento</strong> (<code>pendiente → en_curso → resuelta</code> con barra de progreso y
+        auto-resolución del tiquet cuando todas las acciones están resueltas), <strong>Historial de cambios</strong> y
+        <strong>Comentarios</strong>. El <strong>SLA</strong> se resalta en rojo cuando está vencido.</p>
+      </div>
+
+      <!-- SECCIÓN 8 — CONFIGURACIÓN IA -->
+      <div class="content-section" id="seccion-8">
+        <div class="section-number">Sección 8</div>
+        <h1>Configuración IA corporativa</h1>
+        <p>Panel para gestionar la <strong>clave LLM corporativa</strong> compartida en LAN. La clave se almacena
+        <strong>ofuscada</strong> en la base de datos del servidor.</p>
+
+        <h2>Endpoint</h2>
+        <pre><code>const CORP_API = `http://${window.location.hostname}:5001/api/corp/llm-config`;</code></pre>
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>Método</th><th>Función</th><th>Acción</th></tr></thead>
+            <tbody>
+              <tr><td>GET</td><td><code>corpLoadStatus</code></td><td>Carga estado y badge «Corp».</td></tr>
+              <tr><td>POST</td><td><code>corpSaveConfig</code></td><td>Guarda <code>{provider, model, apiKey, setBy}</code>.</td></tr>
+              <tr><td>DELETE</td><td><code>corpDeleteConfig</code></td><td>Elimina la configuración corporativa.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>El botón <strong>«Probar»</strong> (<code>corpTestConfig()</code>) valida la conexión llamando directamente al
+        endpoint <code>/chat/completions</code> del proveedor, no al servidor.</p>
+
+        <h2>Proveedores soportados</h2>
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>Proveedor</th><th>Base URL</th><th>Modelo por defecto</th></tr></thead>
+            <tbody>
+              <tr><td>OpenRouter (Gratis)</td><td><code>https://openrouter.ai/api/v1</code></td><td><code>openrouter/free</code></td></tr>
+              <tr><td>Groq (Gratis)</td><td><code>https://api.groq.com/openai/v1</code></td><td><code>openai/gpt-oss-20b</code></td></tr>
+              <tr><td>Google Gemini (Gratis)</td><td><code>…/v1beta/openai</code></td><td><code>gemini-2.0-flash</code></td></tr>
+              <tr><td>OpenAI (GPT)</td><td><code>https://api.openai.com/v1</code></td><td><code>gpt-4o-mini</code></td></tr>
+              <tr><td>Anthropic (Claude)</td><td><code>https://api.anthropic.com</code></td><td><code>claude-3-5-haiku-20241022</code></td></tr>
+              <tr><td>Ollama (Local) <span class="badge badge-new">v1.1</span></td><td><code>http://{hostname}:11434/v1</code></td><td><code>qwen2.5-coder:14b</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>OpenRouter añade las cabeceras <code>HTTP-Referer: https://codanor.com</code> y
+        <code>X-Title: CODANOR Plataforma</code>.</p>
+        <div class="alert alert-success">
+          <div class="alert-title">Ollama añadido en v1.1</div>
+          El panel corporativo ya incluye el proveedor <code>Ollama (Local)</code>, LAN-aware
+          (<code>http://{window.location.hostname}:11434/v1</code>), sin cabecera <code>Authorization</code> y con el guard
+          <code>isOllamaKey</code> (su «clave» es la cadena <code>'ollama'</code>, de 6 caracteres). Modelos sugeridos:
+          <code>qwen2.5-coder:14b</code>, <code>qwen3:8b</code>, <code>llama3.1:latest</code>, <code>gemma3:4b</code>.
+        </div>
+        <div class="alert alert-info">
+          <div class="alert-title">Aviso claro si :5001 no está accesible (v1.1)</div>
+          <code>corpLoadStatus()</code> distingue un fallo de red y muestra el mensaje
+          <em>«🔌 Servidor :5001 no accesible»</em> con la instrucción para arrancar el backend, en lugar de un error genérico.
+        </div>
+
+        <h2>Prioridad de claves</h2>
+        <ol>
+          <li><strong>Clave personal</strong> (localStorage del navegador) — máxima prioridad.</li>
+          <li><strong>Clave corporativa</strong> (este panel) — compartida en LAN.</li>
+          <li><strong>Sin clave</strong> — se ofrece un prompt manual para copiar a ChatGPT/Claude.</li>
+        </ol>
+      </div>
+
+      <!-- SECCIÓN 9 — HERRAMIENTAS ENLAZADAS -->
+      <div class="content-section" id="seccion-9">
+        <div class="section-number">Sección 9</div>
+        <h1>Herramientas enlazadas</h1>
+        <p>El grupo <strong>Herramientas</strong> del sidebar no abre páginas SPA, sino enlaces externos que se abren en
+        una nueva pestaña.</p>
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>Herramienta</th><th>Destino</th><th>Descripción</th></tr></thead>
+            <tbody>
+              <tr><td>Análisis de Código</td><td><code>/analisis-codigo</code> (ruta Flask :5003)</td><td>Panel de análisis SonarQube/SonarCloud (<code>analisis-codigo.html</code>).</td></tr>
+              <tr><td>Homogeneización de Proyectos</td><td><code>homogeneizacion-proyectos.html</code></td><td>Dashboard de homogeneización de proyectos (archivo local relativo).</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Además, las tarjetas de la página <strong>Documentación</strong> enlazan a recursos externos de OpenCode:
+        <code>opencode.ai/docs</code>, <code>/troubleshooting</code>, <code>/providers</code>, <code>/discord</code> y
+        <code>github.com/anomalyco/opencode</code>.</p>
+      </div>
+
+      <!-- SECCIÓN 10 — PERSISTENCIA -->
+      <div class="content-section" id="seccion-10">
+        <div class="section-number">Sección 10</div>
+        <h1>Persistencia de datos</h1>
+
+        <h2>Claves de localStorage</h2>
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>Clave</th><th>Constante</th><th>Uso</th></tr></thead>
+            <tbody>
+              <tr><td><code>codanor_opencode_tracker</code></td><td><code>STORAGE_KEY</code></td><td>Incidencias del Kanban local.</td></tr>
+              <tr><td><code>codanor_opencode_activity</code></td><td><code>ACTIVITY_KEY</code></td><td>Registro de actividad del dashboard.</td></tr>
+              <tr><td><code>codanor_tiquets_v2</code></td><td><code>TK_STORE</code></td><td>Caché / fallback offline de tiquets.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2>Backend consumido</h2>
+        <ul>
+          <li><strong>Puerto 5001:</strong> endpoints de red → <code>/api/tiquets/*</code> (tiquets y, desde v1.1, métricas del Dashboard en modo online) y <code>/api/corp/llm-config</code>, más pruebas directas a proveedores LLM externos.</li>
+          <li><strong>Puerto 5003:</strong> no aparece ninguna referencia interna; solo sirve el HTML.</li>
+          <li><strong>Dashboard (v1.1):</strong> híbrido — usa tiquets de <code>:5001</code> si hay conexión; si no, Kanban local.</li>
+          <li><strong>Kanban, Documentación y Changelog:</strong> siguen siendo 100 % localStorage.</li>
+        </ul>
+      </div>
+
+      <!-- SECCIÓN 11 — ESTADO ACTUAL Y OBSERVACIONES -->
+      <div class="content-section" id="seccion-11">
+        <div class="section-number">Sección 11</div>
+        <h1>Correcciones aplicadas en v1.1</h1>
+        <p>Los puntos detectados en la revisión inicial (v1.0 del documento) se han abordado en la
+        <strong>versión 1.1 de la app</strong>. Resumen del estado:</p>
+
+        <div class="alert alert-success">
+          <div class="alert-title">✓ 1. Sistemas de incidencias conectados</div>
+          El Dashboard es ahora <strong>híbrido</strong>: agrega las métricas desde los tiquets reales del servidor
+          (<code>:5001</code>) cuando hay conexión, con fallback al Kanban local offline. Un badge
+          <code>#dashboardSource</code> indica la fuente. El Kanban local queda como herramienta independiente, con un
+          aviso en la UI que lo aclara.
+        </div>
+
+        <div class="alert alert-success">
+          <div class="alert-title">✓ 2. Progreso del Manual dinámico</div>
+          Eliminado el valor hardcodeado. Se calcula desde el array <code>MANUAL</code> con
+          <code>renderManualProgress()</code> (porcentaje, conteo y cuadrícula). Publicar una nueva versión solo requiere
+          editar el array.
+        </div>
+
+        <div class="alert alert-success">
+          <div class="alert-title">✓ 3. CVSS realmente condicionado al tipo</div>
+          <code>tkToggleCvss()</code> habilita/deshabilita y limpia el campo según el tipo; se envía <code>null</code>
+          salvo para <code>vulnerabilidad</code>/<code>ciberincidente</code>.
+        </div>
+
+        <div class="alert alert-success">
+          <div class="alert-title">✓ 5. Mejoras de paridad y versionado</div>
+          Incorporada <strong>JetBrains Mono</strong> (código/IDs/rutas); añadido el proveedor <strong>Ollama (Local)</strong>
+          al panel de Configuración IA; y la app se versiona explícitamente como <strong>OpenCode Tracker v1.1</strong>
+          (visible en el pie del sidebar y en el <code>&lt;head&gt;</code>).
+        </div>
+
+        <div class="alert alert-info">
+          <div class="alert-title">◐ 4. Dependencia del puerto 5001 (mitigada)</div>
+          La dependencia es intrínseca al diseño LAN (el backend vive en <code>:5001</code>). En v1.1 se mitiga con
+          <strong>degradación elegante</strong>: el Dashboard cae al Kanban local y la Configuración IA muestra un aviso
+          claro <em>«🔌 :5001 no accesible»</em> con la instrucción para arrancar el servidor.
+        </div>
+
+        <h2>Pendiente / posibles líneas futuras</h2>
+        <ul>
+          <li>Migrar completamente el Kanban al backend (hoy sigue siendo local) si se desea una única fuente de datos.</li>
+          <li>Endpoint de estadísticas agregadas en <code>server.py</code> para evitar el cálculo en cliente del Dashboard.</li>
+          <li>Externalizar el array <code>MANUAL</code> a un JSON servido por <code>:5003</code> (opcional).</li>
+        </ul>
+      </div>
+
+      <!-- GLOSARIO -->
+      <div class="content-section" id="glosario">
+        <div class="section-number">Glosario</div>
+        <h1>Glosario de términos</h1>
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>Término / Clave</th><th>Definición</th></tr></thead>
+            <tbody>
+              <tr><td class="glossary-term">SPA</td><td>Single Page Application. Aplicación de una sola página que no recarga el navegador al navegar.</td></tr>
+              <tr><td class="glossary-term">localStorage</td><td>Almacenamiento persistente del navegador, local al equipo. No se comparte en red.</td></tr>
+              <tr><td class="glossary-term">Kanban</td><td>Tablero visual de tarjetas organizadas por columnas de estado (Backlog, En Progreso, Revisión, Completado).</td></tr>
+              <tr><td class="glossary-term">Tiquet</td><td>Registro de incidencia/petición gestionado en el backend SQLite y compartido en LAN. Distinto de la «incidencia» del Kanban local.</td></tr>
+              <tr><td class="glossary-term">LAN-aware</td><td>Que detecta automáticamente el host de red (<code>window.location.hostname</code>) en lugar de usar <code>localhost</code> fijo.</td></tr>
+              <tr><td class="glossary-term">SLA</td><td>Service Level Agreement. Plazo de resolución comprometido; se resalta si está vencido.</td></tr>
+              <tr><td class="glossary-term">CVSS</td><td>Common Vulnerability Scoring System. Puntuación 0–10 de severidad de una vulnerabilidad.</td></tr>
+              <tr><td class="glossary-term">LLM</td><td>Large Language Model. Modelo de lenguaje usado por los proveedores de IA configurables.</td></tr>
+              <tr><td class="glossary-term">Clave corporativa</td><td>Clave de API LLM compartida en LAN, almacenada ofuscada en el servidor (<code>/api/corp/llm-config</code>).</td></tr>
+              <tr><td class="glossary-term">:5001</td><td>Puerto del servidor Flask <code>server.py</code> que provee las APIs (tiquets, config IA).</td></tr>
+              <tr><td class="glossary-term">:5003</td><td>Puerto del servidor <code>dashboard_server.py</code> que sirve el HTML del Tracker; sin BD propia.</td></tr>
+              <tr><td class="glossary-term">Ollama</td><td>Motor LLM local (sin coste, sin clave real). En v1.1 se puede seleccionar en Configuración IA; usa <code>http://{hostname}:11434/v1</code>.</td></tr>
+              <tr><td class="glossary-term">Badge de fuente</td><td>Indicador <code>#dashboardSource</code> del Dashboard que muestra si las métricas provienen del servidor (:5001) o del Kanban local (offline).</td></tr>
+              <tr><td class="glossary-term">JetBrains Mono</td><td>Fuente monoespaciada corporativa, usada para código, IDs y rutas. Incorporada en v1.1.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- PIE DE PÁGINA -->
+  <footer class="doc-footer">
+    <div class="footer-left">CODANOR — Jafa, S.L. — Barcelona, Catalunya</div>
+    <div class="footer-center">Documento interno — Uso exclusivo CODANOR</div>
+    <div class="footer-right">
+      v2.0 · 16/11/2026
+      <div class="footer-path">/Users/jaimefajeda/Proyectos/PLATAFORMA_OpenCode-NEW/MANUAL-OPENCODE-TRACKER-V02.html</div>
+    </div>
+  </footer>
+
+  <!-- BOTÓN IMPRIMIR / PDF -->
+  <button class="btn-print" onclick="window.print()">Imprimir / PDF</button>
+
+  <!-- TOC HIGHLIGHT ACTIVO -->
+  <script>
+    const sections = document.querySelectorAll('[id^="seccion-"], #portada, #versiones, #glosario');
+    const navLinks = document.querySelectorAll('.sidebar nav a');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          navLinks.forEach(a => a.classList.remove('active'));
+          const active = document.querySelector(`.sidebar nav a[href="#${entry.target.id}"]`);
+          if (active) active.classList.add('active');
+        }
+      });
+    }, { threshold: 0.3 });
+    sections.forEach(s => observer.observe(s));
+  </script>
+
+</body>
+</html>
