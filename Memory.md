@@ -25,8 +25,70 @@
 | `.opencode/commands/documentos-proyectos.md` | Si | Skill plantilla documentos corporativos (HTML + .docx + .md) — 33 KB — 2026-10-05 |
 | plataforma.db | Activa | **23 tablas**, WAL mode, 298 clientes, 36 proyectos |
 | server.py | Activo | Puerto 5001, HOST 0.0.0.0, **5377 lineas**, **111 endpoints**, APP_DIRS incluye `capas-seguridad` |
+| dashboard_server.py | Activo | Puerto 5003, HOST 0.0.0.0, **v2.0** — sirve el Tracker + **Modulo Gobierno/Monitorizacion** (raiz `~/Proyectos`, `gov.db` propia, 12 endpoints `/api/gov` + `/api/mon`) |
+| gov.db | Activa | **5 tablas** (gov_inventario, gov_proyectos, gov_scans, gov_alertas, gov_auditoria). Local al :5003, excluida de git |
 | Ollama | Activo | localhost:11434, v0.35.1. Modelos: qwen2.5-coder:14b, qwen3:8b, llama3.1:latest, gemma3:4b |
 | Wiki_CODANOR | Activa | Open WebUI :3000 (Docker), ChromaDB vectordb/, 10 KBs, Ollama + OpenRouter conectados |
+
+## Modulo Gobierno y Monitorizacion (v1.0 — 2026-11-20)
+
+### Arquitectura
+
+`dashboard_server.py` (:5003) deja de ser un servidor estatico y gana logica de gobierno:
+- **ROOT_DIR = `~/Proyectos`** (raiz para el escaner, accesible SOLO via API, nunca como ficheros)
+- **STATIC_DIR = `PLATAFORMA_OpenCode-NEW/`** (assets web, serve restringido con `Path.resolve()` + `is_relative_to`)
+- **gov.db** propia en `PLATAFORMA_OpenCode-NEW/servidor/gov.db` (independiente de plataforma.db y tracker.db)
+
+### Ficheros
+
+| Fichero | Rol | Lineas |
+|---|---|---|
+| `servidor/gov_scanner.py` | Escaner + clasificacion + fichas + alertas + health-check | ~470 |
+| `servidor/dashboard_server.py` | v2.0 — estaticos + 12 endpoints gov/mon | ~330 |
+| `servidor/requirements.txt` | flask, flask-cors, python-docx, openpyxl | 4 |
+
+### Tablas gov.db (5)
+
+`gov_inventario` (ruta PK, metadatos, sha256, categoria, nivel_confidencialidad, en_git) ·
+`gov_proyectos` (ficha tecnica: madurez git/AGENTS/Memory/opencode, loc_json, ultimo_commit, rama, cambios) ·
+`gov_scans` (historico) · `gov_alertas` (tipo/severidad/estado) · `gov_auditoria` (ISO 27001 A.8.15)
+
+### Endpoints (12)
+
+**Gobierno:** `POST /api/gov/scan` · `GET /api/gov/scan/status` · `GET /api/gov/inventario` ·
+`GET /api/gov/resumen` · `GET /api/gov/proyectos` · `PUT /api/gov/inventario/clasificar` ·
+`GET /api/gov/scans` · `GET /api/gov/export/word|excel`
+**Monitorizacion:** `GET /api/mon/salud` (6 servidores + integridad + backup + alertas) ·
+`GET /api/mon/alertas` · `POST /api/mon/alertas/<id>/resolver`
+
+### Reglas criticas
+
+1. **gov.db es propia del :5003** — NO mezclar con plataforma.db (:5001) ni tracker.db (:5002).
+2. **Serve estatico restringido a STATIC_DIR** — `~/Proyectos` nunca servible por HTTP. `_safe_static()` con `Path.resolve()` + `is_relative_to`. Corrige el path-traversal preexistente.
+3. **OSSINT = restringido** — solo metadatos, nunca `open()`/hash/git/LOC (`RESTRICTED_PROJECTS` en gov_scanner.py).
+4. **Hash hibrido** — metadatos siempre; sha256 solo con `con_hash=true` y ficheros < 20 MB (`MAX_HASH_MB`).
+5. **Escaneo en hilo** (`threading`) — estado en `_gov_job`, no bloquea Flask. ~2.3s / 7000 ficheros sin hash.
+6. **Frontend usa rutas relativas** (`/api/gov/*`) — mismo :5003 que sirve el HTML, LAN automatico sin problema Safari de puerto cruzado.
+7. **Health-check desde el backend del :5003** — necesario porque Actas (:5000), Licitaciones (:5050) y Legislacion (:8080) escuchan solo en 127.0.0.1.
+
+### Alertas que detecta
+
+Datos confidenciales versionados en git (clientes_codanor.json, tracker.db, CSVs RAT) ·
+credenciales fuera de git · ficheros > 100 MB · duplicados por sha256.
+
+### Dashboard — plataforma-seguimiento.html
+
+Seccion sidebar "Seguridad y Gobierno" (3 paginas, patron `position:fixed` como page-tickets):
+`#page-gov-proyectos` (fichas) · `#page-gov-inventario` (tabla + export) · `#page-gov-salud` (6 semaforos + alertas).
+
+### Documentacion
+
+`PLAN-GOBIERNO-MONITORIZACION-PROYECTOS-V01.md` + `.html` (guia corporativa, skill documentos-proyectos).
+
+### Pendiente — Oleada 2 (hardening, documentada no ejecutada)
+
+Login opt-in (`AUTH_ENABLED` en .env), cabeceras seguras, CORS restringido, rate-limit.
+Credenciales hardcodeadas en Legislacion :8080 (`codanor`/`legislacion2026`) registradas como alerta.
 
 ## Componentes del proyecto
 

@@ -46,6 +46,19 @@ python3 server.py
 # → http://localhost:5001  (HOST 0.0.0.0 — LAN accessible)
 # → http://192.168.0.81:5001 (current LAN IP)
 
+# Start the Tracker + Governance server (Dashboard + Gobierno/Monitorización)
+cd ~/Proyectos/PLATAFORMA_OpenCode-NEW/servidor
+python3 dashboard_server.py
+# → http://localhost:5003/  (Dashboard)  ·  /api/gov/* + /api/mon/* (Gobierno)
+
+# Verify Governance module (:5003) — endpoints + security + DB
+curl -s http://localhost:5003/api/gov/resumen
+curl -s http://localhost:5003/api/mon/salud          # health of the 6 Flask servers
+curl -X POST http://localhost:5003/api/gov/scan -H 'Content-Type: application/json' -d '{"con_hash":false}'
+# Path-traversal MUST be blocked (was a preexisting bug, now fixed → 403):
+curl -s --path-as-is -o /dev/null -w "%{http_code}\n" 'http://localhost:5003/..%2fMemory.md'
+sqlite3 servidor/gov.db "SELECT name FROM sqlite_master WHERE name LIKE 'gov_%';"
+
 # Verify DB integrity
 sqlite3 servidor/plataforma.db "PRAGMA integrity_check;"
 
@@ -1052,6 +1065,64 @@ Todos los documentos generados por este skill incluyen siempre:
 | Script Python | `generar_nombre-doc.py` | `generar_arquitectura-db.py` |
 | Word generado | `NOMBRE-DOC-VXX.docx` | `ARQUITECTURA-DB-V01.docx` |
 | Markdown | `nombre-doc.md` | `arquitectura-db.md` |
+
+## Módulo Gobierno y Monitorización de ~/Proyectos (v1.0 — 2026-11-20)
+
+### Arquitectura — vive en `dashboard_server.py` (:5003), NO en server.py (:5001)
+
+El servidor del Tracker `PLATAFORMA_OpenCode-NEW/servidor/dashboard_server.py` deja de ser
+"solo estáticos" y gana el módulo de Gobierno. **Tres niveles de ruta:**
+
+| Variable | Valor | Rol |
+|---|---|---|
+| `ROOT_DIR` | `~/Proyectos` | Raíz del escáner. **Accesible SOLO vía API `/api/gov/*`, nunca como ficheros HTTP** |
+| `STATIC_DIR` | `PLATAFORMA_OpenCode-NEW/` | Assets web. Serve restringido con `_safe_static()` |
+| `DB_PATH` | `PLATAFORMA_OpenCode-NEW/servidor/gov.db` | BD **propia** del :5003 |
+
+### Ficheros del módulo
+
+| Fichero | Rol |
+|---|---|
+| `servidor/gov_scanner.py` | Escáner, clasificación ISO 27001 A.5.12, fichas por proyecto, alertas, health-check. Estado del job en `_gov_job` (threading) |
+| `servidor/dashboard_server.py` | v2.0 — rutas estáticas (sin cambios) + 12 endpoints `/api/gov/*` y `/api/mon/*` |
+| `servidor/requirements.txt` | flask, flask-cors, python-docx, openpyxl |
+| `servidor/gov.db` | SQLite, 5 tablas, **excluida de git** (datos de gobierno) |
+
+### Reglas CRÍTICAS del módulo
+
+1. **`gov.db` es propia del :5003.** NUNCA mezclar con `plataforma.db` (:5001) ni `tracker.db` (:5002). Dos procesos Flask sobre el mismo SQLite es frágil.
+2. **Serve estático restringido a `STATIC_DIR`.** `_safe_static()` usa `Path.resolve()` + `is_relative_to(STATIC_DIR)`. `~/Proyectos` NUNCA servible por HTTP. Esto corrige un **path-traversal preexistente** (el :5003 servía `/../Memory.md` con 200 → ahora 403). Verificar siempre con `--path-as-is`.
+3. **OSSINT = restringido.** `RESTRICTED_PROJECTS = {'OSSINT'}` en gov_scanner.py: solo metadatos, nunca `open()`/hash/git/LOC. Para añadir más proyectos restringidos, editar ese set.
+4. **Hash híbrido.** Metadatos siempre; sha256 solo con `con_hash=true` y ficheros `< MAX_HASH_MB` (20 MB). No subir el umbral sin medir (~5.8 GB de carpeta).
+5. **Escaneo en hilo.** `lanzar_escaneo_async()` arranca `threading`; no bloquea Flask. Devuelve 409 si ya hay uno en curso. ~2.3 s / 7000 ficheros sin hash.
+6. **Frontend usa rutas relativas** (`/api/gov/resumen`) porque la API vive en el mismo :5003 que sirve el HTML. NO usar `hostname:5001` aquí (eso es para Tiquets/LLM). Evita el bug Safari de puerto cruzado.
+7. **Health-check desde el backend del :5003.** Actas (:5000), Licitaciones (:5050) y Legislación (:8080) escuchan solo en `127.0.0.1`; por eso el ping lo hace `gov_scanner.health_check()` en la misma máquina, no el navegador. El :5000 puede dar falso "up" por el AirPlay Receiver de macOS.
+8. **Páginas del dashboard usan `position:fixed`** (patrón `page-tickets`), registradas en el array `fixedPages` de `showPage()`. No usan el contenedor SPA `.content`.
+
+### Endpoints (12)
+
+**Gobierno:** `POST /api/gov/scan` · `GET /api/gov/scan/status` · `GET /api/gov/inventario` ·
+`GET /api/gov/resumen` · `GET /api/gov/proyectos` · `PUT /api/gov/inventario/clasificar` ·
+`GET /api/gov/scans` · `GET /api/gov/export/word|excel`
+**Monitorización:** `GET /api/mon/salud` · `GET /api/mon/alertas` · `POST /api/mon/alertas/<id>/resolver`
+
+### Clasificación (ISO 27001 A.5.12 / ENS)
+
+Niveles: `publico` · `interno` · `confidencial` · `restringido`. Reglas por patrón en
+`gov_scanner.clasificar()`. Datos personales (clientes_codanor.json, *.db, RAT CSVs) → confidencial;
+credenciales (.env, *token*, *secret*, auth.json, *.key, *.pem) → restringido.
+
+### Alertas detectadas (`gov_alertas`)
+
+Datos confidenciales versionados en git · credenciales fuera de git · ficheros > 100 MB ·
+duplicados por sha256. El filtro excluye `opencode.json` (no es confidencial).
+
+### Pendiente — Oleada 2 (hardening, documentada NO ejecutada)
+
+Login opt-in (`AUTH_ENABLED` en `.env`), cabeceras seguras (X-Frame-Options, CSP),
+CORS restringido, rate-limit. **Credenciales hardcodeadas en Legislación :8080**
+(`codanor`/`legislacion2026` en `web/app.py`) — registrar/corregir en Oleada 2.
+Documentación: `PLAN-GOBIERNO-MONITORIZACION-PROYECTOS-V01.{md,html}`.
 
 ## Archivos protegidos — NO modificar sin aprobación explícita
 
