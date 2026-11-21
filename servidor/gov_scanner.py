@@ -543,6 +543,76 @@ def resumen(db_path):
     }
 
 
+# ─── VIGILANCIA DE TAMAÑO DE LOS AGENTS.md ──────────────────────────────────────
+
+# Umbrales de líneas para clasificar el tamaño de un AGENTS.md
+AGENTS_OK_MAX = 200       # < 200 líneas → OK (verde)
+AGENTS_WARN_MAX = 500     # 200-500 → aviso (ámbar); > 500 → crítico (rojo)
+
+
+def _estado_agents(lineas):
+    """Clasifica un AGENTS.md por su nº de líneas."""
+    if lineas < AGENTS_OK_MAX:
+        return 'ok'
+    if lineas <= AGENTS_WARN_MAX:
+        return 'aviso'
+    return 'critico'
+
+
+def analizar_agents_md(root, max_depth=3):
+    """Recorre ~/Proyectos buscando AGENTS.md y los clasifica por tamaño.
+
+    Devuelve dict con la lista de ficheros (ruta relativa, proyecto, líneas,
+    bytes, estado) y un resumen por estado. Respeta RESTRICTED_PROJECTS: para
+    proyectos restringidos solo registra metadatos de disco (nunca open()).
+    """
+    root = Path(root).resolve()
+    items = []
+    for dirpath, dirnames, filenames in os.walk(root):
+        dirnames[:] = [d for d in dirnames if d not in EXCLUDE_DIRS]
+        rel_dir = Path(dirpath).relative_to(root)
+        if len(rel_dir.parts) > max_depth:
+            dirnames[:] = []
+            continue
+        if 'AGENTS.md' not in filenames:
+            continue
+        ruta_abs = Path(dirpath) / 'AGENTS.md'
+        rel = ruta_abs.relative_to(root)
+        carpeta_raiz = rel.parts[0] if len(rel.parts) > 1 else '(raíz)'
+        proyecto = carpeta_raiz if carpeta_raiz != '(raíz)' else 'Hub raíz'
+        restringido = carpeta_raiz in RESTRICTED_PROJECTS
+        bytes_ = ruta_abs.stat().st_size
+        if restringido:
+            lineas = None
+            estado = 'restringido'
+        else:
+            try:
+                with open(ruta_abs, 'r', encoding='utf-8', errors='replace') as fh:
+                    lineas = sum(1 for _ in fh)
+            except Exception:
+                lineas = None
+            estado = _estado_agents(lineas) if lineas is not None else 'desconocido'
+        items.append({
+            'proyecto': proyecto,
+            'ruta': str(rel),
+            'lineas': lineas,
+            'bytes': bytes_,
+            'estado': estado,
+            'restringido': restringido,
+        })
+
+    items.sort(key=lambda x: (x['lineas'] is None, -(x['lineas'] or 0)))
+    resumen_estados = {'ok': 0, 'aviso': 0, 'critico': 0, 'restringido': 0, 'desconocido': 0}
+    for it in items:
+        resumen_estados[it['estado']] = resumen_estados.get(it['estado'], 0) + 1
+    return {
+        'items': items,
+        'total': len(items),
+        'por_estado': resumen_estados,
+        'umbrales': {'ok_max': AGENTS_OK_MAX, 'warn_max': AGENTS_WARN_MAX},
+    }
+
+
 def job_status():
     with _gov_lock:
         return dict(_gov_job)

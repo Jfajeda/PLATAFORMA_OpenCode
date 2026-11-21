@@ -822,6 +822,10 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
         Salud y Alertas
       </div>
+      <div class="nav-item" data-page="gov-agents" onclick="showPage('gov-agents')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        Tamaño AGENTS.md
+      </div>
 
       <div class="nav-label">Herramientas</div>
       <a class="nav-item" href="/analisis-codigo" target="_blank" rel="noopener noreferrer" style="text-decoration:none;">
@@ -1457,6 +1461,15 @@
   </div>
 </div><!-- /page-gov-salud -->
 
+<div class="page" id="page-gov-agents" style="display:none;position:fixed;top:var(--header-h);left:var(--sidebar-w);right:0;bottom:0;overflow-y:auto;background:var(--gray-100);padding:1.5rem;z-index:10">
+  <div style="max-width:1000px;margin:0 auto">
+    <h2 style="font-family:'Poppins',sans-serif;font-size:1.1rem;font-weight:600;color:var(--gray-900);margin-bottom:0.4rem">Tamaño de los AGENTS.md</h2>
+    <p style="font-size:0.85rem;color:var(--gray-600);margin-bottom:1rem">Los <code>AGENTS.md</code> se cargan completos como contexto en cada sesión de OpenCode. Los archivos muy grandes consumen más tokens. Umbrales: <strong style="color:#0e7a72">OK &lt; 200</strong> · <strong style="color:#b7770d">Aviso 200-500</strong> · <strong style="color:#922b21">Crítico &gt; 500</strong> líneas.</p>
+    <div id="govAgentsResumen" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:0.8rem;margin-bottom:1.5rem"></div>
+    <div id="govAgentsTabla"></div>
+  </div>
+</div><!-- /page-gov-agents -->
+
 <!-- ===== MODAL CREAR/EDITAR TIQUET ===== -->
 <div id="tk-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:500;align-items:center;justify-content:center">
   <div style="background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow-lg);width:100%;max-width:520px;max-height:90vh;overflow-y:auto;padding:1.75rem">
@@ -1659,12 +1672,12 @@
     const tkPage      = document.getElementById('page-tickets');
     const llmAdminPage = document.getElementById('page-llm-admin');
     const mainContent = document.querySelector('.content');
-    const fixedPages  = ['tickets', 'llm-admin', 'gov-proyectos', 'gov-inventario', 'gov-salud'];
+    const fixedPages  = ['tickets', 'llm-admin', 'gov-proyectos', 'gov-inventario', 'gov-salud', 'gov-agents'];
 
     // Reset de las páginas fijas
     if (tkPage)       tkPage.style.display = 'none';
     if (llmAdminPage) llmAdminPage.style.display = 'none';
-    ['gov-proyectos', 'gov-inventario', 'gov-salud'].forEach(id => {
+    ['gov-proyectos', 'gov-inventario', 'gov-salud', 'gov-agents'].forEach(id => {
       const el = document.getElementById('page-' + id);
       if (el) el.style.display = 'none';
     });
@@ -1677,6 +1690,7 @@
       if (pageId === 'gov-proyectos') govLoadProyectos();
       if (pageId === 'gov-inventario') { govLoadResumen(); govLoadInventario(); }
       if (pageId === 'gov-salud') govLoadSalud();
+      if (pageId === 'gov-agents') govLoadAgents();
     } else {
       if (mainContent)  mainContent.style.visibility = 'visible';
       document.getElementById('page-' + pageId).classList.add('active');
@@ -1692,7 +1706,8 @@
       tickets: 'Gestor de Tiquets',
       'gov-proyectos': 'Fichas de Proyectos',
       'gov-inventario': 'Inventario de Gobierno',
-      'gov-salud': 'Salud y Alertas'
+      'gov-salud': 'Salud y Alertas',
+      'gov-agents': 'Tamaño AGENTS.md'
     };
     document.getElementById('pageTitle').textContent = titles[pageId] || pageId;
 
@@ -1839,6 +1854,61 @@
       </div>`).join('');
     } catch (e) {
       srvBox.innerHTML = '<p style="color:#922b21">No se pudo contactar con :5003. ' + e.message + '</p>';
+    }
+  }
+
+  async function govLoadAgents() {
+    const resBox = document.getElementById('govAgentsResumen');
+    const tbBox = document.getElementById('govAgentsTabla');
+    const meta = {
+      ok:         { label: 'OK',         color: '#0e7a72', bg: '#e6f7f6' },
+      aviso:      { label: 'Aviso',      color: '#b7770d', bg: '#fef9e7' },
+      critico:    { label: 'Crítico',    color: '#922b21', bg: '#fdedec' },
+      restringido:{ label: 'Restringido',color: '#4a4a5a', bg: '#f0f0f5' },
+      desconocido:{ label: 'Desconocido',color: '#4a4a5a', bg: '#f0f0f5' }
+    };
+    resBox.innerHTML = '<p style="color:#6b6b7b">Analizando…</p>';
+    tbBox.innerHTML = '';
+    try {
+      const d = await (await fetch(GOV_API + '/agents-size')).json();
+      const pe = d.por_estado || {};
+      const cards = [
+        { k: 'total', label: 'Total', n: d.total, color: '#1275A3', bg: '#e8f4fa' },
+        { k: 'ok', label: 'OK', n: pe.ok || 0, color: meta.ok.color, bg: meta.ok.bg },
+        { k: 'aviso', label: 'Aviso', n: pe.aviso || 0, color: meta.aviso.color, bg: meta.aviso.bg },
+        { k: 'critico', label: 'Crítico', n: pe.critico || 0, color: meta.critico.color, bg: meta.critico.bg }
+      ];
+      resBox.innerHTML = cards.map(c => `<div style="background:${c.bg};border-radius:8px;padding:0.8rem 1rem;box-shadow:0 1px 4px rgba(0,0,0,.06)">
+        <div style="font-family:'Poppins',sans-serif;font-size:1.6rem;font-weight:700;color:${c.color}">${c.n}</div>
+        <div style="font-size:0.72rem;color:#4a4a5a;text-transform:uppercase;letter-spacing:0.5px">${c.label}</div>
+      </div>`).join('');
+
+      const rows = d.items.map(it => {
+        const m = meta[it.estado] || meta.desconocido;
+        const lineas = it.lineas === null ? '—' : it.lineas.toLocaleString('es-ES');
+        const kb = (it.bytes / 1024).toFixed(1) + ' KB';
+        return `<tr style="border-bottom:1px solid #e0e0e8">
+          <td style="padding:0.5rem 0.7rem;font-size:0.8rem;color:#2d2d44">${it.proyecto}</td>
+          <td style="padding:0.5rem 0.7rem;font-size:0.74rem;color:#6b6b7b;font-family:'JetBrains Mono',monospace">${it.ruta}</td>
+          <td style="padding:0.5rem 0.7rem;font-size:0.82rem;font-weight:700;color:${m.color};text-align:right">${lineas}</td>
+          <td style="padding:0.5rem 0.7rem;font-size:0.74rem;color:#6b6b7b;text-align:right">${kb}</td>
+          <td style="padding:0.5rem 0.7rem;text-align:center"><span style="background:${m.bg};color:${m.color};padding:0.15rem 0.6rem;border-radius:50px;font-size:0.68rem;font-weight:700">${m.label}</span></td>
+        </tr>`;
+      }).join('');
+      tbBox.innerHTML = `<div style="background:#fff;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.06);overflow:hidden">
+        <table style="width:100%;border-collapse:collapse">
+          <thead><tr style="background:#1275A3">
+            <th style="padding:0.55rem 0.7rem;text-align:left;font-family:'Poppins',sans-serif;font-size:0.72rem;color:#fff;font-weight:600">Proyecto</th>
+            <th style="padding:0.55rem 0.7rem;text-align:left;font-family:'Poppins',sans-serif;font-size:0.72rem;color:#fff;font-weight:600">Ruta</th>
+            <th style="padding:0.55rem 0.7rem;text-align:right;font-family:'Poppins',sans-serif;font-size:0.72rem;color:#fff;font-weight:600">Líneas</th>
+            <th style="padding:0.55rem 0.7rem;text-align:right;font-family:'Poppins',sans-serif;font-size:0.72rem;color:#fff;font-weight:600">Tamaño</th>
+            <th style="padding:0.55rem 0.7rem;text-align:center;font-family:'Poppins',sans-serif;font-size:0.72rem;color:#fff;font-weight:600">Estado</th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>`;
+    } catch (e) {
+      resBox.innerHTML = '<p style="color:#922b21">No se pudo contactar con :5003. ' + e.message + '</p>';
     }
   }
 

@@ -122,6 +122,12 @@ def gov_resumen():
     return jsonify(gov_scanner.resumen(DB_PATH))
 
 
+@app.route('/api/gov/agents-size', methods=['GET'])
+def gov_agents_size():
+    """Vigilancia de tamaño de los AGENTS.md del ecosistema ~/Proyectos."""
+    return jsonify(gov_scanner.analizar_agents_md(ROOT_DIR))
+
+
 @app.route('/api/gov/inventario', methods=['GET'])
 def gov_inventario():
     import sqlite3
