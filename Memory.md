@@ -229,7 +229,7 @@ App HTML standalone en `Plataforma_Seguimiento_Proyectos/SIG-INTEGRACION/`. Serv
 | `SIG-INTEGRACION/js/modules/sig-tiquets.js` | Vista tiquets integrada del SIG | 181 |
 | `SIG-INTEGRACION/js/modules/sig-correspondencias.js` | Tabla pivot HLS + búsqueda + reload | 160 |
 
-**Versión:** `v20261124d` — corregido 2026-11-24 (bugs modal normas, LAN store.js, proyectos, UX).
+**Versión:** `v20261124g` — corregido 2026-11-24. Fixes: selección de normas con `Set` JS (no DOM); `store.js` usa `window.location.origin`; **bug raíz resuelto** — `<label>` con `<input checkbox>` interno disparaba el clic 2× (add+delete) y vaciaba el Set → cambiado a `<div role="checkbox">` (commit `fa70c62`); meta tags `no-cache` + bump `?v=` para caché Safari/LAN.
 
 ### Endpoints API (14 rutas en server.py)
 

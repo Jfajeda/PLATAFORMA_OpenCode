@@ -878,7 +878,7 @@ App HTML standalone que gestiona proyectos con 2+ normas ISO/ENS sin duplicar as
 | `SIG-INTEGRACION/js/modules/sig-tiquets.js` | Vista tiquets integrada | 181 |
 | `SIG-INTEGRACION/js/modules/sig-correspondencias.js` | Tabla pivot HLS + búsqueda + reload | 160 |
 
-**Versión:** `v20261124d` (corregido 2026-11-24). **Variable Flask:** `SIG_DIR = ROOT_DIR / 'SIG-INTEGRACION'` (fuera de `APP_DIRS`).
+**Versión:** `v20261124g` (corregido 2026-11-24). **Variable Flask:** `SIG_DIR = ROOT_DIR / 'SIG-INTEGRACION'` (fuera de `APP_DIRS`).
 
 ### Endpoints API (14 rutas en server.py)
 
@@ -936,11 +936,19 @@ Color `#5C35A0` (morado), posición final del grid, badge dinámico con contador
 
 3. **Duplicado `8.11` en `ISO27001_hacia_ENS.csv`**: líneas 76-77 tienen el mismo código. La línea 77 debería ser `8.12`. Corregir antes de añadir `UNIQUE` constraint a `sig_correspondencias`.
 
-4. **`store.js` LAN-aware**: usa `window.location.hostname + ':5001'` — NO hardcodear `localhost`.
+4. **`store.js` LAN-aware**: `_apiBase()` usa `${window.location.origin}/api` — NO hardcodear `localhost` ni `hostname:5001` (este último causa `TypeError: Load failed` en Safari/WebKit). Corregido 2026-11-24.
 
 5. **Versiones `app.js` de 6 apps desincronizadas**: RGPD (`v20260923a`), ISO9001 (`v20260917a`), ISO27701/ISO14001/ISO14001-2026/TISAX (`v20260904c`) tienen el código SIG correcto pero versión antigua en `index.html`. Pendiente de bump.
 
 6. **`NORMAS_META`** en `SIG-INTEGRACION/js/app.js`: define las 9 normas con sus `app_id`, nombres, colores y URL. Actualizar si se añade una nueva norma a la Plataforma.
+
+7. **Selección de normas en el modal — estado en `Set`, NO en el DOM**: `App._normasSeleccionadas` (un `Set`) es la fuente de verdad. `_toggleNorma(id)` hace `add`/`delete` y repinta con `_renderNormasCheckboxes()`. `saveSigForm()` y `_loadNormaProjects()` leen `[...this._normasSeleccionadas]`, nunca `querySelectorAll`. Motivo: el DOM del modal se recrea y las clases `.selected` se perdían.
+
+8. **BUG CRÍTICO resuelto — doble disparo de clic (commit `fa70c62`)**: las casillas de normas NO deben ser `<label>` con `<input type="checkbox">` interno. Un `<label>` propaga el clic al checkbox → `onclick` se dispara DOS veces → `_toggleNorma` hace `add` e inmediatamente `delete` → la norma se marca y desmarca al instante (Set siempre vacío). Solución: usar `<div role="checkbox" onclick=...>` sin input interno. **Nunca poner un control con `onclick` propio dentro de un `<label>`.**
+
+9. **NO usar `document.write()` para cargar los scripts** (intento fallido, revertido): carga los módulos de forma asíncrona y desordenada → los overrides de `App.*` en el `<script>` inline se aplican sobre una versión incompleta y `_renderNormasCheckboxes` no pinta. Usar `<script src>` síncronos (orden garantizado) + meta tags `Cache-Control/Pragma/Expires` en el `<head>` para la caché.
+
+10. **Caché Safari/LAN**: `index.html` lleva meta tags `no-cache` + bump `?v=` en todos los `.js`/`.css`. Safari cachea agresivamente: tras cambios, recargar con `Cmd+R` (NO `Cmd+Shift+R`, que rompe la carga de recursos). La navegación privada de Safari bloquea `127.0.0.1` — no sirve para probar.
 
 ## Bugs Seguimiento de Tareas (commits `c3efe81` + `a9c9035`)
 
