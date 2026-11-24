@@ -869,16 +869,17 @@ App HTML standalone que gestiona proyectos con 2+ normas ISO/ENS sin duplicar as
 | `SIG-INTEGRACION/js/app.js` | Router, CRUD, `NORMAS_META` (9 normas) | ~377 |
 | `SIG-INTEGRACION/js/store.js` | Cliente API LAN-aware | ~136 |
 | `SIG-INTEGRACION/css/styles.css` | Paleta morada `#5C35A0` para SIG | ~464 |
-| `SIG-INTEGRACION/js/modules/sig-overview.js` | Dashboard progreso por norma | 127 |
+| `SIG-INTEGRACION/js/modules/sig-overview.js` | Dashboard progreso por norma + 5 KPIs (incl. bloques HLS cumplidos) | ~140 |
+| `SIG-INTEGRACION/js/modules/sig-fases.js` | **Vista Fases consolidada** — Fase 1/2/3 de cada norma lado a lado (proxy) | ~150 |
 | `SIG-INTEGRACION/js/modules/sig-meetings.js` | Reuniones unificadas cross-norma | 208 |
 | `SIG-INTEGRACION/js/modules/sig-tasks.js` | Tareas unificadas cross-norma | 221 |
 | `SIG-INTEGRACION/js/modules/sig-formacion.js` | Formación unificada cross-norma | 188 |
 | `SIG-INTEGRACION/js/modules/sig-documents.js` | Documentos unificados cross-norma | 188 |
 | `SIG-INTEGRACION/js/modules/sig-normas.js` | Gestión de normas miembro | 197 |
 | `SIG-INTEGRACION/js/modules/sig-tiquets.js` | Vista tiquets integrada | 181 |
-| `SIG-INTEGRACION/js/modules/sig-correspondencias.js` | Tabla pivot HLS + búsqueda + reload | 160 |
+| `SIG-INTEGRACION/js/modules/sig-correspondencias.js` | Tabla pivot HLS + búsqueda + reload + **estado HLS conjunto** (estado/responsable/notas) | ~230 |
 
-**Versión:** `v20261124g` (corregido 2026-11-24). **Variable Flask:** `SIG_DIR = ROOT_DIR / 'SIG-INTEGRACION'` (fuera de `APP_DIRS`).
+**Versión:** `v20261124h` (corregido 2026-11-24). **Variable Flask:** `SIG_DIR = ROOT_DIR / 'SIG-INTEGRACION'` (fuera de `APP_DIRS`).
 
 ### Endpoints API (14 rutas en server.py)
 
@@ -949,6 +950,11 @@ Color `#5C35A0` (morado), posición final del grid, badge dinámico con contador
 9. **NO usar `document.write()` para cargar los scripts** (intento fallido, revertido): carga los módulos de forma asíncrona y desordenada → los overrides de `App.*` en el `<script>` inline se aplican sobre una versión incompleta y `_renderNormasCheckboxes` no pinta. Usar `<script src>` síncronos (orden garantizado) + meta tags `Cache-Control/Pragma/Expires` en el `<head>` para la caché.
 
 10. **Caché Safari/LAN**: `index.html` lleva meta tags `no-cache` + bump `?v=` en todos los `.js`/`.css`. Safari cachea agresivamente: tras cambios, recargar con `Cmd+R` (NO `Cmd+Shift+R`, que rompe la carga de recursos). La navegación privada de Safari bloquea `127.0.0.1` — no sirve para probar.
+
+11. **Seguimiento conjunto de Fases + HLS (v20261124h, commit `01651ee`)**:
+    - **Vista Fases** (`sig-fases.js`): muestra Fase 1/2/3 de cada norma leyendo el proxy existente `/api/sig/<sig>/norma/<app>/phase/<key>`. El mapa `FASES_SIG` traduce la clave de fase por norma (ISO27001/ENS/etc. usan `phase1/2/3`; ISO9001/ISO14001 usan `gap/implementation/audit`). Es solo lectura.
+    - **Estado HLS conjunto** (`sig-correspondencias.js`): cada bloque HLS tiene estado (`pendiente`/`en_curso`/`cumplido`) + responsable + notas, guardado **solo en el SIG** vía `POST /api/sig/<sig>/phase/hls_seguimiento` (tabla `sig_phase_data`, clave libre). NO propaga a las apps ISO. Un bloque cumplido cubre todas las normas que mapean a ese HLS (principio SIG).
+    - **No requiere backend nuevo ni cambios en BD** — reutiliza los endpoints genéricos existentes. El estado se persiste como `{ items: { [hls_id]: {estado, responsable, notas, updated_at} } }`.
 
 ## Bugs Seguimiento de Tareas (commits `c3efe81` + `a9c9035`)
 
