@@ -229,7 +229,7 @@ App HTML standalone en `Plataforma_Seguimiento_Proyectos/SIG-INTEGRACION/`. Serv
 | `SIG-INTEGRACION/js/modules/sig-tiquets.js` | Vista tiquets integrada del SIG | 181 |
 | `SIG-INTEGRACION/js/modules/sig-correspondencias.js` | Tabla pivot HLS + búsqueda + reload | 160 |
 
-**Versión:** `v20261020a` — todos los archivos congelados a 2026-10-20.
+**Versión:** `v20261124d` — corregido 2026-11-24 (bugs modal normas, LAN store.js, proyectos, UX).
 
 ### Endpoints API (14 rutas en server.py)
 

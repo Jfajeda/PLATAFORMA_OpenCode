@@ -878,7 +878,7 @@ App HTML standalone que gestiona proyectos con 2+ normas ISO/ENS sin duplicar as
 | `SIG-INTEGRACION/js/modules/sig-tiquets.js` | Vista tiquets integrada | 181 |
 | `SIG-INTEGRACION/js/modules/sig-correspondencias.js` | Tabla pivot HLS + búsqueda + reload | 160 |
 
-**Versión:** `v20261020a`. **Variable Flask:** `SIG_DIR = ROOT_DIR / 'SIG-INTEGRACION'` (fuera de `APP_DIRS`).
+**Versión:** `v20261124d` (corregido 2026-11-24). **Variable Flask:** `SIG_DIR = ROOT_DIR / 'SIG-INTEGRACION'` (fuera de `APP_DIRS`).
 
 ### Endpoints API (14 rutas en server.py)
 
@@ -1124,6 +1124,66 @@ CORS restringido, rate-limit. **Credenciales hardcodeadas en Legislación :8080*
 (`codanor`/`legislacion2026` en `web/app.py`) — registrar/corregir en Oleada 2.
 Documentación: `PLAN-GOBIERNO-MONITORIZACION-PROYECTOS-V01.{md,html}`.
 
+## Módulo Auditor de Skills (v1.0 — 2026-11-22)
+
+### Descripción
+
+Audita la seguridad de un skill OpenCode/Claude **antes de usarlo**, para asegurar
+todo lo que se gestiona en `~/Proyectos/**`. El veredicto OFICIAL lo produce un motor
+determinista en Python (reproducible); el skill de IA `auditor-skills` emite un segundo
+veredicto (revisión semántica). Veredictos: 🔴 `RECHAZADO` · 🟡 `CUARENTENA` · 🟢 `PUEDE_USAR`.
+
+### Arquitectura — vive en `dashboard_server.py` (:5003), BD propia `gov.db`
+
+| Fichero | Rol |
+|---|---|
+| `servidor/skill_auditor.py` | Motor determinista. Análisis estático de las 8 áreas, veredicto, SHA-256, descubrimiento de skills. **NUNCA ejecuta nada ni accede a la red.** |
+| `servidor/dashboard_server.py` | 4 endpoints `/api/audit/*` + renderizador del informe HTML corporativo |
+| `servidor/gov_scanner.py` | `init_db()` crea la tabla `audit_skills` |
+| `.opencode/skills/auditor-skills/SKILL.md` | Skill IA (capa semántica) — **archivo protegido** |
+
+### Endpoints (4)
+
+`GET /api/audit/skills` (descubre skills bajo `~/Proyectos/**/.opencode/skills/`) ·
+`POST /api/audit/scan` (audita una ruta validada, guarda en `gov.db`) ·
+`GET /api/audit/report/<id>` (JSON) · `GET /api/audit/report/<id>/html`
+(informe "Análisis Skill — &lt;nombre&gt;", convertible a Word con Imprimir/PDF).
+
+### Reglas CRÍTICAS del módulo
+
+1. **El auditor debe ser SEGURO él mismo.** `skill_auditor.py` solo abre ficheros en
+   lectura de texto, con límite de tamaño; NUNCA ejecuta scripts, NUNCA sigue URLs ni
+   hace red. Binarios/comprimidos no se abren (se marcan "no auditable").
+2. **Anti path-traversal.** Toda ruta se valida con `resolve()` + `is_relative_to(ROOT_DIR)`;
+   fuera de `~/Proyectos` → 403. Cada fichero se re-valida (bloquea symlinks).
+3. **Ámbito de reglas por tipo de fichero.** En código (`.py/.sh/.js`) todas las reglas a
+   severidad plena; en Markdown/texto documental las reglas de ejecución/ficheros se
+   degradan a `baja` (mención ≠ ejecución). Evita falsos positivos en documentación.
+4. **Veredicto determinista por severidad:** ≥1 crítico → RECHAZADO; ≥1 alto o sin
+   SKILL.md → CUARENTENA; resto → PUEDE_USAR. Pesos: crítica=100, alta=25, media=8, baja=2.
+5. **`NET_ALLOWLIST`** (fonts.googleapis.com, cdnjs, jsdelivr…) y **`TRUSTED_SKILLS`**
+   (skills internos CODANOR verificados) reducen ruido; editables en `skill_auditor.py`.
+6. **Respeta `RESTRICTED_PROJECTS`** (OSSINT): no audita su contenido, solo metadatos.
+7. **Rutas relativas en el frontend** (`/api/audit/*`) porque la API vive en el mismo
+   :5003 que sirve el HTML. Página `#page-audit-skills` en el array `fixedPages`.
+8. **Registro ISO 27001 A.8.15:** cada auditoría se anota en `gov_auditoria` vía
+   `gov_scanner.auditar()`.
+
+### Carpeta de cuarentena
+
+`~/Proyectos/_skills_entrantes/` es la zona recomendada para dejar skills descargados
+de Internet **antes de instalarlos**. `descubrir_skills()` la lista aparte (badge
+"CUARENTENA" en la UI). **Nunca ampliar `ROOT_DIR` fuera de `~/Proyectos`**: con el
+servidor en `0.0.0.0:5003`, hacerlo convertiría el auditor en un lector remoto de
+ficheros del PC por toda la LAN (brecha de confidencialidad, ISO 27001 A.8.3 / RGPD).
+Para auditar algo externo, cópialo a la cuarentena; no cambies la raíz.
+
+### Menú en el Dashboard
+
+Sidebar "SEGURIDAD Y GOBIERNO" → **"Auditor de Skills"** (`showPage('audit-skills')`).
+Permite auditar skills detectados o una **ruta arbitraria** dentro de `~/Proyectos`
+(p. ej. un skill recién descargado antes de instalarlo, dejado en `_skills_entrantes/`).
+
 ## Archivos protegidos — NO modificar sin aprobación explícita
 
 Los siguientes archivos son de referencia corporativa. El agente NO debe
@@ -1132,6 +1192,7 @@ modificarlos sin confirmación explícita del usuario en cada sesión.
 | Archivo | Motivo |
 |---|---|
 | `.opencode/commands/documentos-proyectos.md` | Plantilla base imagen corporativa CODANOR — documento de referencia |
+| `.opencode/skills/auditor-skills/SKILL.md` | Skill de auditoría de seguridad — lógica de veredicto, no alterar sin revisión |
 | `Manual_OpenCode_Codanor.html` | Documento base de referencia visual — fuente de verdad del diseño |
 | `AGENTS.md` | Instrucciones del agente — este mismo archivo |
 | `PROPAGATION_RULES.md` | Reglas de propagación entre las 9 apps ISO/ENS |
